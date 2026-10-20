@@ -1,0 +1,258 @@
+.app-shell.ant-layout {
+  min-height: 100vh;
+}
+
+.sidebar.ant-layout-sider {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid #e0e5d7;
+  background: #fdfefb;
+}
+
+.sidebar .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  padding: 28px 16px 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 10px 30px;
+  color: #3e5534;
+  font-size: 29px;
+  font-weight: 650;
+  letter-spacing: -1.4px;
+  text-decoration: none;
+}
+
+.brand-symbol {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 11px 3px 11px 3px;
+  color: #fff;
+  background: #476b3c;
+}
+
+.brand-word > span {
+  font-weight: 400;
+}
+
+.farm-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 10px;
+  margin-bottom: 30px;
+  border: 1px solid #e1e7d7;
+  border-radius: 8px;
+}
+
+.farm-selector .ant-avatar {
+  color: #7b8a64;
+  background: #edf1e4;
+  flex-shrink: 0;
+}
+
+.sidebar-label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.sidebar-label .ant-typography,
+.sidebar-label > span {
+  font-size: 14px;
+}
+
+.sidebar-label strong {
+  font-size: 15px;
+  font-weight: 550;
+}
+
+.nav-caption.ant-typography {
+  padding-left: 15px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  letter-spacing: 1.4px;
+  color: #8b967d;
+}
+
+.sidebar .ant-menu {
+  border-inline-end: 0 !important;
+  background: transparent;
+}
+
+.sidebar .ant-menu-item {
+  margin-inline: 0;
+  width: 100%;
+  padding-left: 15px !important;
+}
+
+.sidebar .ant-menu-title-content {
+  font-size: 15px;
+}
+
+.sidebar .ant-menu-item-selected {
+  font-weight: 550;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding-top: 40px;
+}
+
+.season-card.ant-card {
+  margin-bottom: 20px;
+  background: linear-gradient(140deg, #f0f3e7, #f9f9f0);
+  border-color: #e2e8d6;
+  color: #7c8c65;
+}
+
+.season-card .ant-typography {
+  font-size: 14px;
+}
+
+.season-card h5.ant-typography {
+  margin-top: 12px;
+  font-size: 17px;
+  font-weight: 550;
+}
+
+.profile.ant-btn {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  height: auto;
+  padding: 22px 8px;
+  margin-top: 12px;
+  border-top: 1px solid #e5eadb;
+  border-radius: 0;
+}
+
+.ant-avatar {
+  color: #73674e;
+  background: #eae4d5;
+}
+
+.workspace.ant-layout {
+  min-width: 0;
+}
+
+.topbar.ant-layout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 80px;
+  padding: 0 36px;
+  border-bottom: 1px solid #e4e8dc;
+  background: #fdfefb;
+  line-height: normal;
+}
+
+.topbar .ant-breadcrumb {
+  font-size: 15px;
+}
+
+.main-content.ant-layout-content {
+  width: 100%;
+  max-width: 1900px;
+  min-width: 0;
+  padding: 8px 36px 0;
+  margin-inline: auto;
+}
+
+.page-footer.ant-layout-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 28px 0;
+  color: #81906f;
+  font-size: 14px;
+  background: transparent;
+}
+
+.sidebar.ant-layout-sider-collapsed .brand-word,
+.sidebar.ant-layout-sider-collapsed .sidebar-label,
+.sidebar.ant-layout-sider-collapsed .nav-caption,
+.sidebar.ant-layout-sider-collapsed .season-card {
+  display: none;
+}
+
+.sidebar.ant-layout-sider-collapsed .ant-layout-sider-children {
+  padding-inline: 10px;
+}
+
+.sidebar.ant-layout-sider-collapsed .brand {
+  margin-inline: 8px;
+}
+
+.sidebar.ant-layout-sider-collapsed .brand-symbol {
+  width: 36px;
+  height: 38px;
+}
+
+.sidebar.ant-layout-sider-collapsed .farm-selector {
+  justify-content: center;
+  padding: 8px 0;
+  border: 0;
+}
+
+.sidebar.ant-layout-sider-collapsed .ant-menu-item {
+  padding-left: 18px !important;
+}
+
+.sidebar.ant-layout-sider-collapsed .profile {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+@media (max-width: 1100px) {
+  .sync-status {
+    display: none;
+  }
+
+  .main-content.ant-layout-content {
+    padding-inline: 24px;
+  }
+
+  .topbar.ant-layout-header {
+    padding-inline: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content.ant-layout-content {
+    padding-inline: 16px;
+  }
+
+  .topbar.ant-layout-header {
+    height: 70px;
+    padding-inline: 16px;
+  }
+
+  .topbar .ant-breadcrumb {
+    font-size: 14px;
+  }
+
+  .topbar > .ant-space > .ant-space-item:last-child {
+    display: none;
+  }
+
+  .page-footer > span {
+    display: none;
+  }
+}

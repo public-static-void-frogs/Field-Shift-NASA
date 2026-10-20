@@ -1,0 +1,82 @@
+# Terrafield
+
+A frontend crop field management dashboard built with React, TypeScript, Vite, Ant Design, and Lucide icons.
+
+## Run
+
+```sh
+npm install
+npm run dev
+```
+
+Open the local URL printed by Vite.
+
+```sh
+npm run build
+npm run preview
+```
+
+## Project structure
+
+```text
+src/
+  app/           Application providers, route rendering, shared state, and theme
+  components/    Shared UI grouped by fields, map, weather, layout, and common UI
+  data/          Frontend field, parcel, weather, and recommendation data
+  hooks/         Farm state access and hash-based page navigation
+  pages/         Dedicated screens for each route
+  styles/        Global, application layout, and dashboard styles
+  types/         Shared domain and navigation types
+  main.tsx       Application entry point
+```
+
+Field details use dedicated routes such as `#/fields/4`. Adding fields uses
+`#/map/add` and `#/map/add/6`. Navigation supports direct links, refresh, and
+browser back/forward without server routing configuration. Settings, help,
+and notifications also have their own pages. Removal uses an inline confirmation.
+The app does not use modals.
+
+Typography and library colors are centralized in `src/app/theme.ts`: body text
+is 16px, supporting text is 14px, and controls are 42px tall. Custom CSS is limited
+to layout, the illustrated map, and the existing green and cream visual treatment.
+The `.editorconfig` file defines two-space indentation and consistent line endings.
+Field agronomy profiles and land history are defined in `src/data/fieldProperties.ts`
+and `src/data/landHistory.ts`. Status tags use explicit semantic foreground and
+background colors in the shared theme for readable contrast.
+Hardcoded spatial health profiles live in `src/data/fieldHealth.ts`. The heatmap
+interpolates these local values into a continuous overlay and uses the same parcel
+geometry and shared `MapTerrain` component as the main farm map.
+
+## Explore
+
+- **Overview:** farm totals, selectable field map, crop health, weather outlook, and field recommendations.
+- **Field map:** pan, zoom, recenter, switch layers, select a field, or add an available parcel.
+- **My fields:** search and filter fields by crop or health status. Each field page starts with a red-to-green health heatmap clipped to its parcel boundary, selectable inspection zones, an overlay toggle, zoom/pan controls, and an area breakdown. Below it are plain-language health indicators, a simulated generated summary, and full-width crop, soil, and land/water properties. Each field includes notes, removal controls, and a land history with searchable activity records, year/category filters, and a crop-rotation table for 2023–2026.
+- **Environment history:** current conditions, trend charts, and 7-, 30-, or 90-day weather logs.
+- **Finance [Beta]:** select fields to compare seasonal revenue, operating budgets, and margins. Compare regional crop buyers after transport and local input prices. Open a field for its financial assumptions, cost breakdown, rotation scenarios, land acquisition estimate, and written AI-style outlook.
+
+All values and recommendations are defined in the frontend. Field changes and notes live in React state and reset on refresh. No backend, credentials, map services, or AI services are required.
+
+## Offline dependency packages
+
+`vendor/` contains npm package archives copied from locally installed packages because the package registry was unavailable during setup. `package.json` and the lockfile use these archives for Ant Design, Lucide, and their dependencies, keeping the project self-contained. Keep this directory when sharing the source.
+
+## Finance estimates
+
+Open `#/finance` for the farm overview or `#/finance/fields/4` for a field’s
+financial page. The current demo uses Central Iowa, USD, and the 2026 season.
+All market offers, input prices, field budgets, yield estimates, purchase assumptions,
+and AI explanations are hardcoded in `src/data/finance.ts`. Calculations run only
+in the frontend; no market feed, backend, or AI service is called.
+
+Revenue uses expected production multiplied by the selling price after transport.
+Operating margins exclude land financing. Rotation estimates include a switching
+allowance; land purchase estimates show the down payment, closing costs, and an
+interest-only financing scenario separately. All budgets reflect the fields
+currently in the workspace, including newly added parcels.
+
+Run the finance arithmetic checks with Node.js 22.6 or later:
+
+```sh
+npm run test:finance
+```
