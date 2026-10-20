@@ -52,6 +52,7 @@ geometry and shared `MapTerrain` component as the main farm map.
 - **Overview:** farm totals, selectable field map, crop health, weather outlook, and field recommendations.
 - **Field map:** pan, zoom, recenter, switch layers, select a field, or add an available parcel.
 - **My fields:** search and filter fields by crop or health status. Each field page starts with a red-to-green health heatmap clipped to its parcel boundary, selectable inspection zones, an overlay toggle, zoom/pan controls, and an area breakdown. Below it are plain-language health indicators, a simulated generated summary, and full-width crop, soil, and land/water properties. Each field includes notes, removal controls, and a land history with searchable activity records, year/category filters, and a crop-rotation table for 2023–2026.
+- **Calendar:** an Ant Design month/year calendar with field and action filters, a compact selected-day agenda, and a searchable table. Primary action buttons open dedicated detail pages with scheduling, rationale, and current field conditions. Date selection preserves the page scroll position.
 - **Environment history:** current conditions, trend charts, and 7-, 30-, or 90-day weather logs.
 - **Finance [Beta]:** select fields to compare seasonal revenue, operating budgets, and margins. Compare regional crop buyers after transport and local input prices. Open a field for its financial assumptions, cost breakdown, rotation scenarios, land acquisition estimate, and written AI-style outlook.
 
@@ -79,4 +80,20 @@ Run the finance arithmetic checks with Node.js 22.6 or later:
 
 ```sh
 npm run test:finance
+```
+
+## Crop rotation and system planning
+
+Field pages feature a prominent crop rotation suggestion with a two-season outlook,
+confidence, supporting field stats, and a calculated planting window. Dates link to
+`#/calendar/YYYY-MM-DD` with optional field/event filters. Action details use
+`#/calendar/actions/:eventId`.
+
+Planning fixtures live in `src/data/planning.ts`; planting date adjustments use the
+fixed soil pH and moisture values through `src/utils/planningDates.ts`. ML predictions,
+confidence, rationale, and system schedules are frontend fixtures. The planning clock
+is fixed to May 24, 2026 to match the rest of the growing-season demo.
+
+```sh
+npm run test:planning
 ```

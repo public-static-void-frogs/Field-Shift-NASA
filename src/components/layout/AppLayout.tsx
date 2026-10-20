@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Avatar, Badge, Breadcrumb, Button, Card, Flex, Layout, Menu, Space, Tooltip, Typography } from 'antd';
-import { Bell, CircleHelp, CircleDollarSign, History, LayoutDashboard, Map, Settings2, Sprout, Wheat } from 'lucide-react';
+import { Bell, CircleHelp, CircleDollarSign, CalendarDays, History, LayoutDashboard, Map, Settings2, Sprout, Wheat } from 'lucide-react';
 import { useFarm } from '../../hooks/useFarm';
 import type { Navigate } from '../../types/navigation';
 
@@ -23,6 +23,11 @@ const mainItems = [
     icon: <Sprout size={21} />
   },
   {
+    key: '/calendar',
+    label: 'Calendar',
+    icon: <CalendarDays size={21} />
+  },
+  {
     key: '/finance',
     label: 'Finance [Beta]',
     icon: <CircleDollarSign size={21} />
@@ -40,6 +45,7 @@ const labels: Record<string, string> = {
   '/fields': 'My fields',
   '/history': 'Environment history',
   '/finance': 'Finance [Beta]',
+  '/calendar': 'Calendar',
   '/settings': 'Settings',
   '/help': 'Help & resources',
   '/notifications': 'Notifications',
@@ -47,7 +53,7 @@ const labels: Record<string, string> = {
 
 export function AppLayout({ path, navigate, children }: { path: string; navigate: Navigate; children: ReactNode; }) {
   const { fields, preferences } = useFarm();
-  const active = path.startsWith('/finance') ? '/finance' : path.startsWith('/fields') ? '/fields' : path.startsWith('/map') ? '/map' : path;
+  const active = path.startsWith('/calendar') ? '/calendar' : path.startsWith('/finance') ? '/finance' : path.startsWith('/fields') ? '/fields' : path.startsWith('/map') ? '/map' : path;
   const breadcrumbItems = [{ title: 'Workspace' }, {
     title: <a href={`#${active}`}>
       {labels[active] || 'My fields'}

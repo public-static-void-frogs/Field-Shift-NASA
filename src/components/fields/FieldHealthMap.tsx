@@ -96,7 +96,9 @@ export function FieldHealthMap({ field }: { field: Field }) {
             <g clipPath={`url(#${prefix}-field-clip)`}>
               {showOverlay && (
                 <g filter={`url(#${prefix}-smooth)`} opacity="0.96" aria-hidden="true">
-                  {map.cells.map((cell, index) => <rect key={index} x={cell.x} y={cell.y} width={map.cellWidth + 0.1} height={map.cellHeight + 0.1} fill={cell.color} />)}
+                  {map.cells.map((cell, index) => (
+                    <rect key={index} x={cell.x} y={cell.y} width={map.cellWidth + 0.1} height={map.cellHeight + 0.1} fill={cell.color} />
+                  ))}
                 </g>
               )}
               <polygon points={geometry.points} fill={`url(#${prefix}-crop-rows)`} />

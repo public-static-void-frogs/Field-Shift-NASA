@@ -8,13 +8,15 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:finance": "node --experimental-strip-types --test tests/finance.test.mjs"
+    "test:finance": "node --experimental-strip-types --test tests/finance.test.mjs",
+    "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "antd": "file:vendor/antd-6.6.6.tgz",
-    "lucide-react": "file:vendor/lucide-react-1.49.0.tgz"
+    "lucide-react": "file:vendor/lucide-react-1.49.0.tgz",
+    "dayjs": "file:vendor/dayjs-1.11.23.tgz"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
@@ -42,7 +44,7 @@
     "clsx": "file:vendor/clsx-2.1.1.tgz",
     "compute-scroll-into-view": "file:vendor/compute-scroll-into-view-3.1.1.tgz",
     "csstype": "file:vendor/csstype-3.2.3.tgz",
-    "dayjs": "file:vendor/dayjs-1.11.23.tgz",
+    "dayjs": "$dayjs",
     "@emotion/hash": "file:vendor/emotion-hash-0.8.0.tgz",
     "@emotion/unitless": "file:vendor/emotion-unitless-0.7.5.tgz",
     "is-mobile": "file:vendor/is-mobile-5.0.0.tgz",

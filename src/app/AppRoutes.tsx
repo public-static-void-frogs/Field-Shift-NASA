@@ -1,6 +1,8 @@
 import { Button, Result } from 'antd';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useRoute } from '../hooks/useRoute';
+import { ActionDetailsPage } from '../pages/ActionDetailsPage';
+import { CalendarPage } from '../pages/CalendarPage';
 import { AddFieldPage } from '../pages/AddFieldPage';
 import { FieldDetailsPage } from '../pages/FieldDetailsPage';
 import { FinancePage } from '../pages/FinancePage';
@@ -14,7 +16,11 @@ import { OverviewPage } from '../pages/OverviewPage';
 import { SettingsPage } from '../pages/SettingsPage';
 
 export function AppRoutes() {
-  const { path, navigate } = useRoute();
+  const { path: route, navigate } = useRoute();
+  const [path, search = ''] = route.split('?');
+  const params = new URLSearchParams(search);
+  const actionRoute = path.match(/^\/calendar\/actions\/([^/]+)$/);
+  const calendarRoute = path.match(/^\/calendar(?:\/(\d{4}-\d{2}-\d{2}))?$/);
   const fieldRoute = path.match(/^\/fields\/(\d+)$/);
   const financeRoute = path.match(/^\/finance\/fields\/(\d+)$/);
   const addRoute = path.match(/^\/map\/add\/(\d+)$/);
@@ -32,7 +38,19 @@ export function AppRoutes() {
 
   let page;
 
-  if (financeRoute) {
+  if (actionRoute) {
+    page = <ActionDetailsPage eventId={actionRoute[1]} />;
+  } else if (calendarRoute) {
+    const fieldFilter = Number(params.get('field'));
+    page = (
+      <CalendarPage
+        navigate={navigate}
+        date={calendarRoute[1]}
+        fieldId={fieldFilter > 0 ? fieldFilter : undefined}
+        eventId={params.get('event') ?? undefined}
+      />
+    );
+  } else if (financeRoute) {
     page = <FieldFinancePage key={path} fieldId={Number(financeRoute[1])} navigate={navigate} />;
   } else if (fieldRoute) {
     page = (

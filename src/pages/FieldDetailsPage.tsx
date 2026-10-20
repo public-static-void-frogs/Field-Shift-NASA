@@ -7,6 +7,7 @@ import { FieldRecommendation } from '../components/fields/FieldRecommendation';
 import { FieldStatus } from '../components/fields/FieldStatus';
 import { FieldProperties } from '../components/fields/FieldProperties';
 import { LandHistory } from '../components/fields/LandHistory';
+import { CropRotationPlan } from '../components/fields/CropRotationPlan';
 import { FieldHealthMap } from '../components/fields/FieldHealthMap';
 import { getFieldProperties } from '../data/fieldProperties';
 import type { Navigate } from '../types/navigation';
@@ -64,7 +65,7 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
         title={field.name}
         description={`${field.crop} · ${field.area} hectares · ${getFieldProperties(field.id).soilType}`}
         eyebrow={`${preferences.farmName.toUpperCase()} · FIELD ${String(field.id).padStart(2, '0')}`}
-        actions={<Space wrap><FieldStatus status={field.status} /><Button icon={<CircleDollarSign size={19} />} onClick={() => navigate(`/finance/fields/${field.id}`)}>View finances</Button></Space>}
+        actions={<Space wrap><FieldStatus status={field.status} /><Button type="primary" icon={<Sprout size={19} />} onClick={() => document.getElementById('crop-rotation-plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Rotation plan</Button><Button icon={<CircleDollarSign size={19} />} onClick={() => navigate(`/finance/fields/${field.id}`)}>View finances</Button></Space>}
       />
       <FieldHealthMap key={field.id} field={field} />
       <Flex
@@ -97,6 +98,7 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
         ))}
       </section>
       <div className="field-detail-stack">
+        <CropRotationPlan field={field} />
         <FieldRecommendation key={field.id} field={field} />
         <FieldProperties field={field} />
         <Card title="Field notes">
