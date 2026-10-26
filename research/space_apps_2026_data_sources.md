@@ -1,6 +1,6 @@
 # NASA Space Apps 2026: Data Source Guide
 
-Prepared 18 Oct 2026 for two challenges (updated 23 Oct 2026: added section 2E for soil-depletion reconstruction and corrected rows 1, 5–7, 9, 12, 15, 17, 19 and 22):
+Prepared 18 Oct 2026 for two challenges (updated 23 Oct 2026: added section 2E for soil-depletion reconstruction and corrected rows 1, 5–7, 9, 12, 15, 17, 19 and 22; updated 26 Oct 2026: section 2A rewritten from [`weather_climate.md`](weather_climate.md), which adds sources #57–126, and row 47 corrected):
 1. **Harmonization of MODIS and VIIRS Hot Spots**
 2. **Field Shift: Adapting Farms with NASA Data**
 
@@ -75,11 +75,24 @@ The title and event coverage describe this as a climate-resilient agriculture ch
 
 ### 2A. Weather and climate (agroclimatology)
 
+The full list is in [`weather_climate.md`](weather_climate.md): 70 more sources (#57–126) by region, station ground truth, a US validation pilot against reference stations, and a per-country stack. The rows below are the ones to start with.
+
 | # | Source | Link | Description | Rough size | Application | Priority |
 |---|---|---|---|---|---|---|
-| 1 | **NASA POWER** (Agroclimatology) | https://power.larc.nasa.gov ; API: https://power.larc.nasa.gov/docs/services/api/ ; cloud copy: https://registry.opendata.aws/nasa-power/ | 380+ analysis-ready parameters (temperature, rain, humidity, wind, solar radiation) at hourly, daily, monthly and climatology scales. Daily meteorology from 1981 on a ~0.5° × 0.625° grid; solar from 1984 on a 1° grid (CERES; recent solar values are delayed). Free, no key. Zarr and NetCDF stores on AWS. | Single-point daily series: KB. Full archive: hundreds of GB to TB | Fastest way to get a 40-year farm-level climate baseline, growing-degree days, heat and frost events | ★★★ |
-| 2 | **MERRA-2 reanalysis** | https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/ (data via GES DISC: https://disc.gsfc.nasa.gov) | Global atmospheric reanalysis, 1980 to present, ~50 km | Very large (hundreds of TB total). Use subsets | Source dataset behind POWER. Use directly for extra variables | ★ |
-| 3 | **NASA NEX-GDDP-CMIP6** | https://www.nccs.nasa.gov/services/data-collections/land-based-products/nex-gddp-cmip6 ; https://registry.opendata.aws/nex-gddp-cmip6/ | Downscaled (0.25°) daily climate projections from many CMIP6 models and scenarios, to 2100 | Tens of TB total. One variable, one model and scenario: a few GB | The "adapting" part: how temperature and rain extremes will change for a crop region | ★★★ |
+| 1 | **NASA POWER** (Agroclimatology) | https://power.larc.nasa.gov ; API: https://power.larc.nasa.gov/docs/services/api/ ; cloud copy: https://registry.opendata.aws/nasa-power/ | Analysis-ready parameters (temperature, rain, humidity, 2 m wind, solar radiation) at hourly, daily, monthly and climatology scales; API v2.10.1, data v10. Daily meteorology from 1981 on a ~0.5° × 0.625° grid: MERRA-2, then GEOS-IT for recent days, so ~5 days behind real time. Solar from 1984 on a 1° grid (SRB, CERES SYN1deg, FLASHFlux), ~7 days behind. Free, no key. **No FAO-56 ET0 parameter:** compute it from POWER's inputs. **Bug seen 26 Oct 2026:** a daily request that reaches GEOS-IT days returns precipitation ×24 for every day in the request; end requests at the last MERRA-2 month | Single-point daily series: KB. Full archive: hundreds of GB to TB | Keyless 40-year baseline; best solar of five products in the US pilot; FAO-56 inputs. Nights run ~1 °C warm, so correct Tmin before frost dates and GDD | ★★★ |
+| 2 | **MERRA-2 reanalysis** | https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/ (data via GES DISC: https://disc.gsfc.nasa.gov) | Global atmospheric reanalysis, 1980 to present, ~50 km. Still produced (data through Sep 2026); no successor released | Very large (hundreds of TB total). Use subsets | Source dataset behind POWER. Use through POWER | ★ |
+| 3 | **NASA NEX-GDDP-CMIP6 v2.0** | https://www.nccs.nasa.gov/services/data-collections/land-based-products/nex-gddp-cmip6 ; S3: `s3://nex-gddp-cmip6` ; NCCS THREDDS | Downscaled (BCSD against GMFD) 0.25° daily projections, 1950–2100, 90°N–60°S, SSP1-2.6/2-4.5/3-7.0/5-8.5, 35 configurations of 34 GCMs. v2.0 (Jul 2025) is only on S3 and THREDDS; the GEE and Planetary Computer copies are stale v1.x. No ET0; some models lack variables (CMCC-CM2-SR5 has no temperatures) | Tens of TB total. One variable, one model and scenario: a few GB | The "adapting" part: monthly deltas on an observed baseline for 2021–2040 and 2041–2060 | ★★★ |
+| 57 | **ERA5 / ERA5T** **(non-NASA: Copernicus)** | https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels ; ARCO Zarr `gs://gcp-public-data-arco-era5` | Hourly reanalysis, 0.25°, 1940 to ~5 days ago | Point series: MB | Current-season weather. Nights ~1.3 °C warm and ~29% too many wet days in the US pilot | ★★ |
+| 59 | **TerraClimate** **(non-NASA)** | THREDDS: http://thredds.northwestknowledge.net:8080/thredds/catalog/TERRACLIMATE_ALL/data/catalog.html | Monthly ~4 km T, rain, Penman-Monteith PET, water deficit, 1950–2025. Keyless, CC0 | KB per point | Simplest RothC driver: pan evaporation = PET / 0.75 | ★★★ |
+| 61 | **CHIRPS v3** **(non-NASA)** | https://data.chc.ucsb.edu/products/CHIRPS/v3.0/ | Rain 0.05°, 1981→, 60°S–60°N (v2 stops at 50°N) | MB per region | Gauge-blended rain where no national grid exists | ★★ |
+| 71 | **gridMET** **(non-NASA)** | THREDDS: http://thredds.northwestknowledge.net:8080/thredds/ ; GEE `IDAHO_EPSCOR/GRIDMET` | US daily 4 km: T, rain, RH, solar, wind, grass ET0; 1979 to 2 days ago. Keyless | KB per point | US daily weather. ET0 reads ~8% high in the pilot | ★★★ |
+| 72 | **Daymet V4R1** (NASA ORNL DAAC) | https://daymet.ornl.gov/single-pixel/ | North America daily 1 km: T, rain, solar, vapour pressure; 1980–2025. No wind | KB per point | US and Canada baseline: frost dates within days in the pilot | ★★★ |
+| 77 | **CERRA** **(non-NASA: Copernicus)** | https://cds.climate.copernicus.eu/datasets/reanalysis-cerra-single-levels | European reanalysis, 5.5 km, incl. Ukraine; 1984-09 to 2026-07 | Point series: MB | Europe and Ukraine recent years | ★★★ |
+| 84 | **ClimUAd** **(non-NASA: UHMI)** | https://uhmi.org.ua/ | Ukraine daily 0.1° T and rain from 178 stations, 1946–2020 | MB | Ukraine 1991–2020 baseline | ★★ |
+| 90 | **USCRN** **(non-NASA: NOAA)** | https://www.ncei.noaa.gov/pub/data/uscrn/products/ | ~157 US reference stations: T, rain, solar, RH, wind (5-min) | KB per station-year | Ground truth for the US validation | ★★★ |
+| 91, 92 | **GHCN-Daily / GHCNh** **(non-NASA: NOAA)** | https://www.ncei.noaa.gov/access/services/data/v1 ; https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly | Global station daily and hourly data, keyless. ISD and GSOD stopped updating in Aug 2025 | KB per station | Validation everywhere else | ★★★ |
+| 107 | **World Bank CCKP CMIP6** **(non-NASA)** | `s3://wbg-cckp/data/cmip6-x0.25/` | Pre-computed 0.25° future indices from NEX-GDDP: frost days, hot days > 30/35 °C, growing-season length, SPEI-12; 20-year windows, all SSPs, ensemble percentiles | ~8 MB per layer | Zero-compute future-climate layer for the demo | ★★★ |
+| 120, 126 | **Open-Meteo** (seasonal, forecast and archive APIs) **(non-NASA)** | https://open-meteo.com/en/docs | Keyless ERA5, ECMWF IFS and SEAS5 data, incl. FAO-56 ET0. Free tier is non-commercial | KB per call | Hackathon demo: current season and seasonal outlook | ★★ |
 
 ### 2B. Water: rain, soil moisture, groundwater, evapotranspiration
 
@@ -176,7 +189,7 @@ These coefficients are compiled per crop in `crop_coefficients.csv` (24 crops). 
 | 44 | **RothC soil carbon model** **(non-NASA: Rothamsted)** | Code: https://github.com/Rothamsted-Models/RothC_Code ; https://www.rothamsted.ac.uk/rothamsted-carbon-model-rothc ; Python ports: pyRothC (PyPI) †, CoolFarm: https://coolfarm.org/from-theory-to-practice-the-4-key-advantages-of-implementing-two-soc-models-in-python/ | Monthly SOC turnover model. Inputs: monthly temperature, rain and evaporation, clay %, starting SOC, plant carbon input, months with soil cover | KB | SOC trajectory from crop history, residues and climate | ★★★ |
 | 45 | **ICBM** **(non-NASA)** | https://rdrr.io/cran/SoilR/man/ICBMModel.html | Two-pool yearly SOC model with few parameters | KB | Simpler cross-check on RothC | ★★ |
 | 46 | **GSOCseq (FAO GSP)** **(non-NASA: FAO)** | https://www.fao.org/soils-portal/data-hub/soil-maps-and-databases/global-soil-organic-carbon-sequestration-potential-map-gsocseq/en/ ; RothC recipe: https://www.fao.org/fileadmin/user_upload/soils/Joint_trainings/Dec2022-OCB_GSP/4._GSOCseq_Running_the_RothC_Model.pdf | 1 km maps of 0–30 cm SOC stock and 20-year sequestration under business-as-usual and three better-management scenarios, built with RothC | Per country: tens of MB | Benchmark for our RothC runs, plus a ready RothC workflow | ★★ |
-| 47 | **AgERA5** **(non-NASA: Copernicus)** | https://cds.climate.copernicus.eu/datasets/sis-agrometeorological-indicators | Daily temperature, rain, radiation, vapour pressure and wind at 0.1°, 1979 to present, ~7-day lag. Free CDS account and API key | A few MB per point series | Finer alternative to POWER (#1) for RothC inputs and growing-degree days | ★★ |
+| 47 | **AgERA5 v2.0** **(non-NASA: Copernicus)** | https://cds.climate.copernicus.eu/datasets/sis-agrometeorological-indicators | Daily temperature, rain, radiation, vapour pressure, RH, 10 m wind and **FAO-56 ET0** at 0.1°, 1979 to present, ~8-day lag. v2.0 (May 2025) replaces the deprecated v1.1. Free CDS account and API key; CC-BY-4.0 | A few MB per point series | Global default for daily field weather and ET0. ERA5-based, so correct Tmin before frost dates (see `weather_climate.md`) | ★★★ |
 | 48 | **SSURGO / gSSURGO** **(non-NASA: USDA NRCS)** | Soil Data Access: https://sdmdataaccess.nrcs.usda.gov † | Mapped soil survey units (1:12k–1:24k) with clay, SOC, water capacity and pH per horizon | Query per polygon: KB | US soil inputs at field scale (far finer than SoilGrids, #21) | ★★★ |
 | 49 | **ISRIC WoSIS** **(non-NASA)** | https://www.isric.org/explore/wosis † | ~228k quality-checked soil profiles in 174 countries (Dec 2023 snapshot): SOC, N, P, pH, CEC, texture, bulk density | ~GB total | Nearest measured profiles to check SoilGrids and the RothC starting SOC | ★★ |
 | 50 | **HWSD v2.0 (FAO/IIASA)** **(non-NASA)** | https://www.fao.org/soils-portal/data-hub/soil-maps-and-databases/harmonized-world-soil-database-v20/en/ † | ~1 km soil units with properties at 7 depths | ~GB | Fallback and cross-check for SoilGrids | ★ |
@@ -200,17 +213,17 @@ These coefficients are compiled per crop in `crop_coefficients.csv` (24 crops). 
 - **Not credible:** the field's current P or K level, absolute SOC, and any "depleted" claim that ignores fertilizer.
 
 ### Suggested starter stack for Challenge 2
-1. NASA POWER (daily weather baseline, via API).
+1. Daily weather: AgERA5 v2.0 (#47) globally; gridMET or Daymet (#71–72) in the US. NASA POWER (#1) is the keyless fallback: end requests before the GEOS-IT days. Details in `weather_climate.md`.
 2. SMAP L4 root-zone soil moisture + GPM IMERG rainfall for water status.
 3. HLS (or MODIS/VIIRS NDVI for larger areas) for crop condition.
-4. NEX-GDDP-CMIP6 for future climate projections.
+4. NEX-GDDP-CMIP6 v2.0 (#3) from S3 or THREDDS for future climate, as monthly deltas on the observed baseline. CCKP indices (#107) give a zero-compute layer.
 5. A cropland mask (CDL in the US, WorldCover elsewhere) and SoilGrids for context.
 6. AppEEARS to pull point/polygon time series without large downloads.
 7. For soil-depletion reconstruction (US first):
    - CSB crop history (#26).
    - Quick Stats county yields (#18) multiplied by removal coefficients (#37).
    - Input ranges from NuGIS and IFA (#35–36).
-   - RothC (#44), driven by POWER or AgERA5 climate (#1, #47) and SSURGO clay (#48).
+   - RothC (#44), driven by monthly TerraClimate or AgERA5 climate (#59, #47; pan evaporation = PET / 0.75) and SSURGO clay (#48).
    - Validation against e-RA and LUCAS (#51–52).
 
 ---
