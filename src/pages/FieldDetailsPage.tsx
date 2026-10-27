@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, App, Badge, Button, Card, Flex, Form, Input, Result, Space, Statistic, Typography } from 'antd';
-import { ArrowLeft, Check, CircleDollarSign, Droplets, FlaskConical, Sprout, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Droplets, FlaskConical, Sprout, Trash2 } from 'lucide-react';
 import { useFarm } from '../hooks/useFarm';
 import { PageHeading } from '../components/common/PageHeading';
 import { FieldRecommendation } from '../components/fields/FieldRecommendation';
@@ -65,7 +65,7 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
         title={field.name}
         description={`${field.crop} · ${field.area} hectares · ${getFieldProperties(field.id).soilType}`}
         eyebrow={`${preferences.farmName.toUpperCase()} · FIELD ${String(field.id).padStart(2, '0')}`}
-        actions={<Space wrap><FieldStatus status={field.status} /><Button type="primary" icon={<Sprout size={19} />} onClick={() => document.getElementById('crop-rotation-plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Rotation plan</Button><Button icon={<CircleDollarSign size={19} />} onClick={() => navigate(`/finance/fields/${field.id}`)}>View finances</Button></Space>}
+        actions={<Space wrap><FieldStatus status={field.status} /><Button type="primary" icon={<Sprout size={19} />} onClick={() => document.getElementById('crop-rotation-plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Rotation plan</Button></Space>}
       />
       <FieldHealthMap key={field.id} field={field} />
       <Flex

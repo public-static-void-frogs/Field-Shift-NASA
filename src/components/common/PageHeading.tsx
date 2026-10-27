@@ -20,9 +20,9 @@ export function PageHeading({ title, description, eyebrow = 'YOUR FARM, AT A GLA
       wrap
     >
       <div>
-        <Text className="eyebrow">
+        {eyebrow && <Text className="eyebrow">
           {eyebrow}
-        </Text>
+        </Text>}
         <Title level={1}>
           {title}
         </Title>

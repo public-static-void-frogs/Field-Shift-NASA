@@ -159,3 +159,9 @@ svg {
 .ant-badge-status-text {
   color: #46543d;
 }
+
+.app-loading {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+}

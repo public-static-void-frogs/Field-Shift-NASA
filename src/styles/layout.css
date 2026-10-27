@@ -18,15 +18,33 @@
   scrollbar-width: thin;
 }
 
+.sidebar-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-bottom: 30px;
+}
+
+.sidebar-collapse.ant-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 28px;
+  padding: 0;
+  color: #627653;
+}
+
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 0 10px 30px;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
   color: #3e5534;
-  font-size: 29px;
+  font-size: 23px;
   font-weight: 650;
-  letter-spacing: -1.4px;
+  letter-spacing: -0.9px;
   text-decoration: none;
 }
 
@@ -36,29 +54,13 @@
   width: 40px;
   height: 42px;
   flex-shrink: 0;
-  border-radius: 11px 3px 11px 3px;
-  color: #fff;
-  background: #476b3c;
+
 }
 
-.brand-word > span {
-  font-weight: 400;
-}
-
-.farm-selector {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 13px 10px;
-  margin-bottom: 30px;
-  border: 1px solid #e1e7d7;
-  border-radius: 8px;
-}
-
-.farm-selector .ant-avatar {
-  color: #7b8a64;
-  background: #edf1e4;
-  flex-shrink: 0;
+.brand-symbol img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .sidebar-label {
@@ -78,14 +80,6 @@
 .sidebar-label strong {
   font-size: 15px;
   font-weight: 550;
-}
-
-.nav-caption.ant-typography {
-  padding-left: 15px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  letter-spacing: 1.4px;
-  color: #8b967d;
 }
 
 .sidebar .ant-menu {
@@ -112,23 +106,6 @@
   padding-top: 40px;
 }
 
-.season-card.ant-card {
-  margin-bottom: 20px;
-  background: linear-gradient(140deg, #f0f3e7, #f9f9f0);
-  border-color: #e2e8d6;
-  color: #7c8c65;
-}
-
-.season-card .ant-typography {
-  font-size: 14px;
-}
-
-.season-card h5.ant-typography {
-  margin-top: 12px;
-  font-size: 17px;
-  font-weight: 550;
-}
-
 .profile.ant-btn {
   display: flex;
   justify-content: flex-start;
@@ -149,46 +126,16 @@
   min-width: 0;
 }
 
-.topbar.ant-layout-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  height: 80px;
-  padding: 0 36px;
-  border-bottom: 1px solid #e4e8dc;
-  background: #fdfefb;
-  line-height: normal;
-}
-
-.topbar .ant-breadcrumb {
-  font-size: 15px;
-}
-
 .main-content.ant-layout-content {
   width: 100%;
   max-width: 1900px;
   min-width: 0;
-  padding: 8px 36px 0;
+  padding: 8px 36px 20px;
   margin-inline: auto;
 }
 
-.page-footer.ant-layout-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 28px 0;
-  color: #81906f;
-  font-size: 14px;
-  background: transparent;
-}
-
 .sidebar.ant-layout-sider-collapsed .brand-word,
-.sidebar.ant-layout-sider-collapsed .sidebar-label,
-.sidebar.ant-layout-sider-collapsed .nav-caption,
-.sidebar.ant-layout-sider-collapsed .season-card {
+.sidebar.ant-layout-sider-collapsed .sidebar-label {
   display: none;
 }
 
@@ -196,19 +143,17 @@
   padding-inline: 10px;
 }
 
-.sidebar.ant-layout-sider-collapsed .brand {
-  margin-inline: 8px;
+.sidebar.ant-layout-sider-collapsed .sidebar-brand-row {
+  gap: 2px;
+}
+
+.sidebar.ant-layout-sider-collapsed .sidebar-collapse.ant-btn {
+  width: 26px;
 }
 
 .sidebar.ant-layout-sider-collapsed .brand-symbol {
-  width: 36px;
-  height: 38px;
-}
-
-.sidebar.ant-layout-sider-collapsed .farm-selector {
-  justify-content: center;
-  padding: 8px 0;
-  border: 0;
+  width: 26px;
+  height: 28px;
 }
 
 .sidebar.ant-layout-sider-collapsed .ant-menu-item {
@@ -221,17 +166,10 @@
 }
 
 @media (max-width: 1100px) {
-  .sync-status {
-    display: none;
-  }
-
   .main-content.ant-layout-content {
     padding-inline: 24px;
   }
 
-  .topbar.ant-layout-header {
-    padding-inline: 24px;
-  }
 }
 
 @media (max-width: 600px) {
@@ -239,20 +177,17 @@
     padding-inline: 16px;
   }
 
-  .topbar.ant-layout-header {
-    height: 70px;
-    padding-inline: 16px;
-  }
+}
 
-  .topbar .ant-breadcrumb {
-    font-size: 14px;
-  }
+.main-content.main-content-map.ant-layout-content {
+  height: 100dvh;
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+}
 
-  .topbar > .ant-space > .ant-space-item:last-child {
-    display: none;
-  }
-
-  .page-footer > span {
-    display: none;
-  }
+.main-content.main-content-fields.ant-layout-content {
+  height: 100dvh;
+  overflow: hidden;
+  max-width: none;
 }

@@ -8,15 +8,15 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:finance": "node --experimental-strip-types --test tests/finance.test.mjs",
     "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs"
   },
   "dependencies": {
+    "antd": "file:vendor/antd-6.6.6.tgz",
+    "dayjs": "file:vendor/dayjs-1.11.23.tgz",
+    "lucide-react": "file:vendor/lucide-react-1.49.0.tgz",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "antd": "file:vendor/antd-6.6.6.tgz",
-    "lucide-react": "file:vendor/lucide-react-1.49.0.tgz",
-    "dayjs": "file:vendor/dayjs-1.11.23.tgz"
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

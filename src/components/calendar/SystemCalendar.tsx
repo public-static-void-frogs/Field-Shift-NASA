@@ -1,4 +1,5 @@
-import { Badge, Button, Calendar, Grid, Tooltip, Typography } from 'antd';
+import { Badge, Button, Calendar, Grid, Tooltip } from 'antd';
+import type { CSSProperties } from 'react';
 import type { CalendarProps } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { categoryColors } from '../../data/planning';
@@ -8,11 +9,12 @@ interface SystemCalendarProps {
   value: Dayjs;
   events: PlannedEvent[];
   onDateSelect: (date: string) => void;
+  onPanelDateChange: (date: string) => void;
   onEventSelect: (event: PlannedEvent) => void;
   mode: 'month' | 'year';
   onModeChange: (mode: 'month' | 'year') => void;
 }
-export function SystemCalendar({ value, events, onDateSelect, onEventSelect, mode, onModeChange }: SystemCalendarProps) {
+export function SystemCalendar({ value, events, onDateSelect, onEventSelect, mode, onModeChange, onPanelDateChange }: SystemCalendarProps) {
   const screens = Grid.useBreakpoint();
   const compact = screens.md === false;
   const cellRender: CalendarProps<Dayjs>['cellRender'] = (date, info) => {
@@ -35,37 +37,46 @@ export function SystemCalendar({ value, events, onDateSelect, onEventSelect, mod
             <Button
               type="text"
               className="calendar-cell-event"
-              style={{ borderInlineStartColor: categoryColors[event.category] }}
+              style={{ '--event-color': categoryColors[event.category] } as CSSProperties}
               aria-label={`${event.fieldName}: ${event.title}`}
               onClick={click => {
                 click.stopPropagation();
                 onEventSelect(event);
               }}
             >
-              {`${event.category} · ${event.fieldName}`}
+              <span className="calendar-event-label">{`${event.category} · ${event.fieldName}`}</span>
             </Button>
           </Tooltip>
         ))}
-        {onDate.length > 2 && <Typography.Text className="calendar-more-events">
-          {`+${onDate.length - 2} more actions`}
-        </Typography.Text>}
+        {onDate.length > 2 && <Button
+          type="text"
+          size="small"
+          className="calendar-more-events"
+          onClick={click => {
+            click.stopPropagation();
+            onDateSelect(date.format('YYYY-MM-DD'));
+          }}
+        >{`+${onDate.length - 2} more`}</Button>}
       </div>
     );
   };
   return (
     <Calendar
       className={`system-calendar ${compact ? 'system-calendar-compact' : ''}`}
-      fullscreen={!compact}
+      fullscreen
       value={value}
       mode={mode}
       cellRender={cellRender}
       onSelect={(date, info) => {
-        if (info.source === 'month') onModeChange('month');
-        if (info.source === 'date' || info.source === 'month') onDateSelect(date.format('YYYY-MM-DD'));
+        if (info.source === 'date') onDateSelect(date.format('YYYY-MM-DD'));
+        if (info.source === 'month') {
+          onModeChange('month');
+          onPanelDateChange(date.format('YYYY-MM-DD'));
+        }
       }}
       onPanelChange={(date, nextMode) => {
         onModeChange(nextMode);
-        onDateSelect(date.format('YYYY-MM-DD'));
+        onPanelDateChange(date.format('YYYY-MM-DD'));
       }}
     />
   );

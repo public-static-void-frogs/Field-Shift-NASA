@@ -6,7 +6,6 @@ import './styles/global.css';
 import './styles/layout.css';
 import './styles/dashboard.css';
 import './styles/field-details.css';
-import './styles/finance.css';
 import './styles/planning.css';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

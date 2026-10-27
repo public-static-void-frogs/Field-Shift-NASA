@@ -1,12 +1,10 @@
 import { Button, Result } from 'antd';
 import { AppLayout } from '../components/layout/AppLayout';
-import { useRoute } from '../hooks/useRoute';
+import type { Navigate } from '../types/navigation';
 import { ActionDetailsPage } from '../pages/ActionDetailsPage';
 import { CalendarPage } from '../pages/CalendarPage';
 import { AddFieldPage } from '../pages/AddFieldPage';
 import { FieldDetailsPage } from '../pages/FieldDetailsPage';
-import { FinancePage } from '../pages/FinancePage';
-import { FieldFinancePage } from '../pages/FieldFinancePage';
 import { FieldsPage } from '../pages/FieldsPage';
 import { HelpPage } from '../pages/HelpPage';
 import { HistoryPage } from '../pages/HistoryPage';
@@ -15,22 +13,19 @@ import { NotificationsPage } from '../pages/NotificationsPage';
 import { OverviewPage } from '../pages/OverviewPage';
 import { SettingsPage } from '../pages/SettingsPage';
 
-export function AppRoutes() {
-  const { path: route, navigate } = useRoute();
+export function AppRoutes({ route, navigate }: { route: string; navigate: Navigate }) {
   const [path, search = ''] = route.split('?');
   const params = new URLSearchParams(search);
   const actionRoute = path.match(/^\/calendar\/actions\/([^/]+)$/);
   const calendarRoute = path.match(/^\/calendar(?:\/(\d{4}-\d{2}-\d{2}))?$/);
   const fieldRoute = path.match(/^\/fields\/(\d+)$/);
-  const financeRoute = path.match(/^\/finance\/fields\/(\d+)$/);
   const addRoute = path.match(/^\/map\/add\/(\d+)$/);
   const pages = {
     '/': <OverviewPage navigate={navigate} />,
     '/fields': <FieldsPage navigate={navigate} />,
     '/map': <MapPage navigate={navigate} />,
     '/map/add': <MapPage navigate={navigate} adding />,
-    '/finance': <FinancePage navigate={navigate} />,
-    '/history': <HistoryPage navigate={navigate} />,
+    '/history': <HistoryPage />,
     '/settings': <SettingsPage />,
     '/help': <HelpPage />,
     '/notifications': <NotificationsPage navigate={navigate} />,
@@ -50,8 +45,7 @@ export function AppRoutes() {
         eventId={params.get('event') ?? undefined}
       />
     );
-  } else if (financeRoute) {
-    page = <FieldFinancePage key={path} fieldId={Number(financeRoute[1])} navigate={navigate} />;
+
   } else if (fieldRoute) {
     page = (
       <FieldDetailsPage
