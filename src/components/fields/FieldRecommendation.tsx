@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Card, Skeleton, Space, Tag, Typography } from 'antd';
+import { Card, Skeleton, Space, Tag, Typography } from 'antd';
 import { Sparkles } from 'lucide-react';
 import { getRecommendation } from '../../data/recommendations';
 import type { Field } from '../../types/field';
@@ -13,12 +13,12 @@ export function FieldRecommendation({ field }: { field: Field; }) {
   const recommendation = getRecommendation(field);
   return (
     <Card
-      className="insight-card"
+      className="insight-card ai-insight-card"
       title={<Space>
-        <Sparkles size={22} />
+        <Sparkles size={22} className="ai-insight-sparkle" aria-hidden="true" />
         Your field, explained
       </Space>}
-      extra={<Tag>AI INSIGHT</Tag>}
+      extra={<Tag className="ai-insight-tag">AI INSIGHT</Tag>}
     >
       {!ready ? <div aria-live="polite">
         <Typography.Paragraph type="secondary">Taking a look at your field…</Typography.Paragraph>
@@ -31,11 +31,7 @@ export function FieldRecommendation({ field }: { field: Field; }) {
         {recommendation.title}
       </Typography.Title><Typography.Paragraph>
           {recommendation.description}
-        </Typography.Paragraph><Alert
-          type="success"
-          showIcon
-          title={`Next step: ${recommendation.nextStep}`}
-        /></>}
+        </Typography.Paragraph></>}
     </Card>
   );
 }

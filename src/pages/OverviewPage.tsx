@@ -2,7 +2,6 @@ import { Button } from 'antd';
 import { CalendarDays, Plus } from 'lucide-react';
 import { PageHeading } from '../components/common/PageHeading';
 import { FieldsTable } from '../components/fields/FieldsTable';
-import { FieldInsight } from '../components/fields/FieldInsight';
 import { MapCard } from '../components/map/MapCard';
 import { OverviewCharts } from '../components/overview/OverviewCharts';
 import { WeatherCard } from '../components/weather/WeatherCard';
@@ -32,10 +31,7 @@ export function OverviewPage({ navigate }: { navigate: Navigate; }) {
       />
       <section className="map-weather-grid">
         <MapCard navigate={navigate} />
-        <aside className="right-column">
-          <WeatherCard navigate={navigate} />
-          <FieldInsight navigate={navigate} />
-        </aside>
+        <WeatherCard navigate={navigate} />
       </section>
       <OverviewCharts />
       <FieldsTable navigate={navigate} overview />

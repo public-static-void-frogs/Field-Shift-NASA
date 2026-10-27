@@ -27,3 +27,10 @@ export interface PlannedEvent {
   duration: string;
   rationale: string;
 }
+
+export type EventDecision = 'proposed' | 'accepted' | 'declined';
+export interface EventResponse {
+  status: Exclude<EventDecision, 'proposed'>;
+  fingerprint: string;
+}
+export type EventResponses = Record<string, EventResponse>;

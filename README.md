@@ -43,20 +43,16 @@ The `.editorconfig` file defines two-space indentation and consistent line endin
 Field agronomy profiles and land history are defined in `src/data/fieldProperties.ts`
 and `src/data/landHistory.ts`. Status tags use explicit semantic foreground and
 background colors in the shared theme for readable contrast.
-Hardcoded spatial health profiles live in `src/data/fieldHealth.ts`. The heatmap
-interpolates these local values into a continuous overlay. The field-detail health
-illustration still uses the original local parcel geometry; Overview and Field map
-use geographic GeoJSON and real satellite imagery.
 
 ## Explore
 
 - **Overview:** farm totals, selectable field map, crop health, weather outlook, and field recommendations.
 - **Field map:** pan, zoom, recenter, switch layers, select a field, or add an available parcel.
-- **My fields:** search and filter fields by crop or health status. Each field page starts with a red-to-green health heatmap clipped to its parcel boundary, selectable inspection zones, an overlay toggle, zoom/pan controls, and an area breakdown. Below it are plain-language health indicators, a simulated generated summary, and full-width crop, soil, and land/water properties. Each field includes notes, removal controls, and a land history with searchable activity records, year/category filters, and a crop-rotation table for 2023–2026.
+- **My fields:** search and filter fields by crop or health status. Each field page starts with a real satellite map focused on that field’s GeoJSON boundary. Below it are the rotation plan, an AI-style explanation with a blue-purple gradient border, crop/soil/water properties, and searchable land history. Field management and removal controls are at the bottom. The detail map has no heatmap or metric overlay controls.
 - **Calendar:** an Ant Design month/year calendar with field and action filters, a compact selected-day agenda, and a searchable table. Primary action buttons open dedicated detail pages with scheduling, rationale, and current field conditions. Date selection preserves the page scroll position.
 - **Environment history:** current conditions, trend charts, and 7-, 30-, or 90-day weather logs.
 
-All values and recommendations are defined in the frontend. Field changes and notes live in React state and reset on refresh. No backend, credentials, or AI services are required. Map imagery requires internet access to the Esri tile service.
+All values and recommendations are defined in the frontend. Field changes live in React state and reset on refresh. No backend, credentials, or AI services are required. Map imagery requires internet access to the Esri tile service.
 
 ## Offline dependency packages
 
@@ -64,10 +60,17 @@ All values and recommendations are defined in the frontend. Field changes and no
 
 ## Crop rotation and system planning
 
-Field pages feature a prominent crop rotation suggestion with a two-season outlook,
-confidence, supporting field stats, and a calculated planting window. Dates link to
+Field pages feature a compact rotation summary and planting window linking to
+`#/fields/:id/strategy`. The strategy page includes step-by-step actions, technical
+inputs, conditional recommendations, and interactive illustrative forecast charts.
+Dates link to
 `#/calendar/YYYY-MM-DD` with optional field/event filters. Action details use
 `#/calendar/actions/:eventId`.
+
+The entire field schedule supports Accept all and Reject all on the strategy page,
+calendar drawer, and action details. Accepted events remain confirmed; rejected events are
+hidden from the calendar but remain editable on the strategy page. Responses persist
+in browser localStorage and reset to proposed when event instructions change.
 
 Planning fixtures live in `src/data/planning.ts`; planting date adjustments use the
 fixed soil pH and moisture values through `src/utils/planningDates.ts`. ML predictions,
@@ -76,11 +79,12 @@ is fixed to May 24, 2026 to match the rest of the growing-season demo.
 
 ```sh
 npm run test:planning
+npm run test:strategy
 ```
 
 ## Geographic maps
 
-Overview and Field map share `src/components/map/FieldMap.tsx`, using Leaflet and
+Overview, Field map, and field-detail pages share `src/components/map/FieldMap.tsx`, using Leaflet and
 React Leaflet. The satellite basemap is Esri World Imagery; the source and required
 attribution are configured in `src/data/fieldGeoJson.ts`. Labels, zoom buttons,
 recenter, overlay selector, and field/add-parcel navigation remain available.

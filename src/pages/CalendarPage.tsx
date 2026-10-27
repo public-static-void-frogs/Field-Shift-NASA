@@ -3,6 +3,8 @@ import { Button, Descriptions, Drawer, Empty, Flex, Input, Segmented, Select, Ta
 import type { TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
 import { Search } from 'lucide-react';
+import { EventResponseControls } from '../components/calendar/EventResponseControls';
+import { getCalendarEvents, getEventDecision } from '../utils/eventResponses';
 import { PlanEventCard } from '../components/calendar/PlanEventCard';
 import { SystemCalendar } from '../components/calendar/SystemCalendar';
 import { calendarPath, getSystemPlanEvents, planCategories } from '../data/planning';
@@ -19,21 +21,22 @@ interface CalendarPageProps {
 }
 
 export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageProps) {
-  const { fields } = useFarm();
+  const { fields, eventResponses } = useFarm();
   const [category, setCategory] = useState('All actions');
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState('calendar');
   const [dayOpen, setDayOpen] = useState(false);
   const [calendarMode, setCalendarMode] = useState<'month' | 'year'>('month');
   const selectedDate = isPlanDate(date) ? date! : planningToday;
-  const events = getSystemPlanEvents(fields);
+  const allEvents = getSystemPlanEvents(fields);
+  const events = getCalendarEvents(allEvents, eventResponses);
   const visible = events.filter(event => (
     (!fieldId || event.fieldId === fieldId) &&
     (category === 'All actions' || event.category === category) &&
     `${event.title} ${event.fieldName} ${event.description}`.toLowerCase().includes(query.toLowerCase())
   ));
   const selectedEvents = visible.filter(event => event.date === selectedDate);
-  const selectedEvent = events.find(event => event.id === eventId);
+  const selectedEvent = allEvents.find(event => event.id === eventId);
   const selectedField = fields.find(field => field.id === selectedEvent?.fieldId);
 
   function openEvent(event: PlannedEvent) {
@@ -50,7 +53,7 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
     { title: 'Field', dataIndex: 'fieldName', width: 180 },
     { title: 'Planned action', dataIndex: 'title', render: (value: string, event) => <Button type="link" onClick={() => openEvent(event)}>{value}</Button> },
     { title: 'Type', dataIndex: 'category', render: (value: string) => <Tag>{value}</Tag> },
-    { title: 'Status', dataIndex: 'date', render: (value: string) => <Tag>{getEventStatus(value)}</Tag> },
+    { title: 'Status', key: 'response', render: (_, event) => <Tag color={getEventDecision(event, eventResponses) === 'accepted' ? 'success' : 'processing'}>{getEventDecision(event, eventResponses) === 'accepted' ? 'Accepted' : 'Proposed'}</Tag> },
   ];
 
   return (
@@ -113,9 +116,16 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
         open={Boolean(eventId) || dayOpen}
         onClose={closeDrawer}
         styles={{ wrapper: { width: 'min(480px, 100vw)' } }}
-        footer={selectedEvent && <Button type="primary" block onClick={() => navigate(`/fields/${selectedEvent.fieldId}`)}>View field</Button>}
+        footer={selectedEvent && <Flex gap={8}>
+          <Button type="primary" onClick={() => navigate(`/fields/${selectedEvent.fieldId}`)}>View field</Button>
+          <Button onClick={() => navigate(`/fields/${selectedEvent.fieldId}/strategy`)}>View strategy</Button>
+        </Flex>}
       >
         {selectedEvent ? <>
+          <div className="event-response-panel">
+            <Typography.Text strong>Field strategy · all proposed events</Typography.Text>
+            <EventResponseControls fieldId={selectedEvent.fieldId} />
+          </div>
           <Flex gap={8} wrap className="section-gap">
             <Tag>{selectedEvent.category}</Tag>
             <Tag color={selectedEvent.priority === 'High priority' ? 'error' : selectedEvent.priority === 'Important' ? 'warning' : 'default'}>{selectedEvent.priority}</Tag>

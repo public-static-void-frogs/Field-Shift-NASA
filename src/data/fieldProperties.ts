@@ -1,5 +1,5 @@
 import type { Field } from '../types/field';
-import { initialFields } from './fields';
+import { initialFields } from './fields.ts';
 import type { FieldProperties } from '../types/fieldProperties';
 
 const fieldProperties: Record<number, FieldProperties> = {

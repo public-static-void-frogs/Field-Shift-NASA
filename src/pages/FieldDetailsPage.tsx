@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Alert, App, Badge, Button, Card, Flex, Form, Input, Result, Space, Statistic, Typography } from 'antd';
-import { ArrowLeft, Check, Droplets, FlaskConical, Sprout, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Alert, App, Button, Card, Flex, Result, Space, Typography } from 'antd';
+import { ArrowLeft, Sprout, Trash2 } from 'lucide-react';
 import { useFarm } from '../hooks/useFarm';
 import { PageHeading } from '../components/common/PageHeading';
 import { FieldRecommendation } from '../components/fields/FieldRecommendation';
@@ -8,15 +8,22 @@ import { FieldStatus } from '../components/fields/FieldStatus';
 import { FieldProperties } from '../components/fields/FieldProperties';
 import { LandHistory } from '../components/fields/LandHistory';
 import { CropRotationPlan } from '../components/fields/CropRotationPlan';
-import { FieldHealthMap } from '../components/fields/FieldHealthMap';
+import { FieldMap } from '../components/map/FieldMap';
+import { fieldGeoJson } from '../data/fieldGeoJson';
+import { getFeatureFieldId } from '../utils/mapGeometry';
+import type { FieldGeoJson } from '../types/map';
 import { getFieldProperties } from '../data/fieldProperties';
 import type { Navigate } from '../types/navigation';
 
 export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navigate: Navigate; }) {
-  const { fields, notes, saveNotes, removeField, preferences } = useFarm();
+  const { fields, removeField, preferences } = useFarm();
   const { message } = App.useApp();
   const [confirmRemove, setConfirmRemove] = useState(false);
   const field = fields.find(item => item.id === fieldId);
+  const geojson = useMemo<FieldGeoJson>(() => ({
+    type: 'FeatureCollection',
+    features: fieldGeoJson.features.filter(feature => getFeatureFieldId(feature) === fieldId),
+  }), [fieldId]);
   if (!field) return (
     <Result
       status="404"
@@ -25,35 +32,6 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
       extra={<Button type="primary" onClick={() => navigate('/fields')}>Back to my fields</Button>}
     />
   );
-  const metrics = [
-    {
-      title: 'Crop health',
-      value: field.health,
-      unit: '/100',
-      icon: Sprout,
-      good: field.health > 75,
-      critical: field.health < 50,
-      description: field.health > 75 ? 'Growing well' : 'Growth needs support'
-    },
-    {
-      title: 'Soil moisture',
-      value: field.moisture,
-      unit: '%',
-      icon: Droplets,
-      good: field.moisture > 45,
-      critical: field.moisture < 35,
-      description: field.moisture > 45 ? 'Well hydrated' : 'Your soil is getting dry'
-    },
-    {
-      title: 'Nitrogen',
-      value: field.nitrogen,
-      unit: 'mg/kg',
-      icon: FlaskConical,
-      good: field.nitrogen > 30,
-      critical: field.nitrogen < 20,
-      description: field.nitrogen > 30 ? 'Enough for healthy growth' : field.nitrogen < 20 ? 'Very low · Add nutrients soon' : 'Low · Plan a nutrient top-up'
-    },
-  ];
   return (
     <>
       <Button
@@ -65,59 +43,23 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
         title={field.name}
         description={`${field.crop} · ${field.area} hectares · ${getFieldProperties(field.id).soilType}`}
         eyebrow={`${preferences.farmName.toUpperCase()} · FIELD ${String(field.id).padStart(2, '0')}`}
-        actions={<Space wrap><FieldStatus status={field.status} /><Button type="primary" icon={<Sprout size={19} />} onClick={() => document.getElementById('crop-rotation-plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Rotation plan</Button></Space>}
+        actions={<Space wrap><FieldStatus status={field.status} /><Button type="primary" icon={<Sprout size={19} />} onClick={() => navigate(`/fields/${field.id}/strategy`)}>Rotation strategy</Button></Space>}
       />
-      <FieldHealthMap key={field.id} field={field} />
-      <Flex
-        justify="space-between"
-        align="center"
-        gap={12}
-        wrap
-        className="section-gap"
-      >
-        <Typography.Title level={3} className="no-margin">How your field is doing</Typography.Title>
-        <Badge status="success" text="Updated just now" />
-      </Flex>
-      <section className="detail-metrics">
-        {metrics.map(({ title, value, unit, icon: Icon, good, critical, description }) => (
-          <Card key={title} className={critical ? 'metric-danger' : good ? 'metric-good' : 'metric-warning'}>
-            <Statistic
-              title={<span className="stat-title">
-                {title}
-                <Icon size={22} />
-              </span>}
-              value={value}
-              suffix={unit}
-            />
-            <Alert
-              type={good ? 'success' : critical ? 'error' : 'warning'}
-              showIcon
-              title={description}
-            />
-          </Card>
-        ))}
-      </section>
+      <div className="field-detail-map" aria-label={`${field.name} location map`}>
+        <FieldMap
+          fields={[field]}
+          geojson={geojson}
+          boundaryOnly
+          adding={false}
+          onSelect={selected => navigate(`/fields/${selected.id}`)}
+          onAdd={() => navigate('/map/add')}
+        />
+      </div>
       <div className="field-detail-stack">
         <CropRotationPlan field={field} />
-        <FieldRecommendation key={field.id} field={field} />
+        <FieldRecommendation field={field} />
         <FieldProperties field={field} />
-        <Card title="Field notes">
-          <Form
-            layout="vertical"
-            initialValues={{ note: notes[field.id] || '' }}
-            onFinish={({ note }: { note: string }) => {
-              saveNotes(field.id, note);
-              message.success('Field notes saved');
-            }}
-          >
-            <Form.Item name="note" label="Keep a note for your next visit">
-              <Input.TextArea rows={4} placeholder="Add observations, planned work, or a reminder…" />
-            </Form.Item>
-            <Button type="primary" htmlType="submit" icon={<Check size={19} />}>
-              Save notes
-            </Button>
-          </Form>
-        </Card>
+        <LandHistory field={field} />
         <Card title="Manage this field">
           <Flex justify="space-between" align="center" gap={20} wrap>
             <Typography.Paragraph type="secondary" className="no-margin">
@@ -156,7 +98,6 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
             />
           )}
         </Card>
-        <LandHistory key={field.id} field={field} />
       </div>
     </>
   );

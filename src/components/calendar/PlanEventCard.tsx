@@ -3,9 +3,13 @@ import { Button, Card, Flex, Space, Tag, Typography } from 'antd';
 import { ArrowUpRight, Clock3 } from 'lucide-react';
 import { actionDetailsPath, categoryBackgrounds, categoryColors } from '../../data/planning';
 import { getEventStatus } from '../../utils/planningDates';
+import { useFarm } from '../../hooks/useFarm';
+import { getEventDecision } from '../../utils/eventResponses';
 import type { PlannedEvent } from '../../types/planning';
 
 export function PlanEventCard({ event, highlighted = false, onSelect }: { event: PlannedEvent; highlighted?: boolean; onSelect?: () => void }) {
+  const { eventResponses } = useFarm();
+  const decision = getEventDecision(event, eventResponses);
   return (
     <Card
       size="small"
@@ -18,6 +22,7 @@ export function PlanEventCard({ event, highlighted = false, onSelect }: { event:
           {event.priority === 'High priority' ? event.priority : getEventStatus(event.date)}
         </Tag>
       </Flex>
+      <Tag color={decision === 'accepted' ? 'success' : 'processing'} className="plan-event-response-tag">{decision === 'accepted' ? 'Accepted' : 'Proposed'}</Tag>
       <Typography.Title level={5}>{event.title}</Typography.Title>
       <Typography.Text strong className="plan-event-field">{event.fieldName}</Typography.Text>
       <Flex align="center" justify="space-between" gap={8} className="plan-event-bottom">

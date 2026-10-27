@@ -5,6 +5,7 @@ import { ActionDetailsPage } from '../pages/ActionDetailsPage';
 import { CalendarPage } from '../pages/CalendarPage';
 import { AddFieldPage } from '../pages/AddFieldPage';
 import { FieldDetailsPage } from '../pages/FieldDetailsPage';
+import { FieldStrategyPage } from '../pages/FieldStrategyPage';
 import { FieldsPage } from '../pages/FieldsPage';
 import { HelpPage } from '../pages/HelpPage';
 import { HistoryPage } from '../pages/HistoryPage';
@@ -18,6 +19,7 @@ export function AppRoutes({ route, navigate }: { route: string; navigate: Naviga
   const params = new URLSearchParams(search);
   const actionRoute = path.match(/^\/calendar\/actions\/([^/]+)$/);
   const calendarRoute = path.match(/^\/calendar(?:\/(\d{4}-\d{2}-\d{2}))?$/);
+  const strategyRoute = path.match(/^\/fields\/(\d+)\/strategy$/);
   const fieldRoute = path.match(/^\/fields\/(\d+)$/);
   const addRoute = path.match(/^\/map\/add\/(\d+)$/);
   const pages = {
@@ -46,6 +48,8 @@ export function AppRoutes({ route, navigate }: { route: string; navigate: Naviga
       />
     );
 
+  } else if (strategyRoute) {
+    page = <FieldStrategyPage key={path} fieldId={Number(strategyRoute[1])} navigate={navigate} />;
   } else if (fieldRoute) {
     page = (
       <FieldDetailsPage

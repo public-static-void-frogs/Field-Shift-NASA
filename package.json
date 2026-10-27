@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs",
-    "test:maps": "node --experimental-strip-types --test tests/mapGeometry.test.mjs"
+    "test:maps": "node --experimental-strip-types --test tests/mapGeometry.test.mjs",
+    "test:strategy": "node --experimental-strip-types --test tests/strategy.test.mjs"
   },
   "dependencies": {
     "antd": "file:vendor/antd-6.6.6.tgz",

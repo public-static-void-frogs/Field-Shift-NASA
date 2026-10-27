@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import { getFieldProperties } from './fieldProperties';
+import { getFieldProperties } from './fieldProperties.ts';
 import type { Field } from '../types/field';
 import type { PlanCategory, PlannedEvent, RotationPlan } from '../types/planning';
-import { calculatePlantingDate } from '../utils/planningDates';
+import { calculatePlantingDate } from '../utils/planningDates.ts';
 
 export const planCategories: PlanCategory[] = [
   'Crop rotation',
@@ -92,6 +92,8 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
   const prefix = `field-${field.id}`;
   const soilDate = field.status === 'Critical' ? '2026-05-25' : '2026-05-26';
   const harvestDate = field.crop === 'Winter wheat' ? '2026-07-16' : field.crop === 'Corn' ? '2026-10-10' : '2026-09-20';
+  const seedbedDate = dayjs(plan.sowingDate).subtract(14, 'day');
+  const earliestPreparation = dayjs(harvestDate).add(1, 'day');
   const events: PlannedEvent[] = [
     {
       id: `${prefix}-soil-review`,
@@ -133,13 +135,13 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
       id: `${prefix}-seedbed`,
       fieldId: field.id,
       fieldName: field.name,
-      date: dayjs(plan.sowingDate).subtract(14, 'day').format('YYYY-MM-DD'),
+      date: (seedbedDate.isBefore(earliestPreparation) ? earliestPreparation : seedbedDate).format('YYYY-MM-DD'),
       category: 'Field preparation',
       title: `Prepare the seedbed for ${plan.nextCrop.toLowerCase()}`,
       description: `Review the latest soil results, manage residues, and prepare equipment for the transition to ${plan.nextCrop.toLowerCase()}. Confirm seed availability and the field's trafficability.`,
       priority: 'Important',
       duration: 'All day',
-      rationale: 'Scheduled 14 days before the calculated planting date.',
+      rationale: 'Scheduled after the current harvest, aiming for 14 days before the calculated planting date.',
     },
     {
       id: `${prefix}-rotation-2027`,

@@ -42,30 +42,11 @@
   margin-bottom: 28px;
 }
 
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-width: 0;
-}
-
 .map-card.ant-card {
   display: flex;
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-}
-
-.map-card .ant-card-head-title > span {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.map-card .ant-card-head-title .ant-typography {
-  font-size: 14px;
-  font-weight: 400;
 }
 
 .map-card .ant-card-body {
@@ -75,13 +56,19 @@
   padding: 0;
 }
 
-.map-footer {
-  padding: 17px 20px;
+.map-card .field-map {
+  min-height: 0;
 }
 
-.map-footer .ant-typography,
-.map-footer .ant-badge-status-text {
-  font-size: 14px;
+.map-expand.ant-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  background: #fffef9;
+  color: #627653;
 }
 
 .weather-card .ant-card-head {
@@ -388,10 +375,8 @@
     grid-template-columns: 1fr;
   }
 
-  .right-column {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
+  .map-weather-grid > .map-card {
+    height: 440px;
   }
 
   .history-current > .weather-card {
@@ -406,7 +391,6 @@
 }
 
 @media (max-width: 700px) {
-  .right-column,
   .detail-metrics,
   .history-charts {
     display: grid;
@@ -462,9 +446,6 @@
     align-items: center;
   }
 
-  .map-footer {
-    padding: 16px;
-  }
 }
 
 .fields-workspace {

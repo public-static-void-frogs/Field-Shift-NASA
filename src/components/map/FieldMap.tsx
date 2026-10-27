@@ -19,6 +19,8 @@ interface FieldMapProps {
   adding: boolean;
   onAdd: (id: number) => void;
   expanded?: boolean;
+  /** Plain satellite view with field outlines, without metric layers or legend. */
+  boundaryOnly?: boolean;
 }
 
 const defaultCenter: [number, number] = [42.042, -93.737];
@@ -37,7 +39,7 @@ function MapViewport({ data }: { data: FieldGeoJson }) {
   }, [map, data]);
   useEffect(() => {
     // Leaflet must remeasure when the sidebar or responsive layout changes width.
-    const observer = new ResizeObserver(() => map.invalidateSize({ pan: false }));
+    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }));
     observer.observe(map.getContainer());
     return () => observer.disconnect();
   }, [map]);
@@ -106,9 +108,10 @@ function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldM
   return null;
 }
 
-export function FieldMap({ fields, geojson, onSelect, adding, onAdd, expanded = false }: FieldMapProps) {
+export function FieldMap({ fields, geojson, onSelect, adding, onAdd, expanded = false, boundaryOnly = false }: FieldMapProps) {
   const map = useRef<LeafletMap | null>(null);
-  const [layer, setLayer] = useState<MapLayer>('Crop health');
+  const [selectedLayer, setLayer] = useState<MapLayer>('Crop health');
+  const layer = boundaryOnly ? 'Field boundaries' : selectedLayer;
   const { preferences } = useFarm();
   const legend = layer === 'Soil moisture'
     ? [{ color: '#61b4d4', label: '60% or more' }, { color: '#9bcdd9', label: '40–59%' }, { color: '#dbe5b2', label: 'Below 40%' }]
@@ -134,7 +137,7 @@ export function FieldMap({ fields, geojson, onSelect, adding, onAdd, expanded = 
       <ScaleControl position="bottomright" imperial={false} />
     </MapContainer>
     <div className="map-location"><MapPin size={13} />{preferences.farmName}<span>·</span>Iowa, US</div>
-    <div className="map-layer">
+    {!boundaryOnly && <div className="map-layer">
       <Select
         aria-label="Map layer"
         value={layer}
@@ -142,15 +145,15 @@ export function FieldMap({ fields, geojson, onSelect, adding, onAdd, expanded = 
         prefix={<Layers size={14} />}
         options={['Crop health', 'Soil moisture', 'Field boundaries'].map(value => ({ value, label: value }))}
       />
-    </div>
+    </div>}
     <div className="map-controls">
       <Tooltip title="Zoom in"><Button type="text" aria-label="Zoom in" onClick={() => map.current?.zoomIn()}><Plus size={17} /></Button></Tooltip>
       <Tooltip title="Zoom out"><Button type="text" aria-label="Zoom out" onClick={() => map.current?.zoomOut()}><Minus size={17} /></Button></Tooltip>
       <Tooltip title="Recenter map"><Button type="text" aria-label="Recenter map" onClick={() => { if (map.current) fitParcels(map.current, geojson); }}><LocateFixed size={17} /></Button></Tooltip>
     </div>
-    <div className="map-legend">
+    {!boundaryOnly && <div className="map-legend">
       {legend.map(item => <span key={item.label}><i style={{ background: item.color }} />{item.label}</span>)}
-    </div>
+    </div>}
     {adding && <div className="add-map-prompt"><Plus size={15} />Select an outlined parcel to add it to your farm</div>}
   </div>;
 }

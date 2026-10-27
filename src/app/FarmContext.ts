@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 import type { Field } from '../types/field';
+import type { EventDecision, EventResponses } from '../types/planning';
 
 export type Preferences = {
   farmName: string;
@@ -8,6 +9,8 @@ export type Preferences = {
 
 export type FarmState = {
   fields: Field[];
+  eventResponses: EventResponses;
+  respondToStrategy: (fieldId: number, status: EventDecision) => void;
   notes: Record<number, string>;
   preferences: Preferences;
   addField: (field: Field) => void;

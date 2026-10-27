@@ -1,5 +1,6 @@
 import { Button, Card, Col, Descriptions, Flex, Result, Row, Space, Tag, Typography } from 'antd';
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
+import { EventResponseControls } from '../components/calendar/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
 import { calendarEventPath, getSystemPlanEvents } from '../data/planning';
 import { useFarm } from '../hooks/useFarm';
@@ -27,6 +28,7 @@ export function ActionDetailsPage({ eventId }: { eventId: string }) {
       <Row gutter={[24, 24]}>
         <Col xs={24} xl={15}>
           <Card title="Action overview" className="section-gap">
+            <div className="event-response-panel"><Typography.Text strong>Field strategy · all proposed events</Typography.Text><EventResponseControls fieldId={event.fieldId} /></div>
             <Flex gap={10} wrap className="section-gap">
               <Tag>{event.category}</Tag>
               <Tag color={event.priority === 'High priority' ? 'error' : event.priority === 'Important' ? 'warning' : 'default'}>{event.priority}</Tag>

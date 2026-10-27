@@ -68,8 +68,11 @@ export const theme: ThemeConfig = {
       multipleItemBorderColor: '#b6c4a3',
     },
     Table: {
-      headerBg: '#f5f7f0',
-      headerColor: '#707d65',
+      headerBg: '#ffffff',
+      headerColor: '#314529',
+      headerSplitColor: '#dfe5d5',
+      headerSortActiveBg: '#ffffff',
+      headerSortHoverBg: '#ffffff',
       rowHoverBg: '#f7faf1',
       cellPaddingBlock: 19,
       cellFontSize: 16,
