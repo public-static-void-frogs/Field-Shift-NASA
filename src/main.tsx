@@ -7,6 +7,7 @@ import './styles/layout.css';
 import './styles/dashboard.css';
 import './styles/field-details.css';
 import './styles/planning.css';
+import './styles/team.css';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

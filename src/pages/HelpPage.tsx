@@ -1,27 +1,25 @@
-import { Alert, Card, Collapse, Typography } from 'antd';
-import { PageHeading } from '../components/common/PageHeading';
+import { Card, Collapse, Table, Typography } from 'antd';
+import { TeamSection } from '../components/help/TeamSection';
+import { ProjectSection } from '../components/help/ProjectSection';
+
+const demoSources = [
+  { key: 'weather', name: 'Example weather archive', data: 'Daily temperature, rainfall, and humidity', format: 'CSV' },
+  { key: 'soil', name: 'Sample soil survey', data: 'Soil pH, moisture, nutrients, and organic matter', format: 'GeoJSON' },
+  { key: 'crop', name: 'Demo crop reference', data: 'Crop characteristics, planting windows, and rotation sequences', format: 'JSON' },
+];
 
 export function HelpPage() {
   return (
-    <><PageHeading
-      title="A helping hand for your farm."
-      description="Find your way around your workspace and make the most of every field."
-      eyebrow="HELP & RESOURCES"
-    /><Card title="Start with the land you know">
-        <Alert
-          type="success"
-          showIcon
-          title="Your farm, all in one place"
-          description="Use the map for a bird’s-eye view, or open My fields to compare health and growing conditions."
-        />
-        <Typography.Title level={3}>Frequently asked questions</Typography.Title>
+    <><div className="help-about-sections"><ProjectSection /><TeamSection /></div>
+      <div className="help-reference-sections">
+      <section aria-label="Q&A"><Card title="Q&A">
         <Collapse
           defaultActiveKey={['fields']}
           items={[
             {
               key: 'fields',
               label: 'How do I open a field?',
-              children: 'Select a field on the map or click its name in the fields table. Its page shows crop health, soil moisture, nitrogen, recommendations, and notes.'
+              children: 'Select a field on the map or click its name in the fields table. Its page shows the field boundary, crop and soil properties, recommendations, and a rotation strategy.'
             },
             {
               key: 'add',
@@ -45,6 +43,22 @@ export function HelpPage() {
             }
           ]}
         />
-      </Card></>
+      </Card></section>
+      <section aria-label="Data sources"><Card title="Data sources">
+        <Typography.Paragraph type="secondary">Example sources for the demo. These datasets are placeholders and are not connected.</Typography.Paragraph>
+        <Table
+          rowKey="key"
+          dataSource={demoSources}
+          pagination={false}
+          scroll={{ x: 620 }}
+          columns={[
+            { title: 'Source', dataIndex: 'name', width: 240 },
+            { title: 'Data included', dataIndex: 'data' },
+            { title: 'Format', dataIndex: 'format', width: 110 },
+          ]}
+        />
+      </Card></section>
+      </div>
+    </>
   );
 }
