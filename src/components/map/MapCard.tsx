@@ -1,3 +1,4 @@
+import { fieldGeoJson } from '../../data/fieldGeoJson';
 import { Badge, Button, Card, Flex, Typography } from 'antd';
 import { Expand } from 'lucide-react';
 import { useFarm } from '../../hooks/useFarm';
@@ -25,6 +26,7 @@ export function MapCard({ navigate, expanded = false, adding = false }: { naviga
     >
       <FieldMap
         fields={fields}
+        geojson={fieldGeoJson}
         onSelect={field => navigate(`/fields/${field.id}`)}
         adding={adding}
         onAdd={id => navigate(`/map/add/${id}`)}

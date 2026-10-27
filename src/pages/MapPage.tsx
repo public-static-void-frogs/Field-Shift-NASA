@@ -1,3 +1,4 @@
+import { fieldGeoJson } from '../data/fieldGeoJson';
 import { Button } from 'antd';
 import { useFarm } from '../hooks/useFarm';
 import { FieldMap } from '../components/map/FieldMap';
@@ -9,6 +10,7 @@ export function MapPage({ navigate, adding = false }: { navigate: Navigate; addi
     <div className="fullscreen-map">
       <FieldMap
         fields={fields}
+        geojson={fieldGeoJson}
         onSelect={field => navigate(`/fields/${field.id}`)}
         adding={adding}
         onAdd={id => navigate(`/map/add/${id}`)}

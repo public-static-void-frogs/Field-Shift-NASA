@@ -8,20 +8,25 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs"
+    "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs",
+    "test:maps": "node --experimental-strip-types --test tests/mapGeometry.test.mjs"
   },
   "dependencies": {
     "antd": "file:vendor/antd-6.6.6.tgz",
     "dayjs": "file:vendor/dayjs-1.11.23.tgz",
+    "leaflet": "^1.9.4",
     "lucide-react": "file:vendor/lucide-react-1.49.0.tgz",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-leaflet": "^5.0.0",
     "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@rolldown/plugin-babel": "^0.2.4",
     "@types/babel__core": "^7.20.5",
+    "@types/geojson": "^7946.0.16",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
