@@ -16,6 +16,12 @@ npm run build
 npm run preview
 ```
 
+## Formatting
+
+Run `npm run format` to format the project with Prettier, or `npm run format:check`
+to verify formatting. The shared configuration uses single quotes and a 100-column
+print width. Generated output, vendored dependencies, and the npm lockfile are excluded.
+
 ## Project structure
 
 ```text
@@ -109,8 +115,8 @@ pass a different collection to the same component:
   geojson={yourFeatureCollection}
   fields={fields}
   adding={false}
-  onSelect={field => navigate(`/fields/${field.id}`)}
-  onAdd={id => navigate(`/map/add/${id}`)}
+  onSelect={(field) => navigate(`/fields/${field.id}`)}
+  onAdd={(id) => navigate(`/map/add/${id}`)}
 />
 ```
 

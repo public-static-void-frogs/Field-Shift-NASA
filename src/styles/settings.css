@@ -46,7 +46,7 @@
   row-gap: 0;
 }
 
-.settings-location-grid .ant-form-item:nth-last-child(-n+2) {
+.settings-location-grid .ant-form-item:nth-last-child(-n + 2) {
   margin-bottom: 0;
 }
 

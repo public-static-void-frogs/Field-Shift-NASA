@@ -49,25 +49,12 @@ export function AppRoutes({ route, navigate }: { route: string; navigate: Naviga
         eventId={params.get('event') ?? undefined}
       />
     );
-
   } else if (strategyRoute) {
     page = <FieldStrategyPage key={path} fieldId={Number(strategyRoute[1])} navigate={navigate} />;
   } else if (fieldRoute) {
-    page = (
-      <FieldDetailsPage
-        key={path}
-        fieldId={Number(fieldRoute[1])}
-        navigate={navigate}
-      />
-    );
+    page = <FieldDetailsPage key={path} fieldId={Number(fieldRoute[1])} navigate={navigate} />;
   } else if (addRoute) {
-    page = (
-      <AddFieldPage
-        key={path}
-        parcelId={Number(addRoute[1])}
-        navigate={navigate}
-      />
-    );
+    page = <AddFieldPage key={path} parcelId={Number(addRoute[1])} navigate={navigate} />;
   } else {
     page = pages[path as keyof typeof pages] ?? (
       <Result
@@ -75,7 +62,8 @@ export function AppRoutes({ route, navigate }: { route: string; navigate: Naviga
         title={t('Page not found')}
         extra={
           <Button type="primary" onClick={() => navigate('/')}>
-             {t('Back to overview')} </Button>
+            {t('Back to overview')}{' '}
+          </Button>
         }
       />
     );

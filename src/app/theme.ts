@@ -44,7 +44,7 @@ export const theme: ThemeConfig = {
     Card: {
       headerFontSize: 19,
       headerHeight: 68,
-      bodyPadding: 24
+      bodyPadding: 24,
     },
     Menu: {
       itemBg: 'transparent',

@@ -6,7 +6,15 @@ import { useFarm } from '../../hooks/useFarm';
 import type { Navigate } from '../../types/navigation';
 import { FieldMap } from './FieldMap';
 
-export function MapCard({ navigate, expanded = false, adding = false }: { navigate: Navigate; expanded?: boolean; adding?: boolean; }) {
+export function MapCard({
+  navigate,
+  expanded = false,
+  adding = false,
+}: {
+  navigate: Navigate;
+  expanded?: boolean;
+  adding?: boolean;
+}) {
   const { t } = useTranslation();
   const { fields } = useFarm();
   return (
@@ -14,9 +22,9 @@ export function MapCard({ navigate, expanded = false, adding = false }: { naviga
       <FieldMap
         fields={fields}
         geojson={fieldGeoJson}
-        onSelect={field => navigate(`/fields/${field.id}`)}
+        onSelect={(field) => navigate(`/fields/${field.id}`)}
         adding={adding}
-        onAdd={id => navigate(`/map/add/${id}`)}
+        onAdd={(id) => navigate(`/map/add/${id}`)}
         expanded={expanded}
       />
       <Tooltip title={expanded ? t('Return to overview') : t('Expand map')}>

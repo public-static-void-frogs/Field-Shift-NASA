@@ -19,8 +19,10 @@
   border: 1px solid #dce4cf;
   border-radius: 24px 8px 24px 8px;
   background: #fdfefb;
-  box-shadow: 0 12px 48px #3e55340d, 0 0 0 10px #fdfefb66;
-  animation: login-form-arrive .6s ease-out both;
+  box-shadow:
+    0 12px 48px #3e55340d,
+    0 0 0 10px #fdfefb66;
+  animation: login-form-arrive 0.6s ease-out both;
 }
 
 .login-brand {
@@ -32,7 +34,7 @@
   color: #3e5534;
   font-size: 24px;
   font-weight: 650;
-  letter-spacing: -.9px;
+  letter-spacing: -0.9px;
 }
 
 .login-brand img {
@@ -49,7 +51,7 @@
   line-height: 1.4;
   font-weight: 500;
   text-align: center;
-  letter-spacing: -.4px;
+  letter-spacing: -0.4px;
 }
 
 .login-clearing .ant-form-item {
@@ -84,7 +86,7 @@
   color: #3e5534;
   font-size: 17px;
   font-weight: 600;
-  letter-spacing: -.5px;
+  letter-spacing: -0.5px;
 }
 
 .login-corner-brand img {
@@ -92,8 +94,14 @@
 }
 
 @keyframes login-form-arrive {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 600px) {

@@ -165,7 +165,7 @@ export function getFieldProperties(fieldId: number): FieldProperties {
   return fieldProperties[fieldId] ?? fieldProperties[6];
 }
 export function getCropProperties(field: Field): FieldProperties {
-  const originalCrop = initialFields.find(item => item.id === field.id)?.crop ?? 'Soybeans';
+  const originalCrop = initialFields.find((item) => item.id === field.id)?.crop ?? 'Soybeans';
   if (field.crop === originalCrop) return getFieldProperties(field.id);
   const templateId = field.crop === 'Winter wheat' ? 1 : field.crop === 'Corn' ? 2 : 3;
   return getFieldProperties(templateId);

@@ -60,7 +60,9 @@
 }
 
 @media (max-width: 800px) {
-  .project-problem-solution { grid-template-columns: 1fr; }
+  .project-problem-solution {
+    grid-template-columns: 1fr;
+  }
 }
 
 .team-garden {
@@ -80,7 +82,7 @@
 
 .team-intro {
   display: grid;
-  grid-template-columns: minmax(180px, .65fr) minmax(0, 1.7fr);
+  grid-template-columns: minmax(180px, 0.65fr) minmax(0, 1.7fr);
   align-items: center;
   gap: 28px;
   padding: 24px;
@@ -154,17 +156,33 @@
 }
 
 @media (max-width: 1000px) {
-  .team-garden { padding: 24px; }
-  .team-intro { grid-template-columns: 1fr; gap: 16px; }
-  .team-grid { gap: 16px; }
+  .team-garden {
+    padding: 24px;
+  }
+  .team-intro {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .team-grid {
+    gap: 16px;
+  }
 }
 
 @media (max-width: 800px) {
-  .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 520px) {
-  .team-garden { padding: 18px; border-radius: 18px; }
-  .team-intro { padding: 20px; }
-  .team-grid { grid-template-columns: 1fr; }
+  .team-garden {
+    padding: 18px;
+    border-radius: 18px;
+  }
+  .team-intro {
+    padding: 20px;
+  }
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
 }

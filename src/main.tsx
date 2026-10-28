@@ -9,8 +9,10 @@ import './styles/dashboard.css';
 import './styles/field-details.css';
 import './styles/planning.css';
 import './styles/team.css';
-void i18nReady.then(() => createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-));
+void i18nReady.then(() =>
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  ),
+);

@@ -15,27 +15,17 @@ export function PageHeading({ title, description, eyebrow, actions }: PageHeadin
   const { t } = useTranslation();
   const headingEyebrow = eyebrow ?? t('YOUR FARM, AT A GLANCE');
   return (
-    <Flex
-      className="page-heading"
-      justify="space-between"
-      align="center"
-      gap={20}
-      wrap
-    >
+    <Flex className="page-heading" justify="space-between" align="center" gap={20} wrap>
       <div>
-        {headingEyebrow && <Text className="eyebrow">
-          {headingEyebrow}
-        </Text>}
-        <Title level={1}>
-          {title}
-        </Title>
-        <Paragraph type="secondary">
-          {description}
-        </Paragraph>
+        {headingEyebrow && <Text className="eyebrow">{headingEyebrow}</Text>}
+        <Title level={1}>{title}</Title>
+        <Paragraph type="secondary">{description}</Paragraph>
       </div>
-      {actions && <Flex gap={10} wrap>
-        {actions}
-      </Flex>}
+      {actions && (
+        <Flex gap={10} wrap>
+          {actions}
+        </Flex>
+      )}
     </Flex>
   );
 }

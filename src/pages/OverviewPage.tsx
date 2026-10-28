@@ -9,14 +9,19 @@ import { WeatherCard } from '../components/weather/WeatherCard';
 import { useFarm } from '../hooks/useFarm';
 import type { Navigate } from '../types/navigation';
 
-export function OverviewPage({ navigate }: { navigate: Navigate; }) {
+export function OverviewPage({ navigate }: { navigate: Navigate }) {
   const { t, i18n } = useTranslation();
   const { fields } = useFarm();
   const totalArea = fields.reduce((total, field) => total + field.area, 0);
-  const attentionCount = fields.filter(field => field.status !== 'Healthy').length;
-  const criticalCount = fields.filter(field => field.status === 'Critical').length;
+  const attentionCount = fields.filter((field) => field.status !== 'Healthy').length;
+  const criticalCount = fields.filter((field) => field.status === 'Critical').length;
   const summary = fields.length
-    ? t('Farm summary', { count: fields.length, area: totalArea.toLocaleString(i18n.resolvedLanguage, { maximumFractionDigits: 1 }), attention: attentionCount, critical: criticalCount })
+    ? t('Farm summary', {
+        count: fields.length,
+        area: totalArea.toLocaleString(i18n.resolvedLanguage, { maximumFractionDigits: 1 }),
+        attention: attentionCount,
+        critical: criticalCount,
+      })
     : t('No fields added yet. Add a field to view its location and monitor crop conditions.');
 
   return (
@@ -25,11 +30,16 @@ export function OverviewPage({ navigate }: { navigate: Navigate; }) {
         eyebrow=""
         title={t('Overview')}
         description={summary}
-        actions={<><Button icon={<CalendarDays size={18} />} onClick={() => navigate('/history')}>{t('Environment history')}</Button><Button
-          type="primary"
-          icon={<Plus size={19} />}
-          onClick={() => navigate('/map/add')}
-        >{t('Add field')}</Button></>}
+        actions={
+          <>
+            <Button icon={<CalendarDays size={18} />} onClick={() => navigate('/history')}>
+              {t('Environment history')}
+            </Button>
+            <Button type="primary" icon={<Plus size={19} />} onClick={() => navigate('/map/add')}>
+              {t('Add field')}
+            </Button>
+          </>
+        }
       />
       <section className="map-weather-grid">
         <MapCard navigate={navigate} />

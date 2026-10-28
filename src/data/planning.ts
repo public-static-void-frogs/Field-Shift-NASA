@@ -40,20 +40,25 @@ const modelConfidence: Record<number, number> = {
   3: 93,
   4: 86,
   5: 92,
-  6: 89
+  6: 89,
 };
 
 export function getRotationPlan(field: Field): RotationPlan {
   const properties = getFieldProperties(field.id);
-  const nextCrop = field.crop === 'Soybeans' ? (field.id === 3 ? 'Winter wheat' : 'Corn') : 'Soybeans';
+  const nextCrop =
+    field.crop === 'Soybeans' ? (field.id === 3 ? 'Winter wheat' : 'Corn') : 'Soybeans';
   const followingCrop = nextCrop === 'Soybeans' ? 'Corn' : 'Soybeans';
   const planting = calculatePlantingDate(nextCrop, properties.soilPh, field.moisture);
   const followingDate = followingCrop === 'Corn' ? '2028-04-18' : '2028-04-22';
   const dateNotes = [
     `Starts with the regional ${nextCrop.toLowerCase()} planting window.`,
-    planting.soilPreparationDays ? 'Allows 7 additional days for soil preparation following the low-pH assessment.' : '',
+    planting.soilPreparationDays
+      ? 'Allows 7 additional days for soil preparation following the low-pH assessment.'
+      : '',
     planting.moistureReviewDays ? 'Allows 3 additional days for a moisture readiness check.' : '',
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
   const reasons = [
     nextCrop === 'Soybeans'
       ? `${field.crop} → soybeans introduces a legume break and lowers the next crop’s nitrogen demand.`
@@ -91,7 +96,12 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
   const properties = getFieldProperties(field.id);
   const prefix = `field-${field.id}`;
   const soilDate = field.status === 'Critical' ? '2026-05-25' : '2026-05-26';
-  const harvestDate = field.crop === 'Winter wheat' ? '2026-07-16' : field.crop === 'Corn' ? '2026-10-10' : '2026-09-20';
+  const harvestDate =
+    field.crop === 'Winter wheat'
+      ? '2026-07-16'
+      : field.crop === 'Corn'
+        ? '2026-10-10'
+        : '2026-09-20';
   const seedbedDate = dayjs(plan.sowingDate).subtract(14, 'day');
   const earliestPreparation = dayjs(harvestDate).add(1, 'day');
   const events: PlannedEvent[] = [
@@ -111,7 +121,9 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
       id: `${prefix}-inspection`,
       fieldId: field.id,
       fieldName: field.name,
-      date: dayjs('2026-06-01').add(field.id % 3, 'day').format('YYYY-MM-DD'),
+      date: dayjs('2026-06-01')
+        .add(field.id % 3, 'day')
+        .format('YYYY-MM-DD'),
       category: 'Crop inspection',
       title: 'Review crop growth and stressed zones',
       description: `Walk the field and compare canopy development in the marked health zones. Record pest pressure and changes in the ${field.crop.toLowerCase()} crop.`,
@@ -135,13 +147,16 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
       id: `${prefix}-seedbed`,
       fieldId: field.id,
       fieldName: field.name,
-      date: (seedbedDate.isBefore(earliestPreparation) ? earliestPreparation : seedbedDate).format('YYYY-MM-DD'),
+      date: (seedbedDate.isBefore(earliestPreparation) ? earliestPreparation : seedbedDate).format(
+        'YYYY-MM-DD',
+      ),
       category: 'Field preparation',
       title: `Prepare the seedbed for ${plan.nextCrop.toLowerCase()}`,
       description: `Review the latest soil results, manage residues, and prepare equipment for the transition to ${plan.nextCrop.toLowerCase()}. Confirm seed availability and the field's trafficability.`,
       priority: 'Important',
       duration: 'All day',
-      rationale: 'Scheduled after the current harvest, aiming for 14 days before the calculated planting date.',
+      rationale:
+        'Scheduled after the current harvest, aiming for 14 days before the calculated planting date.',
     },
     {
       id: `${prefix}-rotation-2027`,
@@ -165,7 +180,8 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
       description: `Continue the proposed rotation from ${plan.nextCrop.toLowerCase()} to ${plan.followingCrop.toLowerCase()}. Review this longer-term step after the 2027 harvest and new soil results.`,
       priority: 'Routine',
       duration: 'All day · longer-term outlook',
-      rationale: 'Second step in the predicted crop sequence; reviewed as new field observations become available.',
+      rationale:
+        'Second step in the predicted crop sequence; reviewed as new field observations become available.',
     },
   ];
   if (field.moisture < 45) {
@@ -190,7 +206,8 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
       date: '2026-05-28',
       category: 'Nutrition',
       title: 'Review and apply the nutrient top-up',
-      description: 'Use the soil check results to confirm the nutrient plan. Arrange the planned application around the light rain window and record the applied rate.',
+      description:
+        'Use the soil check results to confirm the nutrient plan. Arrange the planned application around the light rain window and record the applied rate.',
       priority: field.nitrogen < 20 ? 'High priority' : 'Important',
       duration: 'Morning · 2–3 hours',
       rationale: `Available nitrogen is ${field.nitrogen} mg/kg. Address the shortage before the next crop review.`,
@@ -204,7 +221,8 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
       date: dayjs(harvestDate).add(14, 'day').format('YYYY-MM-DD'),
       category: 'Field preparation',
       title: 'Establish post-harvest cover',
-      description: 'Inspect harvest residues and establish a suitable winter cover where conditions allow. Protect the soil between harvest and the next main crop.',
+      description:
+        'Inspect harvest residues and establish a suitable winter cover where conditions allow. Protect the soil between harvest and the next main crop.',
       priority: 'Routine',
       duration: 'All day · conditions permitting',
       rationale: 'A cover period is included in the gap before the next spring planting.',
@@ -213,7 +231,9 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
   return events.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }
 export function getSystemPlanEvents(fields: Field[]): PlannedEvent[] {
-  return fields.flatMap(getFieldPlanEvents).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  return fields
+    .flatMap(getFieldPlanEvents)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }
 export function calendarPath(date: string, fieldId?: number, eventId?: string): string {
   const params = new URLSearchParams();

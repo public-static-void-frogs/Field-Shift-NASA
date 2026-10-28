@@ -1,4 +1,5 @@
-export type LandEventCategory = 'Crop rotation' | 'Soil conditions' | 'Field work' | 'Weather & water';
+export type LandEventCategory =
+  'Crop rotation' | 'Soil conditions' | 'Field work' | 'Weather & water';
 
 export interface LandEvent {
   id: string;

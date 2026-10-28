@@ -18,12 +18,14 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next);
 
-i18n.on('languageChanged', language => {
+i18n.on('languageChanged', (language) => {
   const locale = language === 'uk' ? 'uk' : 'en';
   document.documentElement.lang = locale;
   dayjs.locale(locale);
   document.title = i18n.t('App title');
-  document.querySelector('meta[name="description"]')?.setAttribute('content', i18n.t('App description'));
+  document
+    .querySelector('meta[name="description"]')
+    ?.setAttribute('content', i18n.t('App description'));
 });
 
 export const i18nReady = i18n.init(i18nOptions);

@@ -110,9 +110,15 @@
   border-radius: 50%;
 }
 
-.green { background: #82a66a; }
-.yellow { background: #c8b969; }
-.orange { background: #d59a62; }
+.green {
+  background: #82a66a;
+}
+.yellow {
+  background: #c8b969;
+}
+.orange {
+  background: #d59a62;
+}
 
 .add-map-prompt {
   position: absolute;

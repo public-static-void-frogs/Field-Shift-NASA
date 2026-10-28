@@ -1,4 +1,11 @@
-export type PlanCategory = 'Crop rotation' | 'Soil check' | 'Nutrition' | 'Irrigation' | 'Crop inspection' | 'Harvest' | 'Field preparation';
+export type PlanCategory =
+  | 'Crop rotation'
+  | 'Soil check'
+  | 'Nutrition'
+  | 'Irrigation'
+  | 'Crop inspection'
+  | 'Harvest'
+  | 'Field preparation';
 
 export type PlanPriority = 'Routine' | 'Important' | 'High priority';
 
@@ -13,7 +20,7 @@ export interface RotationPlan {
   followingDate: string;
   dateExplanation: string;
   reasons: string[];
-  inputs: { label: string; value: string; }[];
+  inputs: { label: string; value: string }[];
 }
 export interface PlannedEvent {
   id: string;

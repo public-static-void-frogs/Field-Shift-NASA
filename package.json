@@ -11,7 +11,9 @@
     "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs",
     "test:maps": "node --experimental-strip-types --test tests/mapGeometry.test.mjs",
     "test:strategy": "node --experimental-strip-types --test tests/strategy.test.mjs",
-    "test:i18n": "node --experimental-strip-types --test tests/i18n.test.mjs"
+    "test:i18n": "node --experimental-strip-types --test tests/i18n.test.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "antd": "file:vendor/antd-6.6.6.tgz",
@@ -39,6 +41,7 @@
     "@vitejs/plugin-react": "^6.1.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "oxlint": "^1.88.0",
+    "prettier": "^3.9.10",
     "typescript": "~6.0.3",
     "vite": "^8.3.4"
   },

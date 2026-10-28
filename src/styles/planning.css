@@ -201,7 +201,6 @@
   color: #fff;
 }
 
-
 .calendar-cell-event .calendar-event-label {
   min-width: 0;
   overflow: hidden;
@@ -663,7 +662,7 @@
 }
 
 .calendar-event-proposed.ant-btn {
-  opacity: .78;
+  opacity: 0.78;
   border: 1px dashed #ffffff99;
 }
 

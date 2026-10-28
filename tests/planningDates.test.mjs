@@ -1,22 +1,22 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
-  calculatePlantingDate,
-  getEventStatus,
-  isPlanDate,
-} from '../src/utils/planningDates.ts';
+import { calculatePlantingDate, getEventStatus, isPlanDate } from '../src/utils/planningDates.ts';
 
 test('normal soybean conditions retain the regional planting date', () => {
   assert.deepEqual(calculatePlantingDate('Soybeans', 6.5, 64), {
-    date: '2027-04-22', windowEnd: '2027-05-02',
-    soilPreparationDays: 0, moistureReviewDays: 0,
+    date: '2027-04-22',
+    windowEnd: '2027-05-02',
+    soilPreparationDays: 0,
+    moistureReviewDays: 0,
   });
 });
 
 test('low pH and dry soil shift the planting window across the month boundary', () => {
   assert.deepEqual(calculatePlantingDate('Soybeans', 5.6, 32), {
-    date: '2027-05-02', windowEnd: '2027-05-12',
-    soilPreparationDays: 7, moistureReviewDays: 3,
+    date: '2027-05-02',
+    windowEnd: '2027-05-12',
+    soilPreparationDays: 7,
+    moistureReviewDays: 3,
   });
 });
 

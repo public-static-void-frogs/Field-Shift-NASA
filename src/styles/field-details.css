@@ -130,7 +130,9 @@
   background:
     linear-gradient(115deg, #eef5ff 0%, #f8f3ff 50%, #fceefa 100%) padding-box,
     linear-gradient(115deg, #7cbcff, #aa83ff, #ec9ae2, #7cbcff) border-box;
-  background-size: 100% 100%, 300% 300%;
+  background-size:
+    100% 100%,
+    300% 300%;
   box-shadow:
     0 0 0 1px #a58ae51a,
     0 0 24px #9a7beb30,
@@ -156,14 +158,34 @@
 }
 
 @keyframes ai-insight-border {
-  0%, 100% { background-position: 0 0, 0% 50%; }
-  50% { background-position: 0 0, 100% 50%; }
+  0%,
+  100% {
+    background-position:
+      0 0,
+      0% 50%;
+  }
+  50% {
+    background-position:
+      0 0,
+      100% 50%;
+  }
 }
 
 @keyframes ai-insight-twinkle {
-  0%, 65%, 100% { opacity: .75; transform: scale(1) rotate(0); }
-  78% { opacity: 1; transform: scale(1.14) rotate(8deg); }
-  88% { opacity: .85; transform: scale(1.02) rotate(-3deg); }
+  0%,
+  65%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1) rotate(0);
+  }
+  78% {
+    opacity: 1;
+    transform: scale(1.14) rotate(8deg);
+  }
+  88% {
+    opacity: 0.85;
+    transform: scale(1.02) rotate(-3deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

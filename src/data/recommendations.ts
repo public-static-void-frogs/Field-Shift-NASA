@@ -1,6 +1,5 @@
 import type { Field } from '../types/field';
 
-
 export function getRecommendation(field: Field) {
   if (field.status === 'Healthy') {
     return {
@@ -11,8 +10,13 @@ export function getRecommendation(field: Field) {
   }
   const lowNitrogen = field.nitrogen < 20;
   return {
-    title: field.status === 'Critical' ? 'A little action now can make a big difference.' : 'Let’s give this field a little extra care.',
+    title:
+      field.status === 'Critical'
+        ? 'A little action now can make a big difference.'
+        : 'Let’s give this field a little extra care.',
     description: `${field.name} is showing signs of ${lowNitrogen ? 'nitrogen deficiency' : 'moisture stress'}, which could slow your ${field.crop.toLowerCase()} growth. ${lowNitrogen ? 'Plan a nitrogen top-up within the next 48 hours, ideally before the light rain on Thursday to help nutrients reach the roots.' : 'Check your irrigation schedule and give the soil a moderate watering before the warmer days ahead.'}`,
-    nextStep: lowNitrogen ? 'Schedule a soil check and nitrogen application.' : 'Check irrigation and soil moisture tomorrow.',
+    nextStep: lowNitrogen
+      ? 'Schedule a soil check and nitrogen application.'
+      : 'Check irrigation and soil moisture tomorrow.',
   };
 }

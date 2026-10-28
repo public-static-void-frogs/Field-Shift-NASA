@@ -48,22 +48,55 @@ function MapViewport({ data }: { data: FieldGeoJson }) {
 }
 
 function parcelStyle(field: Field | undefined, layer: MapLayer): PathOptions {
-  const color = !field ? '#f1ebcf' : layer === 'Field boundaries' ? '#f1ebcf' : layer === 'Soil moisture'
-    ? field.moisture >= 60 ? '#61b4d4' : field.moisture >= 40 ? '#9bcdd9' : '#dbe5b2'
-    : field.status === 'Critical' ? '#e7aa66' : field.status === 'Needs attention' ? '#e4d17c' : '#c0dd8d';
-  return { color, fillColor: color, weight: field ? 2.5 : 1.5, fillOpacity: layer === 'Field boundaries' ? .02 : field ? .2 : .06, dashArray: field ? undefined : '6 5' };
+  const color = !field
+    ? '#f1ebcf'
+    : layer === 'Field boundaries'
+      ? '#f1ebcf'
+      : layer === 'Soil moisture'
+        ? field.moisture >= 60
+          ? '#61b4d4'
+          : field.moisture >= 40
+            ? '#9bcdd9'
+            : '#dbe5b2'
+        : field.status === 'Critical'
+          ? '#e7aa66'
+          : field.status === 'Needs attention'
+            ? '#e4d17c'
+            : '#c0dd8d';
+  return {
+    color,
+    fillColor: color,
+    weight: field ? 2.5 : 1.5,
+    fillOpacity: layer === 'Field boundaries' ? 0.02 : field ? 0.2 : 0.06,
+    dashArray: field ? undefined : '6 5',
+  };
 }
 
-function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldMapProps & { layer: MapLayer }) {
+function ParcelLayer({
+  fields,
+  geojson,
+  layer,
+  onSelect,
+  onAdd,
+  adding,
+}: FieldMapProps & { layer: MapLayer }) {
   const { t } = useTranslation();
   const map = useMap();
   useEffect(() => {
     const parcels = geoJSON(geojson, {
-      style: feature => parcelStyle(fields.find(field => field.id === (feature ? getFeatureFieldId(feature) : undefined)), layer),
+      style: (feature) =>
+        parcelStyle(
+          fields.find((field) => field.id === (feature ? getFeatureFieldId(feature) : undefined)),
+          layer,
+        ),
       onEachFeature: (feature, polygon) => {
         const id = getFeatureFieldId(feature);
-        const field = fields.find(item => item.id === id);
-        const label = field ? t('View {{name}}', { name: field.name }) : id ? t('Add this field') : feature.properties?.name || t('Parcel');
+        const field = fields.find((item) => item.id === id);
+        const label = field
+          ? t('View {{name}}', { name: field.name })
+          : id
+            ? t('Add this field')
+            : feature.properties?.name || t('Parcel');
         const activate = () => {
           if (field) onSelect(field);
           else if (id) onAdd(id);
@@ -72,7 +105,11 @@ function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldM
         if (polygon instanceof Path) {
           const style = parcelStyle(field, layer);
           polygon.on({
-            mouseover: () => polygon.setStyle({ weight: 4, fillOpacity: layer === 'Field boundaries' ? .08 : .35 }),
+            mouseover: () =>
+              polygon.setStyle({
+                weight: 4,
+                fillOpacity: layer === 'Field boundaries' ? 0.08 : 0.35,
+              }),
             mouseout: () => polygon.setStyle(style),
             add: () => {
               const element = polygon.getElement();
@@ -80,8 +117,11 @@ function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldM
               element.setAttribute('role', field || id ? 'button' : 'img');
               if (field || id) element.setAttribute('tabindex', '0');
               element.setAttribute('aria-label', label);
-              element.addEventListener('keydown', event => {
-                if (event instanceof KeyboardEvent && (event.key === 'Enter' || event.key === ' ')) {
+              element.addEventListener('keydown', (event) => {
+                if (
+                  event instanceof KeyboardEvent &&
+                  (event.key === 'Enter' || event.key === ' ')
+                ) {
                   event.preventDefault();
                   event.stopPropagation();
                   activate();
@@ -98,65 +138,148 @@ function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldM
           content.append(title);
           if (field) {
             const detail = document.createElement('span');
-            detail.textContent = t('{{value0}} ha · {{value1}}', { value0: field.area, value1: field.crop });
+            detail.textContent = t('{{value0}} ha · {{value1}}', {
+              value0: field.area,
+              value1: field.crop,
+            });
             content.append(detail);
           }
-          polygon.bindTooltip(content, { permanent: true, direction: 'center', className: 'field-map-label', opacity: 1 });
+          polygon.bindTooltip(content, {
+            permanent: true,
+            direction: 'center',
+            className: 'field-map-label',
+            opacity: 1,
+          });
         }
       },
     }).addTo(map);
-    return () => { parcels.remove(); };
+    return () => {
+      parcels.remove();
+    };
   }, [map, geojson, fields, layer, onSelect, onAdd, adding, t]);
   return null;
 }
 
-export function FieldMap({ fields, geojson, onSelect, adding, onAdd, expanded = false, boundaryOnly = false }: FieldMapProps) {
+export function FieldMap({
+  fields,
+  geojson,
+  onSelect,
+  adding,
+  onAdd,
+  expanded = false,
+  boundaryOnly = false,
+}: FieldMapProps) {
   const { t } = useTranslation();
   const map = useRef<LeafletMap | null>(null);
   const [selectedLayer, setLayer] = useState<MapLayer>('Crop health');
   const layer = boundaryOnly ? 'Field boundaries' : selectedLayer;
   const { preferences } = useFarm();
-  const legend = layer === 'Soil moisture'
-    ? [{ color: '#61b4d4', label: t('60% or more') }, { color: '#9bcdd9', label: '40–59%' }, { color: '#dbe5b2', label: t('Below 40%') }]
-    : layer === 'Field boundaries'
-      ? [{ color: '#f1ebcf', label: t('Field boundaries') }, { color: '#f1ebcf', label: t('Dashed: available') }]
-      : [{ color: '#82a66a', label: t('Healthy') }, { color: '#c8b969', label: t('Needs attention') }, { color: '#d59a62', label: t('Critical') }];
+  const legend =
+    layer === 'Soil moisture'
+      ? [
+          { color: '#61b4d4', label: t('60% or more') },
+          { color: '#9bcdd9', label: '40–59%' },
+          { color: '#dbe5b2', label: t('Below 40%') },
+        ]
+      : layer === 'Field boundaries'
+        ? [
+            { color: '#f1ebcf', label: t('Field boundaries') },
+            { color: '#f1ebcf', label: t('Dashed: available') },
+          ]
+        : [
+            { color: '#82a66a', label: t('Healthy') },
+            { color: '#c8b969', label: t('Needs attention') },
+            { color: '#d59a62', label: t('Critical') },
+          ];
 
-  return <div className={`field-map ${expanded ? 'expanded' : ''}`}>
-    <MapContainer
-      ref={map}
-      className="map-canvas"
-      center={defaultCenter}
-      zoom={14}
-      zoomSnap={.25}
-      minZoom={2}
-      maxZoom={19}
-      zoomControl={false}
-      scrollWheelZoom
-    >
-      <TileLayer url={satelliteTiles.url} attribution={satelliteTiles.attribution} maxNativeZoom={19} maxZoom={19} />
-      <MapViewport data={geojson} />
-      <ParcelLayer fields={fields} geojson={geojson} layer={layer} onSelect={onSelect} onAdd={onAdd} adding={adding} />
-      <ScaleControl position="bottomright" imperial={false} />
-    </MapContainer>
-    <div className="map-location"><MapPin size={13} />{preferences.farmName}<span>·</span>Iowa, US</div>
-    {!boundaryOnly && <div className="map-layer">
-      <Select
-        aria-label={t('Map layer')}
-        value={layer}
-        onChange={setLayer}
-        prefix={<Layers size={14} />}
-        options={['Crop health', 'Soil moisture', 'Field boundaries'].map(value => ({ value, label: t(value) }))}
-      />
-    </div>}
-    <div className="map-controls">
-      <Tooltip title={t('Zoom in')}><Button type="text" aria-label={t('Zoom in')} onClick={() => map.current?.zoomIn()}><Plus size={17} /></Button></Tooltip>
-      <Tooltip title={t('Zoom out')}><Button type="text" aria-label={t('Zoom out')} onClick={() => map.current?.zoomOut()}><Minus size={17} /></Button></Tooltip>
-      <Tooltip title={t('Recenter map')}><Button type="text" aria-label={t('Recenter map')} onClick={() => { if (map.current) fitParcels(map.current, geojson); }}><LocateFixed size={17} /></Button></Tooltip>
+  return (
+    <div className={`field-map ${expanded ? 'expanded' : ''}`}>
+      <MapContainer
+        ref={map}
+        className="map-canvas"
+        center={defaultCenter}
+        zoom={14}
+        zoomSnap={0.25}
+        minZoom={2}
+        maxZoom={19}
+        zoomControl={false}
+        scrollWheelZoom
+      >
+        <TileLayer
+          url={satelliteTiles.url}
+          attribution={satelliteTiles.attribution}
+          maxNativeZoom={19}
+          maxZoom={19}
+        />
+        <MapViewport data={geojson} />
+        <ParcelLayer
+          fields={fields}
+          geojson={geojson}
+          layer={layer}
+          onSelect={onSelect}
+          onAdd={onAdd}
+          adding={adding}
+        />
+        <ScaleControl position="bottomright" imperial={false} />
+      </MapContainer>
+      <div className="map-location">
+        <MapPin size={13} />
+        {preferences.farmName}
+        <span>·</span>Iowa, US
+      </div>
+      {!boundaryOnly && (
+        <div className="map-layer">
+          <Select
+            aria-label={t('Map layer')}
+            value={layer}
+            onChange={setLayer}
+            prefix={<Layers size={14} />}
+            options={['Crop health', 'Soil moisture', 'Field boundaries'].map((value) => ({
+              value,
+              label: t(value),
+            }))}
+          />
+        </div>
+      )}
+      <div className="map-controls">
+        <Tooltip title={t('Zoom in')}>
+          <Button type="text" aria-label={t('Zoom in')} onClick={() => map.current?.zoomIn()}>
+            <Plus size={17} />
+          </Button>
+        </Tooltip>
+        <Tooltip title={t('Zoom out')}>
+          <Button type="text" aria-label={t('Zoom out')} onClick={() => map.current?.zoomOut()}>
+            <Minus size={17} />
+          </Button>
+        </Tooltip>
+        <Tooltip title={t('Recenter map')}>
+          <Button
+            type="text"
+            aria-label={t('Recenter map')}
+            onClick={() => {
+              if (map.current) fitParcels(map.current, geojson);
+            }}
+          >
+            <LocateFixed size={17} />
+          </Button>
+        </Tooltip>
+      </div>
+      {!boundaryOnly && (
+        <div className="map-legend">
+          {legend.map((item) => (
+            <span key={item.label}>
+              <i style={{ background: item.color }} />
+              {item.label}
+            </span>
+          ))}
+        </div>
+      )}
+      {adding && (
+        <div className="add-map-prompt">
+          <Plus size={15} />
+          {t('Select an outlined parcel to add it to your farm')}
+        </div>
+      )}
     </div>
-    {!boundaryOnly && <div className="map-legend">
-      {legend.map(item => <span key={item.label}><i style={{ background: item.color }} />{item.label}</span>)}
-    </div>}
-    {adding && <div className="add-map-prompt"><Plus size={15} />{t('Select an outlined parcel to add it to your farm')}</div>}
-  </div>;
+  );
 }

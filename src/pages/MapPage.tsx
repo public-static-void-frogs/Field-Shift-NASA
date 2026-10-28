@@ -5,7 +5,7 @@ import { useFarm } from '../hooks/useFarm';
 import { FieldMap } from '../components/map/FieldMap';
 import type { Navigate } from '../types/navigation';
 
-export function MapPage({ navigate, adding = false }: { navigate: Navigate; adding?: boolean; }) {
+export function MapPage({ navigate, adding = false }: { navigate: Navigate; adding?: boolean }) {
   const { t } = useTranslation();
   const { fields } = useFarm();
   return (
@@ -13,13 +13,16 @@ export function MapPage({ navigate, adding = false }: { navigate: Navigate; addi
       <FieldMap
         fields={fields}
         geojson={fieldGeoJson}
-        onSelect={field => navigate(`/fields/${field.id}`)}
+        onSelect={(field) => navigate(`/fields/${field.id}`)}
         adding={adding}
-        onAdd={id => navigate(`/map/add/${id}`)}
+        onAdd={(id) => navigate(`/map/add/${id}`)}
         expanded
       />
-      {adding && <Button className="map-cancel-adding" onClick={() => navigate('/map')}>
-         {t('Cancel adding')} </Button>}
+      {adding && (
+        <Button className="map-cancel-adding" onClick={() => navigate('/map')}>
+          {t('Cancel adding')}{' '}
+        </Button>
+      )}
     </div>
   );
 }
