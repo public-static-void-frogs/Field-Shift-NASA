@@ -1,13 +1,18 @@
 import type { CalendarProps } from 'antd';
 import { Grid } from 'antd';
 import type { Dayjs } from 'dayjs';
-import type { SystemCalendarProps } from '../../../types/planning/SystemCalendar.types.ts';
+
+type UseSystemCalendarOptions = {
+  onDateSelect: (date: string) => void;
+  onPanelDateChange: (date: string) => void;
+  onModeChange: (mode: NonNullable<CalendarProps<Dayjs>['mode']>) => void;
+};
 
 export function useSystemCalendar({
   onDateSelect,
   onModeChange,
   onPanelDateChange,
-}: Pick<SystemCalendarProps, 'onDateSelect' | 'onModeChange' | 'onPanelDateChange'>) {
+}: UseSystemCalendarOptions) {
   const screens = Grid.useBreakpoint();
   const selectDate: CalendarProps<Dayjs>['onSelect'] = (date, info) => {
     if (info.source === 'date') {

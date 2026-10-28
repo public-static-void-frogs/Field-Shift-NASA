@@ -1,6 +1,5 @@
 import type { LoaderFunctionArgs } from 'react-router-dom';
 import { isPlanDate } from '../features/planning/utils/planningDates.ts';
-import type { FieldRouteData, ParcelRouteData } from '../types/shared/router.types.ts';
 
 function requirePositiveId(value: string | undefined): number {
   if (!value || !/^\d+$/.test(value)) {
@@ -12,9 +11,17 @@ function requirePositiveId(value: string | undefined): number {
   }
   return id;
 }
+export type FieldRouteData = {
+  fieldId: number;
+};
+
 export function fieldLoader({ params }: LoaderFunctionArgs): FieldRouteData {
   return { fieldId: requirePositiveId(params.fieldId) };
 }
+export type ParcelRouteData = {
+  parcelId: number;
+};
+
 export function parcelLoader({ params }: LoaderFunctionArgs): ParcelRouteData {
   return { parcelId: requirePositiveId(params.parcelId) };
 }

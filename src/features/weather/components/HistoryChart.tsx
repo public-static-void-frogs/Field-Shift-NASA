@@ -10,8 +10,16 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { HistoryChartProps } from '../../../types/weather/HistoryChart.types.ts';
+import type { WeatherMetric, WeatherRecord } from '../../../types/weather/weather.types.ts';
+
 import { useHistoryChart } from '../hooks/useHistoryChart.ts';
+
+type HistoryChartProps = {
+  records: WeatherRecord[];
+  metric: WeatherMetric;
+  selectedKey: number;
+  onSelect: (key: number) => void;
+};
 
 export function HistoryChart({ records, metric, selectedKey, onSelect }: HistoryChartProps) {
   const { t } = useTranslation();

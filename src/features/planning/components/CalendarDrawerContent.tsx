@@ -1,14 +1,21 @@
 import { Descriptions, Empty, Flex, Tag, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
-import type {
-  CalendarActionDetailsProps,
-  CalendarDrawerContentProps,
-  CalendarFieldConditionsProps,
-} from '../../../types/planning/CalendarDrawerContent.types.ts';
+import type { Field } from '../../../types/fields/field.types.ts';
+import type { PlannedEvent } from '../../../types/planning/planning.types.ts';
+
 import { priorityColors } from '../utils/eventPresentation.ts';
 import { formatPlanDate, getEventStatus } from '../utils/planningDates.ts';
 import { EventResponseControls } from './EventResponseControls';
 import { PlanEventCard } from './PlanEventCard';
+
+type CalendarDrawerContentProps = {
+  selectedEvent?: PlannedEvent;
+  selectedField?: Field;
+  eventId?: string;
+  selectedEvents: PlannedEvent[];
+  planningToday: string;
+  openEvent: (event: PlannedEvent) => void;
+};
 
 export function CalendarDrawerContent({
   selectedEvent,
@@ -43,6 +50,12 @@ export function CalendarDrawerContent({
     </div>
   );
 }
+
+type CalendarActionDetailsProps = {
+  event: PlannedEvent;
+  field?: Field;
+  planningToday: string;
+};
 
 function CalendarActionDetails({ event, field, planningToday }: CalendarActionDetailsProps) {
   const { t } = useTranslation();
@@ -79,6 +92,10 @@ function CalendarActionDetails({ event, field, planningToday }: CalendarActionDe
     </>
   );
 }
+
+type CalendarFieldConditionsProps = {
+  field: Field;
+};
 
 function CalendarFieldConditions({ field }: CalendarFieldConditionsProps) {
   const { t } = useTranslation();

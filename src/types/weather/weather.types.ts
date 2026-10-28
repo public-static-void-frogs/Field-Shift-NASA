@@ -1,5 +1,3 @@
-export type HistoryRange = '7 days' | '30 days' | '90 days';
-
 export interface WeatherRecord {
   key: number;
   date: string;
@@ -32,10 +30,4 @@ export interface CurrentWeather {
   wind: number;
   rainChance: number;
   forecast: ForecastDay[];
-}
-export interface WeatherMetricConfig {
-  title: string;
-  unit: string;
-  color: string;
-  description: string;
 }

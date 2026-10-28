@@ -38,7 +38,7 @@ src/
   hooks/         Shared hooks for farm resources and chart behavior
   pages/         Dedicated screens for each route
   styles/        Global, application layout, and dashboard styles
-  types/         API models, component props, and shared types grouped by feature
+  types/         Domain entities and data models grouped by feature
   utils/         General formatting, pagination, and pointer helpers
   main.tsx       Application entry point
 ```
@@ -61,6 +61,11 @@ features/
 Calendar components belong to `features/planning/components`; field, weather,
 overview, help, and layout components follow the same pattern. Only shared UI
 such as router buttons, headings, and error boundaries stays in `components/common`.
+
+Component props types live immediately above their component in the same file,
+including subcomponents. Hook-specific types live alongside their hook; API request
+and query-option types stay with their owning module. `src/types` contains only
+domain entities and data models.
 
 Components focus on rendering, translations, queries, and feature hooks. Substantial state and
 effects live in `src/features/<feature>/hooks`; pure feature functions live in the adjacent
@@ -201,7 +206,7 @@ src/api/fields/
   fields.queries.ts    Stable fieldQueryKeys and reusable fieldQueries options
   fields.mutations.ts  Mutations and invalidation of dependent resources
   mocks/               Fixture records, generators, and the in-memory service store
-src/types/fields/      Field models, request/response types, and component/page props
+src/types/fields/      Field entities and domain data models
 ```
 
 Components consume query options with `useSuspenseQuery` or `useSuspenseQueries`.

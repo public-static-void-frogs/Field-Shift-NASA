@@ -198,14 +198,11 @@ async function sourceFiles(directory) {
   return paths.flat().filter((path) => /\.tsx?$/.test(path));
 }
 
-test('UI does not import mocks; named type declarations live in feature type folders', async () => {
+test('UI does not import mock implementations', async () => {
   for (const file of await sourceFiles(new URL('../src', import.meta.url).pathname)) {
     const source = await readFile(file, 'utf8');
     if (!file.includes('/api/')) {
       assert.doesNotMatch(source, /(?:from\s*|import\s*\()['"][^'"]*\/mocks\//, file);
-    }
-    if (!file.includes('/types/')) {
-      assert.doesNotMatch(source, /^(?:export )?(?:interface|type) \w+/m, file);
     }
   }
 });

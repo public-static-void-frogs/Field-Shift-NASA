@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { HistoryRange } from '../../../types/weather/weather.types.ts';
+import type { HistoryRange } from '../../../api/weather/weather.api.ts';
 
 export function useWeatherSelection() {
   const [range, setRange] = useState<HistoryRange>('7 days');

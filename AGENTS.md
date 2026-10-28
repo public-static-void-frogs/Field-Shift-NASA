@@ -39,7 +39,10 @@ src/
 - Put feature hooks, pure utilities, and constants in the corresponding feature directories. Create directories only when they have content.
 - Calendar components belong to the `planning` feature; maps use the `maps` feature. Follow existing feature names instead of creating competing folders for the same domain.
 - Keep UI shared across unrelated features in `src/components/common`, shared hooks in `src/hooks`, and general application utilities in `src/utils`.
-- Keep all named types and interfaces, including domain models, API inputs/responses, and component/hook props, in `src/types/<feature>`. Use `src/types/shared` for shared types. Do not declare named types inside components, hooks, utilities, or API modules.
+- Reserve `src/types/<feature>` for domain entities and data models only. Do not put component props, hook options/state, UI configuration, route contracts, or request/query options there.
+- Declare component props with a local `type` immediately above the component in the same file. Put each subcomponent’s props next to that subcomponent.
+- Colocate hook-specific parameter, state, and return types with the hook. Colocate utility, routing, configuration, and API request types with the module that owns them.
+- Export a colocated type only when another module needs that contract. Import domain entities from `src/types`; avoid separate files created solely for props or hook types.
 - Update imports and documentation when moving files. Remove obsolete files and empty directories.
 
 ## Components, hooks, and utilities
@@ -56,6 +59,8 @@ src/
 - Keep conditional returns small. Extract substantial JSX branches into named subcomponents in the same file, declared below the main component. Pass the data the subcomponent needs through typed props. Small fallback elements can stay inline.
 
 ```tsx
+type ExampleProps = { item: Field | null };
+
 export function Example({ item }: ExampleProps) {
   const { t } = useTranslation();
 
@@ -66,14 +71,16 @@ export function Example({ item }: ExampleProps) {
   return <Empty description={t('No items')} />;
 }
 
+type ItemDetailsProps = { item: Field };
+
 function ItemDetails({ item }: ItemDetailsProps) {
   const { t } = useTranslation();
 
-  return <section aria-label={t('Item details')}>{/* Detailed view for item */}</section>;
+  return <section aria-label={t('Item details')}>{item.name}</section>;
 }
 ```
 
-The example's prop types belong in the feature's type folder. Translation hooks are only needed when the component renders translated text.
+The example imports the `Field` entity from `src/types/fields/field.types.ts`; its props types stay beside the components. Translation hooks are only needed when the component renders translated text.
 
 ## Data access and React Query
 

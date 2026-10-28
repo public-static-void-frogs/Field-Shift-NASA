@@ -1,9 +1,11 @@
 import { Button, Space, Tag } from 'antd';
 import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { EventResponseControlsProps } from '../../../types/planning/EventResponseControls.types.ts';
+
 import { useStrategyResponse } from '../hooks/useStrategyResponse.ts';
 import { decisionPresentation } from '../utils/eventPresentation.ts';
+
+type EventResponseControlsProps = { fieldId: number };
 
 export function EventResponseControls({ fieldId }: EventResponseControlsProps) {
   const { t } = useTranslation();

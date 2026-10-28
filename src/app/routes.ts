@@ -1,6 +1,12 @@
 import type { RouteObject } from 'react-router-dom';
 import { calendarLoader, fieldLoader, parcelLoader } from './route-loaders.ts';
 
+export type AppRouteHandle = {
+  navigationKey?: string;
+  workspace?: 'map' | 'calendar' | 'fields';
+  preserveScroll?: boolean;
+};
+
 export const appRoutes: RouteObject[] = [
   {
     id: 'root',

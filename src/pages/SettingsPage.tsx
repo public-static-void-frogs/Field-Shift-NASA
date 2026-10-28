@@ -4,22 +4,6 @@ import { Camera, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { farmQueries } from '../api/farm/farm.queries.ts';
 import '../styles/settings.css';
-import type { SectionActionsProps } from '../types/farm/SettingsPage.types.ts';
-
-function SectionActions({ section }: SectionActionsProps) {
-  const { t } = useTranslation();
-
-  return (
-    <Space size={8}>
-      <Button disabled aria-label={t('Clear {{value0}}', { value0: section })}>
-        {t('Clear')}
-      </Button>
-      <Button type="primary" disabled aria-label={t('Save {{value0}}', { value0: section })}>
-        {t('Save')}
-      </Button>
-    </Space>
-  );
-}
 
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
@@ -130,5 +114,22 @@ export function SettingsPage() {
         </div>
       </Form>
     </div>
+  );
+}
+
+type SectionActionsProps = { section: string };
+
+function SectionActions({ section }: SectionActionsProps) {
+  const { t } = useTranslation();
+
+  return (
+    <Space size={8}>
+      <Button disabled aria-label={t('Clear {{value0}}', { value0: section })}>
+        {t('Clear')}
+      </Button>
+      <Button type="primary" disabled aria-label={t('Save {{value0}}', { value0: section })}>
+        {t('Save')}
+      </Button>
+    </Space>
   );
 }

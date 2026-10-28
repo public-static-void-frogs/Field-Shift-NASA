@@ -6,8 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import { fieldQueries } from '../../../api/fields/fields.queries.ts';
 import { mapQueries } from '../../../api/maps/maps.queries.ts';
 import { RouterButton } from '../../../components/common/RouterButton';
-import type { MapCardProps } from '../../../types/maps/MapCard.types.ts';
+
 import { FieldMap } from './FieldMap';
+
+type MapCardProps = {
+  expanded?: boolean;
+  adding?: boolean;
+};
 
 export function MapCard({ expanded = false, adding = false }: MapCardProps) {
   const navigate = useNavigate();

@@ -8,8 +8,8 @@ import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
 import { useAddField } from '../features/fields/hooks/useAddField.ts';
-import type { UnavailableParcelProps } from '../types/fields/AddFieldPage.types.ts';
-import type { ParcelRouteData } from '../types/shared/router.types.ts';
+
+import type { ParcelRouteData } from '../app/route-loaders.ts';
 
 export function AddFieldPage() {
   const { t } = useTranslation();
@@ -104,6 +104,10 @@ export function AddFieldPage() {
     </>
   );
 }
+
+type UnavailableParcelProps = {
+  exists: boolean;
+};
 
 function UnavailableParcel({ exists }: UnavailableParcelProps) {
   const { t } = useTranslation();

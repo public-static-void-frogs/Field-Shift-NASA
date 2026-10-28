@@ -1,9 +1,13 @@
+import type { ButtonProps } from 'antd';
 import { Button } from 'antd';
 import type { MouseEvent } from 'react';
+import type { LinkProps } from 'react-router-dom';
 import { useHref, useLinkClickHandler } from 'react-router-dom';
-import type { RouterButtonProps } from '../../types/shared/RouterButton.types.ts';
 
 // Ant Design styling with React Router's native link and modifier-key behavior.
+type RouterButtonProps = Omit<ButtonProps, 'href'> &
+  Pick<LinkProps, 'to' | 'replace' | 'state' | 'preventScrollReset' | 'relative'>;
+
 export function RouterButton({
   to,
   replace,

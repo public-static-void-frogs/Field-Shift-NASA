@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMatches } from 'react-router-dom';
-import type { AppRouteHandle } from '../../../types/shared/router.types.ts';
+import type { AppRouteHandle } from '../../../app/routes.ts';
 
 export function useAppLayout() {
   const matches = useMatches();

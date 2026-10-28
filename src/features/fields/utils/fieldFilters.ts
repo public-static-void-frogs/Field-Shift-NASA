@@ -1,6 +1,14 @@
 import type { Field } from '../../../types/fields/field.types.ts';
-import type { FieldFilters } from '../../../types/fields/filters.types.ts';
+
 import type { LandEvent } from '../../../types/fields/history.types.ts';
+
+export type FieldFilters = {
+  overview: boolean;
+  query: string;
+  status: string;
+  crop: string;
+  filters: string[];
+};
 
 export function filterFields(fields: Field[], options: FieldFilters) {
   const { overview, query, status, crop, filters } = options;

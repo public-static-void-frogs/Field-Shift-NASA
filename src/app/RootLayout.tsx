@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { Outlet, ScrollRestoration, useLocation, useMatches } from 'react-router-dom';
 import { QueryBoundary } from '../components/common/QueryBoundary';
 import { RouteLoading } from '../components/common/RouteLoading';
-import type { AppRouteHandle } from '../types/shared/router.types.ts';
+import type { AppRouteHandle } from './routes.ts';
 
 export function RootLayout() {
   const { pathname } = useLocation();

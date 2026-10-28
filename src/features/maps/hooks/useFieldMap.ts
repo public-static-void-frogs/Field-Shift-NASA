@@ -1,6 +1,7 @@
 import type { Map as LeafletMap } from 'leaflet';
 import { useRef, useState } from 'react';
-import type { FieldGeoJson, MapLayer } from '../../../types/maps/map.types.ts';
+import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
+import type { MapLayer } from '../utils/mapStyles.ts';
 import { fitParcels } from '../utils/mapViewport.ts';
 
 export function useFieldMap(geojson: FieldGeoJson, boundaryOnly: boolean) {

@@ -1,13 +1,27 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useChartAnimation } from '../../../hooks/useChartAnimation.ts';
-import type {
-  HistoryChartProps,
-  HistoryChartSelection,
-} from '../../../types/weather/HistoryChart.types.ts';
+import type { WeatherMetric, WeatherRecord } from '../../../types/weather/weather.types.ts';
+
 import { getWeatherMetricConfig, selectWeatherReading } from '../utils/weatherPresentation.ts';
 
-export function useHistoryChart({ records, metric, selectedKey, onSelect }: HistoryChartProps) {
+type UseHistoryChartOptions = {
+  records: WeatherRecord[];
+  metric: WeatherMetric;
+  selectedKey: number;
+  onSelect: (key: number) => void;
+};
+
+type HistoryChartSelection = {
+  activeTooltipIndex?: number | string | null;
+};
+
+export function useHistoryChart({
+  records,
+  metric,
+  selectedKey,
+  onSelect,
+}: UseHistoryChartOptions) {
   const { t } = useTranslation();
   const gradientId = useId();
   const animate = useChartAnimation();

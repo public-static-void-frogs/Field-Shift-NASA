@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import type { CalendarFilters } from '../../../types/planning/calendarControls.types.ts';
 import type { PlannedEvent } from '../../../types/planning/planning.types.ts';
+
 import { filterCalendarEvents } from '../utils/eventPresentation.ts';
 
 const initialFilters: CalendarFilters = { category: 'All actions', query: '' };
+type CalendarFilters = {
+  category: string;
+  query: string;
+};
+
 export function useCalendarFilters(events: PlannedEvent[], fieldId?: number) {
   const [criteria, setCriteria] = useState(initialFilters);
   function update(patch: Partial<CalendarFilters>) {

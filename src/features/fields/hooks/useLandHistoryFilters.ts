@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { LandEvent } from '../../../types/fields/history.types.ts';
-import type { LandHistoryFilters } from '../../../types/fields/historyFilters.types.ts';
+
 import { filterLandHistory } from '../utils/fieldFilters.ts';
 
 const initialCriteria: LandHistoryFilters = {
@@ -8,6 +8,12 @@ const initialCriteria: LandHistoryFilters = {
   year: 'All years',
   query: '',
 };
+type LandHistoryFilters = {
+  category: string;
+  year: string;
+  query: string;
+};
+
 export function useLandHistoryFilters(events: LandEvent[]) {
   const [criteria, setCriteria] = useState(initialCriteria);
   function update(patch: Partial<LandHistoryFilters>) {

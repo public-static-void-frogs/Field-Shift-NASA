@@ -1,15 +1,6 @@
 import type { CropSeason, LandEvent } from './history.types.ts';
 import type { FieldProperties } from './properties.types.ts';
 
-export interface CreateFieldInput {
-  parcelId: number;
-  name: string;
-  crop: string;
-}
-export interface FieldFormValues {
-  name: string;
-  crop: string;
-}
 export interface Parcel {
   id: number;
   name: string;

@@ -3,7 +3,11 @@ import { App } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { fieldMutations } from '../../../api/fields/fields.mutations.ts';
-import type { FieldFormValues } from '../../../types/fields/api.types.ts';
+
+type FieldFormValues = {
+  name: string;
+  crop: string;
+};
 
 export function useAddField(parcelId: number) {
   const { t } = useTranslation();

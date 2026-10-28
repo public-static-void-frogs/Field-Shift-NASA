@@ -28,11 +28,15 @@ import { RouterButton } from '../../../components/common/RouterButton';
 import { useTablePagination } from '../../../hooks/useTablePagination.ts';
 import { useTableViewport } from '../../../hooks/useTableViewport.ts';
 import type { Field } from '../../../types/fields/field.types.ts';
-import type { FieldsTableProps } from '../../../types/fields/FieldsTable.types.ts';
+
 import { useFieldFilters } from '../hooks/useFieldFilters.ts';
 import { getFieldFilterOptions } from '../utils/fieldFilterOptions.ts';
 import { fieldStatusPresentation } from '../utils/fieldPresentation.ts';
 import { FieldStatus } from './FieldStatus';
+
+type FieldsTableProps = {
+  overview?: boolean;
+};
 
 export function FieldsTable({ overview = false }: FieldsTableProps) {
   const { t } = useTranslation();

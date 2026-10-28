@@ -1,9 +1,22 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Calendar } from 'antd';
+import type { Dayjs } from 'dayjs';
 import { planningQueries } from '../../../api/planning/planning.queries.ts';
-import type { SystemCalendarProps } from '../../../types/planning/SystemCalendar.types.ts';
+import type { PlannedEvent } from '../../../types/planning/planning.types.ts';
+import type { CalendarMode } from '../hooks/useCalendarView.ts';
+
 import { useSystemCalendar } from '../hooks/useSystemCalendar.ts';
 import { CalendarCell } from './CalendarCell.tsx';
+
+type SystemCalendarProps = {
+  value: Dayjs;
+  events: PlannedEvent[];
+  onDateSelect: (date: string) => void;
+  onPanelDateChange: (date: string) => void;
+  onEventSelect: (event: PlannedEvent) => void;
+  mode: CalendarMode;
+  onModeChange: (mode: CalendarMode) => void;
+};
 
 export function SystemCalendar({
   value,

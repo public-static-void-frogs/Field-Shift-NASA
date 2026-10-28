@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Empty, Flex, Segmented, Select, Skeleton, Tag, Typography } from 'antd';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -20,7 +21,7 @@ import { fieldQueries } from '../../../api/fields/fields.queries.ts';
 import { overviewQueries } from '../../../api/overview/overview.queries.ts';
 import { useChartVisibility } from '../../../hooks/useChartVisibility.ts';
 import type { TrendMetric } from '../../../types/overview/overview.types.ts';
-import type { ChartCardProps } from '../../../types/overview/OverviewCharts.types.ts';
+
 import { formatPercent as percent } from '../../../utils/format.ts';
 import { chartColors } from '../constants/overview.constants.ts';
 import { useCropSelection } from '../hooks/useCropSelection.ts';
@@ -331,6 +332,13 @@ function FieldComparisonChart() {
     </ChartCard>
   );
 }
+
+type ChartCardProps = {
+  title: string;
+  controls?: ReactNode;
+  children: (animate: boolean) => ReactNode;
+  className?: string;
+};
 
 function ChartCard({ title, controls, children, className = '' }: ChartCardProps) {
   const { t } = useTranslation();

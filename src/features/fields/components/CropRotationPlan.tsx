@@ -4,8 +4,11 @@ import { ArrowUpRight, CalendarDays, Sprout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { planningQueries } from '../../../api/planning/planning.queries.ts';
 import { RouterButton } from '../../../components/common/RouterButton';
-import type { CropRotationPlanProps } from '../../../types/fields/CropRotationPlan.types.ts';
+import type { Field } from '../../../types/fields/field.types.ts';
+
 import { formatPlanDate } from '../../planning/utils/planningDates.ts';
+
+type CropRotationPlanProps = { field: Field };
 
 export function CropRotationPlan({ field }: CropRotationPlanProps) {
   const { t } = useTranslation();

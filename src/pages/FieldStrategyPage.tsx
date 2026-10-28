@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { planningQueries } from '../api/planning/planning.queries.ts';
+import type { FieldRouteData } from '../app/route-loaders.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
 import { EventResponseControls } from '../features/planning/components/EventResponseControls';
@@ -25,7 +26,6 @@ import { countEventDecisions } from '../features/planning/utils/eventPresentatio
 import { formatPlanDate } from '../features/planning/utils/planningDates.ts';
 import { calendarEventPath, calendarPath } from '../features/planning/utils/planningRoutes.ts';
 import type { PlannedEvent } from '../types/planning/planning.types.ts';
-import type { FieldRouteData } from '../types/shared/router.types.ts';
 
 const tooltipStyle = {
   border: '1px solid #dfe5d5',

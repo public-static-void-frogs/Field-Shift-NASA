@@ -1,6 +1,9 @@
 import { Tag } from 'antd';
-import type { FieldStatusProps } from '../../../types/fields/FieldStatus.types.ts';
+import type { Field } from '../../../types/fields/field.types.ts';
+
 import { fieldStatusPresentation } from '../utils/fieldPresentation.ts';
+
+type FieldStatusProps = { status: Field['status'] };
 
 export function FieldStatus({ status }: FieldStatusProps) {
   const { icon: Icon, color } = fieldStatusPresentation[status];

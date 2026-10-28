@@ -41,11 +41,6 @@ export interface EventResponse {
   fingerprint: string;
 }
 export type EventResponses = Record<string, EventResponse>;
-
-export interface StrategyResponseInput {
-  fieldId: number;
-  status: EventDecision;
-}
 export interface StrategyForecast {
   date: string;
   stage: string;
@@ -67,8 +62,6 @@ export interface FieldStrategy {
   technicals: { key: string; parameter: string; value: string; role: string }[];
   contingencies: { condition: string; action: string }[];
 }
-
-export type CalendarMode = 'month' | 'year';
 
 export interface PlanningContext {
   today: string;

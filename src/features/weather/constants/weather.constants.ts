@@ -1,6 +1,13 @@
-import type { WeatherMetric, WeatherMetricConfig } from '../../../types/weather/weather.types.ts';
+import type { WeatherMetric } from '../../../types/weather/weather.types.ts';
 
 export const historyRanges = ['7 days', '30 days', '90 days'] as const;
+type WeatherMetricConfig = {
+  title: string;
+  unit: string;
+  color: string;
+  description: string;
+};
+
 export const weatherMetrics: Record<WeatherMetric, WeatherMetricConfig> = {
   temperature: {
     title: 'Air temperature',

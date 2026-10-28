@@ -7,4 +7,3 @@ export interface FieldMapProperties {
 }
 
 export type FieldGeoJson = FeatureCollection<Polygon | MultiPolygon, FieldMapProperties | null>;
-export type MapLayer = 'Crop health' | 'Soil moisture' | 'Field boundaries';

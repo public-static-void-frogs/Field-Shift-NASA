@@ -2,9 +2,20 @@ import { geoJSON, Path } from 'leaflet';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMap } from 'react-leaflet';
-import type { ParcelLayerProps } from '../../../types/maps/FieldMap.types.ts';
+import type { Field } from '../../../types/fields/field.types.ts';
+import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
 import { getFeatureFieldId } from '../utils/mapGeometry.ts';
+import type { MapLayer } from '../utils/mapStyles.ts';
 import { getParcelLabel, parcelStyle } from '../utils/mapStyles.ts';
+
+type UseParcelLayerOptions = {
+  fields: Field[];
+  geojson: FieldGeoJson;
+  layer: MapLayer;
+  onSelect: (field: Field) => void;
+  onAdd: (id: number) => void;
+  adding: boolean;
+};
 
 export function useParcelLayer({
   fields,
@@ -13,7 +24,7 @@ export function useParcelLayer({
   onSelect,
   onAdd,
   adding,
-}: ParcelLayerProps) {
+}: UseParcelLayerOptions) {
   const { t } = useTranslation();
   const map = useMap();
   useEffect(() => {

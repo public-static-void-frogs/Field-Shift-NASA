@@ -1,10 +1,23 @@
+import type { CalendarProps } from 'antd';
 import { Badge, Button, Tooltip } from 'antd';
+import type { Dayjs } from 'dayjs';
 import { Clock3 } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CalendarCellProps } from '../../../types/planning/SystemCalendar.types.ts';
+import type { EventResponses, PlannedEvent } from '../../../types/planning/planning.types.ts';
+
 import { categoryColors } from '../constants/planning.constants.ts';
 import { getEventDecision } from '../utils/eventResponses.ts';
+
+type CalendarCellProps = {
+  date: Dayjs;
+  info: Parameters<NonNullable<CalendarProps<Dayjs>['cellRender']>>[1];
+  events: PlannedEvent[];
+  compact: boolean;
+  eventResponses: EventResponses;
+  onDateSelect: (date: string) => void;
+  onEventSelect: (event: PlannedEvent) => void;
+};
 
 export function CalendarCell({
   date,

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { farmQueries } from '../api/farm/farm.queries.ts';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
+import type { FieldRouteData } from '../app/route-loaders.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
 import { CropRotationPlan } from '../features/fields/components/CropRotationPlan';
@@ -15,7 +16,6 @@ import { LandHistory } from '../features/fields/components/LandHistory';
 import { useFieldRemoval } from '../features/fields/hooks/useFieldRemoval.ts';
 import { FieldMap } from '../features/maps/components/FieldMap';
 import { useFieldBoundary } from '../features/maps/hooks/useFieldBoundary.ts';
-import type { FieldRouteData } from '../types/shared/router.types.ts';
 
 export function FieldDetailsPage() {
   const { t } = useTranslation();

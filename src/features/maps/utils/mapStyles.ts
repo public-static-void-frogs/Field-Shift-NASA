@@ -1,7 +1,6 @@
 import type { TFunction } from 'i18next';
 import type { PathOptions } from 'leaflet';
 import type { Field } from '../../../types/fields/field.types.ts';
-import type { MapLayer } from '../../../types/maps/map.types.ts';
 
 export const mapLegends = {
   'Soil moisture': [
@@ -19,6 +18,8 @@ export const mapLegends = {
     { color: '#d59a62', label: 'Critical' },
   ],
 };
+export type MapLayer = 'Crop health' | 'Soil moisture' | 'Field boundaries';
+
 function getParcelColor(field: Field | undefined, layer: MapLayer) {
   if (!field || layer === 'Field boundaries') {
     return '#f1ebcf';

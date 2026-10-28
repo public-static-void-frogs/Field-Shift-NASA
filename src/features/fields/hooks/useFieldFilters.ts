@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Field } from '../../../types/fields/field.types.ts';
-import type { FieldFilters } from '../../../types/fields/filters.types.ts';
+import type { FieldFilters } from '../utils/fieldFilters.ts';
 import { filterFields } from '../utils/fieldFilters.ts';
 
 const initialCriteria: Omit<FieldFilters, 'overview'> = {

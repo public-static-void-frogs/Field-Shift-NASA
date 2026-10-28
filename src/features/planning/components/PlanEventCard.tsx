@@ -5,13 +5,20 @@ import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { planningQueries } from '../../../api/planning/planning.queries.ts';
 import { RouterButton } from '../../../components/common/RouterButton';
-import type { PlanEventCardProps } from '../../../types/planning/PlanEventCard.types.ts';
+import type { PlannedEvent } from '../../../types/planning/planning.types.ts';
+
 import { isUnmodifiedPrimaryClick } from '../../../utils/mouse.ts';
 import { categoryBackgrounds, categoryColors } from '../constants/planning.constants.ts';
 import { getEventUrgencyColor } from '../utils/eventPresentation.ts';
 import { getEventDecision } from '../utils/eventResponses.ts';
 import { getEventStatus } from '../utils/planningDates.ts';
 import { actionDetailsPath } from '../utils/planningRoutes.ts';
+
+type PlanEventCardProps = {
+  event: PlannedEvent;
+  highlighted?: boolean;
+  onSelect?: () => void;
+};
 
 export function PlanEventCard({ event, highlighted = false, onSelect }: PlanEventCardProps) {
   const { t } = useTranslation();

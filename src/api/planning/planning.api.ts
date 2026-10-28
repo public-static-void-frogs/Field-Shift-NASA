@@ -1,3 +1,5 @@
+import type { EventDecision } from '../../types/planning/planning.types.ts';
+
 import { updateStrategyResponse } from '../../features/planning/utils/eventResponses.ts';
 import type {
   EventResponses,
@@ -5,7 +7,6 @@ import type {
   PlannedEvent,
   PlanningContext,
   RotationPlan,
-  StrategyResponseInput,
 } from '../../types/planning/planning.types.ts';
 import { mockResponse } from '../core/mock-response.ts';
 import { getMockField, getMockFields } from '../fields/mocks/fields.store.ts';
@@ -13,6 +14,11 @@ import { planningToday } from './mocks/agronomy.mock.ts';
 import { getFieldPlanEvents, getRotationPlan, getSystemPlanEvents } from './mocks/planning.mock.ts';
 import { getMockResponses, saveMockResponses } from './mocks/responses.store.ts';
 import { getFieldStrategy } from './mocks/strategy.mock.ts';
+
+type StrategyResponseInput = {
+  fieldId: number;
+  status: EventDecision;
+};
 
 export const planningApi = {
   getContext: (signal?: AbortSignal): Promise<PlanningContext> =>

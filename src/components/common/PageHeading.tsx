@@ -1,8 +1,15 @@
 import { Flex, Typography } from 'antd';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { PageHeadingProps } from '../../types/shared/PageHeading.types.ts';
 
 const { Title, Paragraph, Text } = Typography;
+
+type PageHeadingProps = {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  actions?: ReactNode;
+};
 
 export function PageHeading({ title, description, eyebrow, actions }: PageHeadingProps) {
   const { t } = useTranslation();

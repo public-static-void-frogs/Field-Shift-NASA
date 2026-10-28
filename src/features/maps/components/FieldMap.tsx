@@ -5,11 +5,10 @@ import { Layers, LocateFixed, MapPin, Minus, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, ScaleControl, TileLayer } from 'react-leaflet';
 import { farmQueries } from '../../../api/farm/farm.queries.ts';
-import type {
-  FieldMapProps,
-  MapViewportProps,
-  ParcelLayerProps,
-} from '../../../types/maps/FieldMap.types.ts';
+import type { Field } from '../../../types/fields/field.types.ts';
+import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
+import type { MapLayer } from '../utils/mapStyles.ts';
+
 import { satelliteTiles } from '../constants/maps.constants.ts';
 import { useFieldMap } from '../hooks/useFieldMap.ts';
 import { useMapViewport } from '../hooks/useMapViewport.ts';
@@ -18,15 +17,17 @@ import { mapLegends } from '../utils/mapStyles.ts';
 import { defaultCenter } from '../utils/mapViewport.ts';
 import './FieldMap.css';
 
-function MapViewport({ data }: MapViewportProps) {
-  useMapViewport(data);
-  return null;
-}
-
-function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: ParcelLayerProps) {
-  useParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding });
-  return null;
-}
+type FieldMapProps = {
+  fields: Field[];
+  /** WGS84 GeoJSON polygons; properties.fieldId (or feature.id) links to fields. */
+  geojson: FieldGeoJson;
+  onSelect: (field: Field) => void;
+  adding: boolean;
+  onAdd: (id: number) => void;
+  expanded?: boolean;
+  /** Plain satellite view with field outlines, without metric layers or legend. */
+  boundaryOnly?: boolean;
+};
 
 export function FieldMap({
   fields,
@@ -128,4 +129,18 @@ export function FieldMap({
       )}
     </div>
   );
+}
+
+type MapViewportProps = { data: FieldGeoJson };
+
+function MapViewport({ data }: MapViewportProps) {
+  useMapViewport(data);
+  return null;
+}
+
+type ParcelLayerProps = FieldMapProps & { layer: MapLayer };
+
+function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: ParcelLayerProps) {
+  useParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding });
+  return null;
 }

@@ -1,5 +1,4 @@
 import type {
-  CreateFieldInput,
   CropOption,
   FieldHistory,
   FieldPropertyData,
@@ -24,6 +23,12 @@ const cropGrowthStages: Record<string, string> = {
   'Winter wheat': 'Heading · BBCH 55',
   Corn: 'Vegetative · V6',
 };
+export type CreateFieldInput = {
+  parcelId: number;
+  name: string;
+  crop: string;
+};
+
 export const fieldsApi = {
   getAll: (signal?: AbortSignal): Promise<Field[]> => mockResponse(getMockFields, signal),
   getById: (id: number, signal?: AbortSignal): Promise<Field | null> =>

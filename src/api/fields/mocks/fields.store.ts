@@ -1,5 +1,5 @@
-import type { CreateFieldInput } from '../../../types/fields/api.types.ts';
 import type { Field } from '../../../types/fields/field.types.ts';
+import type { CreateFieldInput } from '../fields.api.ts';
 import { cropOptions, initialFields, parcels } from './fields.mock.ts';
 
 let fields = structuredClone(initialFields);

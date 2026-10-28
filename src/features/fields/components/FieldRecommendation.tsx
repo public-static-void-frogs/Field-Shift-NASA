@@ -3,7 +3,9 @@ import { Card, Space, Tag, Typography } from 'antd';
 import { Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { fieldQueries } from '../../../api/fields/fields.queries.ts';
-import type { FieldRecommendationProps } from '../../../types/fields/FieldRecommendation.types.ts';
+import type { Field } from '../../../types/fields/field.types.ts';
+
+type FieldRecommendationProps = { field: Field };
 
 export function FieldRecommendation({ field }: FieldRecommendationProps) {
   const { t } = useTranslation();

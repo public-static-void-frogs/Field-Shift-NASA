@@ -17,8 +17,9 @@ import {
 import { History, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { fieldQueries } from '../../../api/fields/fields.queries.ts';
+import type { Field } from '../../../types/fields/field.types.ts';
 import type { CropSeason, LandEventCategory } from '../../../types/fields/history.types.ts';
-import type { LandHistoryProps } from '../../../types/fields/LandHistory.types.ts';
+
 import { useLandHistoryFilters } from '../hooks/useLandHistoryFilters.ts';
 
 const categoryColors: Record<LandEventCategory, string> = {
@@ -27,6 +28,8 @@ const categoryColors: Record<LandEventCategory, string> = {
   'Field work': 'default',
   'Weather & water': 'processing',
 };
+
+type LandHistoryProps = { field: Field };
 
 export function LandHistory({ field }: LandHistoryProps) {
   const { t, i18n } = useTranslation();

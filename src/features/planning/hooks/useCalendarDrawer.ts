@@ -1,6 +1,11 @@
 import { useState } from 'react';
-import type { CalendarDrawerActions } from '../../../types/planning/calendarControls.types.ts';
 import type { PlannedEvent } from '../../../types/planning/planning.types.ts';
+
+type CalendarDrawerActions = {
+  changeDate: (date: string) => void;
+  openEvent: (event: PlannedEvent) => void;
+  clearEvent: () => void;
+};
 
 export function useCalendarDrawer(eventId: string | undefined, actions: CalendarDrawerActions) {
   const [dayOpen, setDayOpen] = useState(false);

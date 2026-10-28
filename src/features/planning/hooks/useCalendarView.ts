@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { CalendarMode } from '../../../types/planning/planning.types.ts';
+
+export type CalendarMode = 'month' | 'year';
 
 export function useCalendarView() {
   const [tab, setTab] = useState('calendar');
