@@ -432,5 +432,6 @@
   "Try again": "Спробувати ще раз",
   "Unable to save changes": "Не вдалося зберегти зміни",
   "Feels like {{feelsLike}}° · H {{high}}° / L {{low}}°": "Відчувається як {{feelsLike}}° · Макс. {{high}}° / Мін. {{low}}°",
-  "{{farmName}} · PARCEL {{parcelId}}": "{{farmName}} · ДІЛЯНКА {{parcelId}}"
+  "{{farmName}} · PARCEL {{parcelId}}": "{{farmName}} · ДІЛЯНКА {{parcelId}}",
+  "Loading data": "Завантаження даних"
 }

@@ -1,12 +1,14 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useMatch, useNavigate } from 'react-router-dom';
 import { mapQueries } from '../api/maps/maps.queries.ts';
+import { RouterButton } from '../components/common/RouterButton';
 import { FieldMap } from '../components/map/FieldMap';
 import { useFarm } from '../hooks/useFarm.ts';
-import type { MapPageProps } from '../types/maps/MapPage.types.ts';
 
-export function MapPage({ navigate, adding = false }: MapPageProps) {
+export function MapPage() {
+  const adding = useMatch('/map/add') !== null;
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { fields } = useFarm();
   const { data: fieldGeoJson } = useSuspenseQuery(mapQueries.geojson());
@@ -21,9 +23,9 @@ export function MapPage({ navigate, adding = false }: MapPageProps) {
         expanded
       />
       {adding && (
-        <Button className="map-cancel-adding" onClick={() => navigate('/map')}>
+        <RouterButton className="map-cancel-adding" to="/map">
           {t('Cancel adding')}{' '}
-        </Button>
+        </RouterButton>
       )}
     </div>
   );

@@ -22,13 +22,16 @@ import {
 import { ArrowUpRight, Droplets, ListFilter, Plus, Search, Wheat } from 'lucide-react';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { fieldQueries } from '../../api/fields/fields.queries.ts';
 import { useFarm } from '../../hooks/useFarm.ts';
 import type { Field } from '../../types/fields/field.types.ts';
 import type { FieldsTableProps } from '../../types/fields/FieldsTable.types.ts';
+import { RouterButton } from '../common/RouterButton';
 import { FieldStatus } from './FieldStatus';
 
-export function FieldsTable({ navigate, overview = false }: FieldsTableProps) {
+export function FieldsTable({ overview = false }: FieldsTableProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { fields } = useFarm();
   const { data: cropOptions } = useSuspenseQuery(fieldQueries.crops());
@@ -92,9 +95,9 @@ export function FieldsTable({ navigate, overview = false }: FieldsTableProps) {
         <Space size={12}>
           <span className={`field-thumb thumb-${field.id % 5}`} />
           <div>
-            <Button type="link" className="field-name-link" href={`#/fields/${field.id}`}>
+            <RouterButton type="link" className="field-name-link" to={`/fields/${field.id}`}>
               {name}
-            </Button>
+            </RouterButton>
             <Typography.Text type="secondary" className="field-id">
               {t('Field')} {String(field.id).padStart(2, '0')}
             </Typography.Text>
@@ -169,11 +172,11 @@ export function FieldsTable({ navigate, overview = false }: FieldsTableProps) {
       key: 'open',
       width: 60,
       render: (_, field) => (
-        <Button
+        <RouterButton
           type="text"
           aria-label={t('Open {{value0}}', { value0: field.name })}
           icon={<ArrowUpRight size={19} />}
-          onClick={() => navigate(`/fields/${field.id}`)}
+          to={`/fields/${field.id}`}
         />
       ),
     },
@@ -205,9 +208,9 @@ export function FieldsTable({ navigate, overview = false }: FieldsTableProps) {
             },
           ]}
           tabBarExtraContent={
-            <Button type="primary" icon={<Plus size={18} />} onClick={() => navigate('/map/add')}>
+            <RouterButton type="primary" icon={<Plus size={18} />} to="/map/add">
               {t('Add field')}
-            </Button>
+            </RouterButton>
           }
         />
       )}
@@ -274,9 +277,9 @@ export function FieldsTable({ navigate, overview = false }: FieldsTableProps) {
         }
         extra={
           overview ? (
-            <Button type="link" onClick={() => navigate('/fields')}>
+            <RouterButton type="link" to="/fields">
               {t('View all fields')} <ArrowUpRight size={17} />
-            </Button>
+            </RouterButton>
           ) : undefined
         }
       >
@@ -345,7 +348,10 @@ export function FieldsTable({ navigate, overview = false }: FieldsTableProps) {
                 if (extra.action === 'sort') setPage(1);
               }}
               onRow={(field) => ({
-                onClick: () => navigate(`/fields/${field.id}`),
+                onClick: (event) => {
+                  if (!(event.target as HTMLElement).closest('a, button'))
+                    void navigate(`/fields/${field.id}`);
+                },
                 className: 'clickable-row',
               })}
               locale={{

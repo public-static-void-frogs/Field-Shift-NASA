@@ -2,13 +2,17 @@ import { useSuspenseQueries } from '@tanstack/react-query';
 import { App, Button, Card, Descriptions, Form, Input, Result, Select, Space } from 'antd';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
+import { RouterButton } from '../components/common/RouterButton';
 import { useFarm } from '../hooks/useFarm.ts';
-import type { AddFieldPageProps } from '../types/fields/AddFieldPage.types.ts';
 import type { FieldFormValues } from '../types/fields/api.types.ts';
+import type { ParcelRouteData } from '../types/shared/router.types.ts';
 
-export function AddFieldPage({ parcelId, navigate }: AddFieldPageProps) {
+export function AddFieldPage() {
+  const navigate = useNavigate();
+  const { parcelId } = useLoaderData<ParcelRouteData>();
   const { t } = useTranslation();
   const { fields, addField, isAddingField, preferences } = useFarm();
   const [{ data: parcel }, { data: cropOptions }] = useSuspenseQueries({
@@ -23,7 +27,7 @@ export function AddFieldPage({ parcelId, navigate }: AddFieldPageProps) {
         title={
           exists ? t('This field already belongs to your farm.') : t('This parcel isn’t available.')
         }
-        extra={<Button onClick={() => navigate('/map/add')}>{t('Back to the map')}</Button>}
+        extra={<RouterButton to="/map/add">{t('Back to the map')}</RouterButton>}
       />
     );
   }
@@ -38,9 +42,9 @@ export function AddFieldPage({ parcelId, navigate }: AddFieldPageProps) {
   }
   return (
     <>
-      <Button type="text" icon={<ArrowLeft size={19} />} onClick={() => navigate('/map/add')}>
+      <RouterButton type="text" icon={<ArrowLeft size={19} />} to="/map/add">
         {t('Back to the map')}
-      </Button>
+      </RouterButton>
       <PageHeading
         title={t('Welcome a new field.')}
         description={t('Give this parcel a name and tell us what you’re growing.')}
@@ -104,7 +108,7 @@ export function AddFieldPage({ parcelId, navigate }: AddFieldPageProps) {
             >
               {t('Add to my fields')}
             </Button>
-            <Button onClick={() => navigate('/map/add')}>{t('Cancel')}</Button>
+            <RouterButton to="/map/add">{t('Cancel')}</RouterButton>
           </Space>
         </Form>
       </Card>

@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { ArrowLeft, ArrowUpRight, CalendarDays, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLoaderData } from 'react-router-dom';
 import {
   Area,
   CartesianGrid,
@@ -18,9 +19,10 @@ import {
 import { planningQueries } from '../api/planning/planning.queries.ts';
 import { EventResponseControls } from '../components/calendar/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
+import { RouterButton } from '../components/common/RouterButton';
 import { useFarm } from '../hooks/useFarm.ts';
-import type { FieldStrategyPageProps } from '../types/planning/FieldStrategyPage.types.ts';
 import type { PlannedEvent } from '../types/planning/planning.types.ts';
+import type { FieldRouteData } from '../types/shared/router.types.ts';
 import { getEventDecision } from '../utils/eventResponses.ts';
 import { formatPlanDate } from '../utils/planningDates.ts';
 import { calendarEventPath, calendarPath } from '../utils/planningRoutes.ts';
@@ -33,7 +35,8 @@ const tooltipStyle = {
 };
 const axis = { fill: '#707d65', fontSize: 12 };
 
-export function FieldStrategyPage({ fieldId, navigate }: FieldStrategyPageProps) {
+export function FieldStrategyPage() {
+  const { fieldId } = useLoaderData<FieldRouteData>();
   const { t } = useTranslation();
   const forecastMetrics = [
     {
@@ -71,7 +74,7 @@ export function FieldStrategyPage({ fieldId, navigate }: FieldStrategyPageProps)
       <Result
         status="404"
         title={t('Field not found')}
-        extra={<Button onClick={() => navigate('/fields')}>{t('Back to fields')}</Button>}
+        extra={<RouterButton to="/fields">{t('Back to fields')}</RouterButton>}
       />
     );
   const { plan, events, steps, forecast, comparison, technicals, contingencies } = strategy;
@@ -85,13 +88,9 @@ export function FieldStrategyPage({ fieldId, navigate }: FieldStrategyPageProps)
 
   return (
     <div className="strategy-page">
-      <Button
-        type="text"
-        icon={<ArrowLeft size={18} />}
-        onClick={() => navigate(`/fields/${field.id}`)}
-      >
+      <RouterButton type="text" icon={<ArrowLeft size={18} />} to={`/fields/${field.id}`}>
         {t('Back to')} {field.name}
-      </Button>
+      </RouterButton>
       <PageHeading
         eyebrow={t('{{value0}} · FIELD STRATEGY', { value0: field.name.toUpperCase() })}
         title={t('{{value0}} rotation strategy', { value0: plan.nextCrop })}
@@ -111,12 +110,12 @@ export function FieldStrategyPage({ fieldId, navigate }: FieldStrategyPageProps)
             >
               {t('Review proposed events')}
             </Button>
-            <Button
+            <RouterButton
               icon={<CalendarDays size={18} />}
-              href={`#${calendarPath(plan.sowingDate, field.id)}`}
+              to={calendarPath(plan.sowingDate, field.id)}
             >
               {t('Open field calendar')}
-            </Button>
+            </RouterButton>
           </Space>
         }
       />
@@ -172,14 +171,14 @@ export function FieldStrategyPage({ fieldId, navigate }: FieldStrategyPageProps)
                     <Typography.Paragraph type="secondary">
                       <strong>{t('Before moving on:')}</strong> {checkpoint}
                     </Typography.Paragraph>
-                    <Button
+                    <RouterButton
                       type="link"
                       size="small"
-                      href={`#${calendarEventPath(event)}`}
+                      to={calendarEventPath(event)}
                       icon={<CalendarDays size={14} />}
                     >
                       {t('Review calendar event')}
-                    </Button>
+                    </RouterButton>
                   </div>
                 ),
               }))}

@@ -1,13 +1,13 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Button, Card, Divider, Flex, Space, Statistic, Typography } from 'antd';
+import { Card, Divider, Flex, Space, Statistic, Typography } from 'antd';
 import { ArrowRight, CloudRain, CloudSun, Droplets, MapPin, Sun, Wind } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { weatherQueries } from '../../api/weather/weather.queries.ts';
-import type { WeatherCardProps } from '../../types/weather/WeatherCard.types.ts';
+import { RouterButton } from '../common/RouterButton';
 
 const weatherIcons = { sunny: Sun, cloudy: CloudSun, rain: CloudRain };
 
-export function WeatherCard({ navigate }: WeatherCardProps) {
+export function WeatherCard() {
   const { t } = useTranslation();
   const { data: weather } = useSuspenseQuery(weatherQueries.current());
   const WeatherIcon = weatherIcons[weather.condition];
@@ -67,9 +67,9 @@ export function WeatherCard({ navigate }: WeatherCardProps) {
           );
         })}
       </div>
-      <Button type="link" className="card-link" onClick={() => navigate('/history')}>
+      <RouterButton type="link" className="card-link" to="/history">
         {t('View weather history')} <ArrowRight size={18} />
-      </Button>
+      </RouterButton>
     </Card>
   );
 }

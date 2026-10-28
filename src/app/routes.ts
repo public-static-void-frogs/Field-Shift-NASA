@@ -1,0 +1,124 @@
+import type { RouteObject } from 'react-router-dom';
+import { calendarLoader, fieldLoader, parcelLoader } from './route-loaders.ts';
+
+export const appRoutes: RouteObject[] = [
+  {
+    id: 'root',
+    lazy: async () => ({
+      Component: (await import('./RootLayout')).RootLayout,
+      ErrorBoundary: (await import('../pages/RouteErrorPage')).RouteErrorPage,
+    }),
+    children: [
+      {
+        id: 'login',
+        path: 'login',
+        lazy: async () => ({ Component: (await import('../pages/LoginPage')).LoginPage }),
+      },
+      {
+        id: 'farm',
+        lazy: async () => ({
+          Component: (await import('../components/layout/AppLayout')).AppLayout,
+        }),
+        children: [
+          {
+            id: 'overview',
+            index: true,
+            handle: { navigationKey: '/' },
+            lazy: async () => ({ Component: (await import('../pages/OverviewPage')).OverviewPage }),
+          },
+          {
+            id: 'fields',
+            path: 'fields',
+            handle: { navigationKey: '/fields', workspace: 'fields' },
+            lazy: async () => ({ Component: (await import('../pages/FieldsPage')).FieldsPage }),
+          },
+          {
+            id: 'field',
+            path: 'fields/:fieldId',
+            loader: fieldLoader,
+            handle: { navigationKey: '/fields' },
+            lazy: async () => ({
+              Component: (await import('../pages/FieldDetailsPage')).FieldDetailsPage,
+            }),
+          },
+          {
+            id: 'strategy',
+            path: 'fields/:fieldId/strategy',
+            loader: fieldLoader,
+            handle: { navigationKey: '/fields' },
+            lazy: async () => ({
+              Component: (await import('../pages/FieldStrategyPage')).FieldStrategyPage,
+            }),
+          },
+          {
+            id: 'map',
+            path: 'map',
+            handle: { navigationKey: '/map', workspace: 'map' },
+            lazy: async () => ({ Component: (await import('../pages/MapPage')).MapPage }),
+          },
+          {
+            id: 'map-add',
+            path: 'map/add',
+            handle: { navigationKey: '/map', workspace: 'map' },
+            lazy: async () => ({ Component: (await import('../pages/MapPage')).MapPage }),
+          },
+          {
+            id: 'parcel',
+            path: 'map/add/:parcelId',
+            loader: parcelLoader,
+            handle: { navigationKey: '/map' },
+            lazy: async () => ({ Component: (await import('../pages/AddFieldPage')).AddFieldPage }),
+          },
+          {
+            id: 'calendar',
+            path: 'calendar/:date?',
+            loader: calendarLoader,
+            handle: { navigationKey: '/calendar', workspace: 'calendar', preserveScroll: true },
+            lazy: async () => ({ Component: (await import('../pages/CalendarPage')).CalendarPage }),
+          },
+          {
+            id: 'action',
+            path: 'calendar/actions/:eventId',
+            handle: { navigationKey: '/calendar' },
+            lazy: async () => ({
+              Component: (await import('../pages/ActionDetailsPage')).ActionDetailsPage,
+            }),
+          },
+          {
+            id: 'history',
+            path: 'history',
+            handle: { navigationKey: '/history' },
+            lazy: async () => ({ Component: (await import('../pages/HistoryPage')).HistoryPage }),
+          },
+          {
+            id: 'settings',
+            path: 'settings',
+            handle: { navigationKey: '/settings' },
+            lazy: async () => ({ Component: (await import('../pages/SettingsPage')).SettingsPage }),
+          },
+          {
+            id: 'help',
+            path: 'help',
+            handle: { navigationKey: '/help' },
+            lazy: async () => ({ Component: (await import('../pages/HelpPage')).HelpPage }),
+          },
+          {
+            id: 'notifications',
+            path: 'notifications',
+            handle: { navigationKey: '/notifications' },
+            lazy: async () => ({
+              Component: (await import('../pages/NotificationsPage')).NotificationsPage,
+            }),
+          },
+          {
+            id: 'not-found',
+            path: '*',
+            lazy: async () => ({
+              Component: (await import('../pages/RouteErrorPage')).RouteErrorPage,
+            }),
+          },
+        ],
+      },
+    ],
+  },
+];

@@ -13,52 +13,57 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link, NavLink, Outlet, useMatches } from 'react-router-dom';
 import { useFarm } from '../../hooks/useFarm.ts';
-import type { AppLayoutProps } from '../../types/layout/AppLayout.types.ts';
+import type { AppRouteHandle } from '../../types/shared/router.types.ts';
+import { RouterButton } from '../common/RouterButton';
 
 const { Sider, Content } = Layout;
 
-export function AppLayout({ path, navigate, children }: AppLayoutProps) {
+export function AppLayout() {
+  const matches = useMatches();
+  const handle = matches.reduce<AppRouteHandle>(
+    (value, match) => ({ ...value, ...(match.handle as AppRouteHandle | undefined) }),
+    {},
+  );
+  const active = handle.navigationKey ?? '';
+  const fullscreenCalendar = handle.workspace === 'calendar';
+  const fullscreenMap = handle.workspace === 'map';
   const { t } = useTranslation();
   const { preferences } = useFarm();
   const mainItems = [
     {
       key: '/',
-      label: t('Overview'),
+      label: (
+        <NavLink to="/" end>
+          {t('Overview')}
+        </NavLink>
+      ),
       icon: <LayoutDashboard size={21} />,
     },
     {
       key: '/map',
-      label: t('Field map'),
+      label: <NavLink to="/map">{t('Field map')}</NavLink>,
       icon: <Map size={21} />,
     },
     {
       key: '/fields',
-      label: t('My fields'),
+      label: <NavLink to="/fields">{t('My fields')}</NavLink>,
       icon: <Sprout size={21} />,
     },
     {
       key: '/calendar',
-      label: t('Calendar'),
+      label: <NavLink to="/calendar">{t('Calendar')}</NavLink>,
       icon: <CalendarDays size={21} />,
     },
     {
       key: '/history',
-      label: t('Environment history'),
+      label: <NavLink to="/history">{t('Environment history')}</NavLink>,
       icon: <History size={21} />,
     },
   ];
 
   const [collapsed, setCollapsed] = useState(() => window.matchMedia('(max-width: 991px)').matches);
-  const fullscreenCalendar = /^\/calendar(?:\/\d{4}-\d{2}-\d{2})?$/.test(path);
-  const fullscreenMap = path === '/map' || path === '/map/add';
-  const active = path.startsWith('/calendar')
-    ? '/calendar'
-    : path.startsWith('/fields')
-      ? '/fields'
-      : path.startsWith('/map')
-        ? '/map'
-        : path;
   return (
     <Layout className="app-shell">
       <Sider
@@ -73,12 +78,12 @@ export function AppLayout({ path, navigate, children }: AppLayoutProps) {
         collapsedWidth={76}
       >
         <div className="sidebar-brand-row">
-          <a href="#/" className="brand" aria-label={t('FrogFarmers overview')}>
+          <Link to="/" className="brand" aria-label={t('FrogFarmers overview')}>
             <span className="brand-symbol">
               <img src="/frog-farmer.png" width={40} height={40} alt="" />
             </span>
             <span className="brand-word">FrogFarmers</span>
-          </a>
+          </Link>
           <Tooltip title={collapsed ? t('Expand sidebar') : t('Collapse sidebar')}>
             <Button
               type="text"
@@ -92,21 +97,15 @@ export function AppLayout({ path, navigate, children }: AppLayoutProps) {
             />
           </Tooltip>
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[active]}
-          onClick={({ key }) => navigate(key)}
-          items={mainItems}
-        />
+        <Menu mode="inline" selectedKeys={[active]} items={mainItems} />
         <div className="sidebar-bottom">
           <Menu
             mode="inline"
-            selectedKeys={[path]}
-            onClick={({ key }) => navigate(key)}
+            selectedKeys={[active]}
             items={[
               {
                 key: '/notifications',
-                label: t('Notifications'),
+                label: <NavLink to="/notifications">{t('Notifications')}</NavLink>,
                 icon: (
                   <Badge dot color="#b8954d">
                     <Bell size={21} />
@@ -115,30 +114,30 @@ export function AppLayout({ path, navigate, children }: AppLayoutProps) {
               },
               {
                 key: '/settings',
-                label: t('Settings'),
+                label: <NavLink to="/settings">{t('Settings')}</NavLink>,
                 icon: <Settings2 size={21} />,
               },
               {
                 key: '/help',
-                label: t('Help & resources'),
+                label: <NavLink to="/help">{t('Help & resources')}</NavLink>,
                 icon: <CircleHelp size={21} />,
               },
             ]}
           />
-          <Button type="text" className="profile" onClick={() => navigate('/settings')}>
+          <RouterButton type="text" className="profile" to="/settings">
             <Avatar size={40}>{preferences.initials}</Avatar>
             <span className="sidebar-label">
               <strong>{preferences.fullName}</strong>
               <span>{t(preferences.role)}</span>
             </span>
-          </Button>
+          </RouterButton>
         </div>
       </Sider>
       <Layout className="workspace">
         <Content
-          className={`main-content${fullscreenMap || fullscreenCalendar ? ' main-content-map' : path === '/fields' ? ' main-content-fields' : ''}`}
+          className={`main-content${fullscreenMap || fullscreenCalendar ? ' main-content-map' : handle.workspace === 'fields' ? ' main-content-fields' : ''}`}
         >
-          {children}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

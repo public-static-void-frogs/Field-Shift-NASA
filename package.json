@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:queries": "node --experimental-strip-types --test tests/queries.test.mjs",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:router": "node --experimental-strip-types --test tests/router.test.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.105.0",
@@ -30,6 +31,7 @@
     "react-dom": "^19.3.1",
     "react-i18next": "^17.1.9",
     "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.18.5",
     "recharts": "^3.10.1"
   },
   "devDependencies": {

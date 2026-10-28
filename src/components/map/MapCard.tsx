@@ -1,13 +1,16 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Button, Card, Tooltip } from 'antd';
+import { Card, Tooltip } from 'antd';
 import { Expand } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { mapQueries } from '../../api/maps/maps.queries.ts';
 import { useFarm } from '../../hooks/useFarm.ts';
 import type { MapCardProps } from '../../types/maps/MapCard.types.ts';
+import { RouterButton } from '../common/RouterButton';
 import { FieldMap } from './FieldMap';
 
-export function MapCard({ navigate, expanded = false, adding = false }: MapCardProps) {
+export function MapCard({ expanded = false, adding = false }: MapCardProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { fields } = useFarm();
   const { data: fieldGeoJson } = useSuspenseQuery(mapQueries.geojson());
@@ -22,11 +25,11 @@ export function MapCard({ navigate, expanded = false, adding = false }: MapCardP
         expanded={expanded}
       />
       <Tooltip title={expanded ? t('Return to overview') : t('Expand map')}>
-        <Button
+        <RouterButton
           className="map-expand"
           aria-label={expanded ? t('Return to overview') : t('Expand map')}
           icon={<Expand size={18} />}
-          onClick={() => navigate(expanded ? '/' : '/map')}
+          to={expanded ? '/' : '/map'}
         />
       </Tooltip>
     </Card>

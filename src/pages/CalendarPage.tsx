@@ -17,19 +17,26 @@ import dayjs from 'dayjs';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { planningQueries } from '../api/planning/planning.queries.ts';
 import { EventResponseControls } from '../components/calendar/EventResponseControls';
 import { PlanEventCard } from '../components/calendar/PlanEventCard';
 import { SystemCalendar } from '../components/calendar/SystemCalendar';
+import { RouterButton } from '../components/common/RouterButton';
 import { planCategories } from '../features/planning/constants.ts';
 import { useFarm } from '../hooks/useFarm.ts';
-import type { CalendarPageProps } from '../types/planning/CalendarPage.types.ts';
 import type { CalendarMode, PlannedEvent } from '../types/planning/planning.types.ts';
 import { getCalendarEvents, getEventDecision } from '../utils/eventResponses.ts';
 import { formatPlanDate, getEventStatus, isPlanDate } from '../utils/planningDates.ts';
 import { calendarPath } from '../utils/planningRoutes.ts';
 
-export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageProps) {
+export function CalendarPage() {
+  const { date } = useParams<'date'>();
+  const [searchParams] = useSearchParams();
+  const rawFieldId = Number(searchParams.get('field'));
+  const fieldId = Number.isSafeInteger(rawFieldId) && rawFieldId > 0 ? rawFieldId : undefined;
+  const eventId = searchParams.get('event') || undefined;
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { fields, eventResponses, planningToday } = useFarm();
   const { data: allPlanEvents } = useSuspenseQuery(planningQueries.events());
@@ -55,11 +62,11 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
 
   function openEvent(event: PlannedEvent) {
     setDayOpen(false);
-    navigate(calendarPath(event.date, fieldId, event.id));
+    navigate(calendarPath(event.date, fieldId, event.id), { preventScrollReset: true });
   }
   function closeDrawer() {
     setDayOpen(false);
-    navigate(calendarPath(selectedDate, fieldId));
+    navigate(calendarPath(selectedDate, fieldId), { preventScrollReset: true });
   }
 
   const columns: TableColumnsType<PlannedEvent> = [
@@ -108,7 +115,9 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
           aria-label={t('Filter calendar by field')}
           value={fieldId ? String(fieldId) : 'all'}
           onChange={(value) =>
-            navigate(calendarPath(selectedDate, value === 'all' ? undefined : Number(value)))
+            navigate(calendarPath(selectedDate, value === 'all' ? undefined : Number(value)), {
+              preventScrollReset: true,
+            })
           }
           options={[
             { value: 'all', label: t('All fields') },
@@ -135,7 +144,7 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
             setQuery('');
             setCalendarMode('month');
             setDayOpen(false);
-            navigate(calendarPath(planningToday));
+            navigate(calendarPath(planningToday), { preventScrollReset: true });
           }}
         >
           {t('Reset view')}
@@ -149,10 +158,12 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
             value={dayjs(selectedDate)}
             events={visible}
             onDateSelect={(value) => {
-              navigate(calendarPath(value, fieldId));
+              navigate(calendarPath(value, fieldId), { preventScrollReset: true });
               setDayOpen(true);
             }}
-            onPanelDateChange={(value) => navigate(calendarPath(value, fieldId))}
+            onPanelDateChange={(value) =>
+              navigate(calendarPath(value, fieldId), { preventScrollReset: true })
+            }
             onEventSelect={openEvent}
           />
         ) : (
@@ -162,7 +173,12 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
             dataSource={visible}
             scroll={{ x: 1000 }}
             pagination={{ pageSize: 8, showSizeChanger: false }}
-            onRow={(event) => ({ onClick: () => openEvent(event), className: 'clickable-row' })}
+            onRow={(event) => ({
+              onClick: (click) => {
+                if (!(click.target as HTMLElement).closest('a, button')) openEvent(event);
+              },
+              className: 'clickable-row',
+            })}
             locale={{
               emptyText: <Empty description={t('No planned actions match these filters.')} />,
             }}
@@ -178,12 +194,12 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
         footer={
           selectedEvent && (
             <Flex gap={8}>
-              <Button type="primary" onClick={() => navigate(`/fields/${selectedEvent.fieldId}`)}>
+              <RouterButton type="primary" to={`/fields/${selectedEvent.fieldId}`}>
                 {t('View field')}
-              </Button>
-              <Button onClick={() => navigate(`/fields/${selectedEvent.fieldId}/strategy`)}>
+              </RouterButton>
+              <RouterButton to={`/fields/${selectedEvent.fieldId}/strategy`}>
                 {t('View strategy')}
-              </Button>
+              </RouterButton>
             </Flex>
           )
         }

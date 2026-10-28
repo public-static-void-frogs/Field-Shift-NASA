@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Alert, Button, Card, Empty, Space } from 'antd';
+import { Alert, Card, Empty, Space } from 'antd';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notificationQueries } from '../api/notifications/notifications.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
-import type { NotificationsPageProps } from '../types/notifications/NotificationsPage.types.ts';
+import { RouterButton } from '../components/common/RouterButton';
 
-export function NotificationsPage({ navigate }: NotificationsPageProps) {
+export function NotificationsPage() {
   const { t } = useTranslation();
   const { data: notifications } = useSuspenseQuery(notificationQueries.list());
   return (
@@ -25,18 +25,14 @@ export function NotificationsPage({ navigate }: NotificationsPageProps) {
               title={t(notification.title, { value0: notification.fieldName })}
               description={t(notification.description)}
             />
-            <Button
+            <RouterButton
               className="notification-link"
               type="link"
-              onClick={() =>
-                navigate(
-                  notification.kind === 'field' ? `/fields/${notification.fieldId}` : '/history',
-                )
-              }
+              to={notification.kind === 'field' ? `/fields/${notification.fieldId}` : '/history'}
             >
               {t(notification.kind === 'field' ? 'View field' : 'View weather history')}{' '}
               <ArrowRight size={18} />
-            </Button>
+            </RouterButton>
           </Card>
         ))}
         {!notifications.some((notification) => notification.kind === 'field') && (

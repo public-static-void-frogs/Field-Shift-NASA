@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Space, Tag, Typography } from 'antd';
+import { Card, Flex, Space, Tag, Typography } from 'antd';
 import { ArrowUpRight, Clock3 } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import type { PlanEventCardProps } from '../../types/planning/PlanEventCard.type
 import { getEventDecision } from '../../utils/eventResponses.ts';
 import { getEventStatus } from '../../utils/planningDates.ts';
 import { actionDetailsPath } from '../../utils/planningRoutes.ts';
+import { RouterButton } from '../common/RouterButton';
 
 export function PlanEventCard({ event, highlighted = false, onSelect }: PlanEventCardProps) {
   const { t } = useTranslation();
@@ -55,18 +56,30 @@ export function PlanEventCard({ event, highlighted = false, onSelect }: PlanEven
           <Clock3 size={14} />
           <Typography.Text type="secondary">{event.duration}</Typography.Text>
         </Space>
-        <Button
+        <RouterButton
           type="text"
           size="small"
-          href={onSelect ? undefined : `#${actionDetailsPath(event)}`}
-          onClick={onSelect}
+          to={actionDetailsPath(event)}
+          onClick={(click) => {
+            if (
+              onSelect &&
+              click.button === 0 &&
+              !click.metaKey &&
+              !click.ctrlKey &&
+              !click.altKey &&
+              !click.shiftKey
+            ) {
+              click.preventDefault();
+              onSelect();
+            }
+          }}
           aria-label={t('View details: {{value0}} for {{value1}}', {
             value0: event.title,
             value1: event.fieldName,
           })}
         >
           {t('Details')} <ArrowUpRight size={15} />
-        </Button>
+        </RouterButton>
       </Flex>
     </Card>
   );

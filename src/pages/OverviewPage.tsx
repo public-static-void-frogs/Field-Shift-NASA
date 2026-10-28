@@ -1,15 +1,14 @@
-import { Button } from 'antd';
 import { CalendarDays, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PageHeading } from '../components/common/PageHeading';
+import { RouterButton } from '../components/common/RouterButton';
 import { FieldsTable } from '../components/fields/FieldsTable';
 import { MapCard } from '../components/map/MapCard';
 import { OverviewCharts } from '../components/overview/OverviewCharts';
 import { WeatherCard } from '../components/weather/WeatherCard';
 import { useFarm } from '../hooks/useFarm.ts';
-import type { OverviewPageProps } from '../types/overview/OverviewPage.types.ts';
 
-export function OverviewPage({ navigate }: OverviewPageProps) {
+export function OverviewPage() {
   const { t, i18n } = useTranslation();
   const { fields } = useFarm();
   const totalArea = fields.reduce((total, field) => total + field.area, 0);
@@ -32,21 +31,21 @@ export function OverviewPage({ navigate }: OverviewPageProps) {
         description={summary}
         actions={
           <>
-            <Button icon={<CalendarDays size={18} />} onClick={() => navigate('/history')}>
+            <RouterButton icon={<CalendarDays size={18} />} to="/history">
               {t('Environment history')}
-            </Button>
-            <Button type="primary" icon={<Plus size={19} />} onClick={() => navigate('/map/add')}>
+            </RouterButton>
+            <RouterButton type="primary" icon={<Plus size={19} />} to="/map/add">
               {t('Add field')}
-            </Button>
+            </RouterButton>
           </>
         }
       />
       <section className="map-weather-grid">
-        <MapCard navigate={navigate} />
-        <WeatherCard navigate={navigate} />
+        <MapCard />
+        <WeatherCard />
       </section>
       <OverviewCharts />
-      <FieldsTable navigate={navigate} overview />
+      <FieldsTable overview />
     </>
   );
 }

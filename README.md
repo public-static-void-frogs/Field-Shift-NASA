@@ -30,16 +30,17 @@ src/
   app/           Application providers, route rendering, and theme
   components/    Shared UI grouped by fields, map, weather, layout, and common UI
   features/      UI configuration grouped by feature (colors, labels, map provider)
-  hooks/         Shared query-backed farm resources and hash-based page navigation
+  hooks/         Shared query-backed farm resources
   pages/         Dedicated screens for each route
   styles/        Global, application layout, and dashboard styles
   types/         API models, component props, and shared types grouped by feature
   main.tsx       Application entry point
 ```
 
-Field details use dedicated routes such as `#/fields/4`. Adding fields uses
-`#/map/add` and `#/map/add/6`. Navigation supports direct links, refresh, and
-browser back/forward without server routing configuration. Settings, help,
+Field details use dedicated routes such as `/fields/4`. Adding fields uses
+`/map/add` and `/map/add/6`. Navigation supports direct links, refresh, and
+browser back/forward through React Router. Production hosting must serve `index.html`
+for application paths (for example `/fields/4`) so direct links and refreshes work. Settings, help,
 and notifications also have their own pages. Removal uses an inline confirmation.
 The app does not use modals.
 
@@ -68,11 +69,11 @@ All values and recommendations are defined in the frontend. Field changes live i
 ## Crop rotation and system planning
 
 Field pages feature a compact rotation summary and planting window linking to
-`#/fields/:id/strategy`. The strategy page includes step-by-step actions, technical
+`/fields/:id/strategy`. The strategy page includes step-by-step actions, technical
 inputs, conditional recommendations, and interactive illustrative forecast charts.
 Dates link to
-`#/calendar/YYYY-MM-DD` with optional field/event filters. Action details use
-`#/calendar/actions/:eventId`.
+`/calendar/YYYY-MM-DD` with optional field/event filters. Action details use
+`/calendar/actions/:eventId`.
 
 The entire field schedule supports Accept all and Reject all on the strategy page,
 calendar drawer, and action details. Accepted events remain confirmed; rejected events are
@@ -124,6 +125,31 @@ pass a different collection to the same component:
 ```sh
 npm run test:maps
 ```
+
+## Routing
+
+React Router manages clean browser URLs with `createBrowserRouter`. Route definitions
+and lazy page modules live in `src/app/routes.ts`; ID/date validation lives in
+`src/app/route-loaders.ts`. The login route sits outside the farm layout, which
+renders child pages through `Outlet`. Matched route metadata controls sidebar
+selection and fullscreen workspaces.
+
+Use `Link`, `NavLink`, or the Ant Design `RouterButton` integration for navigation
+links; use `useNavigate` for operations such as opening a selected map parcel or
+redirecting after a mutation. Pages read validated IDs with `useLoaderData` and
+calendar parameters with `useParams` and `useSearchParams`. Do not pass navigation
+functions through component props or write to `window.location.hash`.
+
+`ScrollRestoration` handles browser history. Calendar date/filter changes use
+`preventScrollReset` and retain their local view state. Unknown routes and invalid
+IDs/dates render the localized not-found screen. Production hosts must rewrite
+application URLs to `index.html`; Vite's dev and preview servers already provide
+SPA history fallback. Static assets use root-relative paths.
+
+React Query remains responsible for resource loading, caching, and mutations.
+The router loaders validate URL parameters and do not create a second data cache.
+Run `npm run test:router` for route matching, parameter validation, search state,
+and browser-history behavior.
 
 ## Data access and caching
 

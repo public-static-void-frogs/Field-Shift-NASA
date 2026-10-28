@@ -3,9 +3,11 @@ import { Alert, App, Button, Card, Flex, Result, Space, Typography } from 'antd'
 import { ArrowLeft, Sprout, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { mapQueries } from '../api/maps/maps.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
+import { RouterButton } from '../components/common/RouterButton';
 import { CropRotationPlan } from '../components/fields/CropRotationPlan';
 import { FieldProperties } from '../components/fields/FieldProperties';
 import { FieldRecommendation } from '../components/fields/FieldRecommendation';
@@ -13,11 +15,13 @@ import { FieldStatus } from '../components/fields/FieldStatus';
 import { LandHistory } from '../components/fields/LandHistory';
 import { FieldMap } from '../components/map/FieldMap';
 import { useFarm } from '../hooks/useFarm.ts';
-import type { FieldDetailsPageProps } from '../types/fields/FieldDetailsPage.types.ts';
 import type { FieldGeoJson } from '../types/maps/map.types.ts';
+import type { FieldRouteData } from '../types/shared/router.types.ts';
 import { getFeatureFieldId } from '../utils/mapGeometry.ts';
 
-export function FieldDetailsPage({ fieldId, navigate }: FieldDetailsPageProps) {
+export function FieldDetailsPage() {
+  const navigate = useNavigate();
+  const { fieldId } = useLoaderData<FieldRouteData>();
   const { t } = useTranslation();
   const [{ data: propertyData }, { data: fieldGeoJson }] = useSuspenseQueries({
     queries: [fieldQueries.properties(fieldId), mapQueries.geojson()],
@@ -40,17 +44,17 @@ export function FieldDetailsPage({ fieldId, navigate }: FieldDetailsPageProps) {
         title={t('Field not found')}
         subTitle={t('This field may have been removed from your farm.')}
         extra={
-          <Button type="primary" onClick={() => navigate('/fields')}>
+          <RouterButton type="primary" to="/fields">
             {t('Back to my fields')}
-          </Button>
+          </RouterButton>
         }
       />
     );
   return (
     <>
-      <Button type="text" icon={<ArrowLeft size={20} />} onClick={() => navigate('/fields')}>
+      <RouterButton type="text" icon={<ArrowLeft size={20} />} to="/fields">
         {t('Back to my fields')}
-      </Button>
+      </RouterButton>
       <PageHeading
         title={field.name}
         description={t('{{value0}} · {{value1}} hectares · {{value2}}', {
@@ -65,13 +69,13 @@ export function FieldDetailsPage({ fieldId, navigate }: FieldDetailsPageProps) {
         actions={
           <Space wrap>
             <FieldStatus status={field.status} />
-            <Button
+            <RouterButton
               type="primary"
               icon={<Sprout size={19} />}
-              onClick={() => navigate(`/fields/${field.id}/strategy`)}
+              to={`/fields/${field.id}/strategy`}
             >
               {t('Rotation strategy')}
-            </Button>
+            </RouterButton>
           </Space>
         }
       />
@@ -101,7 +105,7 @@ export function FieldDetailsPage({ fieldId, navigate }: FieldDetailsPageProps) {
               )}{' '}
             </Typography.Paragraph>
             <Space wrap>
-              <Button onClick={() => navigate('/map')}>{t('Explore farm map')}</Button>
+              <RouterButton to="/map">{t('Explore farm map')}</RouterButton>
               {!confirmRemove && (
                 <Button danger icon={<Trash2 size={18} />} onClick={() => setConfirmRemove(true)}>
                   {t('Remove field')}{' '}

@@ -1,16 +1,18 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Button, Card, Col, Descriptions, Flex, Result, Row, Space, Tag, Typography } from 'antd';
+import { Card, Col, Descriptions, Flex, Result, Row, Space, Tag, Typography } from 'antd';
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Link, useParams } from 'react-router-dom';
 import { planningQueries } from '../api/planning/planning.queries.ts';
 import { EventResponseControls } from '../components/calendar/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
+import { RouterButton } from '../components/common/RouterButton';
 import { useFarm } from '../hooks/useFarm.ts';
-import type { ActionDetailsPageProps } from '../types/planning/ActionDetailsPage.types.ts';
 import { formatPlanDate, getEventStatus } from '../utils/planningDates.ts';
 import { calendarEventPath } from '../utils/planningRoutes.ts';
 
-export function ActionDetailsPage({ eventId }: ActionDetailsPageProps) {
+export function ActionDetailsPage() {
+  const { eventId } = useParams<'eventId'>();
   const { t } = useTranslation();
   const { fields, planningToday } = useFarm();
   const { data: allPlanEvents } = useSuspenseQuery(planningQueries.events());
@@ -24,9 +26,9 @@ export function ActionDetailsPage({ eventId }: ActionDetailsPageProps) {
         title={t('Action not found')}
         subTitle={t('This action is no longer in your field plan.')}
         extra={
-          <Button type="primary" href="#/calendar">
+          <RouterButton type="primary" to="/calendar">
             {t('Open calendar')}
-          </Button>
+          </RouterButton>
         }
       />
     );
@@ -35,21 +37,21 @@ export function ActionDetailsPage({ eventId }: ActionDetailsPageProps) {
   const status = getEventStatus(event.date, planningToday);
   return (
     <>
-      <Button
+      <RouterButton
         className="section-gap"
-        href={`#${calendarEventPath(event)}`}
+        to={calendarEventPath(event)}
         icon={<ArrowLeft size={18} />}
       >
         {t('Back to calendar')}
-      </Button>
+      </RouterButton>
       <PageHeading
         eyebrow={t('SYSTEM ACTION PLAN')}
         title={event.title}
         description={`${field.name} · ${formatPlanDate(event.date)}`}
         actions={
-          <Button type="primary" href={`#/fields/${field.id}`} icon={<MapPin size={18} />}>
+          <RouterButton type="primary" to={`/fields/${field.id}`} icon={<MapPin size={18} />}>
             {t('View field')}
-          </Button>
+          </RouterButton>
         }
       />
       <Row gutter={[24, 24]}>
@@ -82,12 +84,12 @@ export function ActionDetailsPage({ eventId }: ActionDetailsPageProps) {
                   key: 'date',
                   label: t('Scheduled date'),
                   children: (
-                    <a href={`#${calendarEventPath(event)}`}>
+                    <Link to={calendarEventPath(event)}>
                       <Space>
                         <CalendarDays size={18} />
                         {formatPlanDate(event.date)}
                       </Space>
-                    </a>
+                    </Link>
                   ),
                 },
                 { key: 'duration', label: t('Time required'), children: event.duration },

@@ -1,10 +1,11 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Button, Card, Flex, Space, Tag, Typography } from 'antd';
+import { Card, Flex, Space, Tag, Typography } from 'antd';
 import { ArrowUpRight, CalendarDays, Sprout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { planningQueries } from '../../api/planning/planning.queries.ts';
 import type { CropRotationPlanProps } from '../../types/fields/CropRotationPlan.types.ts';
 import { formatPlanDate } from '../../utils/planningDates.ts';
+import { RouterButton } from '../common/RouterButton';
 
 export function CropRotationPlan({ field }: CropRotationPlanProps) {
   const { t } = useTranslation();
@@ -37,13 +38,13 @@ export function CropRotationPlan({ field }: CropRotationPlanProps) {
               {t('through {{value0}}', { value0: formatPlanDate(plan.windowEnd) })}
             </Typography.Text>
           </div>
-          <Button
+          <RouterButton
             type="primary"
-            href={`#/fields/${field.id}/strategy`}
+            to={`/fields/${field.id}/strategy`}
             icon={<ArrowUpRight size={17} />}
           >
             {t('View strategy')}
-          </Button>
+          </RouterButton>
         </Flex>
       </Flex>
     </Card>

@@ -432,5 +432,6 @@
   "Try again": "Try again",
   "Unable to save changes": "Unable to save changes",
   "Feels like {{feelsLike}}° · H {{high}}° / L {{low}}°": "Feels like {{feelsLike}}° · H {{high}}° / L {{low}}°",
-  "{{farmName}} · PARCEL {{parcelId}}": "{{farmName}} · PARCEL {{parcelId}}"
+  "{{farmName}} · PARCEL {{parcelId}}": "{{farmName}} · PARCEL {{parcelId}}",
+  "Loading data": "Loading data"
 }

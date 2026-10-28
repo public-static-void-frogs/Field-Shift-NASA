@@ -1,18 +1,13 @@
-import { QueryClientProvider, QueryErrorResetBoundary } from '@tanstack/react-query';
-import { App as AntApp, ConfigProvider, Spin } from 'antd';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { App as AntApp, ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 import ukUA from 'antd/locale/uk_UA';
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { RouterProvider } from 'react-router-dom';
 import { createQueryClient } from '../api/core/query-client.ts';
-import { QueryBoundary } from '../components/common/QueryBoundary';
-import { useRoute } from '../hooks/useRoute.ts';
-import { LoginPage } from '../pages/LoginPage';
+import { router } from './router.ts';
 import { theme } from './theme.ts';
-
-const AppRoutes = lazy(() =>
-  import('./AppRoutes').then((module) => ({ default: module.AppRoutes })),
-);
 
 export default function App() {
   const [queryClient] = useState(createQueryClient);
@@ -22,30 +17,11 @@ export default function App() {
     ...locale,
     Pagination: { ...locale.Pagination, page_size: t('Page size') },
   };
-  const { path, navigate } = useRoute();
   return (
     <ConfigProvider theme={theme} locale={componentLocale}>
       <AntApp>
         <QueryClientProvider client={queryClient}>
-          <QueryErrorResetBoundary>
-            {({ reset }) => (
-              <QueryBoundary key={path.split('?')[0]} onReset={reset}>
-                {path.split('?')[0] === '/login' ? (
-                  <LoginPage navigate={navigate} />
-                ) : (
-                  <Suspense
-                    fallback={
-                      <div className="app-loading">
-                        <Spin size="large" />
-                      </div>
-                    }
-                  >
-                    <AppRoutes route={path} navigate={navigate} />
-                  </Suspense>
-                )}
-              </QueryBoundary>
-            )}
-          </QueryErrorResetBoundary>
+          <RouterProvider router={router} />
         </QueryClientProvider>
       </AntApp>
     </ConfigProvider>
