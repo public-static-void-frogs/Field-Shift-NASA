@@ -1,4 +1,8 @@
-import type { EventDecision, EventResponses, PlannedEvent } from '../types/planning';
+import type {
+  EventDecision,
+  EventResponses,
+  PlannedEvent,
+} from '../types/planning/planning.types.ts';
 
 export const eventResponsesStorageKey = 'frogfarmers:event-responses:v1';
 

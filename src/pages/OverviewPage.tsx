@@ -1,15 +1,15 @@
-import { useTranslation } from 'react-i18next';
 import { Button } from 'antd';
 import { CalendarDays, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { PageHeading } from '../components/common/PageHeading';
 import { FieldsTable } from '../components/fields/FieldsTable';
 import { MapCard } from '../components/map/MapCard';
 import { OverviewCharts } from '../components/overview/OverviewCharts';
 import { WeatherCard } from '../components/weather/WeatherCard';
-import { useFarm } from '../hooks/useFarm';
-import type { Navigate } from '../types/navigation';
+import { useFarm } from '../hooks/useFarm.ts';
+import type { OverviewPageProps } from '../types/overview/OverviewPage.types.ts';
 
-export function OverviewPage({ navigate }: { navigate: Navigate }) {
+export function OverviewPage({ navigate }: OverviewPageProps) {
   const { t, i18n } = useTranslation();
   const { fields } = useFarm();
   const totalArea = fields.reduce((total, field) => total + field.area, 0);

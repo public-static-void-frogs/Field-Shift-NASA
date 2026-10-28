@@ -1,16 +1,20 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Button, Card, Col, Descriptions, Flex, Result, Row, Space, Tag, Typography } from 'antd';
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { planningQueries } from '../api/planning/planning.queries.ts';
 import { EventResponseControls } from '../components/calendar/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
-import { calendarEventPath, getSystemPlanEvents } from '../data/planning';
-import { useFarm } from '../hooks/useFarm';
-import { formatPlanDate, getEventStatus } from '../utils/planningDates';
+import { useFarm } from '../hooks/useFarm.ts';
+import type { ActionDetailsPageProps } from '../types/planning/ActionDetailsPage.types.ts';
+import { formatPlanDate, getEventStatus } from '../utils/planningDates.ts';
+import { calendarEventPath } from '../utils/planningRoutes.ts';
 
-export function ActionDetailsPage({ eventId }: { eventId: string }) {
+export function ActionDetailsPage({ eventId }: ActionDetailsPageProps) {
   const { t } = useTranslation();
-  const { fields } = useFarm();
-  const event = getSystemPlanEvents(fields).find((item) => item.id === eventId);
+  const { fields, planningToday } = useFarm();
+  const { data: allPlanEvents } = useSuspenseQuery(planningQueries.events());
+  const event = allPlanEvents.find((item) => item.id === eventId);
   const field = event && fields.find((item) => item.id === event.fieldId);
 
   if (!event || !field) {
@@ -28,7 +32,7 @@ export function ActionDetailsPage({ eventId }: { eventId: string }) {
     );
   }
 
-  const status = getEventStatus(event.date);
+  const status = getEventStatus(event.date, planningToday);
   return (
     <>
       <Button

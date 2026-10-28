@@ -1,14 +1,14 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Alert, Button, Card, Empty, Space } from 'antd';
 import { ArrowRight } from 'lucide-react';
-import { useFarm } from '../hooks/useFarm';
+import { useTranslation } from 'react-i18next';
+import { notificationQueries } from '../api/notifications/notifications.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
-import type { Navigate } from '../types/navigation';
+import type { NotificationsPageProps } from '../types/notifications/NotificationsPage.types.ts';
 
-export function NotificationsPage({ navigate }: { navigate: Navigate }) {
+export function NotificationsPage({ navigate }: NotificationsPageProps) {
   const { t } = useTranslation();
-  const { fields } = useFarm();
-  const attention = fields.filter((field) => field.status !== 'Healthy');
+  const { data: notifications } = useSuspenseQuery(notificationQueries.list());
   return (
     <>
       <PageHeading
@@ -17,43 +17,33 @@ export function NotificationsPage({ navigate }: { navigate: Navigate }) {
         eyebrow={t('NOTIFICATIONS')}
       />
       <Space orientation="vertical" size={20} className="full-width">
-        {attention.map((field) => (
-          <Card key={field.id}>
+        {notifications.map((notification) => (
+          <Card key={notification.id}>
             <Alert
-              type={field.status === 'Critical' ? 'error' : 'warning'}
+              type={notification.severity}
               showIcon
-              title={t('{{value0}} needs a little care', { value0: field.name })}
-              description={
-                field.nitrogen < 20
-                  ? t('Nitrogen has dropped below the healthy range. Plan a nutrient top-up soon.')
-                  : t('Soil moisture is low. Check your irrigation schedule.')
-              }
+              title={t(notification.title, { value0: notification.fieldName })}
+              description={t(notification.description)}
             />
             <Button
               className="notification-link"
               type="link"
-              onClick={() => navigate(`/fields/${field.id}`)}
+              onClick={() =>
+                navigate(
+                  notification.kind === 'field' ? `/fields/${notification.fieldId}` : '/history',
+                )
+              }
             >
-              {t('View field')} <ArrowRight size={18} />
+              {t(notification.kind === 'field' ? 'View field' : 'View weather history')}{' '}
+              <ArrowRight size={18} />
             </Button>
           </Card>
         ))}
-        {!attention.length && (
+        {!notifications.some((notification) => notification.kind === 'field') && (
           <Card>
             <Empty description={t('Your fields are looking good. You’re all caught up.')} />
           </Card>
         )}
-        <Card>
-          <Alert
-            type="info"
-            showIcon
-            title={t('Light rain expected Thursday')}
-            description={t('A good window to plan nutrient applications.')}
-          />
-          <Button className="notification-link" type="link" onClick={() => navigate('/history')}>
-            {t('View weather history')} <ArrowRight size={18} />
-          </Button>
-        </Card>
       </Space>
     </>
   );

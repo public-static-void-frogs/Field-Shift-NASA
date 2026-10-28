@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import type { TableColumnsType } from 'antd';
 import {
   Badge,
   Button,
@@ -19,23 +19,19 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import type { TableColumnsType } from 'antd';
 import { ArrowUpRight, Droplets, ListFilter, Plus, Search, Wheat } from 'lucide-react';
-import { useFarm } from '../../hooks/useFarm';
-import { cropOptions } from '../../data/fields';
-import type { Field } from '../../types/field';
-import type { Navigate } from '../../types/navigation';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../../api/fields/fields.queries.ts';
+import { useFarm } from '../../hooks/useFarm.ts';
+import type { Field } from '../../types/fields/field.types.ts';
+import type { FieldsTableProps } from '../../types/fields/FieldsTable.types.ts';
 import { FieldStatus } from './FieldStatus';
 
-export function FieldsTable({
-  navigate,
-  overview = false,
-}: {
-  navigate: Navigate;
-  overview?: boolean;
-}) {
+export function FieldsTable({ navigate, overview = false }: FieldsTableProps) {
   const { t } = useTranslation();
   const { fields } = useFarm();
+  const { data: cropOptions } = useSuspenseQuery(fieldQueries.crops());
   const tableViewport = useRef<HTMLDivElement>(null);
   const [tableBodyHeight, setTableBodyHeight] = useState(300);
   const [page, setPage] = useState(1);

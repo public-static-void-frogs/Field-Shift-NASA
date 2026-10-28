@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { fieldGeoJson } from '../src/data/fieldGeoJson.ts';
+import { fieldGeoJson } from '../src/api/maps/mocks/geojson.mock.ts';
 import { getFeatureFieldId, getGeoJsonBounds } from '../src/utils/mapGeometry.ts';
 
 const feature = (geometry, properties = null, id) => ({

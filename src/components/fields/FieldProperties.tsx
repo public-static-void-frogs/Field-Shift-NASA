@@ -1,14 +1,16 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Descriptions, Space, Tag, Typography } from 'antd';
 import { Droplets, Mountain, Sprout } from 'lucide-react';
-import { getCropProperties, getFieldProperties } from '../../data/fieldProperties';
-import type { Field } from '../../types/field';
+import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../../api/fields/fields.queries.ts';
+import type { FieldPropertiesProps } from '../../types/fields/FieldProperties.types.ts';
 
-export function FieldProperties({ field }: { field: Field }) {
+export function FieldProperties({ field }: FieldPropertiesProps) {
   const { t } = useTranslation();
-  const properties = getFieldProperties(field.id);
-  const isWheat = field.crop === 'Winter wheat';
-  const crop = getCropProperties(field);
+  const { data: propertyData } = useSuspenseQuery(fieldQueries.properties(field.id));
+  if (!propertyData) return null;
+  const { soil: properties, crop } = propertyData;
+
   return (
     <section aria-labelledby="field-properties-heading" className="field-properties-section">
       <Typography.Title level={3} id="field-properties-heading">
@@ -53,11 +55,7 @@ export function FieldProperties({ field }: { field: Field }) {
               {
                 key: 'stage',
                 label: t('Growth stage'),
-                children: isWheat
-                  ? 'Heading · BBCH 55'
-                  : field.crop === 'Corn'
-                    ? 'Vegetative · V6'
-                    : 'Vegetative · V3',
+                children: propertyData.growthStage,
               },
               {
                 key: 'emergence',
@@ -194,7 +192,7 @@ export function FieldProperties({ field }: { field: Field }) {
               {
                 key: 'sample',
                 label: t('Last soil sample'),
-                children: 'May 23, 2026 · 0–30 cm depth',
+                children: propertyData.lastSample,
               },
             ]}
           />
@@ -271,12 +269,12 @@ export function FieldProperties({ field }: { field: Field }) {
               {
                 key: 'management',
                 label: t('Cultivation practice'),
-                children: 'Reduced tillage',
+                children: propertyData.cultivationPractice,
               },
               {
                 key: 'ownership',
                 label: t('Tenure'),
-                children: 'Owner operated',
+                children: propertyData.tenure,
               },
             ]}
           />

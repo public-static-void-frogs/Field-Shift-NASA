@@ -1,17 +1,22 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQueries } from '@tanstack/react-query';
 import { App, Button, Card, Descriptions, Form, Input, Result, Select, Space } from 'antd';
 import { ArrowLeft, Plus } from 'lucide-react';
-import { useFarm } from '../hooks/useFarm';
+import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
-import { cropOptions, initialFields, parcels } from '../data/fields';
-import type { Navigate } from '../types/navigation';
+import { useFarm } from '../hooks/useFarm.ts';
+import type { AddFieldPageProps } from '../types/fields/AddFieldPage.types.ts';
+import type { FieldFormValues } from '../types/fields/api.types.ts';
 
-export function AddFieldPage({ parcelId, navigate }: { parcelId: number; navigate: Navigate }) {
+export function AddFieldPage({ parcelId, navigate }: AddFieldPageProps) {
   const { t } = useTranslation();
-  const { fields, addField } = useFarm();
+  const { fields, addField, isAddingField, preferences } = useFarm();
+  const [{ data: parcel }, { data: cropOptions }] = useSuspenseQueries({
+    queries: [fieldQueries.parcel(parcelId), fieldQueries.crops()],
+  });
   const { message } = App.useApp();
   const exists = fields.some((field) => field.id === parcelId);
-  if (!parcels[parcelId - 1] || exists) {
+  if (!parcel || exists) {
     return (
       <Result
         status="info"
@@ -22,20 +27,14 @@ export function AddFieldPage({ parcelId, navigate }: { parcelId: number; navigat
       />
     );
   }
-  function handleAdd(values: { name: string; crop: string }) {
-    addField({
-      id: parcelId,
-      name: values.name.trim(),
-      crop: values.crop,
-      area: 12.6,
-      health: 86,
-      moisture: 59,
-      nitrogen: 40,
-      status: 'Healthy',
-      planted: 'May 1, 2026',
-    });
-    message.success(t('{{name}} added to your farm', { name: values.name.trim() }));
-    navigate(`/fields/${parcelId}`);
+  async function handleAdd(values: FieldFormValues) {
+    try {
+      const field = await addField({ parcelId, name: values.name.trim(), crop: values.crop });
+      message.success(t('{{name}} added to your farm', { name: field.name }));
+      navigate(`/fields/${field.id}`);
+    } catch {
+      message.error(t('Unable to save changes'));
+    }
   }
   return (
     <>
@@ -45,8 +44,9 @@ export function AddFieldPage({ parcelId, navigate }: { parcelId: number; navigat
       <PageHeading
         title={t('Welcome a new field.')}
         description={t('Give this parcel a name and tell us what you’re growing.')}
-        eyebrow={t('GREEN VALLEY FARM · PARCEL {{value0}}', {
-          value0: String(parcelId).padStart(2, '0'),
+        eyebrow={t('{{farmName}} · PARCEL {{parcelId}}', {
+          farmName: preferences.farmName.toUpperCase(),
+          parcelId: String(parcelId).padStart(2, '0'),
         })}
       />
       <Card className="form-card" title={t('Field information')}>
@@ -56,20 +56,20 @@ export function AddFieldPage({ parcelId, navigate }: { parcelId: number; navigat
             {
               key: 'area',
               label: t('Area'),
-              children: '12.6 hectares',
+              children: t('{{value0}} hectares', { value0: parcel.area }),
             },
             {
               key: 'soil',
               label: t('Soil type'),
-              children: 'Loam',
+              children: parcel.soilType,
             },
           ]}
         />
         <Form
           layout="vertical"
           initialValues={{
-            name: initialFields.find((field) => field.id === parcelId)?.name || 'West Orchard',
-            crop: 'Soybeans',
+            name: parcel.name,
+            crop: parcel.crop,
           }}
           onFinish={handleAdd}
           requiredMark={false}
@@ -96,7 +96,12 @@ export function AddFieldPage({ parcelId, navigate }: { parcelId: number; navigat
             <Select options={cropOptions} />
           </Form.Item>
           <Space>
-            <Button type="primary" htmlType="submit" icon={<Plus size={19} />}>
+            <Button
+              type="primary"
+              loading={isAddingField}
+              htmlType="submit"
+              icon={<Plus size={19} />}
+            >
               {t('Add to my fields')}
             </Button>
             <Button onClick={() => navigate('/map/add')}>{t('Cancel')}</Button>

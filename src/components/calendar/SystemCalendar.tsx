@@ -1,23 +1,14 @@
-import { useTranslation } from 'react-i18next';
-import { Badge, Button, Calendar, Grid, Tooltip } from 'antd';
-import type { CSSProperties } from 'react';
 import type { CalendarProps } from 'antd';
+import { Badge, Button, Calendar, Grid, Tooltip } from 'antd';
 import type { Dayjs } from 'dayjs';
-import { categoryColors } from '../../data/planning';
-import { useFarm } from '../../hooks/useFarm';
-import { getEventDecision } from '../../utils/eventResponses';
 import { Clock3 } from 'lucide-react';
-import type { PlannedEvent } from '../../types/planning';
+import type { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
+import { categoryColors } from '../../features/planning/constants.ts';
+import { useFarm } from '../../hooks/useFarm.ts';
+import type { SystemCalendarProps } from '../../types/planning/SystemCalendar.types.ts';
+import { getEventDecision } from '../../utils/eventResponses.ts';
 
-interface SystemCalendarProps {
-  value: Dayjs;
-  events: PlannedEvent[];
-  onDateSelect: (date: string) => void;
-  onPanelDateChange: (date: string) => void;
-  onEventSelect: (event: PlannedEvent) => void;
-  mode: 'month' | 'year';
-  onModeChange: (mode: 'month' | 'year') => void;
-}
 export function SystemCalendar({
   value,
   events,

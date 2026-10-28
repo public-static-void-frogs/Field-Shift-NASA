@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { useId, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Area,
   AreaChart,
@@ -11,19 +11,10 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { weatherMetrics, type WeatherMetric, type WeatherRecord } from '../../data/weather';
+import { weatherMetrics } from '../../features/weather/constants.ts';
+import type { HistoryChartProps } from '../../types/weather/HistoryChart.types.ts';
 
-export function HistoryChart({
-  records,
-  metric,
-  selectedKey,
-  onSelect,
-}: {
-  records: WeatherRecord[];
-  metric: WeatherMetric;
-  selectedKey: number;
-  onSelect: (key: number) => void;
-}) {
+export function HistoryChart({ records, metric, selectedKey, onSelect }: HistoryChartProps) {
   const { t } = useTranslation();
   const gradientId = useId();
   const [animate] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);

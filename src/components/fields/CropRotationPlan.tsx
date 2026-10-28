@@ -1,13 +1,15 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Button, Card, Flex, Space, Tag, Typography } from 'antd';
 import { ArrowUpRight, CalendarDays, Sprout } from 'lucide-react';
-import { getRotationPlan } from '../../data/planning';
-import { formatPlanDate } from '../../utils/planningDates';
-import type { Field } from '../../types/field';
+import { useTranslation } from 'react-i18next';
+import { planningQueries } from '../../api/planning/planning.queries.ts';
+import type { CropRotationPlanProps } from '../../types/fields/CropRotationPlan.types.ts';
+import { formatPlanDate } from '../../utils/planningDates.ts';
 
-export function CropRotationPlan({ field }: { field: Field }) {
+export function CropRotationPlan({ field }: CropRotationPlanProps) {
   const { t } = useTranslation();
-  const plan = getRotationPlan(field);
+  const { data: plan } = useSuspenseQuery(planningQueries.rotation(field.id));
+  if (!plan) return null;
   return (
     <Card id="crop-rotation-plan" className="rotation-summary rotation-plan-anchor">
       <Flex justify="space-between" align="center" gap={20} wrap>

@@ -26,13 +26,14 @@ print width. Generated output, vendored dependencies, and the npm lockfile are e
 
 ```text
 src/
-  app/           Application providers, route rendering, shared state, and theme
+  api/           Feature API methods, query keys/options, mutations, and mock implementations
+  app/           Application providers, route rendering, and theme
   components/    Shared UI grouped by fields, map, weather, layout, and common UI
-  data/          Frontend field, parcel, weather, and recommendation data
-  hooks/         Farm state access and hash-based page navigation
+  features/      UI configuration grouped by feature (colors, labels, map provider)
+  hooks/         Shared query-backed farm resources and hash-based page navigation
   pages/         Dedicated screens for each route
   styles/        Global, application layout, and dashboard styles
-  types/         Shared domain and navigation types
+  types/         API models, component props, and shared types grouped by feature
   main.tsx       Application entry point
 ```
 
@@ -46,8 +47,8 @@ Typography and library colors are centralized in `src/app/theme.ts`: body text
 is 16px, supporting text is 14px, and controls are 42px tall. Custom CSS is limited
 to layout, map overlays, and the existing green and cream visual treatment.
 The `.editorconfig` file defines two-space indentation and consistent line endings.
-Field agronomy profiles and land history are defined in `src/data/fieldProperties.ts`
-and `src/data/landHistory.ts`. Status tags use explicit semantic foreground and
+Field agronomy profiles and land history are defined in `src/api/fields/mocks/properties.mock.ts`
+and `src/api/fields/mocks/history.mock.ts`. Status tags use explicit semantic foreground and
 background colors in the shared theme for readable contrast.
 
 ## Explore
@@ -58,7 +59,7 @@ background colors in the shared theme for readable contrast.
 - **Calendar:** an Ant Design month/year calendar with field and action filters, a compact selected-day agenda, and a searchable table. Primary action buttons open dedicated detail pages with scheduling, rationale, and current field conditions. Date selection preserves the page scroll position.
 - **Environment history:** current conditions, trend charts, and 7-, 30-, or 90-day weather logs.
 
-All values and recommendations are defined in the frontend. Field changes live in React state and reset on refresh. No backend, credentials, or AI services are required. Map imagery requires internet access to the Esri tile service.
+All values and recommendations are defined in the frontend. Field changes live in the in-memory mock service and reset on refresh. React Query caches server resources and invalidates dependent queries after mutations. No backend, credentials, or AI services are required. Map imagery requires internet access to the Esri tile service.
 
 ## Offline dependency packages
 
@@ -78,8 +79,8 @@ calendar drawer, and action details. Accepted events remain confirmed; rejected 
 hidden from the calendar but remain editable on the strategy page. Responses persist
 in browser localStorage and reset to proposed when event instructions change.
 
-Planning fixtures live in `src/data/planning.ts`; planting date adjustments use the
-fixed soil pH and moisture values through `src/utils/planningDates.ts`. ML predictions,
+Planning fixtures live in `src/api/planning/mocks/planning.mock.ts`; planting date adjustments use the
+fixed soil pH and moisture values through `src/api/planning/mocks/agronomy.mock.ts`. ML predictions,
 confidence, rationale, and system schedules are frontend fixtures. The planning clock
 is fixed to May 24, 2026 to match the rest of the growing-season demo.
 
@@ -92,12 +93,12 @@ npm run test:strategy
 
 Overview, Field map, and field-detail pages share `src/components/map/FieldMap.tsx`, using Leaflet and
 React Leaflet. The satellite basemap is Esri World Imagery; the source and required
-attribution are configured in `src/data/fieldGeoJson.ts`. Labels, zoom buttons,
+attribution are configured in `src/features/maps/constants.ts`. Labels, zoom buttons,
 recenter, overlay selector, and field/add-parcel navigation remain available.
 The scale now follows the map zoom. Overlay health/moisture readings remain demo data.
 
 `FieldMap` accepts a `geojson` prop typed as `FieldGeoJson` (defined in
-`src/types/map.ts`): a WGS84 `FeatureCollection` of `Polygon` or `MultiPolygon`
+`src/types/maps/map.types.ts`): a WGS84 `FeatureCollection` of `Polygon` or `MultiPolygon`
 features. Coordinates use standard GeoJSON `[longitude, latitude]` order.
 `properties.fieldId`, or a numeric `feature.id`, associates a polygon with a field.
 An unmatched ID keeps the parcel available to add; a feature without an ID is
@@ -123,6 +124,48 @@ pass a different collection to the same component:
 ```sh
 npm run test:maps
 ```
+
+## Data access and caching
+
+The data layer follows the sample Abitly project's separation of API methods,
+query-key factories, reusable query options, and a shared query client. Features
+include fields, farm profile, planning, maps, weather, overview analytics,
+notifications, and help content.
+
+```text
+src/api/fields/
+  fields.api.ts        Async typed API methods; the boundary for a future HTTP client
+  fields.queries.ts    Stable fieldQueryKeys and reusable fieldQueries options
+  fields.mutations.ts  Mutations and invalidation of dependent resources
+  mocks/               Fixture records, generators, and the in-memory service store
+src/types/fields/      Field models, request/response types, and component/page props
+```
+
+Components consume query options with `useSuspenseQuery` or `useSuspenseQueries`.
+The `useFarm` hook combines shared farm resources and mutations from the same cache;
+it does not own fixture state. The query client is created once per app root with a
+60-second stale time. Suspense handles loading, and a query error boundary provides
+a translated retry action. Add/remove and strategy-response controls wait for
+mutations and report write failures.
+
+Key factories include every server-side query parameter (field IDs, weather
+ranges, trend ranges, and metrics). Field mutations invalidate field resources,
+planning, overview charts, and notifications. Strategy responses update and
+invalidate their shared response query. Removing a field also removes its saved
+event responses. Filtering and other temporary UI state remain in components.
+
+The service currently uses asynchronous local mocks and returns cloned plain-data
+responses. Fixtures, sample weather, account details, help records, generated
+strategies, and the demo planning date all come from this layer. There is no HTTP
+API or live server integration. Mock requests use `networkMode: 'always'` so the
+local demo works offline; map tiles still require internet access. To connect a
+real backend, replace the feature `.api.ts` implementations while preserving their
+request/response types and query keys, then use online network mode in the query
+client. No component should import from an API `mocks/` folder.
+
+Run `npm test` for all checks of domain behavior, translations, and queries, or
+`npm run test:queries` for cache deduplication, key separation, mutation
+invalidation, response persistence, failure recovery, and architecture boundaries.
 
 ## UI languages
 

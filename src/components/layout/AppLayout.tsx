@@ -1,10 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { useState, type ReactNode } from 'react';
 import { Avatar, Badge, Button, Layout, Menu, Tooltip } from 'antd';
 import {
   Bell,
-  CircleHelp,
   CalendarDays,
+  CircleHelp,
   History,
   LayoutDashboard,
   Map,
@@ -13,20 +11,16 @@ import {
   Settings2,
   Sprout,
 } from 'lucide-react';
-import type { Navigate } from '../../types/navigation';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useFarm } from '../../hooks/useFarm.ts';
+import type { AppLayoutProps } from '../../types/layout/AppLayout.types.ts';
 
 const { Sider, Content } = Layout;
 
-export function AppLayout({
-  path,
-  navigate,
-  children,
-}: {
-  path: string;
-  navigate: Navigate;
-  children: ReactNode;
-}) {
+export function AppLayout({ path, navigate, children }: AppLayoutProps) {
   const { t } = useTranslation();
+  const { preferences } = useFarm();
   const mainItems = [
     {
       key: '/',
@@ -132,10 +126,10 @@ export function AppLayout({
             ]}
           />
           <Button type="text" className="profile" onClick={() => navigate('/settings')}>
-            <Avatar size={40}>JW</Avatar>
+            <Avatar size={40}>{preferences.initials}</Avatar>
             <span className="sidebar-label">
-              <strong>James Wilson</strong>
-              <span>{t('Farm owner')}</span>
+              <strong>{preferences.fullName}</strong>
+              <span>{t(preferences.role)}</span>
             </span>
           </Button>
         </div>

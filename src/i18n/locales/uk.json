@@ -195,7 +195,6 @@
   "{{value0}} timeline. Hover to preview a reading, click to select it.": "Динаміка: {{value0}}. Наведіть вказівник для перегляду показника, натисніть для вибору.",
   "Weather today": "Погода сьогодні",
   "Mostly sunny": "Переважно сонячно",
-  "Feels like 26° · H 27° / L 16°": "Відчувається як 26° · Макс. 27° / Мін. 16°",
   "Humidity": "Вологість повітря",
   "Wind · SW": "Вітер · ПдЗх",
   "Rain chance": "Імовірність опадів",
@@ -222,7 +221,6 @@
   "Back to the map": "До карти",
   "Welcome a new field.": "Додайте нове поле.",
   "Give this parcel a name and tell us what you’re growing.": "Назвіть цю ділянку та вкажіть, що ви вирощуєте.",
-  "GREEN VALLEY FARM · PARCEL {{value0}}": "GREEN VALLEY FARM · ДІЛЯНКА {{value0}}",
   "Field information": "Інформація про поле",
   "Soil type": "Тип ґрунту",
   "Enter a name for your field.": "Введіть назву поля.",
@@ -428,5 +426,11 @@
   "App description": "FrogFarmers — турбота про вашу землю та кращий урожай у майбутньому. Керуйте полями, стежте за станом рослин і досліджуйте умови вирощування.",
   "mg/kg": "мг/кг",
   "{{value0}} km/h": "{{value0}} км/год",
-  "Page size": "Розмір сторінки"
+  "Page size": "Розмір сторінки",
+  "Unable to load data": "Не вдалося завантажити дані",
+  "Please try again.": "Спробуйте ще раз.",
+  "Try again": "Спробувати ще раз",
+  "Unable to save changes": "Не вдалося зберегти зміни",
+  "Feels like {{feelsLike}}° · H {{high}}° / L {{low}}°": "Відчувається як {{feelsLike}}° · Макс. {{high}}° / Мін. {{low}}°",
+  "{{farmName}} · PARCEL {{parcelId}}": "{{farmName}} · ДІЛЯНКА {{parcelId}}"
 }

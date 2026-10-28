@@ -1,6 +1,7 @@
+import { calculatePlantingDate, planningToday } from '../src/api/planning/mocks/agronomy.mock.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculatePlantingDate, getEventStatus, isPlanDate } from '../src/utils/planningDates.ts';
+import { getEventStatus, isPlanDate } from '../src/utils/planningDates.ts';
 
 test('normal soybean conditions retain the regional planting date', () => {
   assert.deepEqual(calculatePlantingDate('Soybeans', 6.5, 64), {
@@ -33,8 +34,8 @@ test('calendar date validation rejects impossible or incomplete dates', () => {
 });
 
 test('action statuses use the shared planning clock and seven-day window', () => {
-  assert.equal(getEventStatus('2026-05-23'), 'Completed');
-  assert.equal(getEventStatus('2026-05-25'), 'Due soon');
-  assert.equal(getEventStatus('2026-05-31'), 'Due soon');
-  assert.equal(getEventStatus('2026-06-01'), 'Planned');
+  assert.equal(getEventStatus('2026-05-23', planningToday), 'Completed');
+  assert.equal(getEventStatus('2026-05-25', planningToday), 'Due soon');
+  assert.equal(getEventStatus('2026-05-31', planningToday), 'Due soon');
+  assert.equal(getEventStatus('2026-06-01', planningToday), 'Planned');
 });

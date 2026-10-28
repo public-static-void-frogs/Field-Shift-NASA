@@ -1,24 +1,28 @@
-import { useTranslation } from 'react-i18next';
-import { useMemo, useState } from 'react';
+import { useSuspenseQueries } from '@tanstack/react-query';
 import { Alert, App, Button, Card, Flex, Result, Space, Typography } from 'antd';
 import { ArrowLeft, Sprout, Trash2 } from 'lucide-react';
-import { useFarm } from '../hooks/useFarm';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
+import { mapQueries } from '../api/maps/maps.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
+import { CropRotationPlan } from '../components/fields/CropRotationPlan';
+import { FieldProperties } from '../components/fields/FieldProperties';
 import { FieldRecommendation } from '../components/fields/FieldRecommendation';
 import { FieldStatus } from '../components/fields/FieldStatus';
-import { FieldProperties } from '../components/fields/FieldProperties';
 import { LandHistory } from '../components/fields/LandHistory';
-import { CropRotationPlan } from '../components/fields/CropRotationPlan';
 import { FieldMap } from '../components/map/FieldMap';
-import { fieldGeoJson } from '../data/fieldGeoJson';
-import { getFeatureFieldId } from '../utils/mapGeometry';
-import type { FieldGeoJson } from '../types/map';
-import { getFieldProperties } from '../data/fieldProperties';
-import type { Navigate } from '../types/navigation';
+import { useFarm } from '../hooks/useFarm.ts';
+import type { FieldDetailsPageProps } from '../types/fields/FieldDetailsPage.types.ts';
+import type { FieldGeoJson } from '../types/maps/map.types.ts';
+import { getFeatureFieldId } from '../utils/mapGeometry.ts';
 
-export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navigate: Navigate }) {
+export function FieldDetailsPage({ fieldId, navigate }: FieldDetailsPageProps) {
   const { t } = useTranslation();
-  const { fields, removeField, preferences } = useFarm();
+  const [{ data: propertyData }, { data: fieldGeoJson }] = useSuspenseQueries({
+    queries: [fieldQueries.properties(fieldId), mapQueries.geojson()],
+  });
+  const { fields, removeField, preferences, isRemovingField } = useFarm();
   const { message } = App.useApp();
   const [confirmRemove, setConfirmRemove] = useState(false);
   const field = fields.find((item) => item.id === fieldId);
@@ -27,9 +31,9 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
       type: 'FeatureCollection',
       features: fieldGeoJson.features.filter((feature) => getFeatureFieldId(feature) === fieldId),
     }),
-    [fieldId],
+    [fieldId, fieldGeoJson],
   );
-  if (!field)
+  if (!field || !propertyData)
     return (
       <Result
         status="404"
@@ -52,7 +56,7 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
         description={t('{{value0}} · {{value1}} hectares · {{value2}}', {
           value0: field.crop,
           value1: field.area,
-          value2: getFieldProperties(field.id).soilType,
+          value2: propertyData.soil.soilType,
         })}
         eyebrow={t('{{value0}} · FIELD {{value1}}', {
           value0: preferences.farmName.toUpperCase(),
@@ -119,10 +123,15 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
                   <Space wrap>
                     <Button
                       danger
-                      onClick={() => {
-                        removeField(field.id);
-                        message.success(t('Field removed'));
-                        navigate('/map');
+                      loading={isRemovingField}
+                      onClick={async () => {
+                        try {
+                          await removeField(field.id);
+                          message.success(t('Field removed'));
+                          navigate('/map');
+                        } catch {
+                          message.error(t('Unable to save changes'));
+                        }
                       }}
                     >
                       {t('Confirm removal')}{' '}

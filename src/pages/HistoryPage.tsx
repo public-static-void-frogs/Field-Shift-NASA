@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import type { TableColumnsType } from 'antd';
 import {
   Card,
   ConfigProvider,
@@ -14,12 +14,15 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import type { TableColumnsType } from 'antd';
 import { CloudRain, CloudSun, Sun } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { weatherQueries } from '../api/weather/weather.queries.ts';
 import { HistoryChart } from '../components/weather/HistoryChart';
-import { historyRanges, weatherHistory, weatherMetrics, type WeatherMetric } from '../data/weather';
-import type { HistoryRange, WeatherRecord } from '../data/weather';
-import { useFarm } from '../hooks/useFarm';
+import { historyRanges, weatherMetrics } from '../features/weather/constants.ts';
+import { useFarm } from '../hooks/useFarm.ts';
+import type { HistoryRange, WeatherRecord } from '../types/weather/weather.types.ts';
+import { type WeatherMetric } from '../types/weather/weather.types.ts';
 
 export function HistoryPage() {
   const { t } = useTranslation();
@@ -74,7 +77,7 @@ export function HistoryPage() {
   const [range, setRange] = useState<HistoryRange>('7 days');
   const [metric, setMetric] = useState<WeatherMetric>('temperature');
   const [selectedKey, setSelectedKey] = useState(0);
-  const records = weatherHistory.slice(0, Number.parseInt(range));
+  const { data: records } = useSuspenseQuery(weatherQueries.history(range));
   const selected = records.find((record) => record.key === selectedKey) ?? records[0];
   const metricConfig = weatherMetrics[metric];
   const config = {
@@ -83,7 +86,7 @@ export function HistoryPage() {
     description: t(metricConfig.description),
     unit: t(metricConfig.unit),
   };
-  const previous = weatherHistory.find((record) => record.key === selected.key + 1);
+  const previous = records.find((record) => record.key === selected.key + 1);
   const change = previous ? Number((selected[metric] - previous[metric]).toFixed(1)) : null;
 
   return (

@@ -1,10 +1,9 @@
-import { useTranslation } from 'react-i18next';
 import { Button, Result } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { AppLayout } from '../components/layout/AppLayout';
-import type { Navigate } from '../types/navigation';
 import { ActionDetailsPage } from '../pages/ActionDetailsPage';
-import { CalendarPage } from '../pages/CalendarPage';
 import { AddFieldPage } from '../pages/AddFieldPage';
+import { CalendarPage } from '../pages/CalendarPage';
 import { FieldDetailsPage } from '../pages/FieldDetailsPage';
 import { FieldStrategyPage } from '../pages/FieldStrategyPage';
 import { FieldsPage } from '../pages/FieldsPage';
@@ -14,8 +13,9 @@ import { MapPage } from '../pages/MapPage';
 import { NotificationsPage } from '../pages/NotificationsPage';
 import { OverviewPage } from '../pages/OverviewPage';
 import { SettingsPage } from '../pages/SettingsPage';
+import type { AppRoutesProps } from '../types/shared/AppRoutes.types.ts';
 
-export function AppRoutes({ route, navigate }: { route: string; navigate: Navigate }) {
+export function AppRoutes({ route, navigate }: AppRoutesProps) {
   const { t } = useTranslation();
   const [path, search = ''] = route.split('?');
   const params = new URLSearchParams(search);

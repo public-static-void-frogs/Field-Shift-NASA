@@ -1,11 +1,11 @@
-import { useTranslation } from 'react-i18next';
 import { Button, Form, Input } from 'antd';
 import { ArrowRight } from 'lucide-react';
-import type { Navigate } from '../types/navigation';
-import '../styles/login.css';
+import { useTranslation } from 'react-i18next';
 import { FarmlandBackdrop } from '../components/common/FarmlandBackdrop';
+import '../styles/login.css';
+import type { LoginPageProps } from '../types/auth/LoginPage.types.ts';
 
-export function LoginPage({ navigate }: { navigate: Navigate }) {
+export function LoginPage({ navigate }: LoginPageProps) {
   const { t } = useTranslation();
   return (
     <main className="login-page">

@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import type { TableColumnsType } from 'antd';
 import {
   Button,
   Descriptions,
@@ -13,36 +13,33 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import type { TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
 import { Search } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { planningQueries } from '../api/planning/planning.queries.ts';
 import { EventResponseControls } from '../components/calendar/EventResponseControls';
-import { getCalendarEvents, getEventDecision } from '../utils/eventResponses';
 import { PlanEventCard } from '../components/calendar/PlanEventCard';
 import { SystemCalendar } from '../components/calendar/SystemCalendar';
-import { calendarPath, getSystemPlanEvents, planCategories } from '../data/planning';
-import { useFarm } from '../hooks/useFarm';
-import type { PlannedEvent } from '../types/planning';
-import type { Navigate } from '../types/navigation';
-import { formatPlanDate, getEventStatus, isPlanDate, planningToday } from '../utils/planningDates';
-
-interface CalendarPageProps {
-  navigate: Navigate;
-  date?: string;
-  fieldId?: number;
-  eventId?: string;
-}
+import { planCategories } from '../features/planning/constants.ts';
+import { useFarm } from '../hooks/useFarm.ts';
+import type { CalendarPageProps } from '../types/planning/CalendarPage.types.ts';
+import type { CalendarMode, PlannedEvent } from '../types/planning/planning.types.ts';
+import { getCalendarEvents, getEventDecision } from '../utils/eventResponses.ts';
+import { formatPlanDate, getEventStatus, isPlanDate } from '../utils/planningDates.ts';
+import { calendarPath } from '../utils/planningRoutes.ts';
 
 export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageProps) {
   const { t } = useTranslation();
-  const { fields, eventResponses } = useFarm();
+  const { fields, eventResponses, planningToday } = useFarm();
+  const { data: allPlanEvents } = useSuspenseQuery(planningQueries.events());
   const [category, setCategory] = useState('All actions');
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState('calendar');
   const [dayOpen, setDayOpen] = useState(false);
-  const [calendarMode, setCalendarMode] = useState<'month' | 'year'>('month');
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>('month');
   const selectedDate = isPlanDate(date) ? date! : planningToday;
-  const allEvents = getSystemPlanEvents(fields);
+  const allEvents = allPlanEvents;
   const events = getCalendarEvents(allEvents, eventResponses);
   const visible = events.filter(
     (event) =>
@@ -210,7 +207,7 @@ export function CalendarPage({ navigate, date, fieldId, eventId }: CalendarPageP
               >
                 {selectedEvent.priority}
               </Tag>
-              <Tag>{t(getEventStatus(selectedEvent.date))}</Tag>
+              <Tag>{t(getEventStatus(selectedEvent.date, planningToday))}</Tag>
             </Flex>
             <Typography.Title level={3}>{selectedEvent.title}</Typography.Title>
             <Typography.Paragraph>{selectedEvent.description}</Typography.Paragraph>

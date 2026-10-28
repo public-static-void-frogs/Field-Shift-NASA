@@ -1,10 +1,11 @@
-import { useTranslation } from 'react-i18next';
 import { Avatar, Button, Card, Form, Input, Select, Space, Typography } from 'antd';
 import { Camera, MapPin } from 'lucide-react';
-import { useFarm } from '../hooks/useFarm';
+import { useTranslation } from 'react-i18next';
+import { useFarm } from '../hooks/useFarm.ts';
 import '../styles/settings.css';
+import type { SectionActionsProps } from '../types/farm/SettingsPage.types.ts';
 
-function SectionActions({ section }: { section: string }) {
+function SectionActions({ section }: SectionActionsProps) {
   const { t } = useTranslation();
   return (
     <Space size={8}>
@@ -33,15 +34,15 @@ export function SettingsPage() {
           if (changed.language) void i18n.changeLanguage(changed.language);
         }}
         initialValues={{
-          fullName: 'James Wilson',
-          email: 'james.wilson@example.com',
+          fullName: preferences.fullName,
+          email: preferences.email,
           farmName: preferences.farmName,
           season: preferences.season,
-          location: 'Ames, Iowa, United States',
-          timeZone: 'America/Chicago',
-          units: 'metric',
+          location: preferences.location,
+          timeZone: preferences.timeZone,
+          units: preferences.units,
           language: i18n.resolvedLanguage,
-          theme: 'light',
+          theme: preferences.theme,
         }}
       >
         <div className="settings-grid">
@@ -50,7 +51,7 @@ export function SettingsPage() {
             extra={<SectionActions section={t('Account information')} />}
           >
             <div className="settings-profile-photo">
-              <Avatar size={72}>JW</Avatar>
+              <Avatar size={72}>{preferences.initials}</Avatar>
               <div>
                 <Typography.Text strong>{t('Profile photo')}</Typography.Text>
                 <Button icon={<Camera size={17} />} disabled>
@@ -66,7 +67,7 @@ export function SettingsPage() {
             </Form.Item>
             <div className="settings-account-role">
               <Typography.Text type="secondary">{t('Account role')}</Typography.Text>
-              <Typography.Text>{t('Farm owner')}</Typography.Text>
+              <Typography.Text>{t(preferences.role)}</Typography.Text>
             </div>
           </Card>
           <Card
@@ -113,10 +114,7 @@ export function SettingsPage() {
               </Form.Item>
               <Form.Item label={t('Growing season')} name="season">
                 <Select
-                  options={[
-                    { value: '2026', label: '2026' },
-                    { value: '2025', label: '2025' },
-                  ]}
+                  options={preferences.availableSeasons.map((value) => ({ value, label: value }))}
                 />
               </Form.Item>
               <Form.Item label={t('Time zone')} name="timeZone">

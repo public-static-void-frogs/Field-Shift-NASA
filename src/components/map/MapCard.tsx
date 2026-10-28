@@ -1,22 +1,16 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Button, Card, Tooltip } from 'antd';
 import { Expand } from 'lucide-react';
-import { fieldGeoJson } from '../../data/fieldGeoJson';
-import { useFarm } from '../../hooks/useFarm';
-import type { Navigate } from '../../types/navigation';
+import { useTranslation } from 'react-i18next';
+import { mapQueries } from '../../api/maps/maps.queries.ts';
+import { useFarm } from '../../hooks/useFarm.ts';
+import type { MapCardProps } from '../../types/maps/MapCard.types.ts';
 import { FieldMap } from './FieldMap';
 
-export function MapCard({
-  navigate,
-  expanded = false,
-  adding = false,
-}: {
-  navigate: Navigate;
-  expanded?: boolean;
-  adding?: boolean;
-}) {
+export function MapCard({ navigate, expanded = false, adding = false }: MapCardProps) {
   const { t } = useTranslation();
   const { fields } = useFarm();
+  const { data: fieldGeoJson } = useSuspenseQuery(mapQueries.geojson());
   return (
     <Card className="map-card">
       <FieldMap

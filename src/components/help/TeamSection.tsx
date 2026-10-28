@@ -1,48 +1,12 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
+import { helpQueries } from '../../api/help/help.queries.ts';
 import { FarmlandBackdrop } from '../common/FarmlandBackdrop';
-
-const team = [
-  {
-    id: 'oleh',
-    name: 'Oleh',
-    roles: 'Team lead · Frontend · Backend',
-    alt: 'Leader frog in a straw hat with a laptop and farm planning clipboard',
-  },
-  {
-    id: 'polina',
-    name: 'Polina',
-    roles: 'ML · Computer vision',
-    alt: 'Cute frog with a lavender bow examining a leaf through a camera',
-  },
-  {
-    id: 'kate',
-    name: 'Kate',
-    roles: 'Data engineering',
-    alt: 'Science frog in glasses and a lab coat holding a seedling vial',
-  },
-  {
-    id: 'volodymyr',
-    name: 'Volodymyr',
-    roles: 'ML · Data · Research',
-    alt: 'Athletic frog with a dumbbell, research notebook, and blue and yellow ribbon',
-  },
-  {
-    id: 'bohdan',
-    name: 'Bohdan',
-    roles: 'ML · Data · Research',
-    alt: 'Scholarly frog in glasses reading a research book beside a leaf',
-  },
-  {
-    id: 'roman',
-    name: 'Roman',
-    roles: 'ML · Data · Research',
-    alt: 'Busy frog researcher with a laptop, notebook, and sticky notes',
-  },
-];
 
 export function TeamSection() {
   const { t } = useTranslation();
+  const { data: team } = useSuspenseQuery(helpQueries.team());
   return (
     <section className="team-garden" id="about-the-team" aria-labelledby="team-heading">
       <FarmlandBackdrop />

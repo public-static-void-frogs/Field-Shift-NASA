@@ -1,7 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Button, Card, Descriptions, Result, Space, Steps, Table, Tag, Typography } from 'antd';
+import dayjs from 'dayjs';
 import { ArrowLeft, ArrowUpRight, CalendarDays, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Area,
   CartesianGrid,
@@ -13,16 +15,15 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import dayjs from 'dayjs';
-import { PageHeading } from '../components/common/PageHeading';
+import { planningQueries } from '../api/planning/planning.queries.ts';
 import { EventResponseControls } from '../components/calendar/EventResponseControls';
-import { useFarm } from '../hooks/useFarm';
-import { getFieldStrategy } from '../data/fieldStrategy';
-import { calendarEventPath, calendarPath } from '../data/planning';
-import { formatPlanDate } from '../utils/planningDates';
-import { getEventDecision } from '../utils/eventResponses';
-import type { PlannedEvent } from '../types/planning';
-import type { Navigate } from '../types/navigation';
+import { PageHeading } from '../components/common/PageHeading';
+import { useFarm } from '../hooks/useFarm.ts';
+import type { FieldStrategyPageProps } from '../types/planning/FieldStrategyPage.types.ts';
+import type { PlannedEvent } from '../types/planning/planning.types.ts';
+import { getEventDecision } from '../utils/eventResponses.ts';
+import { formatPlanDate } from '../utils/planningDates.ts';
+import { calendarEventPath, calendarPath } from '../utils/planningRoutes.ts';
 
 const tooltipStyle = {
   border: '1px solid #dfe5d5',
@@ -32,7 +33,7 @@ const tooltipStyle = {
 };
 const axis = { fill: '#707d65', fontSize: 12 };
 
-export function FieldStrategyPage({ fieldId, navigate }: { fieldId: number; navigate: Navigate }) {
+export function FieldStrategyPage({ fieldId, navigate }: FieldStrategyPageProps) {
   const { t } = useTranslation();
   const forecastMetrics = [
     {
@@ -62,9 +63,10 @@ export function FieldStrategyPage({ fieldId, navigate }: { fieldId: number; navi
   ] as const;
 
   const { fields, eventResponses } = useFarm();
+  const { data: strategy } = useSuspenseQuery(planningQueries.strategy(fieldId));
   const [animate] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const field = fields.find((item) => item.id === fieldId);
-  if (!field)
+  if (!field || !strategy)
     return (
       <Result
         status="404"
@@ -72,8 +74,7 @@ export function FieldStrategyPage({ fieldId, navigate }: { fieldId: number; navi
         extra={<Button onClick={() => navigate('/fields')}>{t('Back to fields')}</Button>}
       />
     );
-  const { plan, events, steps, forecast, comparison, technicals, contingencies } =
-    getFieldStrategy(field);
+  const { plan, events, steps, forecast, comparison, technicals, contingencies } = strategy;
   const counts = events.reduce(
     (totals, event) => {
       totals[getEventDecision(event, eventResponses)]++;

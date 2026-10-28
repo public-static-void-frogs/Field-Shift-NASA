@@ -1,18 +1,14 @@
-import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
-import { Card, Skeleton, Space, Tag, Typography } from 'antd';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Card, Space, Tag, Typography } from 'antd';
 import { Sparkles } from 'lucide-react';
-import { getRecommendation } from '../../data/recommendations';
-import type { Field } from '../../types/field';
+import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../../api/fields/fields.queries.ts';
+import type { FieldRecommendationProps } from '../../types/fields/FieldRecommendation.types.ts';
 
-export function FieldRecommendation({ field }: { field: Field }) {
+export function FieldRecommendation({ field }: FieldRecommendationProps) {
   const { t } = useTranslation();
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setReady(true), 850);
-    return () => window.clearTimeout(timer);
-  }, []);
-  const recommendation = getRecommendation(field);
+  const { data: recommendation } = useSuspenseQuery(fieldQueries.recommendation(field.id));
+  if (!recommendation) return null;
   return (
     <Card
       className="insight-card ai-insight-card"
@@ -24,19 +20,8 @@ export function FieldRecommendation({ field }: { field: Field }) {
       }
       extra={<Tag className="ai-insight-tag">{t('AI INSIGHT')}</Tag>}
     >
-      {!ready ? (
-        <div aria-live="polite">
-          <Typography.Paragraph type="secondary">
-            {t('Taking a look at your field…')}
-          </Typography.Paragraph>
-          <Skeleton active paragraph={{ rows: 3 }} title={false} />
-        </div>
-      ) : (
-        <>
-          <Typography.Title level={3}>{recommendation.title}</Typography.Title>
-          <Typography.Paragraph>{recommendation.description}</Typography.Paragraph>
-        </>
-      )}
+      <Typography.Title level={3}>{recommendation.title}</Typography.Title>
+      <Typography.Paragraph>{recommendation.description}</Typography.Paragraph>
     </Card>
   );
 }

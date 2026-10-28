@@ -1,31 +1,13 @@
-import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Collapse, Table, Typography } from 'antd';
-import { TeamSection } from '../components/help/TeamSection';
+import { useTranslation } from 'react-i18next';
+import { helpQueries } from '../api/help/help.queries.ts';
 import { ProjectSection } from '../components/help/ProjectSection';
-
-const demoSources = [
-  {
-    key: 'weather',
-    name: 'Example weather archive',
-    data: 'Daily temperature, rainfall, and humidity',
-    format: 'CSV',
-  },
-  {
-    key: 'soil',
-    name: 'Sample soil survey',
-    data: 'Soil pH, moisture, nutrients, and organic matter',
-    format: 'GeoJSON',
-  },
-  {
-    key: 'crop',
-    name: 'Demo crop reference',
-    data: 'Crop characteristics, planting windows, and rotation sequences',
-    format: 'JSON',
-  },
-];
+import { TeamSection } from '../components/help/TeamSection';
 
 export function HelpPage() {
   const { t } = useTranslation();
+  const { data: demoSources } = useSuspenseQuery(helpQueries.sources());
   return (
     <>
       <div className="help-about-sections">

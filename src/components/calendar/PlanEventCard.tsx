@@ -1,24 +1,17 @@
-import { useTranslation } from 'react-i18next';
-import type { CSSProperties } from 'react';
 import { Button, Card, Flex, Space, Tag, Typography } from 'antd';
 import { ArrowUpRight, Clock3 } from 'lucide-react';
-import { actionDetailsPath, categoryBackgrounds, categoryColors } from '../../data/planning';
-import { getEventStatus } from '../../utils/planningDates';
-import { useFarm } from '../../hooks/useFarm';
-import { getEventDecision } from '../../utils/eventResponses';
-import type { PlannedEvent } from '../../types/planning';
+import type { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
+import { categoryBackgrounds, categoryColors } from '../../features/planning/constants.ts';
+import { useFarm } from '../../hooks/useFarm.ts';
+import type { PlanEventCardProps } from '../../types/planning/PlanEventCard.types.ts';
+import { getEventDecision } from '../../utils/eventResponses.ts';
+import { getEventStatus } from '../../utils/planningDates.ts';
+import { actionDetailsPath } from '../../utils/planningRoutes.ts';
 
-export function PlanEventCard({
-  event,
-  highlighted = false,
-  onSelect,
-}: {
-  event: PlannedEvent;
-  highlighted?: boolean;
-  onSelect?: () => void;
-}) {
+export function PlanEventCard({ event, highlighted = false, onSelect }: PlanEventCardProps) {
   const { t } = useTranslation();
-  const { eventResponses } = useFarm();
+  const { eventResponses, planningToday } = useFarm();
   const decision = getEventDecision(event, eventResponses);
   return (
     <Card
@@ -37,12 +30,14 @@ export function PlanEventCard({
           color={
             event.priority === 'High priority'
               ? 'error'
-              : getEventStatus(event.date) === 'Due soon'
+              : getEventStatus(event.date, planningToday) === 'Due soon'
                 ? 'warning'
                 : 'default'
           }
         >
-          {event.priority === 'High priority' ? event.priority : t(getEventStatus(event.date))}
+          {event.priority === 'High priority'
+            ? event.priority
+            : t(getEventStatus(event.date, planningToday))}
         </Tag>
       </Flex>
       <Tag

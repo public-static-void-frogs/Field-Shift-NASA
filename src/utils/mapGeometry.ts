@@ -1,5 +1,5 @@
 import type { Feature } from 'geojson';
-import type { FieldGeoJson } from '../types/map';
+import type { FieldGeoJson } from '../types/maps/map.types.ts';
 
 /** Geographic bounds in Leaflet's [latitude, longitude] order. */
 export function getGeoJsonBounds(

@@ -1,6 +1,7 @@
-import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Empty, Flex, Segmented, Select, Skeleton, Tag, Typography } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Bar,
   BarChart,
@@ -15,8 +16,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { useFarm } from '../../hooks/useFarm';
-import { chartColors, getCropAreas, getSampleFieldTrends } from '../../data/overviewCharts';
+import { overviewQueries } from '../../api/overview/overview.queries.ts';
+import { chartColors } from '../../features/overview/constants.ts';
+import { useFarm } from '../../hooks/useFarm.ts';
+import type { TrendMetric } from '../../types/overview/overview.types.ts';
+import type { ChartCardProps } from '../../types/overview/OverviewCharts.types.ts';
 
 const axis = { fill: '#707d65', fontSize: 12 };
 const tooltipStyle = {
@@ -28,17 +32,7 @@ const tooltipStyle = {
   fontSize: 13,
 };
 
-function ChartCard({
-  title,
-  controls,
-  children,
-  className = '',
-}: {
-  title: string;
-  controls?: ReactNode;
-  children: (animate: boolean) => ReactNode;
-  className?: string;
-}) {
+function ChartCard({ title, controls, children, className = '' }: ChartCardProps) {
   const { t } = useTranslation();
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -83,14 +77,15 @@ export function OverviewCharts() {
   const { t } = useTranslation();
   const { fields } = useFarm();
   const [days, setDays] = useState(30);
-  const [trendMetric, setTrendMetric] = useState<'health' | 'moisture'>('health');
+  const [trendMetric, setTrendMetric] = useState<TrendMetric>('health');
   const [hiddenFields, setHiddenFields] = useState<number[]>([]);
   const [crop, setCrop] = useState<string | null>(null);
-  const [barMetric, setBarMetric] = useState<'health' | 'moisture'>('health');
-  const cropAreas = getCropAreas(fields);
+  const [barMetric, setBarMetric] = useState<TrendMetric>('health');
+  const { data: charts } = useSuspenseQuery(overviewQueries.charts({ days, metric: trendMetric }));
+  const cropAreas = charts.cropAreas;
   const totalArea = cropAreas.reduce((sum, item) => sum + item.area, 0);
   const activeCrop = cropAreas.some((item) => item.name === crop) ? crop : null;
-  const trendData = getSampleFieldTrends(fields, days, trendMetric);
+  const trendData = charts.trends;
   const percent = (value: unknown) => `${value}%`;
 
   return (

@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { Card, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { FarmlandBackdrop } from '../common/FarmlandBackdrop';
 
 export function ProjectSection() {

@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { initialFields } from '../src/data/fields.ts';
-import { getFieldStrategy } from '../src/data/fieldStrategy.ts';
-import { getFieldPlanEvents, calendarEventPath } from '../src/data/planning.ts';
+import { initialFields } from '../src/api/fields/mocks/fields.mock.ts';
+import { getFieldStrategy } from '../src/api/planning/mocks/strategy.mock.ts';
+import { getFieldPlanEvents } from '../src/api/planning/mocks/planning.mock.ts';
+import { calendarEventPath } from '../src/utils/planningRoutes.ts';
 import {
   eventFingerprint,
   getCalendarEvents,

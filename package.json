@@ -13,9 +13,12 @@
     "test:strategy": "node --experimental-strip-types --test tests/strategy.test.mjs",
     "test:i18n": "node --experimental-strip-types --test tests/i18n.test.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:queries": "node --experimental-strip-types --test tests/queries.test.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.105.0",
     "antd": "file:vendor/antd-6.6.6.tgz",
     "dayjs": "file:vendor/dayjs-1.11.23.tgz",
     "i18next": "^26.5.11",

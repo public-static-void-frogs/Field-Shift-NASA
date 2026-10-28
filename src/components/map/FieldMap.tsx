@@ -1,28 +1,21 @@
-import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState } from 'react';
 import { Button, Select, Tooltip } from 'antd';
-import { Layers, LocateFixed, MapPin, Minus, Plus } from 'lucide-react';
 import { geoJSON, Path, type Map as LeafletMap, type PathOptions } from 'leaflet';
-import { MapContainer, ScaleControl, TileLayer, useMap } from 'react-leaflet';
-import { useFarm } from '../../hooks/useFarm';
-import { satelliteTiles } from '../../data/fieldGeoJson';
-import { getFeatureFieldId, getGeoJsonBounds } from '../../utils/mapGeometry';
-import type { Field } from '../../types/field';
-import type { FieldGeoJson, MapLayer } from '../../types/map';
 import 'leaflet/dist/leaflet.css';
+import { Layers, LocateFixed, MapPin, Minus, Plus } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { MapContainer, ScaleControl, TileLayer, useMap } from 'react-leaflet';
+import { satelliteTiles } from '../../features/maps/constants.ts';
+import { useFarm } from '../../hooks/useFarm.ts';
+import type { Field } from '../../types/fields/field.types.ts';
+import type {
+  FieldMapProps,
+  MapViewportProps,
+  ParcelLayerProps,
+} from '../../types/maps/FieldMap.types.ts';
+import type { FieldGeoJson, MapLayer } from '../../types/maps/map.types.ts';
+import { getFeatureFieldId, getGeoJsonBounds } from '../../utils/mapGeometry.ts';
 import './FieldMap.css';
-
-interface FieldMapProps {
-  fields: Field[];
-  /** WGS84 GeoJSON polygons; properties.fieldId (or feature.id) links to fields. */
-  geojson: FieldGeoJson;
-  onSelect: (field: Field) => void;
-  adding: boolean;
-  onAdd: (id: number) => void;
-  expanded?: boolean;
-  /** Plain satellite view with field outlines, without metric layers or legend. */
-  boundaryOnly?: boolean;
-}
 
 const defaultCenter: [number, number] = [42.042, -93.737];
 const fitOptions = { padding: [50, 100] as [number, number], maxZoom: 16, animate: false };
@@ -33,7 +26,7 @@ function fitParcels(map: LeafletMap, data: FieldGeoJson) {
   else map.setView(defaultCenter, 14);
 }
 
-function MapViewport({ data }: { data: FieldGeoJson }) {
+function MapViewport({ data }: MapViewportProps) {
   const map = useMap();
   useEffect(() => {
     fitParcels(map, data);
@@ -72,14 +65,7 @@ function parcelStyle(field: Field | undefined, layer: MapLayer): PathOptions {
   };
 }
 
-function ParcelLayer({
-  fields,
-  geojson,
-  layer,
-  onSelect,
-  onAdd,
-  adding,
-}: FieldMapProps & { layer: MapLayer }) {
+function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: ParcelLayerProps) {
   const { t } = useTranslation();
   const map = useMap();
   useEffect(() => {
@@ -225,7 +211,8 @@ export function FieldMap({
       <div className="map-location">
         <MapPin size={13} />
         {preferences.farmName}
-        <span>·</span>Iowa, US
+        <span>·</span>
+        {preferences.locationLabel}
       </div>
       {!boundaryOnly && (
         <div className="map-layer">

@@ -195,7 +195,6 @@
   "{{value0}} timeline. Hover to preview a reading, click to select it.": "{{value0}} timeline. Hover to preview a reading, click to select it.",
   "Weather today": "Weather today",
   "Mostly sunny": "Mostly sunny",
-  "Feels like 26° · H 27° / L 16°": "Feels like 26° · H 27° / L 16°",
   "Humidity": "Humidity",
   "Wind · SW": "Wind · SW",
   "Rain chance": "Rain chance",
@@ -222,7 +221,6 @@
   "Back to the map": "Back to the map",
   "Welcome a new field.": "Welcome a new field.",
   "Give this parcel a name and tell us what you’re growing.": "Give this parcel a name and tell us what you’re growing.",
-  "GREEN VALLEY FARM · PARCEL {{value0}}": "GREEN VALLEY FARM · PARCEL {{value0}}",
   "Field information": "Field information",
   "Soil type": "Soil type",
   "Enter a name for your field.": "Enter a name for your field.",
@@ -428,5 +426,11 @@
   "App description": "FrogFarmers — a little care for your land, a better harvest for your future. Manage your fields, monitor crop health, and explore growing conditions.",
   "mg/kg": "mg/kg",
   "{{value0}} km/h": "{{value0}} km/h",
-  "Page size": "Page size"
+  "Page size": "Page size",
+  "Unable to load data": "Unable to load data",
+  "Please try again.": "Please try again.",
+  "Try again": "Try again",
+  "Unable to save changes": "Unable to save changes",
+  "Feels like {{feelsLike}}° · H {{high}}° / L {{low}}°": "Feels like {{feelsLike}}° · H {{high}}° / L {{low}}°",
+  "{{farmName}} · PARCEL {{parcelId}}": "{{farmName}} · PARCEL {{parcelId}}"
 }

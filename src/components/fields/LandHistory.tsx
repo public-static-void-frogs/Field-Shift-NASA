@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import type { TableColumnsType } from 'antd';
 import {
   Button,
   Card,
@@ -14,11 +14,12 @@ import {
   Timeline,
   Typography,
 } from 'antd';
-import type { TableColumnsType } from 'antd';
 import { History, Search } from 'lucide-react';
-import { getCropSeasons, getLandHistory } from '../../data/landHistory';
-import type { Field } from '../../types/field';
-import type { CropSeason, LandEventCategory } from '../../types/landHistory';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../../api/fields/fields.queries.ts';
+import type { CropSeason, LandEventCategory } from '../../types/fields/history.types.ts';
+import type { LandHistoryProps } from '../../types/fields/LandHistory.types.ts';
 
 const categoryColors: Record<LandEventCategory, string> = {
   'Crop rotation': 'success',
@@ -27,8 +28,9 @@ const categoryColors: Record<LandEventCategory, string> = {
   'Weather & water': 'processing',
 };
 
-export function LandHistory({ field }: { field: Field }) {
+export function LandHistory({ field }: LandHistoryProps) {
   const { t, i18n } = useTranslation();
+  const { data: history } = useSuspenseQuery(fieldQueries.history(field.id));
   const rotationColumns: TableColumnsType<CropSeason> = [
     {
       title: t('Season'),
@@ -54,8 +56,8 @@ export function LandHistory({ field }: { field: Field }) {
   const [category, setCategory] = useState('All activities');
   const [year, setYear] = useState('All years');
   const [query, setQuery] = useState('');
-  const events = getLandHistory(field);
-  const seasons = getCropSeasons(field);
+  const events = history?.events ?? [];
+  const seasons = history?.seasons ?? [];
   const visible = events.filter(
     (event) =>
       (category === 'All activities' || event.category === category) &&
