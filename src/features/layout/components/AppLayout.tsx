@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Avatar, Badge, Button, Layout, Menu, Tooltip } from 'antd';
 import {
   Bell,
@@ -13,17 +14,17 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import { farmQueries } from '../../../api/farm/farm.queries.ts';
+import { RouterButton } from '../../../components/common/RouterButton';
 import { useAppLayout } from '../hooks/useAppLayout.ts';
 import { getWorkspaceClassName } from '../utils/workspace.ts';
-import { useFarm } from '../../../hooks/useFarm.ts';
-import { RouterButton } from '../../../components/common/RouterButton';
 
 const { Sider, Content } = Layout;
 
 export function AppLayout() {
   const { handle, active, collapsed, setCollapsed } = useAppLayout();
   const { t } = useTranslation();
-  const { preferences } = useFarm();
+  const { data: preferences } = useSuspenseQuery(farmQueries.profile());
   const mainItems = [
     {
       key: '/',

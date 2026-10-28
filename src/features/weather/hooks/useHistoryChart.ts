@@ -5,20 +5,13 @@ import type {
   HistoryChartProps,
   HistoryChartSelection,
 } from '../../../types/weather/HistoryChart.types.ts';
-import { weatherMetrics } from '../constants/weather.constants.ts';
-import { selectWeatherReading } from '../utils/weatherPresentation.ts';
+import { getWeatherMetricConfig, selectWeatherReading } from '../utils/weatherPresentation.ts';
 
 export function useHistoryChart({ records, metric, selectedKey, onSelect }: HistoryChartProps) {
   const { t } = useTranslation();
   const gradientId = useId();
   const animate = useChartAnimation();
-  const metricConfig = weatherMetrics[metric];
-  const config = {
-    ...metricConfig,
-    title: t(metricConfig.title),
-    description: t(metricConfig.description),
-    unit: t(metricConfig.unit),
-  };
+  const config = getWeatherMetricConfig(metric, t);
   const timeline = [...records].reverse();
   const selected = selectWeatherReading(records, selectedKey);
 

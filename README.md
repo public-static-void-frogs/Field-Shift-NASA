@@ -64,7 +64,11 @@ such as router buttons, headings, and error boundaries stays in `components/comm
 
 Components focus on rendering, translations, queries, and feature hooks. Substantial state and
 effects live in `src/features/<feature>/hooks`; pure feature functions live in the adjacent
-`utils` folder. Keep simple component logic inline when extracting it would add little value.
+`utils` folder. Keep simple component logic inline when extracting it would add little value. Hooks follow the Single Responsibility Principle: calendar URL navigation, filtering,
+drawer behavior, and view controls are separate; tables use independent filters,
+pagination, and viewport hooks. Each overview chart owns its controls. Query data
+and mutation actions are consumed separately, and hook return values expose only
+one cohesive responsibility.
 Use explicit branches or mappings instead of nested ternaries. Extract large conditional JSX branches into named subcomponents
 declared below the main component in the same file; keep the branch itself to a
 `return <Subcomponent />`. These rules are recorded in
@@ -201,8 +205,8 @@ src/types/fields/      Field models, request/response types, and component/page 
 ```
 
 Components consume query options with `useSuspenseQuery` or `useSuspenseQueries`.
-The `useFarm` hook combines shared farm resources and mutations from the same cache;
-it does not own fixture state. The query client is created once per app root with a
+Consumers subscribe only to the resources they use through shared query options;
+there is no catch-all farm hook combining unrelated resources and mutations. The query client is created once per app root with a
 60-second stale time. Suspense handles loading, and a query error boundary provides
 a translated retry action. Add/remove and strategy-response controls wait for
 mutations and report write failures.

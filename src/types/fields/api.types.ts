@@ -1,4 +1,3 @@
-import type { Field } from './field.types.ts';
 import type { CropSeason, LandEvent } from './history.types.ts';
 import type { FieldProperties } from './properties.types.ts';
 
@@ -37,10 +36,4 @@ export interface FieldHistory {
 export interface FieldRecommendationData {
   title: string;
   description: string;
-}
-export interface FieldActions {
-  addField: (input: CreateFieldInput) => Promise<Field>;
-  removeField: (id: number) => Promise<number>;
-  isAddingField: boolean;
-  isRemovingField: boolean;
 }

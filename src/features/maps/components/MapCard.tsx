@@ -3,16 +3,16 @@ import { Card, Tooltip } from 'antd';
 import { Expand } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { fieldQueries } from '../../../api/fields/fields.queries.ts';
 import { mapQueries } from '../../../api/maps/maps.queries.ts';
-import { useFarm } from '../../../hooks/useFarm.ts';
-import type { MapCardProps } from '../../../types/maps/MapCard.types.ts';
 import { RouterButton } from '../../../components/common/RouterButton';
+import type { MapCardProps } from '../../../types/maps/MapCard.types.ts';
 import { FieldMap } from './FieldMap';
 
 export function MapCard({ expanded = false, adding = false }: MapCardProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { fields } = useFarm();
+  const { data: fields } = useSuspenseQuery(fieldQueries.list());
   const { data: fieldGeoJson } = useSuspenseQuery(mapQueries.geojson());
 
   return (

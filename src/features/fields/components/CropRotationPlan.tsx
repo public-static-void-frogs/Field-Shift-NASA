@@ -3,9 +3,9 @@ import { Card, Flex, Space, Tag, Typography } from 'antd';
 import { ArrowUpRight, CalendarDays, Sprout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { planningQueries } from '../../../api/planning/planning.queries.ts';
-import { formatPlanDate } from '../../planning/utils/planningDates.ts';
-import type { CropRotationPlanProps } from '../../../types/fields/CropRotationPlan.types.ts';
 import { RouterButton } from '../../../components/common/RouterButton';
+import type { CropRotationPlanProps } from '../../../types/fields/CropRotationPlan.types.ts';
+import { formatPlanDate } from '../../planning/utils/planningDates.ts';
 
 export function CropRotationPlan({ field }: CropRotationPlanProps) {
   const { t } = useTranslation();

@@ -1,20 +1,23 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Flex, Space, Tag, Typography } from 'antd';
 import { ArrowUpRight, Clock3 } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { planningQueries } from '../../../api/planning/planning.queries.ts';
+import { RouterButton } from '../../../components/common/RouterButton';
+import type { PlanEventCardProps } from '../../../types/planning/PlanEventCard.types.ts';
+import { isUnmodifiedPrimaryClick } from '../../../utils/mouse.ts';
 import { categoryBackgrounds, categoryColors } from '../constants/planning.constants.ts';
 import { getEventUrgencyColor } from '../utils/eventPresentation.ts';
 import { getEventDecision } from '../utils/eventResponses.ts';
 import { getEventStatus } from '../utils/planningDates.ts';
 import { actionDetailsPath } from '../utils/planningRoutes.ts';
-import { useFarm } from '../../../hooks/useFarm.ts';
-import type { PlanEventCardProps } from '../../../types/planning/PlanEventCard.types.ts';
-import { isUnmodifiedPrimaryClick } from '../../../utils/mouse.ts';
-import { RouterButton } from '../../../components/common/RouterButton';
 
 export function PlanEventCard({ event, highlighted = false, onSelect }: PlanEventCardProps) {
   const { t } = useTranslation();
-  const { eventResponses, planningToday } = useFarm();
+  const { data: eventResponses } = useSuspenseQuery(planningQueries.responses());
+  const { data: planningContext } = useSuspenseQuery(planningQueries.context());
+  const planningToday = planningContext.today;
   const decision = getEventDecision(event, eventResponses);
 
   return (

@@ -1,6 +1,10 @@
+import { useSuspenseQueries } from '@tanstack/react-query';
 import { Alert, Button, Card, Flex, Result, Space, Typography } from 'antd';
 import { ArrowLeft, Sprout, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import { farmQueries } from '../api/farm/farm.queries.ts';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
 import { CropRotationPlan } from '../features/fields/components/CropRotationPlan';
@@ -8,22 +12,21 @@ import { FieldProperties } from '../features/fields/components/FieldProperties';
 import { FieldRecommendation } from '../features/fields/components/FieldRecommendation';
 import { FieldStatus } from '../features/fields/components/FieldStatus';
 import { LandHistory } from '../features/fields/components/LandHistory';
+import { useFieldRemoval } from '../features/fields/hooks/useFieldRemoval.ts';
 import { FieldMap } from '../features/maps/components/FieldMap';
-import { useFieldDetails } from '../features/fields/hooks/useFieldDetails.ts';
+import { useFieldBoundary } from '../features/maps/hooks/useFieldBoundary.ts';
+import type { FieldRouteData } from '../types/shared/router.types.ts';
 
 export function FieldDetailsPage() {
-  const {
-    navigate,
-    field,
-    propertyData,
-    preferences,
-    isRemovingField,
-    confirmRemove,
-    setConfirmRemove,
-    geojson,
-    handleRemove,
-  } = useFieldDetails();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { fieldId } = useLoaderData<FieldRouteData>();
+  const [{ data: field }, { data: propertyData }, { data: preferences }] = useSuspenseQueries({
+    queries: [fieldQueries.byId(fieldId), fieldQueries.properties(fieldId), farmQueries.profile()],
+  });
+  const geojson = useFieldBoundary(fieldId);
+  const { confirmRemove, setConfirmRemove, isRemovingField, handleRemove } =
+    useFieldRemoval(fieldId);
   if (!field || !propertyData) {
     return <FieldNotFound />;
   }

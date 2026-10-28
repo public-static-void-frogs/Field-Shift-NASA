@@ -15,15 +15,15 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { planningQueries } from '../api/planning/planning.queries.ts';
-import { EventResponseControls } from '../features/planning/components/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
+import { EventResponseControls } from '../features/planning/components/EventResponseControls';
 import { useStrategyReview } from '../features/planning/hooks/useStrategyReview.ts';
 import { countEventDecisions } from '../features/planning/utils/eventPresentation.ts';
 import { formatPlanDate } from '../features/planning/utils/planningDates.ts';
 import { calendarEventPath, calendarPath } from '../features/planning/utils/planningRoutes.ts';
-import { useFarm } from '../hooks/useFarm.ts';
 import type { PlannedEvent } from '../types/planning/planning.types.ts';
 import type { FieldRouteData } from '../types/shared/router.types.ts';
 
@@ -65,7 +65,8 @@ export function FieldStrategyPage() {
     },
   ] as const;
 
-  const { fields, eventResponses } = useFarm();
+  const { data: fields } = useSuspenseQuery(fieldQueries.list());
+  const { data: eventResponses } = useSuspenseQuery(planningQueries.responses());
   const { data: strategy } = useSuspenseQuery(planningQueries.strategy(fieldId));
   const { animate, reviewEvents } = useStrategyReview();
   const field = fields.find((item) => item.id === fieldId);

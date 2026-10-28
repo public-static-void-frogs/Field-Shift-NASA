@@ -3,8 +3,8 @@ import { Card, Descriptions, Space, Tag, Typography } from 'antd';
 import { Droplets, Mountain, Sprout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { fieldQueries } from '../../../api/fields/fields.queries.ts';
-import { getNitrogenAssessment } from '../utils/fieldPresentation.ts';
 import type { FieldPropertiesProps } from '../../../types/fields/FieldProperties.types.ts';
+import { getNitrogenAssessment } from '../utils/fieldPresentation.ts';
 
 export function FieldProperties({ field }: FieldPropertiesProps) {
   const { t } = useTranslation();

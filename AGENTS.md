@@ -46,6 +46,10 @@ src/
 
 - Keep components focused on rendering. Components may call translation hooks, React Query hooks, and custom feature hooks.
 - Put substantial state, effects, memoization, refs, and interaction handlers in custom hooks under `src/features/<feature>/hooks`.
+- Follow the Single Responsibility Principle in hooks. Separate independent concerns such as URL navigation, filtering, pagination, viewport measurement, selection, and mutations.
+- Keep hook return values small and cohesive. Return only the state and actions needed for one responsibility; do not create page-wide hooks that expose unrelated resources, setters, layout state, and mutation handlers.
+- Do not hide a large hook behind grouped return objects or a facade that recombines every concern. Compose focused hooks at their consumers, and let separate components own independent controls.
+- Query resources where they are consumed using existing query options. Do not bundle unrelated queries and mutations into a catch-all resource hook; shared React Query keys already provide caching and request deduplication.
 - Keep small, obvious cases inline when extracting a hook would add little value. Do not create abstractions solely to move a trivial line out of a component.
 - Extract standalone pure functions into that feature's `utils` directory. Put functions used across unrelated features in `src/utils`.
 - Keep JSX renderers as React components, rather than utilities that return JSX.

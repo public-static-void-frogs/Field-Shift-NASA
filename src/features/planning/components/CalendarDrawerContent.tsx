@@ -1,12 +1,12 @@
 import { Descriptions, Empty, Flex, Tag, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { priorityColors } from '../utils/eventPresentation.ts';
-import { formatPlanDate, getEventStatus } from '../utils/planningDates.ts';
 import type {
-  CalendarDrawerContentProps,
   CalendarActionDetailsProps,
+  CalendarDrawerContentProps,
   CalendarFieldConditionsProps,
 } from '../../../types/planning/CalendarDrawerContent.types.ts';
+import { priorityColors } from '../utils/eventPresentation.ts';
+import { formatPlanDate, getEventStatus } from '../utils/planningDates.ts';
 import { EventResponseControls } from './EventResponseControls';
 import { PlanEventCard } from './PlanEventCard';
 

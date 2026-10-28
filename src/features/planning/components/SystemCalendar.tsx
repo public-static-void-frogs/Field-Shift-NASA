@@ -1,7 +1,8 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Calendar } from 'antd';
-import { useSystemCalendar } from '../hooks/useSystemCalendar.ts';
-import { useFarm } from '../../../hooks/useFarm.ts';
+import { planningQueries } from '../../../api/planning/planning.queries.ts';
 import type { SystemCalendarProps } from '../../../types/planning/SystemCalendar.types.ts';
+import { useSystemCalendar } from '../hooks/useSystemCalendar.ts';
 import { CalendarCell } from './CalendarCell.tsx';
 
 export function SystemCalendar({
@@ -18,7 +19,7 @@ export function SystemCalendar({
     onModeChange,
     onPanelDateChange,
   });
-  const { eventResponses } = useFarm();
+  const { data: eventResponses } = useSuspenseQuery(planningQueries.responses());
 
   return (
     <Calendar

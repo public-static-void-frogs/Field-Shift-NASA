@@ -1,15 +1,30 @@
-import type { UnavailableParcelProps } from '../types/fields/AddFieldPage.types.ts';
+import { useSuspenseQueries } from '@tanstack/react-query';
 import { Button, Card, Descriptions, Form, Input, Result, Select, Space } from 'antd';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLoaderData } from 'react-router-dom';
+import { farmQueries } from '../api/farm/farm.queries.ts';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
 import { useAddField } from '../features/fields/hooks/useAddField.ts';
+import type { UnavailableParcelProps } from '../types/fields/AddFieldPage.types.ts';
+import type { ParcelRouteData } from '../types/shared/router.types.ts';
 
 export function AddFieldPage() {
   const { t } = useTranslation();
-  const { parcelId, parcel, cropOptions, isAddingField, preferences, exists, handleAdd } =
-    useAddField();
+  const { parcelId } = useLoaderData<ParcelRouteData>();
+  const [{ data: parcel }, { data: cropOptions }, { data: fields }, { data: preferences }] =
+    useSuspenseQueries({
+      queries: [
+        fieldQueries.parcel(parcelId),
+        fieldQueries.crops(),
+        fieldQueries.list(),
+        farmQueries.profile(),
+      ],
+    });
+  const { handleAdd, isAddingField } = useAddField(parcelId);
+  const exists = fields.some((field) => field.id === parcelId);
   if (!parcel || exists) {
     return <UnavailableParcel exists={exists} />;
   }

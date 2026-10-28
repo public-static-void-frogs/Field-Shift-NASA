@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { TableColumnsType } from 'antd';
 import {
   Badge,
@@ -21,40 +22,30 @@ import {
 import { ArrowUpRight, Droplets, ListFilter, Plus, Search, Wheat } from 'lucide-react';
 import { type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFieldsTable } from '../hooks/useFieldsTable.ts';
-import { fieldStatusPresentation } from '../utils/fieldPresentation.ts';
+import { useNavigate } from 'react-router-dom';
+import { fieldQueries } from '../../../api/fields/fields.queries.ts';
+import { RouterButton } from '../../../components/common/RouterButton';
+import { useTablePagination } from '../../../hooks/useTablePagination.ts';
+import { useTableViewport } from '../../../hooks/useTableViewport.ts';
 import type { Field } from '../../../types/fields/field.types.ts';
 import type { FieldsTableProps } from '../../../types/fields/FieldsTable.types.ts';
-import { RouterButton } from '../../../components/common/RouterButton';
+import { useFieldFilters } from '../hooks/useFieldFilters.ts';
+import { getFieldFilterOptions } from '../utils/fieldFilterOptions.ts';
+import { fieldStatusPresentation } from '../utils/fieldPresentation.ts';
 import { FieldStatus } from './FieldStatus';
 
 export function FieldsTable({ overview = false }: FieldsTableProps) {
-  const {
-    navigate,
-    fields,
-    cropOptions,
-    tableViewport,
-    tableBodyHeight,
-    pageSize,
-    query,
-    setQuery,
-    status,
-    setStatus,
-    crop,
-    setCrop,
-    filters,
-    setFilters,
-    filterOptions,
-    attention,
-    visible,
-    currentPage,
-    first,
-    last,
-    setPage,
-    resetFilters,
-    changePage,
-  } = useFieldsTable(overview);
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { data: fields } = useSuspenseQuery(fieldQueries.list());
+  const { data: cropOptions } = useSuspenseQuery(fieldQueries.crops());
+  const filtering = useFieldFilters(fields, overview);
+  const { query, status, crop, filters } = filtering.criteria;
+  const { visible } = filtering;
+  const pagination = useTablePagination(visible.length);
+  const { tableViewport, tableBodyHeight } = useTableViewport(!overview);
+  const filterOptions = getFieldFilterOptions(cropOptions, fields, t);
+  const attention = fields.filter((field) => field.status !== 'Healthy').length;
   const columns: TableColumnsType<Field> = [
     {
       title: t('Field name'),
@@ -152,7 +143,7 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
         <Tabs
           className="fields-view-tabs"
           activeKey={status}
-          onChange={setStatus}
+          onChange={(status) => filtering.update({ status })}
           items={[
             { key: 'All fields', label: t('All fields ({{value0}})', { value0: fields.length }) },
             {
@@ -188,7 +179,7 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
               prefix={<Search size={18} />}
               placeholder={t('Search by field name, ID or crop…')}
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => filtering.update({ query: event.target.value })}
               allowClear
             />
             <Dropdown
@@ -199,7 +190,9 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
                   disabled: filters.includes(option.key),
                 })),
                 onClick: ({ key }) =>
-                  setFilters((current) => (current.includes(key) ? current : [...current, key])),
+                  filtering.update({
+                    filters: filters.includes(key) ? filters : [...filters, key],
+                  }),
               }}
             >
               <Button icon={<ListFilter size={18} />}>{t('Add filter')}</Button>
@@ -216,13 +209,13 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
                     key={key}
                     closable
                     onClose={() =>
-                      setFilters((current) => current.filter((filter) => filter !== key))
+                      filtering.update({ filters: filters.filter((filter) => filter !== key) })
                     }
                   >
                     {filterOptions.find((option) => option.key === key)?.label}
                   </Tag>
                 ))}
-                <Button type="text" onClick={() => setFilters([])}>
+                <Button type="text" onClick={() => filtering.update({ filters: [] })}>
                   {t('Clear filters')}
                 </Button>
               </Flex>
@@ -252,7 +245,7 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
           <Flex className="table-toolbar" justify="space-between" align="center" gap={16} wrap>
             <Segmented
               value={status}
-              onChange={setStatus}
+              onChange={(status) => filtering.update({ status })}
               options={[
                 { value: 'All fields', label: t('All fields') },
                 {
@@ -268,13 +261,13 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
                 prefix={<Search size={18} />}
                 placeholder={t('Find a field…')}
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => filtering.update({ query: event.target.value })}
                 allowClear
               />
               <Select
                 aria-label={t('Filter by crop')}
                 value={crop}
-                onChange={setCrop}
+                onChange={(crop) => filtering.update({ crop })}
                 options={[{ value: 'All crops', label: t('All crops') }, ...cropOptions]}
               />
             </Flex>
@@ -308,10 +301,14 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
               columns={columns}
               dataSource={visible}
               scroll={{ x: 1080, ...(overview ? {} : { y: tableBodyHeight }) }}
-              pagination={overview ? false : { current: currentPage, pageSize, position: [] }}
+              pagination={
+                overview
+                  ? false
+                  : { current: pagination.currentPage, pageSize: pagination.pageSize, position: [] }
+              }
               onChange={(_, __, ___, extra) => {
                 if (extra.action === 'sort') {
-                  setPage(1);
+                  pagination.reset();
                 }
               }}
               onRow={(field) => ({
@@ -325,7 +322,7 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
               locale={{
                 emptyText: (
                   <Empty description={t('No fields match your filters')}>
-                    <Button onClick={resetFilters}>{t('Clear filters')}</Button>
+                    <Button onClick={filtering.reset}>{t('Clear filters')}</Button>
                   </Empty>
                 ),
               }}
@@ -340,8 +337,8 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
                   value1: fields.length,
                 })
               : t('{{value0}}–{{value1}} of {{value2}} fields', {
-                  value0: first,
-                  value1: last,
+                  value0: pagination.first,
+                  value1: pagination.last,
                   value2: visible.length,
                 })}
           </Typography.Text>
@@ -350,12 +347,12 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
           ) : (
             <Pagination
               size="small"
-              current={currentPage}
-              pageSize={pageSize}
+              current={pagination.currentPage}
+              pageSize={pagination.pageSize}
               total={visible.length}
               showSizeChanger={{ showSearch: false }}
               pageSizeOptions={[5, 10, 20, 50, 100]}
-              onChange={changePage}
+              onChange={pagination.change}
             />
           )}
         </Flex>

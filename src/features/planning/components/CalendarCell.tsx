@@ -2,9 +2,9 @@ import { Badge, Button, Tooltip } from 'antd';
 import { Clock3 } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { CalendarCellProps } from '../../../types/planning/SystemCalendar.types.ts';
 import { categoryColors } from '../constants/planning.constants.ts';
 import { getEventDecision } from '../utils/eventResponses.ts';
-import type { CalendarCellProps } from '../../../types/planning/SystemCalendar.types.ts';
 
 export function CalendarCell({
   date,

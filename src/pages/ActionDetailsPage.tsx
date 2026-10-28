@@ -3,19 +3,21 @@ import { Card, Col, Descriptions, Flex, Result, Row, Space, Tag, Typography } fr
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { planningQueries } from '../api/planning/planning.queries.ts';
-import { EventResponseControls } from '../features/planning/components/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
+import { EventResponseControls } from '../features/planning/components/EventResponseControls';
 import { priorityColors } from '../features/planning/utils/eventPresentation.ts';
 import { formatPlanDate, getEventStatus } from '../features/planning/utils/planningDates.ts';
 import { calendarEventPath } from '../features/planning/utils/planningRoutes.ts';
-import { useFarm } from '../hooks/useFarm.ts';
 
 export function ActionDetailsPage() {
   const { eventId } = useParams<'eventId'>();
   const { t } = useTranslation();
-  const { fields, planningToday } = useFarm();
+  const { data: fields } = useSuspenseQuery(fieldQueries.list());
+  const { data: planningContext } = useSuspenseQuery(planningQueries.context());
+  const planningToday = planningContext.today;
   const { data: allPlanEvents } = useSuspenseQuery(planningQueries.events());
   const event = allPlanEvents.find((item) => item.id === eventId);
   const field = event && fields.find((item) => item.id === event.fieldId);

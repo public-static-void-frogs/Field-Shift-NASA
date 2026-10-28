@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { TableColumnsType } from 'antd';
 import {
   Button,
@@ -15,9 +16,10 @@ import {
 } from 'antd';
 import { History, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLandHistory } from '../hooks/useLandHistory.ts';
+import { fieldQueries } from '../../../api/fields/fields.queries.ts';
 import type { CropSeason, LandEventCategory } from '../../../types/fields/history.types.ts';
 import type { LandHistoryProps } from '../../../types/fields/LandHistory.types.ts';
+import { useLandHistoryFilters } from '../hooks/useLandHistoryFilters.ts';
 
 const categoryColors: Record<LandEventCategory, string> = {
   'Crop rotation': 'success',
@@ -50,18 +52,11 @@ export function LandHistory({ field }: LandHistoryProps) {
     },
   ];
 
-  const {
-    category,
-    setCategory,
-    year,
-    setYear,
-    query,
-    setQuery,
-    events,
-    seasons,
-    visible,
-    resetFilters,
-  } = useLandHistory(field.id);
+  const { data: history } = useSuspenseQuery(fieldQueries.history(field.id));
+  const events = history?.events ?? [];
+  const seasons = history?.seasons ?? [];
+  const { criteria, update, reset: resetFilters, visible } = useLandHistoryFilters(events);
+  const { category, year, query } = criteria;
 
   return (
     <section aria-labelledby="land-history-heading" className="land-history-section">
@@ -92,13 +87,13 @@ export function LandHistory({ field }: LandHistoryProps) {
                       prefix={<Search size={18} />}
                       placeholder={t('Search field history…')}
                       value={query}
-                      onChange={(event) => setQuery(event.target.value)}
+                      onChange={(event) => update({ query: event.target.value })}
                       allowClear
                     />
                     <Select
                       aria-label={t('Filter history by activity')}
                       value={category}
-                      onChange={setCategory}
+                      onChange={(category) => update({ category })}
                       options={['All activities', ...Object.keys(categoryColors)].map((value) => ({
                         value,
                         label: t(value),
@@ -107,7 +102,7 @@ export function LandHistory({ field }: LandHistoryProps) {
                     <Select
                       aria-label={t('Filter history by year')}
                       value={year}
-                      onChange={setYear}
+                      onChange={(year) => update({ year })}
                       options={['All years', '2026', '2025', '2024', '2023'].map((value) => ({
                         value,
                         label: t(value),

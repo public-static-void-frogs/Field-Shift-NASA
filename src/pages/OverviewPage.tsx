@@ -1,17 +1,18 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { CalendarDays, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
 import { FieldsTable } from '../features/fields/components/FieldsTable';
 import { MapCard } from '../features/maps/components/MapCard';
 import { OverviewCharts } from '../features/overview/components/OverviewCharts';
-import { WeatherCard } from '../features/weather/components/WeatherCard';
 import { getFarmSummary } from '../features/overview/utils/farmSummary.ts';
-import { useFarm } from '../hooks/useFarm.ts';
+import { WeatherCard } from '../features/weather/components/WeatherCard';
 
 export function OverviewPage() {
   const { t, i18n } = useTranslation();
-  const { fields } = useFarm();
+  const { data: fields } = useSuspenseQuery(fieldQueries.list());
   const { totalArea, attentionCount, criticalCount } = getFarmSummary(fields);
   const summary = fields.length
     ? t('Farm summary', {

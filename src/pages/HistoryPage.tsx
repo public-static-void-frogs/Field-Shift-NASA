@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { TableColumnsType } from 'antd';
 import {
   Card,
@@ -13,11 +14,19 @@ import {
   Tag,
   Typography,
 } from 'antd';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { farmQueries } from '../api/farm/farm.queries.ts';
+import { weatherQueries } from '../api/weather/weather.queries.ts';
 import { HistoryChart } from '../features/weather/components/HistoryChart';
 import { historyRanges, weatherMetrics } from '../features/weather/constants/weather.constants.ts';
-import { useWeatherHistory } from '../features/weather/hooks/useWeatherHistory.ts';
-import { getWeatherIcon } from '../features/weather/utils/weatherPresentation.ts';
+import { useWeatherSelection } from '../features/weather/hooks/useWeatherSelection.ts';
+import {
+  getWeatherChange,
+  getWeatherIcon,
+  getWeatherMetricConfig,
+  selectWeatherReading,
+} from '../features/weather/utils/weatherPresentation.ts';
 import type { WeatherRecord } from '../types/weather/weather.types.ts';
 import { type WeatherMetric } from '../types/weather/weather.types.ts';
 import { positiveSign } from '../utils/format.ts';
@@ -71,18 +80,13 @@ export function HistoryPage() {
     },
   ];
 
-  const {
-    preferences,
-    range,
-    changeRange,
-    metric,
-    setMetric,
-    setSelectedKey,
-    records,
-    selected,
-    config,
-    change,
-  } = useWeatherHistory();
+  const { range, changeRange, selectedKey, selectReading } = useWeatherSelection();
+  const [metric, setMetric] = useState<WeatherMetric>('temperature');
+  const { data: records } = useSuspenseQuery(weatherQueries.history(range));
+  const { data: preferences } = useSuspenseQuery(farmQueries.profile());
+  const selected = selectWeatherReading(records, selectedKey);
+  const config = getWeatherMetricConfig(metric, t);
+  const change = getWeatherChange(records, selected, metric);
 
   return (
     <div className="environment-history">
@@ -117,7 +121,7 @@ export function HistoryPage() {
                 records={records}
                 metric={metric}
                 selectedKey={selected.key}
-                onSelect={setSelectedKey}
+                onSelect={selectReading}
               />
               <Typography.Text type="secondary" className="environment-chart-hint">
                 {t('Hover to preview · Click a point to inspect')}
@@ -136,7 +140,7 @@ export function HistoryPage() {
                 className="full-width environment-date-select"
                 aria-label={t('Inspect weather date')}
                 value={selected.key}
-                onChange={setSelectedKey}
+                onChange={selectReading}
                 options={records.map((record) => ({ value: record.key, label: record.date }))}
               />
               <Statistic
@@ -217,7 +221,7 @@ export function HistoryPage() {
             rowClassName={(record) =>
               record.key === selected.key ? 'environment-selected-row' : 'clickable-row'
             }
-            onRow={(record) => ({ onClick: () => setSelectedKey(record.key) })}
+            onRow={(record) => ({ onClick: () => selectReading(record.key) })}
           />
         </ConfigProvider>
       </Card>

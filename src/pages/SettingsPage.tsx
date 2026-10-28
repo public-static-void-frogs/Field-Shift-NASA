@@ -1,7 +1,8 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Avatar, Button, Card, Form, Input, Select, Space, Typography } from 'antd';
 import { Camera, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useFarm } from '../hooks/useFarm.ts';
+import { farmQueries } from '../api/farm/farm.queries.ts';
 import '../styles/settings.css';
 import type { SectionActionsProps } from '../types/farm/SettingsPage.types.ts';
 
@@ -22,7 +23,7 @@ function SectionActions({ section }: SectionActionsProps) {
 
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
-  const { preferences } = useFarm();
+  const { data: preferences } = useSuspenseQuery(farmQueries.profile());
 
   return (
     <div className="settings-page">
