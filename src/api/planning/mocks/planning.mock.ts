@@ -1,8 +1,28 @@
 import dayjs from 'dayjs';
 import type { Field } from '../../../types/fields/field.types.ts';
 import type { PlannedEvent, RotationPlan } from '../../../types/planning/planning.types.ts';
-import { calculatePlantingDate } from './agronomy.mock.ts';
 import { getFieldProperties } from '../../fields/mocks/properties.mock.ts';
+import { calculatePlantingDate } from './agronomy.mock.ts';
+
+const harvestDates: Record<string, string> = { 'Winter wheat': '2026-07-16', Corn: '2026-10-10' };
+function getNextCrop(field: Field) {
+  if (field.crop !== 'Soybeans') {
+    return 'Soybeans';
+  }
+  if (field.id === 3) {
+    return 'Winter wheat';
+  }
+  return 'Corn';
+}
+function getRotationReason(field: Field, nextCrop: string) {
+  if (nextCrop === 'Soybeans') {
+    return `${field.crop} → soybeans introduces a legume break and lowers the next crop’s nitrogen demand.`;
+  }
+  if (nextCrop === 'Winter wheat') {
+    return 'Soybeans → winter wheat diversifies the growing season and keeps living roots in the soil over winter.';
+  }
+  return 'Soybeans → corn makes use of the legume break while changing the crop family and canopy pattern.';
+}
 
 const modelConfidence: Record<number, number> = {
   1: 91,
@@ -15,8 +35,7 @@ const modelConfidence: Record<number, number> = {
 
 export function getRotationPlan(field: Field): RotationPlan {
   const properties = getFieldProperties(field.id);
-  const nextCrop =
-    field.crop === 'Soybeans' ? (field.id === 3 ? 'Winter wheat' : 'Corn') : 'Soybeans';
+  const nextCrop = getNextCrop(field);
   const followingCrop = nextCrop === 'Soybeans' ? 'Corn' : 'Soybeans';
   const planting = calculatePlantingDate(nextCrop, properties.soilPh, field.moisture);
   const followingDate = followingCrop === 'Corn' ? '2028-04-18' : '2028-04-22';
@@ -30,11 +49,7 @@ export function getRotationPlan(field: Field): RotationPlan {
     .filter(Boolean)
     .join(' ');
   const reasons = [
-    nextCrop === 'Soybeans'
-      ? `${field.crop} → soybeans introduces a legume break and lowers the next crop’s nitrogen demand.`
-      : nextCrop === 'Winter wheat'
-        ? 'Soybeans → winter wheat diversifies the growing season and keeps living roots in the soil over winter.'
-        : 'Soybeans → corn makes use of the legume break while changing the crop family and canopy pattern.',
+    getRotationReason(field, nextCrop),
     field.nitrogen < 30
       ? `Available nitrogen is ${field.nitrogen} mg/kg. The plan prioritizes nutrient recovery before the next establishment.`
       : `Nitrogen at ${field.nitrogen} mg/kg and organic matter at ${properties.organicMatter.toFixed(1)}% support the planned change.`,
@@ -66,12 +81,7 @@ export function getFieldPlanEvents(field: Field): PlannedEvent[] {
   const properties = getFieldProperties(field.id);
   const prefix = `field-${field.id}`;
   const soilDate = field.status === 'Critical' ? '2026-05-25' : '2026-05-26';
-  const harvestDate =
-    field.crop === 'Winter wheat'
-      ? '2026-07-16'
-      : field.crop === 'Corn'
-        ? '2026-10-10'
-        : '2026-09-20';
+  const harvestDate = harvestDates[field.crop] ?? '2026-09-20';
   const seedbedDate = dayjs(plan.sowingDate).subtract(14, 'day');
   const earliestPreparation = dayjs(harvestDate).add(1, 'day');
   const events: PlannedEvent[] = [

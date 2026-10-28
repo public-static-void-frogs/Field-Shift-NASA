@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import { planningApi } from './planning.api.ts';
+
 export const planningQueryKeys = {
   context: () => ['planning', 'context'] as const,
   all: () => ['planning'] as const,

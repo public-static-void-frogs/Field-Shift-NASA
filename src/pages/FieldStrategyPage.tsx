@@ -2,7 +2,6 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { Button, Card, Descriptions, Result, Space, Steps, Table, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { ArrowLeft, ArrowUpRight, CalendarDays, Sparkles } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoaderData } from 'react-router-dom';
 import {
@@ -17,15 +16,16 @@ import {
   YAxis,
 } from 'recharts';
 import { planningQueries } from '../api/planning/planning.queries.ts';
-import { EventResponseControls } from '../components/calendar/EventResponseControls';
+import { EventResponseControls } from '../features/planning/components/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
+import { useStrategyReview } from '../features/planning/hooks/useStrategyReview.ts';
+import { countEventDecisions } from '../features/planning/utils/eventPresentation.ts';
+import { formatPlanDate } from '../features/planning/utils/planningDates.ts';
+import { calendarEventPath, calendarPath } from '../features/planning/utils/planningRoutes.ts';
 import { useFarm } from '../hooks/useFarm.ts';
 import type { PlannedEvent } from '../types/planning/planning.types.ts';
 import type { FieldRouteData } from '../types/shared/router.types.ts';
-import { getEventDecision } from '../utils/eventResponses.ts';
-import { formatPlanDate } from '../utils/planningDates.ts';
-import { calendarEventPath, calendarPath } from '../utils/planningRoutes.ts';
 
 const tooltipStyle = {
   border: '1px solid #dfe5d5',
@@ -67,24 +67,13 @@ export function FieldStrategyPage() {
 
   const { fields, eventResponses } = useFarm();
   const { data: strategy } = useSuspenseQuery(planningQueries.strategy(fieldId));
-  const [animate] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const { animate, reviewEvents } = useStrategyReview();
   const field = fields.find((item) => item.id === fieldId);
-  if (!field || !strategy)
-    return (
-      <Result
-        status="404"
-        title={t('Field not found')}
-        extra={<RouterButton to="/fields">{t('Back to fields')}</RouterButton>}
-      />
-    );
+  if (!field || !strategy) {
+    return <StrategyFieldNotFound />;
+  }
   const { plan, events, steps, forecast, comparison, technicals, contingencies } = strategy;
-  const counts = events.reduce(
-    (totals, event) => {
-      totals[getEventDecision(event, eventResponses)]++;
-      return totals;
-    },
-    { proposed: 0, accepted: 0, declined: 0 },
-  );
+  const counts = countEventDecisions(events, eventResponses);
 
   return (
     <div className="strategy-page">
@@ -101,15 +90,7 @@ export function FieldStrategyPage() {
         })}
         actions={
           <Space wrap>
-            <Button
-              onClick={() =>
-                document
-                  .getElementById('strategy-calendar-proposals')
-                  ?.scrollIntoView({ behavior: animate ? 'smooth' : 'instant', block: 'start' })
-              }
-            >
-              {t('Review proposed events')}
-            </Button>
+            <Button onClick={reviewEvents}>{t('Review proposed events')}</Button>
             <RouterButton
               icon={<CalendarDays size={18} />}
               to={calendarPath(plan.sowingDate, field.id)}
@@ -212,6 +193,7 @@ export function FieldStrategyPage() {
           {forecastMetrics.map((metric, index) => {
             const values = comparison[index];
             const delta = values.projected - values.current;
+
             return (
               <Card
                 key={metric.projectedKey}
@@ -371,5 +353,17 @@ export function FieldStrategyPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function StrategyFieldNotFound() {
+  const { t } = useTranslation();
+
+  return (
+    <Result
+      status="404"
+      title={t('Field not found')}
+      extra={<RouterButton to="/fields">{t('Back to fields')}</RouterButton>}
+    />
   );
 }

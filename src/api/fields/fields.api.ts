@@ -19,6 +19,11 @@ import {
 import { getCropSeasons, getLandHistory } from './mocks/history.mock.ts';
 import { getCropProperties, getFieldProperties } from './mocks/properties.mock.ts';
 import { getRecommendation } from './mocks/recommendations.mock.ts';
+
+const cropGrowthStages: Record<string, string> = {
+  'Winter wheat': 'Heading · BBCH 55',
+  Corn: 'Vegetative · V6',
+};
 export const fieldsApi = {
   getAll: (signal?: AbortSignal): Promise<Field[]> => mockResponse(getMockFields, signal),
   getById: (id: number, signal?: AbortSignal): Promise<Field | null> =>
@@ -34,12 +39,7 @@ export const fieldsApi = {
         ? {
             soil: getFieldProperties(id),
             crop: getCropProperties(field),
-            growthStage:
-              field.crop === 'Winter wheat'
-                ? 'Heading · BBCH 55'
-                : field.crop === 'Corn'
-                  ? 'Vegetative · V6'
-                  : 'Vegetative · V3',
+            growthStage: cropGrowthStages[field.crop] ?? 'Vegetative · V3',
             lastSample: 'May 23, 2026 · 0–30 cm depth',
             cultivationPractice: 'Reduced tillage',
             tenure: 'Owner operated',

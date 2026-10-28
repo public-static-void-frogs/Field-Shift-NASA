@@ -8,6 +8,7 @@ export function RouteErrorPage() {
   const error = useRouteError();
   const revalidator = useRevalidator();
   const notFound = !error || (isRouteErrorResponse(error) && error.status === 404);
+
   return (
     <Result
       status={notFound ? '404' : 'error'}

@@ -1,4 +1,5 @@
 import type { TeamMember } from '../../../types/help/help.types.ts';
+
 export const team: TeamMember[] = [
   {
     id: 'oleh',

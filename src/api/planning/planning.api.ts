@@ -1,18 +1,19 @@
-import { planningToday } from './mocks/agronomy.mock.ts';
-import type { PlanningContext } from '../../types/planning/planning.types.ts';
+import { updateStrategyResponse } from '../../features/planning/utils/eventResponses.ts';
 import type {
   EventResponses,
   FieldStrategy,
   PlannedEvent,
+  PlanningContext,
   RotationPlan,
   StrategyResponseInput,
 } from '../../types/planning/planning.types.ts';
-import { updateStrategyResponse } from '../../utils/eventResponses.ts';
 import { mockResponse } from '../core/mock-response.ts';
 import { getMockField, getMockFields } from '../fields/mocks/fields.store.ts';
+import { planningToday } from './mocks/agronomy.mock.ts';
 import { getFieldPlanEvents, getRotationPlan, getSystemPlanEvents } from './mocks/planning.mock.ts';
 import { getMockResponses, saveMockResponses } from './mocks/responses.store.ts';
 import { getFieldStrategy } from './mocks/strategy.mock.ts';
+
 export const planningApi = {
   getContext: (signal?: AbortSignal): Promise<PlanningContext> =>
     mockResponse(() => ({ today: planningToday }), signal),
@@ -38,7 +39,9 @@ export const planningApi = {
   respondToStrategy: ({ fieldId, status }: StrategyResponseInput): Promise<EventResponses> =>
     mockResponse(() => {
       const field = getMockField(fieldId);
-      if (!field) throw new Error('Field not found');
+      if (!field) {
+        throw new Error('Field not found');
+      }
       return saveMockResponses(
         updateStrategyResponse(getMockResponses(), getFieldPlanEvents(field), status),
       );

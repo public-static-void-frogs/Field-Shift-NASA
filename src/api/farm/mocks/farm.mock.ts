@@ -1,4 +1,5 @@
 import type { FarmProfile } from '../../../types/farm/farm.types.ts';
+
 export const farmProfile: FarmProfile = {
   availableSeasons: ['2026', '2025'],
   farmName: 'Green Valley Farm',

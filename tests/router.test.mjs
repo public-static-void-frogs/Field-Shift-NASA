@@ -4,7 +4,7 @@ import test from 'node:test';
 import { createMemoryRouter, matchRoutes } from 'react-router-dom';
 import { appRoutes } from '../src/app/routes.ts';
 import { fieldLoader, parcelLoader, calendarLoader } from '../src/app/route-loaders.ts';
-import { calendarPath } from '../src/utils/planningRoutes.ts';
+import { calendarPath } from '../src/features/planning/utils/planningRoutes.ts';
 
 const args = (params) => ({ params, request: new Request('http://localhost/'), context: {} });
 
@@ -26,8 +26,9 @@ test('the real route tree matches static, dynamic, optional and fallback routes'
     ['/settings', 'settings'],
     ['/notifications', 'notifications'],
     ['/missing/page', 'not-found'],
-  ])
+  ]) {
     assert.equal(matchRoutes(appRoutes, path).at(-1).route.id, id, path);
+  }
   assert.equal(
     matchRoutes(appRoutes, '/login').some((match) => match.route.id === 'farm'),
     false,
@@ -70,7 +71,9 @@ function withoutViews(routes) {
   }));
 }
 function idle(router) {
-  if (router.state.navigation.state === 'idle') return Promise.resolve();
+  if (router.state.navigation.state === 'idle') {
+    return Promise.resolve();
+  }
   return new Promise((resolve) => {
     const unsubscribe = router.subscribe((state) => {
       if (state.navigation.state === 'idle') {

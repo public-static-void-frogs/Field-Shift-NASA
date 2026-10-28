@@ -2,6 +2,8 @@ import type { Field } from '../../../types/fields/field.types.ts';
 import type { FieldProperties } from '../../../types/fields/properties.types.ts';
 import { initialFields } from './fields.mock.ts';
 
+const cropPropertyIds: Record<string, number> = { 'Winter wheat': 1, Corn: 2 };
+
 const fieldProperties: Record<number, FieldProperties> = {
   1: {
     soilType: 'Silt loam',
@@ -166,7 +168,9 @@ export function getFieldProperties(fieldId: number): FieldProperties {
 }
 export function getCropProperties(field: Field): FieldProperties {
   const originalCrop = initialFields.find((item) => item.id === field.id)?.crop ?? 'Soybeans';
-  if (field.crop === originalCrop) return getFieldProperties(field.id);
-  const templateId = field.crop === 'Winter wheat' ? 1 : field.crop === 'Corn' ? 2 : 3;
+  if (field.crop === originalCrop) {
+    return getFieldProperties(field.id);
+  }
+  const templateId = cropPropertyIds[field.crop] ?? 3;
   return getFieldProperties(templateId);
 }

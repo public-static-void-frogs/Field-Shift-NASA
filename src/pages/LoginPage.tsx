@@ -8,6 +8,7 @@ import '../styles/login.css';
 export function LoginPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
   return (
     <main className="login-page">
       <FarmlandBackdrop />

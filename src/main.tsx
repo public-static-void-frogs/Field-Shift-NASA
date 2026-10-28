@@ -9,6 +9,7 @@ import './styles/global.css';
 import './styles/layout.css';
 import './styles/planning.css';
 import './styles/team.css';
+
 void i18nReady.then(() =>
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

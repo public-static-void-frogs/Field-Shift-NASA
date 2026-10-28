@@ -1,55 +1,33 @@
-import { useSuspenseQueries } from '@tanstack/react-query';
-import { Alert, App, Button, Card, Flex, Result, Space, Typography } from 'antd';
+import { Alert, Button, Card, Flex, Result, Space, Typography } from 'antd';
 import { ArrowLeft, Sprout, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLoaderData, useNavigate } from 'react-router-dom';
-import { fieldQueries } from '../api/fields/fields.queries.ts';
-import { mapQueries } from '../api/maps/maps.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
-import { CropRotationPlan } from '../components/fields/CropRotationPlan';
-import { FieldProperties } from '../components/fields/FieldProperties';
-import { FieldRecommendation } from '../components/fields/FieldRecommendation';
-import { FieldStatus } from '../components/fields/FieldStatus';
-import { LandHistory } from '../components/fields/LandHistory';
-import { FieldMap } from '../components/map/FieldMap';
-import { useFarm } from '../hooks/useFarm.ts';
-import type { FieldGeoJson } from '../types/maps/map.types.ts';
-import type { FieldRouteData } from '../types/shared/router.types.ts';
-import { getFeatureFieldId } from '../utils/mapGeometry.ts';
+import { CropRotationPlan } from '../features/fields/components/CropRotationPlan';
+import { FieldProperties } from '../features/fields/components/FieldProperties';
+import { FieldRecommendation } from '../features/fields/components/FieldRecommendation';
+import { FieldStatus } from '../features/fields/components/FieldStatus';
+import { LandHistory } from '../features/fields/components/LandHistory';
+import { FieldMap } from '../features/maps/components/FieldMap';
+import { useFieldDetails } from '../features/fields/hooks/useFieldDetails.ts';
 
 export function FieldDetailsPage() {
-  const navigate = useNavigate();
-  const { fieldId } = useLoaderData<FieldRouteData>();
+  const {
+    navigate,
+    field,
+    propertyData,
+    preferences,
+    isRemovingField,
+    confirmRemove,
+    setConfirmRemove,
+    geojson,
+    handleRemove,
+  } = useFieldDetails();
   const { t } = useTranslation();
-  const [{ data: propertyData }, { data: fieldGeoJson }] = useSuspenseQueries({
-    queries: [fieldQueries.properties(fieldId), mapQueries.geojson()],
-  });
-  const { fields, removeField, preferences, isRemovingField } = useFarm();
-  const { message } = App.useApp();
-  const [confirmRemove, setConfirmRemove] = useState(false);
-  const field = fields.find((item) => item.id === fieldId);
-  const geojson = useMemo<FieldGeoJson>(
-    () => ({
-      type: 'FeatureCollection',
-      features: fieldGeoJson.features.filter((feature) => getFeatureFieldId(feature) === fieldId),
-    }),
-    [fieldId, fieldGeoJson],
-  );
-  if (!field || !propertyData)
-    return (
-      <Result
-        status="404"
-        title={t('Field not found')}
-        subTitle={t('This field may have been removed from your farm.')}
-        extra={
-          <RouterButton type="primary" to="/fields">
-            {t('Back to my fields')}
-          </RouterButton>
-        }
-      />
-    );
+  if (!field || !propertyData) {
+    return <FieldNotFound />;
+  }
+
   return (
     <>
       <RouterButton type="text" icon={<ArrowLeft size={20} />} to="/fields">
@@ -125,19 +103,7 @@ export function FieldDetailsPage() {
                     {t('Your field will leave the farm list.')}
                   </Typography.Paragraph>
                   <Space wrap>
-                    <Button
-                      danger
-                      loading={isRemovingField}
-                      onClick={async () => {
-                        try {
-                          await removeField(field.id);
-                          message.success(t('Field removed'));
-                          navigate('/map');
-                        } catch {
-                          message.error(t('Unable to save changes'));
-                        }
-                      }}
-                    >
+                    <Button danger loading={isRemovingField} onClick={handleRemove}>
                       {t('Confirm removal')}{' '}
                     </Button>
                     <Button onClick={() => setConfirmRemove(false)}>{t('Keep field')}</Button>
@@ -149,5 +115,22 @@ export function FieldDetailsPage() {
         </Card>
       </div>
     </>
+  );
+}
+
+function FieldNotFound() {
+  const { t } = useTranslation();
+
+  return (
+    <Result
+      status="404"
+      title={t('Field not found')}
+      subTitle={t('This field may have been removed from your farm.')}
+      extra={
+        <RouterButton type="primary" to="/fields">
+          {t('Back to my fields')}
+        </RouterButton>
+      }
+    />
   );
 }

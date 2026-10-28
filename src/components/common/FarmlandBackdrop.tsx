@@ -4,6 +4,7 @@ import '../../styles/farmland.css';
 // A static, filter-free illustration: crop rows are shared SVG patterns.
 export function FarmlandBackdrop() {
   const id = useId();
+
   return (
     <div className="login-landscape" aria-hidden="true">
       <svg

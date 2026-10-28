@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import type { Field } from '../../../types/fields/field.types.ts';
 import type { PlanCategory } from '../../../types/planning/planning.types.ts';
-import { planningToday } from './agronomy.mock.ts';
 import { getFieldProperties } from '../../fields/mocks/properties.mock.ts';
+import { planningToday } from './agronomy.mock.ts';
 import { getFieldPlanEvents, getRotationPlan } from './planning.mock.ts';
 
 const checkpoints: Record<PlanCategory, string> = {

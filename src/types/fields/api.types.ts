@@ -1,6 +1,7 @@
 import type { Field } from './field.types.ts';
 import type { CropSeason, LandEvent } from './history.types.ts';
 import type { FieldProperties } from './properties.types.ts';
+
 export interface CreateFieldInput {
   parcelId: number;
   name: string;

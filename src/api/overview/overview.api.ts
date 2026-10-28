@@ -2,6 +2,7 @@ import type { OverviewData, TrendParams } from '../../types/overview/overview.ty
 import { mockResponse } from '../core/mock-response.ts';
 import { getMockFields } from '../fields/mocks/fields.store.ts';
 import { getCropAreas, getSampleFieldTrends } from './mocks/overview.mock.ts';
+
 export const overviewApi = {
   getCharts: (params: TrendParams, signal?: AbortSignal): Promise<OverviewData> =>
     mockResponse(

@@ -1,4 +1,4 @@
-import { FieldsTable } from '../components/fields/FieldsTable';
+import { FieldsTable } from '../features/fields/components/FieldsTable';
 
 export function FieldsPage() {
   return <FieldsTable />;

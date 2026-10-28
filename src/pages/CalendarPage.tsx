@@ -1,74 +1,46 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
 import type { TableColumnsType } from 'antd';
-import {
-  Button,
-  Descriptions,
-  Drawer,
-  Empty,
-  Flex,
-  Input,
-  Segmented,
-  Select,
-  Table,
-  Tag,
-  Typography,
-} from 'antd';
+import { Button, Drawer, Empty, Flex, Input, Segmented, Select, Table, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { planningQueries } from '../api/planning/planning.queries.ts';
-import { EventResponseControls } from '../components/calendar/EventResponseControls';
-import { PlanEventCard } from '../components/calendar/PlanEventCard';
-import { SystemCalendar } from '../components/calendar/SystemCalendar';
+import { CalendarDrawerContent } from '../features/planning/components/CalendarDrawerContent.tsx';
+import { SystemCalendar } from '../features/planning/components/SystemCalendar';
 import { RouterButton } from '../components/common/RouterButton';
-import { planCategories } from '../features/planning/constants.ts';
-import { useFarm } from '../hooks/useFarm.ts';
-import type { CalendarMode, PlannedEvent } from '../types/planning/planning.types.ts';
-import { getCalendarEvents, getEventDecision } from '../utils/eventResponses.ts';
-import { formatPlanDate, getEventStatus, isPlanDate } from '../utils/planningDates.ts';
-import { calendarPath } from '../utils/planningRoutes.ts';
+import { planCategories } from '../features/planning/constants/planning.constants.ts';
+import { useCalendarPage } from '../features/planning/hooks/useCalendarPage.ts';
+import { getEventDecision } from '../features/planning/utils/eventResponses.ts';
+import { formatPlanDate } from '../features/planning/utils/planningDates.ts';
+import type { PlannedEvent } from '../types/planning/planning.types.ts';
 
 export function CalendarPage() {
-  const { date } = useParams<'date'>();
-  const [searchParams] = useSearchParams();
-  const rawFieldId = Number(searchParams.get('field'));
-  const fieldId = Number.isSafeInteger(rawFieldId) && rawFieldId > 0 ? rawFieldId : undefined;
-  const eventId = searchParams.get('event') || undefined;
-  const navigate = useNavigate();
+  const {
+    fieldId,
+    eventId,
+    changeField,
+    changeDate,
+    selectDate,
+    resetView,
+    fields,
+    eventResponses,
+    planningToday,
+    category,
+    setCategory,
+    query,
+    setQuery,
+    tab,
+    setTab,
+    dayOpen,
+    calendarMode,
+    setCalendarMode,
+    selectedDate,
+    visible,
+    selectedEvents,
+    selectedEvent,
+    selectedField,
+    openEvent,
+    closeDrawer,
+  } = useCalendarPage();
   const { t } = useTranslation();
-  const { fields, eventResponses, planningToday } = useFarm();
-  const { data: allPlanEvents } = useSuspenseQuery(planningQueries.events());
-  const [category, setCategory] = useState('All actions');
-  const [query, setQuery] = useState('');
-  const [tab, setTab] = useState('calendar');
-  const [dayOpen, setDayOpen] = useState(false);
-  const [calendarMode, setCalendarMode] = useState<CalendarMode>('month');
-  const selectedDate = isPlanDate(date) ? date! : planningToday;
-  const allEvents = allPlanEvents;
-  const events = getCalendarEvents(allEvents, eventResponses);
-  const visible = events.filter(
-    (event) =>
-      (!fieldId || event.fieldId === fieldId) &&
-      (category === 'All actions' || event.category === category) &&
-      `${event.title} ${event.fieldName} ${event.description}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
-  );
-  const selectedEvents = visible.filter((event) => event.date === selectedDate);
-  const selectedEvent = allEvents.find((event) => event.id === eventId);
-  const selectedField = fields.find((field) => field.id === selectedEvent?.fieldId);
-
-  function openEvent(event: PlannedEvent) {
-    setDayOpen(false);
-    navigate(calendarPath(event.date, fieldId, event.id), { preventScrollReset: true });
-  }
-  function closeDrawer() {
-    setDayOpen(false);
-    navigate(calendarPath(selectedDate, fieldId), { preventScrollReset: true });
-  }
-
   const columns: TableColumnsType<PlannedEvent> = [
     {
       title: t('Date'),
@@ -114,11 +86,7 @@ export function CalendarPage() {
         <Select
           aria-label={t('Filter calendar by field')}
           value={fieldId ? String(fieldId) : 'all'}
-          onChange={(value) =>
-            navigate(calendarPath(selectedDate, value === 'all' ? undefined : Number(value)), {
-              preventScrollReset: true,
-            })
-          }
+          onChange={changeField}
           options={[
             { value: 'all', label: t('All fields') },
             ...fields.map((field) => ({ value: String(field.id), label: field.name })),
@@ -138,17 +106,7 @@ export function CalendarPage() {
           onChange={(event) => setQuery(event.target.value)}
           allowClear
         />
-        <Button
-          onClick={() => {
-            setCategory('All actions');
-            setQuery('');
-            setCalendarMode('month');
-            setDayOpen(false);
-            navigate(calendarPath(planningToday), { preventScrollReset: true });
-          }}
-        >
-          {t('Reset view')}
-        </Button>
+        <Button onClick={resetView}>{t('Reset view')}</Button>
       </Flex>
       <div className="calendar-main">
         {tab === 'calendar' ? (
@@ -157,13 +115,8 @@ export function CalendarPage() {
             onModeChange={setCalendarMode}
             value={dayjs(selectedDate)}
             events={visible}
-            onDateSelect={(value) => {
-              navigate(calendarPath(value, fieldId), { preventScrollReset: true });
-              setDayOpen(true);
-            }}
-            onPanelDateChange={(value) =>
-              navigate(calendarPath(value, fieldId), { preventScrollReset: true })
-            }
+            onDateSelect={selectDate}
+            onPanelDateChange={changeDate}
             onEventSelect={openEvent}
           />
         ) : (
@@ -175,7 +128,9 @@ export function CalendarPage() {
             pagination={{ pageSize: 8, showSizeChanger: false }}
             onRow={(event) => ({
               onClick: (click) => {
-                if (!(click.target as HTMLElement).closest('a, button')) openEvent(event);
+                if (!(click.target as HTMLElement).closest('a, button')) {
+                  openEvent(event);
+                }
               },
               className: 'clickable-row',
             })}
@@ -204,88 +159,14 @@ export function CalendarPage() {
           )
         }
       >
-        {selectedEvent ? (
-          <>
-            <div className="event-response-panel">
-              <Typography.Text strong>{t('Field strategy · all proposed events')}</Typography.Text>
-              <EventResponseControls fieldId={selectedEvent.fieldId} />
-            </div>
-            <Flex gap={8} wrap className="section-gap">
-              <Tag>{selectedEvent.category}</Tag>
-              <Tag
-                color={
-                  selectedEvent.priority === 'High priority'
-                    ? 'error'
-                    : selectedEvent.priority === 'Important'
-                      ? 'warning'
-                      : 'default'
-                }
-              >
-                {selectedEvent.priority}
-              </Tag>
-              <Tag>{t(getEventStatus(selectedEvent.date, planningToday))}</Tag>
-            </Flex>
-            <Typography.Title level={3}>{selectedEvent.title}</Typography.Title>
-            <Typography.Paragraph>{selectedEvent.description}</Typography.Paragraph>
-            <Descriptions
-              column={1}
-              items={[
-                {
-                  key: 'date',
-                  label: t('Scheduled date'),
-                  children: formatPlanDate(selectedEvent.date),
-                },
-                { key: 'field', label: t('Field'), children: selectedEvent.fieldName },
-                { key: 'duration', label: t('Time required'), children: selectedEvent.duration },
-                { key: 'owner', label: t('Maintained by'), children: t('System') },
-              ]}
-            />
-            <Typography.Title level={5}>{t('Why this action is scheduled')}</Typography.Title>
-            <Typography.Paragraph>{selectedEvent.rationale}</Typography.Paragraph>
-            {selectedField && (
-              <>
-                <Typography.Title level={5}>{t('Current field conditions')}</Typography.Title>
-                <Descriptions
-                  column={1}
-                  items={[
-                    { key: 'crop', label: t('Crop'), children: selectedField.crop },
-                    {
-                      key: 'area',
-                      label: t('Area'),
-                      children: t('{{value0}} ha', { value0: selectedField.area }),
-                    },
-                    {
-                      key: 'health',
-                      label: t('Crop health'),
-                      children: `${selectedField.health}%`,
-                    },
-                    {
-                      key: 'moisture',
-                      label: t('Soil moisture'),
-                      children: `${selectedField.moisture}%`,
-                    },
-                    {
-                      key: 'nitrogen',
-                      label: t('Nitrogen'),
-                      children: t('{{value0}} mg/kg', { value0: selectedField.nitrogen }),
-                    },
-                    { key: 'status', label: t('Condition'), children: selectedField.status },
-                  ]}
-                />
-              </>
-            )}
-          </>
-        ) : eventId ? (
-          <Empty description={t('This action is no longer in your field plan.')} />
-        ) : selectedEvents.length ? (
-          <div className="calendar-drawer-events">
-            {selectedEvents.map((event) => (
-              <PlanEventCard key={event.id} event={event} onSelect={() => openEvent(event)} />
-            ))}
-          </div>
-        ) : (
-          <Empty description={t('No actions for this date.')} />
-        )}
+        <CalendarDrawerContent
+          selectedEvent={selectedEvent}
+          selectedField={selectedField}
+          eventId={eventId}
+          selectedEvents={selectedEvents}
+          planningToday={planningToday}
+          openEvent={openEvent}
+        />
       </Drawer>
     </div>
   );

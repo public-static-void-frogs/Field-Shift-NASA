@@ -3,7 +3,7 @@ import test from 'node:test';
 import { initialFields } from '../src/api/fields/mocks/fields.mock.ts';
 import { getFieldStrategy } from '../src/api/planning/mocks/strategy.mock.ts';
 import { getFieldPlanEvents } from '../src/api/planning/mocks/planning.mock.ts';
-import { calendarEventPath } from '../src/utils/planningRoutes.ts';
+import { calendarEventPath } from '../src/features/planning/utils/planningRoutes.ts';
 import {
   eventFingerprint,
   getCalendarEvents,
@@ -11,7 +11,7 @@ import {
   parseEventResponses,
   updateEventResponse,
   updateStrategyResponse,
-} from '../src/utils/eventResponses.ts';
+} from '../src/features/planning/utils/eventResponses.ts';
 
 const events = getFieldPlanEvents(initialFields[1]);
 const event = events[0];
@@ -131,8 +131,9 @@ test('responses remain isolated between fields and can be reset', () => {
 });
 
 test('corrupt browser storage and invalid response values are ignored', () => {
-  for (const raw of [null, 'bad JSON', 'null', '[]', '42'])
+  for (const raw of [null, 'bad JSON', 'null', '[]', '42']) {
     assert.deepEqual(parseEventResponses(raw), {});
+  }
   const parsed = parseEventResponses(
     JSON.stringify({
       valid: { status: 'accepted', fingerprint: eventFingerprint(event) },

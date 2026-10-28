@@ -1,45 +1,19 @@
-import { useSuspenseQueries } from '@tanstack/react-query';
-import { App, Button, Card, Descriptions, Form, Input, Result, Select, Space } from 'antd';
+import type { UnavailableParcelProps } from '../types/fields/AddFieldPage.types.ts';
+import { Button, Card, Descriptions, Form, Input, Result, Select, Space } from 'antd';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLoaderData, useNavigate } from 'react-router-dom';
-import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
-import { useFarm } from '../hooks/useFarm.ts';
-import type { FieldFormValues } from '../types/fields/api.types.ts';
-import type { ParcelRouteData } from '../types/shared/router.types.ts';
+import { useAddField } from '../features/fields/hooks/useAddField.ts';
 
 export function AddFieldPage() {
-  const navigate = useNavigate();
-  const { parcelId } = useLoaderData<ParcelRouteData>();
   const { t } = useTranslation();
-  const { fields, addField, isAddingField, preferences } = useFarm();
-  const [{ data: parcel }, { data: cropOptions }] = useSuspenseQueries({
-    queries: [fieldQueries.parcel(parcelId), fieldQueries.crops()],
-  });
-  const { message } = App.useApp();
-  const exists = fields.some((field) => field.id === parcelId);
+  const { parcelId, parcel, cropOptions, isAddingField, preferences, exists, handleAdd } =
+    useAddField();
   if (!parcel || exists) {
-    return (
-      <Result
-        status="info"
-        title={
-          exists ? t('This field already belongs to your farm.') : t('This parcel isn’t available.')
-        }
-        extra={<RouterButton to="/map/add">{t('Back to the map')}</RouterButton>}
-      />
-    );
+    return <UnavailableParcel exists={exists} />;
   }
-  async function handleAdd(values: FieldFormValues) {
-    try {
-      const field = await addField({ parcelId, name: values.name.trim(), crop: values.crop });
-      message.success(t('{{name}} added to your farm', { name: field.name }));
-      navigate(`/fields/${field.id}`);
-    } catch {
-      message.error(t('Unable to save changes'));
-    }
-  }
+
   return (
     <>
       <RouterButton type="text" icon={<ArrowLeft size={19} />} to="/map/add">
@@ -113,5 +87,19 @@ export function AddFieldPage() {
         </Form>
       </Card>
     </>
+  );
+}
+
+function UnavailableParcel({ exists }: UnavailableParcelProps) {
+  const { t } = useTranslation();
+
+  return (
+    <Result
+      status="info"
+      title={
+        exists ? t('This field already belongs to your farm.') : t('This parcel isn’t available.')
+      }
+      extra={<RouterButton to="/map/add">{t('Back to the map')}</RouterButton>}
+    />
   );
 }

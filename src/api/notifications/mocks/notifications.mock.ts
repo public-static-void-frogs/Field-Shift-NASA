@@ -1,5 +1,6 @@
 import type { FarmNotification } from '../../../types/notifications/notification.types.ts';
 import { getMockFields } from '../../fields/mocks/fields.store.ts';
+
 export function getMockNotifications(): FarmNotification[] {
   return [
     ...getMockFields()

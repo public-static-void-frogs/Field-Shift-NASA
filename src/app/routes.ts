@@ -17,7 +17,7 @@ export const appRoutes: RouteObject[] = [
       {
         id: 'farm',
         lazy: async () => ({
-          Component: (await import('../components/layout/AppLayout')).AppLayout,
+          Component: (await import('../features/layout/components/AppLayout')).AppLayout,
         }),
         children: [
           {

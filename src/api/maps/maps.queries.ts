@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import { mapsApi } from './maps.api.ts';
+
 export const mapQueryKeys = {
   all: () => ['maps'] as const,
   geojson: () => ['maps', 'geojson'] as const,

@@ -4,12 +4,13 @@ import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { planningQueries } from '../api/planning/planning.queries.ts';
-import { EventResponseControls } from '../components/calendar/EventResponseControls';
+import { EventResponseControls } from '../features/planning/components/EventResponseControls';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
+import { priorityColors } from '../features/planning/utils/eventPresentation.ts';
+import { formatPlanDate, getEventStatus } from '../features/planning/utils/planningDates.ts';
+import { calendarEventPath } from '../features/planning/utils/planningRoutes.ts';
 import { useFarm } from '../hooks/useFarm.ts';
-import { formatPlanDate, getEventStatus } from '../utils/planningDates.ts';
-import { calendarEventPath } from '../utils/planningRoutes.ts';
 
 export function ActionDetailsPage() {
   const { eventId } = useParams<'eventId'>();
@@ -20,21 +21,11 @@ export function ActionDetailsPage() {
   const field = event && fields.find((item) => item.id === event.fieldId);
 
   if (!event || !field) {
-    return (
-      <Result
-        status="404"
-        title={t('Action not found')}
-        subTitle={t('This action is no longer in your field plan.')}
-        extra={
-          <RouterButton type="primary" to="/calendar">
-            {t('Open calendar')}
-          </RouterButton>
-        }
-      />
-    );
+    return <ActionNotFound />;
   }
 
   const status = getEventStatus(event.date, planningToday);
+
   return (
     <>
       <RouterButton
@@ -63,17 +54,7 @@ export function ActionDetailsPage() {
             </div>
             <Flex gap={10} wrap className="section-gap">
               <Tag>{event.category}</Tag>
-              <Tag
-                color={
-                  event.priority === 'High priority'
-                    ? 'error'
-                    : event.priority === 'Important'
-                      ? 'warning'
-                      : 'default'
-                }
-              >
-                {event.priority}
-              </Tag>
+              <Tag color={priorityColors[event.priority]}>{event.priority}</Tag>
               <Tag color={status === 'Due soon' ? 'warning' : 'success'}>{t(status)}</Tag>
             </Flex>
             <Typography.Paragraph>{event.description}</Typography.Paragraph>
@@ -129,5 +110,22 @@ export function ActionDetailsPage() {
         </Col>
       </Row>
     </>
+  );
+}
+
+function ActionNotFound() {
+  const { t } = useTranslation();
+
+  return (
+    <Result
+      status="404"
+      title={t('Action not found')}
+      subTitle={t('This action is no longer in your field plan.')}
+      extra={
+        <RouterButton type="primary" to="/calendar">
+          {t('Open calendar')}
+        </RouterButton>
+      }
+    />
   );
 }

@@ -1,8 +1,14 @@
+import {
+  eventResponsesStorageKey,
+  parseEventResponses,
+} from '../../../features/planning/utils/eventResponses.ts';
 import type { EventResponses } from '../../../types/planning/planning.types.ts';
-import { eventResponsesStorageKey, parseEventResponses } from '../../../utils/eventResponses.ts';
+
 let responses: EventResponses | undefined;
 export function getMockResponses(): EventResponses {
-  if (responses) return responses;
+  if (responses) {
+    return responses;
+  }
   try {
     responses = parseEventResponses(localStorage.getItem(eventResponsesStorageKey));
   } catch {

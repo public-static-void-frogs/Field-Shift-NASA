@@ -11,6 +11,7 @@ export function RootLayout() {
   const calendarView = matches.some(
     (match) => (match.handle as AppRouteHandle | undefined)?.preserveScroll,
   );
+
   return (
     <>
       <QueryErrorResetBoundary>

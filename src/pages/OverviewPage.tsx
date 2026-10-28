@@ -2,18 +2,17 @@ import { CalendarDays, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
-import { FieldsTable } from '../components/fields/FieldsTable';
-import { MapCard } from '../components/map/MapCard';
-import { OverviewCharts } from '../components/overview/OverviewCharts';
-import { WeatherCard } from '../components/weather/WeatherCard';
+import { FieldsTable } from '../features/fields/components/FieldsTable';
+import { MapCard } from '../features/maps/components/MapCard';
+import { OverviewCharts } from '../features/overview/components/OverviewCharts';
+import { WeatherCard } from '../features/weather/components/WeatherCard';
+import { getFarmSummary } from '../features/overview/utils/farmSummary.ts';
 import { useFarm } from '../hooks/useFarm.ts';
 
 export function OverviewPage() {
   const { t, i18n } = useTranslation();
   const { fields } = useFarm();
-  const totalArea = fields.reduce((total, field) => total + field.area, 0);
-  const attentionCount = fields.filter((field) => field.status !== 'Healthy').length;
-  const criticalCount = fields.filter((field) => field.status === 'Critical').length;
+  const { totalArea, attentionCount, criticalCount } = getFarmSummary(fields);
   const summary = fields.length
     ? t('Farm summary', {
         count: fields.length,

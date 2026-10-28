@@ -21,13 +21,16 @@ export function RouterButton({
     relative,
     target: props.target,
   });
+
   return (
     <Button
       {...props}
       href={href}
       onClick={(event) => {
         onClick?.(event);
-        if (!event.defaultPrevented) handleClick(event as MouseEvent<HTMLAnchorElement>);
+        if (!event.defaultPrevented) {
+          handleClick(event as MouseEvent<HTMLAnchorElement>);
+        }
       }}
     />
   );

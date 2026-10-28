@@ -1,7 +1,7 @@
 import { calculatePlantingDate, planningToday } from '../src/api/planning/mocks/agronomy.mock.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { getEventStatus, isPlanDate } from '../src/utils/planningDates.ts';
+import { getEventStatus, isPlanDate } from '../src/features/planning/utils/planningDates.ts';
 
 test('normal soybean conditions retain the regional planting date', () => {
   assert.deepEqual(calculatePlantingDate('Soybeans', 6.5, 64), {

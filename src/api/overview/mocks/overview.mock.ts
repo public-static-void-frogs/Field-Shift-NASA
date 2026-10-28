@@ -2,7 +2,8 @@ import dayjs from 'dayjs';
 import type { Field } from '../../../types/fields/field.types.ts';
 import { planningToday } from '../../planning/mocks/agronomy.mock.ts';
 
-import { chartColors } from '../../../features/overview/constants.ts';
+import { chartColors } from '../../../features/overview/constants/overview.constants.ts';
+
 // Illustrative history only; the demo has no historical sensor feed.
 export function getSampleFieldTrends(fields: Field[], days: number, metric: 'health' | 'moisture') {
   return Array.from({ length: 13 }, (_, index) => {

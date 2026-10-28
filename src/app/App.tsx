@@ -17,6 +17,7 @@ export default function App() {
     ...locale,
     Pagination: { ...locale.Pagination, page_size: t('Page size') },
   };
+
   return (
     <ConfigProvider theme={theme} locale={componentLocale}>
       <AntApp>

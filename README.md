@@ -18,9 +18,14 @@ npm run preview
 
 ## Formatting
 
-Run `npm run format` to format the project with Prettier, or `npm run format:check`
-to verify formatting. The shared configuration uses single quotes and a 100-column
-print width. Generated output, vendored dependencies, and the npm lockfile are excluded.
+Run `npm run format` to apply Oxlint fixes, component spacing rules, and Prettier,
+or `npm run format:check` to verify them. Control-flow bodies always use braces,
+including single-line `if` statements. Leave a blank line after imports and before
+JSX returns following hooks or other logic. Oxlint enforces braces;
+`scripts/code-spacing.mjs` enforces these blank lines because Prettier has no options
+for either convention. The shared Prettier configuration uses single quotes and a
+100-column print width. Generated output, vendored dependencies, and the npm lockfile
+are excluded.
 
 ## Project structure
 
@@ -28,14 +33,42 @@ print width. Generated output, vendored dependencies, and the npm lockfile are e
 src/
   api/           Feature API methods, query keys/options, mutations, and mock implementations
   app/           Application providers, route rendering, and theme
-  components/    Shared UI grouped by fields, map, weather, layout, and common UI
-  features/      UI configuration grouped by feature (colors, labels, map provider)
-  hooks/         Shared query-backed farm resources
+  components/    Common UI shared across unrelated features
+  features/      Feature components, hooks, utilities, and constants
+  hooks/         Shared hooks for farm resources and chart behavior
   pages/         Dedicated screens for each route
   styles/        Global, application layout, and dashboard styles
   types/         API models, component props, and shared types grouped by feature
+  utils/         General formatting, pagination, and pointer helpers
   main.tsx       Application entry point
 ```
+
+Feature UI lives alongside its behavior:
+
+```text
+features/
+  maps/
+    components/
+      FieldMap.tsx
+      FieldMap.css
+      MapCard.tsx
+    hooks/
+    utils/
+    constants/
+      maps.constants.ts
+```
+
+Calendar components belong to `features/planning/components`; field, weather,
+overview, help, and layout components follow the same pattern. Only shared UI
+such as router buttons, headings, and error boundaries stays in `components/common`.
+
+Components focus on rendering, translations, queries, and feature hooks. Substantial state and
+effects live in `src/features/<feature>/hooks`; pure feature functions live in the adjacent
+`utils` folder. Keep simple component logic inline when extracting it would add little value.
+Use explicit branches or mappings instead of nested ternaries. Extract large conditional JSX branches into named subcomponents
+declared below the main component in the same file; keep the branch itself to a
+`return <Subcomponent />`. These rules are recorded in
+`AGENTS.md`, and the test suite checks for nested ternaries across the source tree.
 
 Field details use dedicated routes such as `/fields/4`. Adding fields uses
 `/map/add` and `/map/add/6`. Navigation supports direct links, refresh, and
@@ -92,9 +125,9 @@ npm run test:strategy
 
 ## Geographic maps
 
-Overview, Field map, and field-detail pages share `src/components/map/FieldMap.tsx`, using Leaflet and
+Overview, Field map, and field-detail pages share `src/features/maps/components/FieldMap.tsx`, using Leaflet and
 React Leaflet. The satellite basemap is Esri World Imagery; the source and required
-attribution are configured in `src/features/maps/constants.ts`. Labels, zoom buttons,
+attribution are configured in `src/features/maps/constants/maps.constants.ts`. Labels, zoom buttons,
 recenter, overlay selector, and field/add-parcel navigation remain available.
 The scale now follows the map zoom. Overlay health/moisture readings remain demo data.
 

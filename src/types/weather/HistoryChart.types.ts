@@ -6,3 +6,7 @@ export type HistoryChartProps = {
   selectedKey: number;
   onSelect: (key: number) => void;
 };
+
+export interface HistoryChartSelection {
+  activeTooltipIndex?: number | string | null;
+}

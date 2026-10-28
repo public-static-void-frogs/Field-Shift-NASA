@@ -14,8 +14,8 @@ import {
   notificationQueries,
   notificationQueryKeys,
 } from '../src/api/notifications/notifications.queries.ts';
-import { getCalendarEvents } from '../src/utils/eventResponses.ts';
-import { eventResponsesStorageKey } from '../src/utils/eventResponses.ts';
+import { getCalendarEvents } from '../src/features/planning/utils/eventResponses.ts';
+import { eventResponsesStorageKey } from '../src/features/planning/utils/eventResponses.ts';
 
 const storage = new Map();
 globalThis.localStorage = {
@@ -156,7 +156,9 @@ test('field mutations invalidate dependent caches, survive refetch and clean up 
       false,
     );
   } finally {
-    if (await fieldsApi.getById(6)) await fieldsApi.remove(6);
+    if (await fieldsApi.getById(6)) {
+      await fieldsApi.remove(6);
+    }
     cache.clear();
   }
 });
@@ -199,9 +201,11 @@ async function sourceFiles(directory) {
 test('UI does not import mocks; named type declarations live in feature type folders', async () => {
   for (const file of await sourceFiles(new URL('../src', import.meta.url).pathname)) {
     const source = await readFile(file, 'utf8');
-    if (!file.includes('/api/'))
+    if (!file.includes('/api/')) {
       assert.doesNotMatch(source, /(?:from\s*|import\s*\()['"][^'"]*\/mocks\//, file);
-    if (!file.includes('/types/'))
+    }
+    if (!file.includes('/types/')) {
       assert.doesNotMatch(source, /^(?:export )?(?:interface|type) \w+/m, file);
+    }
   }
 });

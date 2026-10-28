@@ -1,6 +1,7 @@
 import { mutationOptions, type QueryClient } from '@tanstack/react-query';
 import { planningApi } from './planning.api.ts';
 import { planningQueryKeys } from './planning.queries.ts';
+
 export const planningMutations = {
   respondToStrategy: (client: QueryClient) =>
     mutationOptions({

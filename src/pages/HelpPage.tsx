@@ -2,12 +2,13 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Collapse, Table, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { helpQueries } from '../api/help/help.queries.ts';
-import { ProjectSection } from '../components/help/ProjectSection';
-import { TeamSection } from '../components/help/TeamSection';
+import { ProjectSection } from '../features/help/components/ProjectSection';
+import { TeamSection } from '../features/help/components/TeamSection';
 
 export function HelpPage() {
   const { t } = useTranslation();
   const { data: demoSources } = useSuspenseQuery(helpQueries.sources());
+
   return (
     <>
       <div className="help-about-sections">

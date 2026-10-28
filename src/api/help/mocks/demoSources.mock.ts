@@ -1,4 +1,5 @@
 import type { DemoSource } from '../../../types/help/help.types.ts';
+
 export const demoSources: DemoSource[] = [
   {
     key: 'weather',

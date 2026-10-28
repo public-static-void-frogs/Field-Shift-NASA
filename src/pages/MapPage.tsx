@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { mapQueries } from '../api/maps/maps.queries.ts';
 import { RouterButton } from '../components/common/RouterButton';
-import { FieldMap } from '../components/map/FieldMap';
+import { FieldMap } from '../features/maps/components/FieldMap';
 import { useFarm } from '../hooks/useFarm.ts';
 
 export function MapPage() {
@@ -12,6 +12,7 @@ export function MapPage() {
   const { t } = useTranslation();
   const { fields } = useFarm();
   const { data: fieldGeoJson } = useSuspenseQuery(mapQueries.geojson());
+
   return (
     <div className="fullscreen-map">
       <FieldMap

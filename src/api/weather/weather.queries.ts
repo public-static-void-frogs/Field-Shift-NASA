@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { HistoryRange } from '../../types/weather/weather.types.ts';
 import { weatherApi } from './weather.api.ts';
+
 export const weatherQueryKeys = {
   all: () => ['weather'] as const,
   current: () => ['weather', 'current'] as const,

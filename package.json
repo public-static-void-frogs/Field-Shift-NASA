@@ -6,14 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
+    "lint": "oxlint && node scripts/code-spacing.mjs --check",
     "preview": "vite preview",
     "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs",
     "test:maps": "node --experimental-strip-types --test tests/mapGeometry.test.mjs",
     "test:strategy": "node --experimental-strip-types --test tests/strategy.test.mjs",
     "test:i18n": "node --experimental-strip-types --test tests/i18n.test.mjs",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "oxlint --fix && node scripts/code-spacing.mjs && prettier --write .",
+    "format:check": "oxlint && node scripts/code-spacing.mjs --check && prettier --check .",
     "test:queries": "node --experimental-strip-types --test tests/queries.test.mjs",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:router": "node --experimental-strip-types --test tests/router.test.mjs"

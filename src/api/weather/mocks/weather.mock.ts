@@ -1,4 +1,14 @@
 import type { CurrentWeather, WeatherRecord } from '../../../types/weather/weather.types.ts';
+
+function getMockConditions(index: number) {
+  if (index % 4 === 2) {
+    return 'Light rain';
+  }
+  if (index % 3 === 1) {
+    return 'Partly cloudy';
+  }
+  return 'Mostly sunny';
+}
 export const weatherHistory: WeatherRecord[] = Array.from({ length: 90 }, (_, index) => ({
   key: index,
   date: new Date(2026, 4, 24 - index).toLocaleDateString('en-US', {
@@ -7,7 +17,7 @@ export const weatherHistory: WeatherRecord[] = Array.from({ length: 90 }, (_, in
     year: 'numeric',
   }),
   today: index === 0,
-  conditions: index % 4 === 2 ? 'Light rain' : index % 3 === 1 ? 'Partly cloudy' : 'Mostly sunny',
+  conditions: getMockConditions(index),
   temperature: 24 - (index % 6),
   low: 16 - (index % 4),
   rainfall: index % 4 === 2 ? 6.4 : 0,

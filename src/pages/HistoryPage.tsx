@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
 import type { TableColumnsType } from 'antd';
 import {
   Card,
@@ -14,15 +13,14 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import { CloudRain, CloudSun, Sun } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { weatherQueries } from '../api/weather/weather.queries.ts';
-import { HistoryChart } from '../components/weather/HistoryChart';
-import { historyRanges, weatherMetrics } from '../features/weather/constants.ts';
-import { useFarm } from '../hooks/useFarm.ts';
-import type { HistoryRange, WeatherRecord } from '../types/weather/weather.types.ts';
+import { HistoryChart } from '../features/weather/components/HistoryChart';
+import { historyRanges, weatherMetrics } from '../features/weather/constants/weather.constants.ts';
+import { useWeatherHistory } from '../features/weather/hooks/useWeatherHistory.ts';
+import { getWeatherIcon } from '../features/weather/utils/weatherPresentation.ts';
+import type { WeatherRecord } from '../types/weather/weather.types.ts';
 import { type WeatherMetric } from '../types/weather/weather.types.ts';
+import { positiveSign } from '../utils/format.ts';
 
 export function HistoryPage() {
   const { t } = useTranslation();
@@ -41,8 +39,8 @@ export function HistoryPage() {
       title: t('Conditions'),
       dataIndex: 'conditions',
       render: (value: string) => {
-        const Icon =
-          value === 'Light rain' ? CloudRain : value === 'Partly cloudy' ? CloudSun : Sun;
+        const Icon = getWeatherIcon(value);
+
         return (
           <Space>
             <Icon size={20} className={value === 'Light rain' ? 'rain-icon' : 'sun-icon'} />
@@ -73,21 +71,18 @@ export function HistoryPage() {
     },
   ];
 
-  const { preferences } = useFarm();
-  const [range, setRange] = useState<HistoryRange>('7 days');
-  const [metric, setMetric] = useState<WeatherMetric>('temperature');
-  const [selectedKey, setSelectedKey] = useState(0);
-  const { data: records } = useSuspenseQuery(weatherQueries.history(range));
-  const selected = records.find((record) => record.key === selectedKey) ?? records[0];
-  const metricConfig = weatherMetrics[metric];
-  const config = {
-    ...metricConfig,
-    title: t(metricConfig.title),
-    description: t(metricConfig.description),
-    unit: t(metricConfig.unit),
-  };
-  const previous = records.find((record) => record.key === selected.key + 1);
-  const change = previous ? Number((selected[metric] - previous[metric]).toFixed(1)) : null;
+  const {
+    preferences,
+    range,
+    changeRange,
+    metric,
+    setMetric,
+    setSelectedKey,
+    records,
+    selected,
+    config,
+    change,
+  } = useWeatherHistory();
 
   return (
     <div className="environment-history">
@@ -109,10 +104,7 @@ export function HistoryPage() {
               aria-label={t('Weather history time range')}
               options={historyRanges.map((value) => ({ value, label: t(value) }))}
               value={range}
-              onChange={(value) => {
-                setRange(value);
-                setSelectedKey(0);
-              }}
+              onChange={changeRange}
             />
           }
         >
@@ -158,7 +150,7 @@ export function HistoryPage() {
                 {change === null
                   ? t('No earlier reading available')
                   : t('{{value0}}{{value1}} {{value2}} from previous day', {
-                      value0: change > 0 ? '+' : '',
+                      value0: positiveSign(change),
                       value1: change,
                       value2: config.unit,
                     })}

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+
 // The demo's agronomic clock is fixed to the season used throughout the app.
 export const planningToday = '2026-05-24';
 

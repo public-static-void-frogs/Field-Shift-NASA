@@ -1,6 +1,7 @@
 import type { FieldActions } from '../fields/api.types.ts';
 import type { Field } from '../fields/field.types.ts';
 import type { EventDecision, EventResponses } from '../planning/planning.types.ts';
+
 export interface FarmProfile {
   availableSeasons: string[];
   farmName: string;

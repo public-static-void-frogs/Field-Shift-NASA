@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import { fieldsApi } from './fields.api.ts';
+
 export const fieldQueryKeys = {
   all: () => ['fields'] as const,
   list: () => [...fieldQueryKeys.all(), 'list'] as const,

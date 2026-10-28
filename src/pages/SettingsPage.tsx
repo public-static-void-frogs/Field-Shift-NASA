@@ -7,6 +7,7 @@ import type { SectionActionsProps } from '../types/farm/SettingsPage.types.ts';
 
 function SectionActions({ section }: SectionActionsProps) {
   const { t } = useTranslation();
+
   return (
     <Space size={8}>
       <Button disabled aria-label={t('Clear {{value0}}', { value0: section })}>
@@ -22,6 +23,7 @@ function SectionActions({ section }: SectionActionsProps) {
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
   const { preferences } = useFarm();
+
   return (
     <div className="settings-page">
       <div className="page-heading">
@@ -31,7 +33,9 @@ export function SettingsPage() {
         layout="vertical"
         requiredMark={false}
         onValuesChange={(changed) => {
-          if (changed.language) void i18n.changeLanguage(changed.language);
+          if (changed.language) {
+            void i18n.changeLanguage(changed.language);
+          }
         }}
         initialValues={{
           fullName: preferences.fullName,

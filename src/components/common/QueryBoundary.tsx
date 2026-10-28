@@ -6,8 +6,10 @@ import type {
   QueryBoundaryState,
   QueryErrorProps,
 } from '../../types/shared/query-boundary.types.ts';
+
 function QueryError({ retry }: QueryErrorProps) {
   const { t } = useTranslation();
+
   return (
     <Result
       status="error"

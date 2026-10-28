@@ -6,6 +6,22 @@ import type {
 } from '../../../types/fields/history.types.ts';
 import { getFieldProperties } from './properties.mock.ts';
 
+const seasonSoilConditions = [
+  'Residues retained; cover established',
+  'Organic matter improved',
+  'Baseline soil survey completed',
+];
+const harvestDates: Record<string, string> = { Corn: '2025-10-08', Soybeans: '2025-09-10' };
+function getFieldReviewDescription(field: Field) {
+  if (field.nitrogen < 20) {
+    return `Low nitrogen and dry topsoil were recorded in ${field.name}. A nutrient application and irrigation review were added to the work plan.`;
+  }
+  if (field.status !== 'Healthy') {
+    return `Drying soil was recorded in ${field.name}. Irrigation scheduling was flagged for review.`;
+  }
+  return `${field.name} is showing steady growth. Moisture and nutrients are supporting the current crop.`;
+}
+
 const previousCrops: Record<number, [string, string, string]> = {
   1: ['Soybeans', 'Corn', 'Winter wheat'],
   2: ['Soybeans', 'Winter wheat', 'Corn'],
@@ -54,12 +70,7 @@ export function getCropSeasons(field: Field): CropSeason[] {
         planted: `${season.planted}, ${crop === 'Winter wheat' ? year - 1 : year}`,
         harvested: `${season.harvested}, ${year}`,
         yield: `${(season.yield + (field.id % 3) * 0.2 - index * 0.1).toFixed(1)} t/ha`,
-        soilCondition:
-          index === 0
-            ? 'Residues retained; cover established'
-            : index === 1
-              ? 'Organic matter improved'
-              : 'Baseline soil survey completed',
+        soilCondition: seasonSoilConditions[index],
       };
     }),
   ];
@@ -75,12 +86,7 @@ export function getLandHistory(field: Field): LandEvent[] {
       date: '2026-05-24',
       category: 'Soil conditions',
       title: needsCare ? 'Field health review flagged a change' : 'Field health review completed',
-      description:
-        field.nitrogen < 20
-          ? `Low nitrogen and dry topsoil were recorded in ${field.name}. A nutrient application and irrigation review were added to the work plan.`
-          : needsCare
-            ? `Drying soil was recorded in ${field.name}. Irrigation scheduling was flagged for review.`
-            : `${field.name} is showing steady growth. Moisture and nutrients are supporting the current crop.`,
+      description: getFieldReviewDescription(field),
       measurements: [
         `Nitrogen ${field.nitrogen} mg/kg`,
         `Moisture ${field.moisture}%`,
@@ -190,12 +196,7 @@ export function getLandHistory(field: Field): LandEvent[] {
     },
     {
       id: 'last-harvest',
-      date:
-        previous.crop === 'Corn'
-          ? '2025-10-08'
-          : previous.crop === 'Soybeans'
-            ? '2025-09-10'
-            : '2025-07-16',
+      date: harvestDates[previous.crop] ?? '2025-07-16',
       category: 'Crop rotation',
       title: `${previous.crop} harvest completed`,
       description:

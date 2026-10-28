@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { TrendParams } from '../../types/overview/overview.types.ts';
 import { overviewApi } from './overview.api.ts';
+
 export const overviewQueryKeys = {
   all: () => ['overview'] as const,
   charts: (params: TrendParams) =>

@@ -7,6 +7,7 @@ const { Title, Paragraph, Text } = Typography;
 export function PageHeading({ title, description, eyebrow, actions }: PageHeadingProps) {
   const { t } = useTranslation();
   const headingEyebrow = eyebrow ?? t('YOUR FARM, AT A GLANCE');
+
   return (
     <Flex className="page-heading" justify="space-between" align="center" gap={20} wrap>
       <div>

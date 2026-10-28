@@ -9,6 +9,7 @@ import { RouterButton } from '../components/common/RouterButton';
 export function NotificationsPage() {
   const { t } = useTranslation();
   const { data: notifications } = useSuspenseQuery(notificationQueries.list());
+
   return (
     <>
       <PageHeading
