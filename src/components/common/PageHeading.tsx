@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Flex, Typography } from 'antd';
 import type { ReactNode } from 'react';
 
@@ -10,7 +11,9 @@ interface PageHeadingProps {
   actions?: ReactNode;
 }
 
-export function PageHeading({ title, description, eyebrow = 'YOUR FARM, AT A GLANCE', actions }: PageHeadingProps) {
+export function PageHeading({ title, description, eyebrow, actions }: PageHeadingProps) {
+  const { t } = useTranslation();
+  const headingEyebrow = eyebrow ?? t('YOUR FARM, AT A GLANCE');
   return (
     <Flex
       className="page-heading"
@@ -20,8 +23,8 @@ export function PageHeading({ title, description, eyebrow = 'YOUR FARM, AT A GLA
       wrap
     >
       <div>
-        {eyebrow && <Text className="eyebrow">
-          {eyebrow}
+        {headingEyebrow && <Text className="eyebrow">
+          {headingEyebrow}
         </Text>}
         <Title level={1}>
           {title}

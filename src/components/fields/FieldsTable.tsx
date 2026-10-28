@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Badge, Button, Card, ConfigProvider, Dropdown, Empty, Flex, Input, Pagination, Progress, Segmented, Select, Space, Table, Tabs, Tag, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
@@ -9,6 +10,7 @@ import type { Navigate } from '../../types/navigation';
 import { FieldStatus } from './FieldStatus';
 
 export function FieldsTable({ navigate, overview = false }: { navigate: Navigate; overview?: boolean; }) {
+  const { t } = useTranslation();
   const { fields } = useFarm();
   const tableViewport = useRef<HTMLDivElement>(null);
   const [tableBodyHeight, setTableBodyHeight] = useState(300);
@@ -31,10 +33,10 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
   const [filters, setFilters] = useState<string[]>([]);
   const filterOptions = [
     ...Array.from(new Set([...cropOptions.map(option => option.value), ...fields.map(field => field.crop)]))
-      .map(value => ({ key: `crop:${value}`, label: `Crop: ${value}` })),
-    { key: 'moisture:low', label: 'Soil moisture: below 40%' },
-    { key: 'health:low', label: 'Crop health: below 70' },
-    { key: 'area:large', label: 'Area: 25 ha or more' },
+      .map(value => ({ key: `crop:${value}`, label: t('Crop: {{value0}}', { value0: value }) })),
+    { key: 'moisture:low', label: t('Soil moisture: below 40%') },
+    { key: 'health:low', label: t('Crop health: below 70') },
+    { key: 'area:large', label: t('Area: 25 ha or more') },
   ];
   const selectedCrops = filters.filter(key => key.startsWith('crop:')).map(key => key.slice(5));
   const attention = fields.filter(field => field.status !== 'Healthy').length;
@@ -51,7 +53,7 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
   const currentPage = Math.min(page, Math.max(1, Math.ceil(visible.length / pageSize)));
   const columns: TableColumnsType<Field> = [
     {
-      title: 'Field name',
+      title: t('Field name'),
       dataIndex: 'name',
       key: 'name',
       width: 235,
@@ -67,15 +69,14 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
               {name}
             </Button>
             <Typography.Text type="secondary" className="field-id">
-              Field
-              {String(field.id).padStart(2, '0')}
+               {t('Field')} {String(field.id).padStart(2, '0')}
             </Typography.Text>
           </div>
         </Space>
       ),
     },
     {
-      title: 'Crop type',
+      title: t('Crop type'),
       dataIndex: 'crop',
       key: 'crop',
       render: (value: string) => (
@@ -86,14 +87,14 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
       )
     },
     {
-      title: 'Area',
+      title: t('Area'),
       dataIndex: 'area',
       key: 'area',
       sorter: (a, b) => a.area - b.area,
-      render: (value: number) => `${value} ha`
+      render: (value: number) => t('{{value0}} ha', { value0: value })
     },
     {
-      title: 'Crop health',
+      title: t('Crop health'),
       dataIndex: 'health',
       key: 'health',
       width: 165,
@@ -114,7 +115,7 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
       ),
     },
     {
-      title: 'Soil moisture',
+      title: t('Soil moisture'),
       dataIndex: 'moisture',
       key: 'moisture',
       render: (value: number) => (
@@ -126,7 +127,7 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
       )
     },
     {
-      title: 'Status',
+      title: t('Status'),
       dataIndex: 'status',
       key: 'status',
       render: (value: Field['status']) => (
@@ -140,7 +141,7 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
       render: (_, field) => (
         <Button
           type="text"
-          aria-label={`Open ${field.name}`}
+          aria-label={t('Open {{value0}}', { value0: field.name })}
           icon={<ArrowUpRight size={19} />}
           onClick={() => navigate(`/fields/${field.id}`)}
         />
@@ -154,20 +155,20 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
         activeKey={status}
         onChange={setStatus}
         items={[
-          { key: 'All fields', label: `All fields (${fields.length})` },
-          { key: 'Needs attention', label: `Needs attention (${attention})` },
-          { key: 'Healthy', label: `Healthy (${fields.filter(field => field.status === 'Healthy').length})` },
-          { key: 'Critical', label: `Critical (${fields.filter(field => field.status === 'Critical').length})` },
+          { key: 'All fields', label: t('All fields ({{value0}})', { value0: fields.length }) },
+          { key: 'Needs attention', label: t('Needs attention ({{value0}})', { value0: attention }) },
+          { key: 'Healthy', label: t('Healthy ({{value0}})', { value0: fields.filter(field => field.status === 'Healthy').length }) },
+          { key: 'Critical', label: t('Critical ({{value0}})', { value0: fields.filter(field => field.status === 'Critical').length }) },
         ]}
-        tabBarExtraContent={<Button type="primary" icon={<Plus size={18} />} onClick={() => navigate('/map/add')}>Add field</Button>}
+        tabBarExtraContent={<Button type="primary" icon={<Plus size={18} />} onClick={() => navigate('/map/add')}>{t('Add field')}</Button>}
       />}
       {!overview && <div className="fields-controls">
         <Flex className="fields-filter-row" gap={12} align="center">
           <Input
             className="fields-search"
-            aria-label="Search fields"
+            aria-label={t('Search fields')}
             prefix={<Search size={18} />}
-            placeholder="Search by field name, ID or crop…"
+            placeholder={t('Search by field name, ID or crop…')}
             value={query}
             onChange={event => setQuery(event.target.value)}
             allowClear
@@ -179,28 +180,26 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
               onClick: ({ key }) => setFilters(current => current.includes(key) ? current : [...current, key]),
             }}
           >
-            <Button icon={<ListFilter size={18} />}>Add filter</Button>
+            <Button icon={<ListFilter size={18} />}>{t('Add filter')}</Button>
           </Dropdown>
-          {filters.length > 0 && <Flex className="field-filter-chips" gap={12} align="center" aria-label="Active field filters">
+          {filters.length > 0 && <Flex className="field-filter-chips" gap={12} align="center" aria-label={t('Active field filters')}>
           {filters.map(key => <Tag
             key={key}
             closable
             onClose={() => setFilters(current => current.filter(filter => filter !== key))}
           >{filterOptions.find(option => option.key === key)?.label}</Tag>)}
-          <Button type="text" onClick={() => setFilters([])}>Clear filters</Button>
+          <Button type="text" onClick={() => setFilters([])}>{t('Clear filters')}</Button>
           </Flex>}
         </Flex>
       </div>}
       <Card
         className="fields-card"
         title={overview ? <Space wrap>
-          Your fields
-          <Badge count={fields.length} color="#476b3c" />
-          <Badge status="success" text="Live overview" />
+           {t('Your fields')} <Badge count={fields.length} color="#476b3c" />
+          <Badge status="success" text={t('Live overview')} />
         </Space> : undefined}
         extra={overview ? <Button type="link" onClick={() => navigate('/fields')}>
-          View all fields
-          <ArrowUpRight size={17} />
+           {t('View all fields')} <ArrowUpRight size={17} />
         </Button> : undefined}
       >
         {overview && <Flex
@@ -213,7 +212,7 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
           <Segmented
             value={status}
             onChange={setStatus}
-            options={['All fields', { label: `Needs attention (${attention})`, value: 'Needs attention' }, 'Healthy']}
+            options={[{ value: 'All fields', label: t('All fields') }, { label: t('Needs attention ({{value0}})', { value0: attention }), value: 'Needs attention' }, { value: 'Healthy', label: t('Healthy') }]}
           />
           <Flex
             gap={10}
@@ -221,18 +220,18 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
             className="table-filters"
           >
             <Input
-              aria-label="Find a field"
+              aria-label={t('Find a field')}
               prefix={<Search size={18} />}
-              placeholder="Find a field…"
+              placeholder={t('Find a field…')}
               value={query}
               onChange={event => setQuery(event.target.value)}
               allowClear
             />
             <Select
-              aria-label="Filter by crop"
+              aria-label={t('Filter by crop')}
               value={crop}
               onChange={setCrop}
-              options={[{ value: 'All crops', label: 'All crops' }, ...cropOptions]}
+              options={[{ value: 'All crops', label: t('All crops') }, ...cropOptions]}
             />
           </Flex>
         </Flex>}
@@ -264,13 +263,13 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
               }}
               onRow={field => ({ onClick: () => navigate(`/fields/${field.id}`), className: 'clickable-row' })}
               locale={{
-                emptyText: <Empty description="No fields match your filters">
+                emptyText: <Empty description={t('No fields match your filters')}>
                   <Button onClick={() => {
                     setQuery('');
                     setStatus('All fields');
                     setCrop('All crops');
                     setFilters([]);
-                  }}>Clear filters</Button>
+                  }}>{t('Clear filters')}</Button>
                 </Empty>
               }}
             />
@@ -284,10 +283,10 @@ export function FieldsTable({ navigate, overview = false }: { navigate: Navigate
         >
           <Typography.Text type="secondary">
             {overview
-              ? `Showing ${visible.length} of ${fields.length} fields`
-              : `${visible.length ? (currentPage - 1) * pageSize + 1 : 0}–${Math.min(currentPage * pageSize, visible.length)} of ${visible.length} fields`}
+              ? t('Showing {{value0}} of {{value1}} fields', { value0: visible.length, value1: fields.length })
+              : t('{{value0}}–{{value1}} of {{value2}} fields', { value0: visible.length ? (currentPage - 1) * pageSize + 1 : 0, value1: Math.min(currentPage * pageSize, visible.length), value2: visible.length })}
           </Typography.Text>
-          {overview ? <Badge status="success" text="Last synced just now" /> : <Pagination
+          {overview ? <Badge status="success" text={t('Last synced just now')} /> : <Pagination
             size="small"
             current={currentPage}
             pageSize={pageSize}

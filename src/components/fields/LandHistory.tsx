@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Button, Card, Empty, Flex, Input, Select, Space, Table, Tabs, Tag, Timeline, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
@@ -13,29 +14,30 @@ const categoryColors: Record<LandEventCategory, string> = {
   'Weather & water': 'processing',
 };
 
-const rotationColumns: TableColumnsType<CropSeason> = [
-  {
-    title: 'Season',
-    dataIndex: 'year',
-    render: (year: number) => (
-      <Space>
-        {year}
-        {year === 2026 && <Tag color="success">Current</Tag>}
-      </Space>
-    )
-  },
-  { title: 'Crop', dataIndex: 'crop' },
-  { title: 'Planted', dataIndex: 'planted' },
-  { title: 'Harvested', dataIndex: 'harvested' },
-  { title: 'Yield', dataIndex: 'yield' },
-  {
-    title: 'Soil after the season',
-    dataIndex: 'soilCondition',
-    width: 270
-  },
-];
-
 export function LandHistory({ field }: { field: Field; }) {
+  const { t, i18n } = useTranslation();
+  const rotationColumns: TableColumnsType<CropSeason> = [
+    {
+      title: t('Season'),
+      dataIndex: 'year',
+      render: (year: number) => (
+        <Space>
+          {year}
+          {year === 2026 && <Tag color="success">{t('Current')}</Tag>}
+        </Space>
+      )
+    },
+    { title: t('Crop'), dataIndex: 'crop' },
+    { title: t('Planted'), dataIndex: 'planted' },
+    { title: t('Harvested'), dataIndex: 'harvested' },
+    { title: t('Yield'), dataIndex: 'yield' },
+    {
+      title: t('Soil after the season'),
+      dataIndex: 'soilCondition',
+      width: 270
+    },
+  ];
+
   const [category, setCategory] = useState('All activities');
   const [year, setYear] = useState('All years');
   const [query, setQuery] = useState('');
@@ -61,20 +63,18 @@ export function LandHistory({ field }: { field: Field; }) {
       >
         <Typography.Title level={3} id="land-history-heading">
           <History size={25} />
-          Land history
-        </Typography.Title>
-        <Tag>{`${events.length} records · 2023–2026`}</Tag>
+           {t('Land history')} </Typography.Title>
+        <Tag>{t('{{value0}} records · 2023–2026', { value0: events.length })}</Tag>
       </Flex>
       <Typography.Paragraph type="secondary">
-        Follow the story of this field: crop rotations, soil changes, field work, and weather through the seasons.
-      </Typography.Paragraph>
+         {t('Follow the story of this field: crop rotations, soil changes, field work, and weather through the seasons.')} </Typography.Paragraph>
       <Card className="land-history-card">
         <Tabs
           defaultActiveKey="timeline"
           items={[
             {
               key: 'timeline',
-              label: 'Activity timeline',
+              label: t('Activity timeline'),
               children: (
                 <>
                   <Flex
@@ -83,26 +83,26 @@ export function LandHistory({ field }: { field: Field; }) {
                     className="land-history-filters"
                   >
                     <Input
-                      aria-label="Search land history"
+                      aria-label={t('Search land history')}
                       prefix={<Search size={18} />}
-                      placeholder="Search field history…"
+                      placeholder={t('Search field history…')}
                       value={query}
                       onChange={event => setQuery(event.target.value)}
                       allowClear
                     />
                     <Select
-                      aria-label="Filter history by activity"
+                      aria-label={t('Filter history by activity')}
                       value={category}
                       onChange={setCategory}
-                      options={['All activities', ...Object.keys(categoryColors)].map(value => ({ value, label: value }))}
+                      options={['All activities', ...Object.keys(categoryColors)].map(value => ({ value, label: t(value) }))}
                     />
                     <Select
-                      aria-label="Filter history by year"
+                      aria-label={t('Filter history by year')}
                       value={year}
                       onChange={setYear}
-                      options={['All years', '2026', '2025', '2024', '2023'].map(value => ({ value, label: value }))}
+                      options={['All years', '2026', '2025', '2024', '2023'].map(value => ({ value, label: t(value) }))}
                     />
-                    {(query || category !== 'All activities' || year !== 'All years') && <Button onClick={resetFilters}>Clear filters</Button>}
+                    {(query || category !== 'All activities' || year !== 'All years') && <Button onClick={resetFilters}>{t('Clear filters')}</Button>}
                   </Flex>
                   <Flex
                     justify="space-between"
@@ -111,14 +111,14 @@ export function LandHistory({ field }: { field: Field; }) {
                     className="section-gap"
                   >
                     <Typography.Text type="secondary">
-                      {`Showing ${visible.length} of ${events.length} records`}
+                      {t('Showing {{value0}} of {{value1}} records', { value0: visible.length, value1: events.length })}
                     </Typography.Text>
-                    <Typography.Text type="secondary">Newest first · Scroll to explore earlier seasons</Typography.Text>
+                    <Typography.Text type="secondary">{t('Newest first · Scroll to explore earlier seasons')}</Typography.Text>
                   </Flex>
                   <div
                     className="land-history-scroll"
                     role="region"
-                    aria-label={`${field.name} activity timeline`}
+                    aria-label={t('{{value0}} activity timeline', { value0: field.name })}
                     tabIndex={0}
                   >
                     {visible.length ? <Timeline
@@ -128,7 +128,7 @@ export function LandHistory({ field }: { field: Field; }) {
                         content: (
                           <article className="land-history-event">
                             <Typography.Text type="secondary" className="land-history-date">
-                              {new Date(`${event.date}T12:00:00`).toLocaleDateString('en-US', {
+                              {new Date(`${event.date}T12:00:00`).toLocaleDateString(i18n.resolvedLanguage, {
                                 month: 'long',
                                 day: 'numeric',
                                 year: 'numeric'
@@ -141,7 +141,7 @@ export function LandHistory({ field }: { field: Field; }) {
                               <Tag color={categoryColors[event.category]}>
                                 {event.category}
                               </Tag>
-                              {event.attention && <Tag color="error">Needs follow-up</Tag>}
+                              {event.attention && <Tag color="error">{t('Needs follow-up')}</Tag>}
                             </Space>
                             <Typography.Paragraph>
                               {event.description}
@@ -156,8 +156,8 @@ export function LandHistory({ field }: { field: Field; }) {
                           </article>
                         ),
                       }))}
-                    /> : <Empty description="No history matches these filters.">
-                      <Button onClick={resetFilters}>Clear filters</Button>
+                    /> : <Empty description={t('No history matches these filters.')}>
+                      <Button onClick={resetFilters}>{t('Clear filters')}</Button>
                     </Empty>}
                   </div>
                 </>
@@ -165,7 +165,7 @@ export function LandHistory({ field }: { field: Field; }) {
             },
             {
               key: 'rotations',
-              label: 'Crop rotations',
+              label: t('Crop rotations'),
               children: <Table<CropSeason>
                 rowKey="year"
                 columns={rotationColumns}

@@ -10,15 +10,20 @@
     "preview": "vite preview",
     "test:planning": "node --experimental-strip-types --test tests/planningDates.test.mjs",
     "test:maps": "node --experimental-strip-types --test tests/mapGeometry.test.mjs",
-    "test:strategy": "node --experimental-strip-types --test tests/strategy.test.mjs"
+    "test:strategy": "node --experimental-strip-types --test tests/strategy.test.mjs",
+    "test:i18n": "node --experimental-strip-types --test tests/i18n.test.mjs"
   },
   "dependencies": {
     "antd": "file:vendor/antd-6.6.6.tgz",
     "dayjs": "file:vendor/dayjs-1.11.23.tgz",
+    "i18next": "^26.5.11",
+    "i18next-browser-languagedetector": "^8.2.3",
+    "i18next-resources-to-backend": "^1.2.3",
     "leaflet": "^1.9.4",
     "lucide-react": "file:vendor/lucide-react-1.49.0.tgz",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-i18next": "^17.1.9",
     "react-leaflet": "^5.0.0",
     "recharts": "^3.10.1"
   },

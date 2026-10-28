@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Alert, App, Button, Card, Flex, Result, Space, Typography } from 'antd';
 import { ArrowLeft, Sprout, Trash2 } from 'lucide-react';
@@ -16,6 +17,7 @@ import { getFieldProperties } from '../data/fieldProperties';
 import type { Navigate } from '../types/navigation';
 
 export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navigate: Navigate; }) {
+  const { t } = useTranslation();
   const { fields, removeField, preferences } = useFarm();
   const { message } = App.useApp();
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -27,9 +29,9 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
   if (!field) return (
     <Result
       status="404"
-      title="Field not found"
-      subTitle="This field may have been removed from your farm."
-      extra={<Button type="primary" onClick={() => navigate('/fields')}>Back to my fields</Button>}
+      title={t('Field not found')}
+      subTitle={t('This field may have been removed from your farm.')}
+      extra={<Button type="primary" onClick={() => navigate('/fields')}>{t('Back to my fields')}</Button>}
     />
   );
   return (
@@ -38,14 +40,14 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
         type="text"
         icon={<ArrowLeft size={20} />}
         onClick={() => navigate('/fields')}
-      >Back to my fields</Button>
+      >{t('Back to my fields')}</Button>
       <PageHeading
         title={field.name}
-        description={`${field.crop} · ${field.area} hectares · ${getFieldProperties(field.id).soilType}`}
-        eyebrow={`${preferences.farmName.toUpperCase()} · FIELD ${String(field.id).padStart(2, '0')}`}
-        actions={<Space wrap><FieldStatus status={field.status} /><Button type="primary" icon={<Sprout size={19} />} onClick={() => navigate(`/fields/${field.id}/strategy`)}>Rotation strategy</Button></Space>}
+        description={t('{{value0}} · {{value1}} hectares · {{value2}}', { value0: field.crop, value1: field.area, value2: getFieldProperties(field.id).soilType })}
+        eyebrow={t('{{value0}} · FIELD {{value1}}', { value0: preferences.farmName.toUpperCase(), value1: String(field.id).padStart(2, '0') })}
+        actions={<Space wrap><FieldStatus status={field.status} /><Button type="primary" icon={<Sprout size={19} />} onClick={() => navigate(`/fields/${field.id}/strategy`)}>{t('Rotation strategy')}</Button></Space>}
       />
-      <div className="field-detail-map" aria-label={`${field.name} location map`}>
+      <div className="field-detail-map" aria-label={t('{{value0}} location map', { value0: field.name })}>
         <FieldMap
           fields={[field]}
           geojson={geojson}
@@ -60,17 +62,15 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
         <FieldRecommendation field={field} />
         <FieldProperties field={field} />
         <LandHistory field={field} />
-        <Card title="Manage this field">
+        <Card title={t('Manage this field')}>
           <Flex justify="space-between" align="center" gap={20} wrap>
             <Typography.Paragraph type="secondary" className="no-margin">
-              Remove this field from your farm list. You can add the parcel again from the map.
-            </Typography.Paragraph>
+               {t('Remove this field from your farm list. You can add the parcel again from the map.')} </Typography.Paragraph>
             <Space wrap>
-              <Button onClick={() => navigate('/map')}>Explore farm map</Button>
+              <Button onClick={() => navigate('/map')}>{t('Explore farm map')}</Button>
               {!confirmRemove && (
                 <Button danger icon={<Trash2 size={18} />} onClick={() => setConfirmRemove(true)}>
-                  Remove field
-                </Button>
+                   {t('Remove field')} </Button>
               )}
             </Space>
           </Flex>
@@ -79,19 +79,18 @@ export function FieldDetailsPage({ fieldId, navigate }: { fieldId: number; navig
               className="field-remove-confirmation"
               type="warning"
               showIcon
-              title={`Remove ${field.name}?`}
+              title={t('Remove {{value0}}?', { value0: field.name })}
               description={
                 <>
-                  <Typography.Paragraph>Your field will leave the farm list.</Typography.Paragraph>
+                  <Typography.Paragraph>{t('Your field will leave the farm list.')}</Typography.Paragraph>
                   <Space wrap>
                     <Button danger onClick={() => {
                       removeField(field.id);
-                      message.success('Field removed');
+                      message.success(t('Field removed'));
                       navigate('/map');
                     }}>
-                      Confirm removal
-                    </Button>
-                    <Button onClick={() => setConfirmRemove(false)}>Keep field</Button>
+                       {t('Confirm removal')} </Button>
+                    <Button onClick={() => setConfirmRemove(false)}>{t('Keep field')}</Button>
                   </Space>
                 </>
               }

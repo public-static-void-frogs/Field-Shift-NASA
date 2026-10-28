@@ -117,3 +117,11 @@ pass a different collection to the same component:
 ```sh
 npm run test:maps
 ```
+
+## UI languages
+
+The app uses react-i18next with English as the default fallback and Ukrainian as the second locale. On first use it follows the browser’s preferred supported language (`en` or `uk`, including regional variants). The language selector in Settings applies immediately and saves the choice in local storage under `frogfarmers.language`; that choice takes precedence on later visits.
+
+UI strings live in `src/i18n/locales/en.json` and `src/i18n/locales/uk.json`. Each JSON catalog is loaded through a dynamic import, so Ukrainian is only downloaded when needed. English also loads as the fallback. Ant Design controls, calendar dates, the document language, and page metadata follow the selected language. Demo field data, user-entered values, and sample recommendation content stay unchanged.
+
+Use `useTranslation()` and `t()` for new UI text. Keys are English phrases with key and namespace separators disabled; keep complete sentences together and use interpolation for variable values. Add matching keys and interpolation variables to both catalogs. Run `npm run test:i18n` to check catalog consistency, language detection, saved preferences, and lazy loading.

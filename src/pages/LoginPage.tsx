@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Form, Input } from 'antd';
 import { ArrowRight } from 'lucide-react';
 import type { Navigate } from '../types/navigation';
@@ -5,6 +6,7 @@ import '../styles/login.css';
 import { FarmlandBackdrop } from '../components/common/FarmlandBackdrop';
 
 export function LoginPage({ navigate }: { navigate: Navigate }) {
+  const { t } = useTranslation();
   return <main className="login-page">
     <FarmlandBackdrop />
     <div className="login-corner-brand" aria-hidden="true">
@@ -16,7 +18,7 @@ export function LoginPage({ navigate }: { navigate: Navigate }) {
         <img src="/frog-farmer.png" width={64} height={64} alt="" />
         <span>FrogFarmers</span>
       </div>
-      <h1 id="login-heading">Log in</h1>
+      <h1 id="login-heading">{t('Log in')}</h1>
       <Form
         name="login"
         layout="vertical"
@@ -24,13 +26,13 @@ export function LoginPage({ navigate }: { navigate: Navigate }) {
         // Frontend demo only: connect authentication here when a service is available.
         onFinish={() => navigate('/')}
       >
-        <Form.Item label="Login" name="login" rules={[{ required: true, whitespace: true, message: 'Enter your login.' }]}>
-          <Input autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="Your login" />
+        <Form.Item label={t('Login')} name="login" rules={[{ required: true, whitespace: true, message: t('Enter your login.') }]}>
+          <Input autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder={t('Your login')} />
         </Form.Item>
-        <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Enter your password.' }]}>
-          <Input.Password autoComplete="current-password" placeholder="Your password" />
+        <Form.Item label={t('Password')} name="password" rules={[{ required: true, message: t('Enter your password.') }]}>
+          <Input.Password autoComplete="current-password" placeholder={t('Your password')} />
         </Form.Item>
-        <Button type="primary" htmlType="submit" block icon={<ArrowRight size={18} />} iconPlacement="end">Log in</Button>
+        <Button type="primary" htmlType="submit" block icon={<ArrowRight size={18} />} iconPlacement="end">{t('Log in')}</Button>
       </Form>
     </section>
   </main>;

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, Typography } from 'antd';
 import { FarmlandBackdrop } from '../common/FarmlandBackdrop';
 
@@ -11,11 +12,12 @@ const team = [
 ];
 
 export function TeamSection() {
+  const { t } = useTranslation();
   return <section className="team-garden" id="about-the-team" aria-labelledby="team-heading">
     <FarmlandBackdrop />
     <header className="team-intro">
-      <Typography.Title level={1} id="team-heading">About the team</Typography.Title>
-      <Typography.Paragraph>We are a six-frog team from Ukraine. We’ve competed in several hackathons, so we know how to scope tightly, split work cleanly and ship a working demo under pressure. Our strength is turning large, messy datasets into tools people can actually use. We care about validation as much as speed: we test our models against real data and are upfront about what they can and can’t do.</Typography.Paragraph>
+      <Typography.Title level={1} id="team-heading">{t('About the team')}</Typography.Title>
+      <Typography.Paragraph>{t('We are a six-frog team from Ukraine. We’ve competed in several hackathons, so we know how to scope tightly, split work cleanly and ship a working demo under pressure. Our strength is turning large, messy datasets into tools people can actually use. We care about validation as much as speed: we test our models against real data and are upfront about what they can and can’t do.')}</Typography.Paragraph>
     </header>
     <div className="team-grid">
       {team.map(frog => <Card

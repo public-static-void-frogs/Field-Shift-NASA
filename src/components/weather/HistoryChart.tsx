@@ -1,15 +1,18 @@
+import { useTranslation } from 'react-i18next';
 import { useId, useState } from 'react';
 import { Area, AreaChart, CartesianGrid, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { weatherMetrics, type WeatherMetric, type WeatherRecord } from '../../data/weather';
 
 export function HistoryChart({ records, metric, selectedKey, onSelect }: { records: WeatherRecord[]; metric: WeatherMetric; selectedKey: number; onSelect: (key: number) => void }) {
+  const { t } = useTranslation();
   const gradientId = useId();
   const [animate] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const config = weatherMetrics[metric];
+  const metricConfig = weatherMetrics[metric];
+  const config = { ...metricConfig, title: t(metricConfig.title), description: t(metricConfig.description), unit: t(metricConfig.unit) };
   const timeline = [...records].reverse();
   const selected = records.find(record => record.key === selectedKey) ?? records[0];
 
-  return <div className="environment-chart" role="group" aria-label={`${config.title} timeline. Hover to preview a reading, click to select it.`}>
+  return <div className="environment-chart" role="group" aria-label={t('{{value0}} timeline. Hover to preview a reading, click to select it.', { value0: config.title })}>
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart
         data={timeline}

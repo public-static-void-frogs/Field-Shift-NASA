@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Button, Card, Flex, Select, Space, Statistic, Switch, Tag, Tooltip, Typography } from 'antd';
 import { Layers, LocateFixed, MapPin, Minus, Plus } from 'lucide-react';
@@ -8,6 +9,7 @@ import { MapTerrain } from '../map/MapTerrain';
 import './FieldHealthMap.css';
 
 export function FieldHealthMap({ field }: { field: Field }) {
+  const { t } = useTranslation();
   const prefix = useId();
   const map = useMemo(() => getFieldHealthMap(field.id), [field.id]);
   const zones = useMemo(() => getHealthZones(field.id), [field.id]);
@@ -45,17 +47,16 @@ export function FieldHealthMap({ field }: { field: Field }) {
 
   return (
     <Card
-      title={<Space><Layers size={22} />Field health map</Space>}
+      title={<Space><Layers size={22} />{t('Field health map')}</Space>}
       extra={<Tag>May 24, 2026</Tag>}
       className="field-health-card"
     >
       <div className="field-health-intro">
         <Typography.Paragraph type="secondary">
-          A closer look at growth across your field. Red marks the areas that need the most care; green shows the strongest growth.
-        </Typography.Paragraph>
+           {t('A closer look at growth across your field. Red marks the areas that need the most care; green shows the strongest growth.')} </Typography.Paragraph>
         <Flex gap={12} align="center" wrap>
-          <Switch id={`${prefix}-overlay`} checked={showOverlay} onChange={setShowOverlay} aria-label="Show field health overlay" />
-          <label htmlFor={`${prefix}-overlay`}>Health overlay</label>
+          <Switch id={`${prefix}-overlay`} checked={showOverlay} onChange={setShowOverlay} aria-label={t('Show field health overlay')} />
+          <label htmlFor={`${prefix}-overlay`}>{t('Health overlay')}</label>
         </Flex>
       </div>
       <div ref={frameRef} className="field-health-map-frame">
@@ -63,7 +64,7 @@ export function FieldHealthMap({ field }: { field: Field }) {
           viewBox={`${centerX - frameWidth / 2} ${centerY - frameHeight / 2} ${frameWidth} ${frameHeight}`}
           className="field-health-canvas"
           role="group"
-          aria-label={`${field.name} health map. Select a zone to inspect crop growth.`}
+          aria-label={t('{{value0}} health map. Select a zone to inspect crop growth.', { value0: field.name })}
           onPointerDown={event => {
             if ((event.target as Element).closest('[data-health-zone]')) return;
             drag.current = { x: event.clientX, y: event.clientY, offsetX: offset.x, offsetY: offset.y };
@@ -111,7 +112,7 @@ export function FieldHealthMap({ field }: { field: Field }) {
                 transform={`translate(${geometry.minX + geometry.width * zone.x} ${geometry.minY + geometry.height * zone.y})`}
                 role="button"
                 tabIndex={0}
-                aria-label={`Zone ${zone.id}: ${zone.name}, health ${zone.score} of 100, ${zone.level}`}
+                aria-label={t('Zone {{value0}}: {{value1}}, health {{value2}} of 100, {{value3}}', { value0: zone.id, value1: zone.name, value2: zone.score, value3: zone.level })}
                 aria-pressed={selectedId === zone.id}
                 data-health-zone={zone.id}
                 className="field-health-marker"
@@ -131,26 +132,26 @@ export function FieldHealthMap({ field }: { field: Field }) {
             ))}
           </g>
         </svg>
-        <Tag className="field-health-location" icon={<MapPin size={16} />}>{`${field.name} · ${field.area} ha`}</Tag>
-        <div className="field-health-compass" aria-label="North is up"><span>N</span><span>↑</span></div>
+        <Tag className="field-health-location" icon={<MapPin size={16} />}>{t('{{value0}} · {{value1}} ha', { value0: field.name, value1: field.area })}</Tag>
+        <div className="field-health-compass" aria-label={t('North is up')}><span>{t('North abbreviation')}</span><span>↑</span></div>
         <Space orientation="vertical" size={3} className="field-health-map-controls">
-          <Tooltip title="Zoom in"><Button aria-label="Zoom into field health map" icon={<Plus size={20} />} disabled={zoom >= 2.5} onClick={() => setZoom(value => Math.min(2.5, value + 0.25))} /></Tooltip>
-          <Tooltip title="Zoom out"><Button aria-label="Zoom out of field health map" icon={<Minus size={20} />} disabled={zoom <= 1} onClick={() => setZoom(value => Math.max(1, value - 0.25))} /></Tooltip>
-          <Tooltip title="Fit field"><Button aria-label="Reset field health map" icon={<LocateFixed size={20} />} onClick={resetView} /></Tooltip>
+          <Tooltip title={t('Zoom in')}><Button aria-label={t('Zoom into field health map')} icon={<Plus size={20} />} disabled={zoom >= 2.5} onClick={() => setZoom(value => Math.min(2.5, value + 0.25))} /></Tooltip>
+          <Tooltip title={t('Zoom out')}><Button aria-label={t('Zoom out of field health map')} icon={<Minus size={20} />} disabled={zoom <= 1} onClick={() => setZoom(value => Math.max(1, value - 0.25))} /></Tooltip>
+          <Tooltip title={t('Fit field')}><Button aria-label={t('Reset field health map')} icon={<LocateFixed size={20} />} onClick={resetView} /></Tooltip>
         </Space>
-        <span className="field-health-map-hint">Drag to explore · Select a marked zone</span>
+        <span className="field-health-map-hint">{t('Drag to explore · Select a marked zone')}</span>
       </div>
-      <div className="field-health-legend" aria-label="Health color scale, from red critical to green thriving">
+      <div className="field-health-legend" aria-label={t('Health color scale, from red critical to green thriving')}>
         <div className="field-health-color-ramp" />
-        <Flex justify="space-between" gap={12}><span>Critical</span><span>Struggling</span><span>Fair</span><span>Thriving</span></Flex>
+        <Flex justify="space-between" gap={12}><span>{t('Critical')}</span><span>{t('Struggling')}</span><span>{t('Fair')}</span><span>{t('Thriving')}</span></Flex>
       </div>
       <div className="field-health-zone-detail">
         <Flex justify="space-between" align="center" gap={16} wrap>
           <Select
-            aria-label="Select field health zone"
+            aria-label={t('Select field health zone')}
             value={selectedId}
             onChange={setSelectedId}
-            options={zones.map(zone => ({ value: zone.id, label: `Zone ${zone.id} · ${zone.name}` }))}
+            options={zones.map(zone => ({ value: zone.id, label: t('Zone {{value0}} · {{value1}}', { value0: zone.id, value1: zone.name }) }))}
           />
           <Tag color={selectedZone.level === 'Critical' ? 'error' : selectedZone.level === 'Thriving' ? 'success' : 'warning'}>
             {`${selectedZone.level} · ${selectedZone.score}/100`}
@@ -158,11 +159,11 @@ export function FieldHealthMap({ field }: { field: Field }) {
         </Flex>
         <Typography.Paragraph aria-live="polite">{selectedZone.description}</Typography.Paragraph>
       </div>
-      <div className="field-health-coverage" aria-label="Health distribution across the field">
+      <div className="field-health-coverage" aria-label={t('Health distribution across the field')}>
         {map.coverage.map(level => (
           <Card key={level.label} size="small">
             <Statistic title={<Space><i style={{ background: level.color }} />{level.label}</Space>} value={level.percentage === 0 && level.fraction > 0 ? '<1' : level.percentage} suffix="%" />
-            <Typography.Text type="secondary">{`${(field.area * level.fraction).toFixed(1)} ha · ${level.description.split(' · ')[1]}`}</Typography.Text>
+            <Typography.Text type="secondary">{t('{{value0}} ha · {{value1}}', { value0: (field.area * level.fraction).toFixed(1), value1: level.description.split(' · ')[1] })}</Typography.Text>
           </Card>
         ))}
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Card, Tooltip } from 'antd';
 import { Expand } from 'lucide-react';
 import { fieldGeoJson } from '../../data/fieldGeoJson';
@@ -6,6 +7,7 @@ import type { Navigate } from '../../types/navigation';
 import { FieldMap } from './FieldMap';
 
 export function MapCard({ navigate, expanded = false, adding = false }: { navigate: Navigate; expanded?: boolean; adding?: boolean; }) {
+  const { t } = useTranslation();
   const { fields } = useFarm();
   return (
     <Card className="map-card">
@@ -17,10 +19,10 @@ export function MapCard({ navigate, expanded = false, adding = false }: { naviga
         onAdd={id => navigate(`/map/add/${id}`)}
         expanded={expanded}
       />
-      <Tooltip title={expanded ? 'Return to overview' : 'Expand map'}>
+      <Tooltip title={expanded ? t('Return to overview') : t('Expand map')}>
         <Button
           className="map-expand"
-          aria-label={expanded ? 'Return to overview' : 'Expand map'}
+          aria-label={expanded ? t('Return to overview') : t('Expand map')}
           icon={<Expand size={18} />}
           onClick={() => navigate(expanded ? '/' : '/map')}
         />

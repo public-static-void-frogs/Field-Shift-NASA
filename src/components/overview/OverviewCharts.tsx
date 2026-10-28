@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Card, Empty, Flex, Segmented, Select, Skeleton, Tag, Typography } from 'antd';
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -8,6 +9,7 @@ const axis = { fill: '#707d65', fontSize: 12 };
 const tooltipStyle = { border: '1px solid #dfe5d5', borderRadius: 8, background: '#fff', color: '#303b2c', boxShadow: '0 4px 20px #303b2c12', fontSize: 13 };
 
 function ChartCard({ title, controls, children, className = '' }: { title: string; controls?: ReactNode; children: (animate: boolean) => ReactNode; className?: string }) {
+  const { t } = useTranslation();
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [animate] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -22,13 +24,14 @@ function ChartCard({ title, controls, children, className = '' }: { title: strin
     return () => observer.disconnect();
   }, []);
   return <div ref={container} className={`overview-chart ${className}`}>
-    <Card title={<Flex align="center" gap={10} wrap>{title}<Tag>Sample data</Tag></Flex>} extra={controls}>
+    <Card title={<Flex align="center" gap={10} wrap>{title}<Tag>{t('Sample data')}</Tag></Flex>} extra={controls}>
       {visible ? children(animate) : <div className="overview-chart-canvas"><Skeleton active paragraph={{ rows: 5 }} /></div>}
     </Card>
   </div>;
 }
 
 export function OverviewCharts() {
+  const { t } = useTranslation();
   const { fields } = useFarm();
   const [days, setDays] = useState(30);
   const [trendMetric, setTrendMetric] = useState<'health' | 'moisture'>('health');
@@ -41,13 +44,13 @@ export function OverviewCharts() {
   const trendData = getSampleFieldTrends(fields, days, trendMetric);
   const percent = (value: unknown) => `${value}%`;
 
-  return <section className="overview-charts" aria-label="Field analytics with illustrative sample data">
+  return <section className="overview-charts" aria-label={t('Field analytics with illustrative sample data')}>
     <ChartCard
-      title="Field conditions over time"
+      title={t('Field conditions over time')}
       className="overview-chart-wide"
       controls={<Flex gap={8} wrap>
-        <Select aria-label="Trend metric" value={trendMetric} onChange={setTrendMetric} options={[{ value: 'health', label: 'Crop health' }, { value: 'moisture', label: 'Soil moisture' }]} />
-        <Segmented aria-label="Trend time range" value={days} onChange={setDays} options={[{ value: 30, label: '30 days' }, { value: 90, label: '90 days' }]} />
+        <Select aria-label={t('Trend metric')} value={trendMetric} onChange={setTrendMetric} options={[{ value: 'health', label: t('Crop health') }, { value: 'moisture', label: t('Soil moisture') }]} />
+        <Segmented aria-label={t('Trend time range')} value={days} onChange={setDays} options={[{ value: 30, label: t('30 days') }, { value: 90, label: t('90 days') }]} />
       </Flex>}
     >{animate => fields.length ? <>
       <div className="overview-chart-canvas overview-line-canvas">
@@ -73,7 +76,7 @@ export function OverviewCharts() {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <Flex gap={8} wrap className="chart-series-controls" aria-label="Toggle fields in trend chart">
+      <Flex gap={8} wrap className="chart-series-controls" aria-label={t('Toggle fields in trend chart')}>
         {fields.map((field, index) => <button
           key={field.id}
           type="button"
@@ -82,9 +85,9 @@ export function OverviewCharts() {
           onClick={() => setHiddenFields(current => current.includes(field.id) ? current.filter(id => id !== field.id) : [...current, field.id])}
         ><span style={{ background: chartColors[index % chartColors.length] }} />{field.name}</button>)}
       </Flex>
-    </> : <Empty description="Add a field to see sample trends." />}</ChartCard>
+    </> : <Empty description={t('Add a field to see sample trends.')} />}</ChartCard>
 
-    <ChartCard title="Area by crop">{animate => cropAreas.length ? <>
+    <ChartCard title={t('Area by crop')}>{animate => cropAreas.length ? <>
       <div className="overview-chart-canvas">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart accessibilityLayer>
@@ -110,14 +113,14 @@ export function OverviewCharts() {
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <Flex gap={8} wrap className="chart-series-controls" aria-label="Select crop area">
+      <Flex gap={8} wrap className="chart-series-controls" aria-label={t('Select crop area')}>
         {cropAreas.map(item => <button key={item.name} type="button" className="chart-series-button" aria-pressed={!activeCrop || activeCrop === item.name} onClick={() => setCrop(current => current === item.name ? null : item.name)}>
-          <span style={{ background: item.fill }} />{item.name}<strong>{item.area} ha</strong>
+          <span style={{ background: item.fill }} />{item.name}<strong>{item.area}  {t('ha')}</strong>
         </button>)}
       </Flex>
-    </> : <Empty description="Add a field to compare crop areas." />}</ChartCard>
+    </> : <Empty description={t('Add a field to compare crop areas.')} />}</ChartCard>
 
-    <ChartCard title="Conditions by field" controls={<Select aria-label="Field comparison metric" value={barMetric} onChange={setBarMetric} options={[{ value: 'health', label: 'Crop health' }, { value: 'moisture', label: 'Soil moisture' }]} />}>{animate => fields.length ? <>
+    <ChartCard title={t('Conditions by field')} controls={<Select aria-label={t('Field comparison metric')} value={barMetric} onChange={setBarMetric} options={[{ value: 'health', label: t('Crop health') }, { value: 'moisture', label: t('Soil moisture') }]} />}>{animate => fields.length ? <>
       <div className="overview-chart-canvas">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={fields} layout="vertical" margin={{ top: 10, right: 24, bottom: 8, left: 0 }} accessibilityLayer>
@@ -131,7 +134,7 @@ export function OverviewCharts() {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <Typography.Text type="secondary" className="chart-footnote">Hover or focus a bar to inspect its value.</Typography.Text>
-    </> : <Empty description="Add a field to compare conditions." />}</ChartCard>
+      <Typography.Text type="secondary" className="chart-footnote">{t('Hover or focus a bar to inspect its value.')}</Typography.Text>
+    </> : <Empty description={t('Add a field to compare conditions.')} />}</ChartCard>
   </section>;
 }

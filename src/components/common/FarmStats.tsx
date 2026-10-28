@@ -1,43 +1,45 @@
+import { useTranslation } from 'react-i18next';
 import { Badge, Card, Statistic, Typography } from 'antd';
 import { Droplets, Map, Sprout, TriangleAlert } from 'lucide-react';
 import { useFarm } from '../../hooks/useFarm';
 
 export function FarmStats() {
+  const { t } = useTranslation();
   const { fields } = useFarm();
   const healthy = fields.filter(field => field.status === 'Healthy').length;
   const critical = fields.filter(field => field.status === 'Critical').length;
   const stats = [
     {
-      title: 'Total farm area',
+      title: t('Total farm area'),
       value: fields.reduce((total, field) => total + field.area, 0).toFixed(1),
-      unit: 'ha',
+      unit: t('ha'),
       icon: Map,
-      description: `${fields.length} fields across your farm`
+      description: t('{{value0}} fields across your farm', { value0: fields.length })
     },
     {
-      title: 'Healthy fields',
+      title: t('Healthy fields'),
       value: healthy,
-      unit: `/ ${fields.length} fields`,
+      unit: t('/ {{value0}} fields', { value0: fields.length }),
       icon: Sprout,
-      description: 'Looking good this season'
+      description: t('Looking good this season')
     },
     {
-      title: 'Need your attention',
+      title: t('Need your attention'),
       value: fields.length - healthy,
-      unit: 'fields',
+      unit: t('fields'),
       icon: TriangleAlert,
-      description: `${critical} ${critical === 1 ? 'field needs' : 'fields need'} immediate care`
+      description: t('Immediate care', { count: critical })
     },
     {
-      title: 'Average soil moisture',
+      title: t('Average soil moisture'),
       value: Math.round(fields.reduce((total, field) => total + field.moisture, 0) / Math.max(fields.length, 1)),
       unit: '%',
       icon: Droplets,
-      description: '+4% from last week'
+      description: t('+4% from last week')
     },
   ];
   return (
-    <section className="stat-grid" aria-label="Farm metrics">
+    <section className="stat-grid" aria-label={t('Farm metrics')}>
       {stats.map(({ title, value, unit, icon: Icon, description }) => (
         <Card key={title} className="stat-card">
           <Statistic
@@ -49,7 +51,7 @@ export function FarmStats() {
             suffix={unit}
           />
           <Typography.Text type="secondary">
-            <Badge status={title === 'Need your attention' ? 'warning' : 'success'} />
+            <Badge status={title === t('Need your attention') ? 'warning' : 'success'} />
             {description}
           </Typography.Text>
         </Card>

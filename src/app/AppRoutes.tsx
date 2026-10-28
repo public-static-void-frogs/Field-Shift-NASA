@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Result } from 'antd';
 import { AppLayout } from '../components/layout/AppLayout';
 import type { Navigate } from '../types/navigation';
@@ -15,6 +16,7 @@ import { OverviewPage } from '../pages/OverviewPage';
 import { SettingsPage } from '../pages/SettingsPage';
 
 export function AppRoutes({ route, navigate }: { route: string; navigate: Navigate }) {
+  const { t } = useTranslation();
   const [path, search = ''] = route.split('?');
   const params = new URLSearchParams(search);
   const actionRoute = path.match(/^\/calendar\/actions\/([^/]+)$/);
@@ -70,11 +72,10 @@ export function AppRoutes({ route, navigate }: { route: string; navigate: Naviga
     page = pages[path as keyof typeof pages] ?? (
       <Result
         status="404"
-        title="Page not found"
+        title={t('Page not found')}
         extra={
           <Button type="primary" onClick={() => navigate('/')}>
-            Back to overview
-          </Button>
+             {t('Back to overview')} </Button>
         }
       />
     );

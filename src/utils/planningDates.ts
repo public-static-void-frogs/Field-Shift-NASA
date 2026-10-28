@@ -21,7 +21,7 @@ export function calculatePlantingDate(crop: string, soilPh: number, moisture: nu
   };
 }
 export function formatPlanDate(date: string): string {
-  return dayjs(date).format('MMMM D, YYYY');
+  return dayjs(date).format(dayjs.locale() === 'uk' ? 'D MMMM YYYY' : 'MMMM D, YYYY');
 }
 export function getEventStatus(date: string): 'Completed' | 'Due soon' | 'Planned' {
   if (date < planningToday) return 'Completed';

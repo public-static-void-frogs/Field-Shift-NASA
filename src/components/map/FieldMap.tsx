@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { Button, Select, Tooltip } from 'antd';
 import { Layers, LocateFixed, MapPin, Minus, Plus } from 'lucide-react';
@@ -54,6 +55,7 @@ function parcelStyle(field: Field | undefined, layer: MapLayer): PathOptions {
 }
 
 function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldMapProps & { layer: MapLayer }) {
+  const { t } = useTranslation();
   const map = useMap();
   useEffect(() => {
     const parcels = geoJSON(geojson, {
@@ -61,7 +63,7 @@ function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldM
       onEachFeature: (feature, polygon) => {
         const id = getFeatureFieldId(feature);
         const field = fields.find(item => item.id === id);
-        const label = field ? `View ${field.name}` : id ? 'Add this field' : feature.properties?.name || 'Parcel';
+        const label = field ? t('View {{name}}', { name: field.name }) : id ? t('Add this field') : feature.properties?.name || t('Parcel');
         const activate = () => {
           if (field) onSelect(field);
           else if (id) onAdd(id);
@@ -92,11 +94,11 @@ function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldM
           // DOM text avoids interpreting GeoJSON properties and user field names as HTML.
           const content = document.createElement('div');
           const title = document.createElement('strong');
-          title.textContent = field?.name || feature.properties?.name || '+ Add field';
+          title.textContent = field?.name || feature.properties?.name || t('+ Add field');
           content.append(title);
           if (field) {
             const detail = document.createElement('span');
-            detail.textContent = `${field.area} ha · ${field.crop}`;
+            detail.textContent = t('{{value0}} ha · {{value1}}', { value0: field.area, value1: field.crop });
             content.append(detail);
           }
           polygon.bindTooltip(content, { permanent: true, direction: 'center', className: 'field-map-label', opacity: 1 });
@@ -104,20 +106,21 @@ function ParcelLayer({ fields, geojson, layer, onSelect, onAdd, adding }: FieldM
       },
     }).addTo(map);
     return () => { parcels.remove(); };
-  }, [map, geojson, fields, layer, onSelect, onAdd, adding]);
+  }, [map, geojson, fields, layer, onSelect, onAdd, adding, t]);
   return null;
 }
 
 export function FieldMap({ fields, geojson, onSelect, adding, onAdd, expanded = false, boundaryOnly = false }: FieldMapProps) {
+  const { t } = useTranslation();
   const map = useRef<LeafletMap | null>(null);
   const [selectedLayer, setLayer] = useState<MapLayer>('Crop health');
   const layer = boundaryOnly ? 'Field boundaries' : selectedLayer;
   const { preferences } = useFarm();
   const legend = layer === 'Soil moisture'
-    ? [{ color: '#61b4d4', label: '60% or more' }, { color: '#9bcdd9', label: '40–59%' }, { color: '#dbe5b2', label: 'Below 40%' }]
+    ? [{ color: '#61b4d4', label: t('60% or more') }, { color: '#9bcdd9', label: '40–59%' }, { color: '#dbe5b2', label: t('Below 40%') }]
     : layer === 'Field boundaries'
-      ? [{ color: '#f1ebcf', label: 'Field boundaries' }, { color: '#f1ebcf', label: 'Dashed: available' }]
-      : [{ color: '#82a66a', label: 'Healthy' }, { color: '#c8b969', label: 'Needs attention' }, { color: '#d59a62', label: 'Critical' }];
+      ? [{ color: '#f1ebcf', label: t('Field boundaries') }, { color: '#f1ebcf', label: t('Dashed: available') }]
+      : [{ color: '#82a66a', label: t('Healthy') }, { color: '#c8b969', label: t('Needs attention') }, { color: '#d59a62', label: t('Critical') }];
 
   return <div className={`field-map ${expanded ? 'expanded' : ''}`}>
     <MapContainer
@@ -139,21 +142,21 @@ export function FieldMap({ fields, geojson, onSelect, adding, onAdd, expanded = 
     <div className="map-location"><MapPin size={13} />{preferences.farmName}<span>·</span>Iowa, US</div>
     {!boundaryOnly && <div className="map-layer">
       <Select
-        aria-label="Map layer"
+        aria-label={t('Map layer')}
         value={layer}
         onChange={setLayer}
         prefix={<Layers size={14} />}
-        options={['Crop health', 'Soil moisture', 'Field boundaries'].map(value => ({ value, label: value }))}
+        options={['Crop health', 'Soil moisture', 'Field boundaries'].map(value => ({ value, label: t(value) }))}
       />
     </div>}
     <div className="map-controls">
-      <Tooltip title="Zoom in"><Button type="text" aria-label="Zoom in" onClick={() => map.current?.zoomIn()}><Plus size={17} /></Button></Tooltip>
-      <Tooltip title="Zoom out"><Button type="text" aria-label="Zoom out" onClick={() => map.current?.zoomOut()}><Minus size={17} /></Button></Tooltip>
-      <Tooltip title="Recenter map"><Button type="text" aria-label="Recenter map" onClick={() => { if (map.current) fitParcels(map.current, geojson); }}><LocateFixed size={17} /></Button></Tooltip>
+      <Tooltip title={t('Zoom in')}><Button type="text" aria-label={t('Zoom in')} onClick={() => map.current?.zoomIn()}><Plus size={17} /></Button></Tooltip>
+      <Tooltip title={t('Zoom out')}><Button type="text" aria-label={t('Zoom out')} onClick={() => map.current?.zoomOut()}><Minus size={17} /></Button></Tooltip>
+      <Tooltip title={t('Recenter map')}><Button type="text" aria-label={t('Recenter map')} onClick={() => { if (map.current) fitParcels(map.current, geojson); }}><LocateFixed size={17} /></Button></Tooltip>
     </div>
     {!boundaryOnly && <div className="map-legend">
       {legend.map(item => <span key={item.label}><i style={{ background: item.color }} />{item.label}</span>)}
     </div>}
-    {adding && <div className="add-map-prompt"><Plus size={15} />Select an outlined parcel to add it to your farm</div>}
+    {adding && <div className="add-map-prompt"><Plus size={15} />{t('Select an outlined parcel to add it to your farm')}</div>}
   </div>;
 }
