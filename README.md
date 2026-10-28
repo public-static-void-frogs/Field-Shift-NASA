@@ -242,3 +242,19 @@ The app uses react-i18next with English as the default fallback and Ukrainian as
 UI strings live in `src/i18n/locales/en.json` and `src/i18n/locales/uk.json`. Each JSON catalog is loaded through a dynamic import, so Ukrainian is only downloaded when needed. English also loads as the fallback. Ant Design controls, calendar dates, the document language, and page metadata follow the selected language. Demo field data, user-entered values, and sample recommendation content stay unchanged.
 
 Use `useTranslation()` and `t()` for new UI text. Keys are English phrases with key and namespace separators disabled; keep complete sentences together and use interpolation for variable values. Add matching keys and interpolation variables to both catalogs. Run `npm run test:i18n` to check catalog consistency, language detection, saved preferences, and lazy loading.
+
+## Google OAuth registration pages
+
+Public, localized routes are available at `/about`, `/privacy`, `/terms`, and
+`/support`. They identify FrogFarmers, describe the demo, disclose browser storage
+and third-party map requests, and explain the planned Google sign-in and optional
+export to a dedicated FrogFarmers calendar. Support/privacy contact is
+`olehzpr@gmail.com`. Login, Overview, and Help link to these pages.
+
+Google OAuth and Calendar synchronization are not implemented. The pages describe
+these as planned features and do not claim to collect or retain Google data.
+See [Google OAuth registration and review](docs/google-oauth-registration.md) for
+the exact production URLs, intended scopes, domain-verification steps, and work
+required before submitting the actual integration for review. `vercel.json`
+configures SPA deep links; deploy this build before using the new URLs in the
+Google console.

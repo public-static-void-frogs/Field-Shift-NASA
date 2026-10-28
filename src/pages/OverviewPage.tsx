@@ -1,3 +1,4 @@
+import { ProductNotice } from '../features/legal/components/ProductNotice.tsx';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { CalendarDays, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -40,6 +41,7 @@ export function OverviewPage() {
           </>
         }
       />
+      <ProductNotice />
       <section className="map-weather-grid">
         <MapCard />
         <WeatherCard />

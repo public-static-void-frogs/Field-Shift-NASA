@@ -16,6 +16,26 @@ export const appRoutes: RouteObject[] = [
     }),
     children: [
       {
+        id: 'about',
+        path: 'about',
+        lazy: async () => ({ Component: (await import('../pages/AboutPage')).AboutPage }),
+      },
+      {
+        id: 'privacy',
+        path: 'privacy',
+        lazy: async () => ({ Component: (await import('../pages/PrivacyPage')).PrivacyPage }),
+      },
+      {
+        id: 'terms',
+        path: 'terms',
+        lazy: async () => ({ Component: (await import('../pages/TermsPage')).TermsPage }),
+      },
+      {
+        id: 'support',
+        path: 'support',
+        lazy: async () => ({ Component: (await import('../pages/SupportPage')).SupportPage }),
+      },
+      {
         id: 'login',
         path: 'login',
         lazy: async () => ({ Component: (await import('../pages/LoginPage')).LoginPage }),

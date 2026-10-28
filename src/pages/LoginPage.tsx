@@ -1,3 +1,5 @@
+import { LegalLinks } from '../features/legal/components/LegalLinks.tsx';
+import '../features/legal/components/legal.css';
 import { Button, Form, Input } from 'antd';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -58,6 +60,10 @@ export function LoginPage() {
             {t('Log in')}
           </Button>
         </Form>
+        <p className="login-demo-note">
+          {t('Demo access only. Use sample values and do not enter real passwords.')}
+        </p>
+        <LegalLinks />
       </section>
     </main>
   );

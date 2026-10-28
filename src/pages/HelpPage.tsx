@@ -1,3 +1,4 @@
+import { ProductNotice } from '../features/legal/components/ProductNotice.tsx';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Card, Collapse, Table, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,7 @@ export function HelpPage() {
 
   return (
     <>
+      <ProductNotice />
       <div className="help-about-sections">
         <ProjectSection />
         <TeamSection />
