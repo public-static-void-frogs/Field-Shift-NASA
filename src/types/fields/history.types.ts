@@ -3,6 +3,7 @@ export type LandEventCategory =
 
 export interface LandEvent {
   id: string;
+  fieldId: string;
   date: string;
   category: LandEventCategory;
   title: string;
@@ -11,6 +12,9 @@ export interface LandEvent {
   attention?: boolean;
 }
 export interface CropSeason {
+  id: string;
+  fieldId: string;
+  cropId: string;
   year: number;
   crop: string;
   planted: string;

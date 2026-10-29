@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useStrategyResponse } from '../hooks/useStrategyResponse.ts';
 import { decisionPresentation } from '../utils/eventPresentation.ts';
 
-type EventResponseControlsProps = { fieldId: number };
+type EventResponseControlsProps = { fieldId: string };
 
 export function EventResponseControls({ fieldId }: EventResponseControlsProps) {
   const { t } = useTranslation();

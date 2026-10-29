@@ -21,7 +21,8 @@ import { getPagination } from '../src/utils/pagination.ts';
 
 const fields = [
   {
-    id: 1,
+    id: '00000000-0000-4000-8000-000000000001',
+    parcelId: 1,
     name: 'North Meadow',
     crop: 'Corn',
     area: 25,
@@ -31,7 +32,8 @@ const fields = [
     status: 'Healthy',
   },
   {
-    id: 2,
+    id: '00000000-0000-4000-8000-000000000002',
+    parcelId: 2,
     name: 'East Ridge',
     crop: 'Soybeans',
     area: 30,
@@ -41,7 +43,8 @@ const fields = [
     status: 'Critical',
   },
   {
-    id: 3,
+    id: '00000000-0000-4000-8000-000000000003',
+    parcelId: 3,
     name: 'South Field',
     crop: 'Corn',
     area: 10,
@@ -61,9 +64,12 @@ const filters = {
 const ids = (values) => values.map((value) => value.id);
 
 test('field search, attention tabs and combined filters preserve their distinct rules', () => {
-  assert.deepEqual(ids(filterFields(fields, { ...filters, query: '  FIELD02 ' })), [2]);
-  assert.deepEqual(ids(filterFields(fields, { ...filters, status: 'Needs attention' })), [2, 3]);
-  assert.deepEqual(ids(filterFields(fields, { ...filters, status: 'Critical' })), [2]);
+  assert.deepEqual(ids(filterFields(fields, { ...filters, query: '  FIELD02 ' })), [fields[1].id]);
+  assert.deepEqual(ids(filterFields(fields, { ...filters, status: 'Needs attention' })), [
+    fields[1].id,
+    fields[2].id,
+  ]);
+  assert.deepEqual(ids(filterFields(fields, { ...filters, status: 'Critical' })), [fields[1].id]);
   assert.deepEqual(
     ids(
       filterFields(fields, {
@@ -71,16 +77,26 @@ test('field search, attention tabs and combined filters preserve their distinct 
         filters: ['crop:Corn', 'crop:Soybeans', 'health:low', 'area:large'],
       }),
     ),
-    [2],
+    [fields[1].id],
   );
-  assert.deepEqual(ids(filterFields(fields, { ...filters, filters: ['moisture:low'] })), [2]);
-  assert.deepEqual(ids(filterFields(fields, { ...filters, filters: ['area:large'] })), [1, 2]);
+  assert.deepEqual(ids(filterFields(fields, { ...filters, filters: ['moisture:low'] })), [
+    fields[1].id,
+  ]);
+  assert.deepEqual(ids(filterFields(fields, { ...filters, filters: ['area:large'] })), [
+    fields[0].id,
+    fields[1].id,
+  ]);
 });
 
 test('overview searches names and uses its single crop selector', () => {
-  assert.deepEqual(ids(filterFields(fields, { ...filters, overview: true, crop: 'Corn' })), [1, 3]);
+  assert.deepEqual(ids(filterFields(fields, { ...filters, overview: true, crop: 'Corn' })), [
+    fields[0].id,
+    fields[2].id,
+  ]);
   assert.deepEqual(filterFields(fields, { ...filters, overview: true, query: 'Soybeans' }), []);
-  assert.deepEqual(ids(filterFields(fields, { ...filters, overview: true, query: 'meadow' })), [1]);
+  assert.deepEqual(ids(filterFields(fields, { ...filters, overview: true, query: 'meadow' })), [
+    fields[0].id,
+  ]);
 });
 
 test('land history combines category, year and measurement search without reordering events', () => {
@@ -131,7 +147,7 @@ test('field presentation uses the original nitrogen and map moisture thresholds'
 const events = [
   {
     id: 'soil',
-    fieldId: 1,
+    fieldId: fields[0].id,
     date: '2026-05-25',
     title: 'Soil review',
     fieldName: 'North Meadow',
@@ -141,7 +157,7 @@ const events = [
   },
   {
     id: 'water',
-    fieldId: 2,
+    fieldId: fields[1].id,
     date: '2026-06-15',
     title: 'Water review',
     fieldName: 'East Ridge',
@@ -167,8 +183,10 @@ test('strategy totals handle mixed, stale and absent responses', () => {
 });
 
 test('calendar filters intersect field, category and search; urgency prefers high priority', () => {
-  assert.deepEqual(ids(filterCalendarEvents(events, 1, 'Soil check', 'NUTRIENTS')), ['soil']);
-  assert.deepEqual(filterCalendarEvents(events, 2, 'Soil check', ''), []);
+  assert.deepEqual(ids(filterCalendarEvents(events, fields[0].id, 'Soil check', 'NUTRIENTS')), [
+    'soil',
+  ]);
+  assert.deepEqual(filterCalendarEvents(events, fields[1].id, 'Soil check', ''), []);
   assert.equal(getEventUrgencyColor(events[0], '2026-05-24'), 'warning');
   assert.equal(getEventUrgencyColor(events[1], '2026-05-24'), 'error');
   assert.equal(

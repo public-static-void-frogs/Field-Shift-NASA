@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { fieldMutations } from '../../../api/fields/fields.mutations.ts';
 
-export function useFieldRemoval(fieldId: number) {
+export function useFieldRemoval(fieldId: string) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { message } = App.useApp();

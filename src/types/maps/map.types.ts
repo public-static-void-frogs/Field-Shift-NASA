@@ -2,7 +2,8 @@ import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
 export interface FieldMapProperties {
   /** Associates a geographic feature with a field in the farm state. */
-  fieldId?: number;
+  fieldId?: string | null;
+  parcelId?: number;
   name?: string;
 }
 

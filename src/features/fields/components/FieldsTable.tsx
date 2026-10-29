@@ -56,15 +56,15 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
       dataIndex: 'name',
       key: 'name',
       width: 235,
-      render: (name: string, field) => (
+      render: (name: string, field, index) => (
         <Space size={12}>
-          <span className={`field-thumb thumb-${field.id % 5}`} />
+          <span className={`field-thumb thumb-${index % 5}`} />
           <div>
             <RouterButton type="link" className="field-name-link" to={`/fields/${field.id}`}>
               {name}
             </RouterButton>
             <Typography.Text type="secondary" className="field-id">
-              {t('Field')} {String(field.id).padStart(2, '0')}
+              {t('Field')} {String(field.parcelId).padStart(2, '0')}
             </Typography.Text>
           </div>
         </Space>

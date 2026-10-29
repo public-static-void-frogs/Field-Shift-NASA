@@ -9,7 +9,7 @@ import type {
 import { request } from '../core/http.ts';
 
 type StrategyResponseInput = {
-  fieldId: number;
+  fieldId: string;
   status: EventDecision;
 };
 
@@ -18,14 +18,14 @@ export const planningApi = {
     request('/planning/context', { signal }),
   getEvents: (signal?: AbortSignal): Promise<PlannedEvent[]> =>
     request('/planning/events', { signal }),
-  getFieldEvents: async (id: number, signal?: AbortSignal): Promise<PlannedEvent[]> =>
+  getFieldEvents: async (id: string, signal?: AbortSignal): Promise<PlannedEvent[]> =>
     (await request<PlannedEvent[] | null>(`/fields/${id}/events`, {
       signal,
       allowMissing: true,
     })) ?? [],
-  getRotation: (id: number, signal?: AbortSignal): Promise<RotationPlan | null> =>
+  getRotation: (id: string, signal?: AbortSignal): Promise<RotationPlan | null> =>
     request(`/fields/${id}/rotation`, { signal, allowMissing: true }),
-  getStrategy: (id: number, signal?: AbortSignal): Promise<FieldStrategy | null> =>
+  getStrategy: (id: string, signal?: AbortSignal): Promise<FieldStrategy | null> =>
     request(`/fields/${id}/strategy`, { signal, allowMissing: true }),
   getResponses: (signal?: AbortSignal): Promise<EventResponses> =>
     request('/planning/responses', { signal }),

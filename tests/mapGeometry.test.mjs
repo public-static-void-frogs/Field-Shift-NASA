@@ -2,7 +2,11 @@ import './support/backend.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mapsApi } from '../src/api/maps/maps.api.ts';
-import { getFeatureFieldId, getGeoJsonBounds } from '../src/features/maps/utils/mapGeometry.ts';
+import {
+  getFeatureFieldId,
+  getFeatureParcelId,
+  getGeoJsonBounds,
+} from '../src/features/maps/utils/mapGeometry.ts';
 
 const fieldGeoJson = await mapsApi.getGeoJson();
 
@@ -17,7 +21,12 @@ const collection = (...features) => ({ type: 'FeatureCollection', features });
 test('demo parcels are six closed geographic rectangles linked to field IDs', () => {
   assert.equal(fieldGeoJson.features.length, 6);
   fieldGeoJson.features.forEach((parcel, index) => {
-    assert.equal(getFeatureFieldId(parcel), index + 1);
+    assert.equal(getFeatureParcelId(parcel), index + 1);
+    if (index < 5) {
+      assert.match(getFeatureFieldId(parcel), /^[0-9a-f-]{36}$/);
+    } else {
+      assert.equal(getFeatureFieldId(parcel), undefined);
+    }
     assert.equal(parcel.geometry.type, 'Polygon');
     const [ring] = parcel.geometry.coordinates;
     assert.equal(ring.length, 5);
@@ -80,10 +89,14 @@ test('empty geometry collections do not produce invalid fit bounds', () => {
   assert.equal(getGeoJsonBounds(collection(feature({ type: 'Polygon', coordinates: [] }))), null);
 });
 
-test('field matching prefers fieldId, accepts feature IDs, and rejects invalid IDs', () => {
-  assert.equal(getFeatureFieldId(feature(null, { fieldId: 3 }, 9)), 3);
-  assert.equal(getFeatureFieldId(feature(null, null, '6')), 6);
-  for (const id of [undefined, '', 0, -2, 1.5, 'not-a-field']) {
-    assert.equal(getFeatureFieldId(feature(null, null, id)), undefined);
+test('maps distinguish GUID field references from numeric parcel identifiers', () => {
+  const id = '00000000-0000-4000-8000-000000000001';
+  const item = feature(null, { fieldId: id, parcelId: 3 }, 9);
+  assert.equal(getFeatureFieldId(item), id);
+  assert.equal(getFeatureParcelId(item), 3);
+  assert.equal(getFeatureParcelId(feature(null, { fieldId: null, parcelId: 6 })), 6);
+  assert.equal(getFeatureFieldId(feature(null, { fieldId: null, parcelId: 6 })), undefined);
+  for (const value of [undefined, '', 0, -2, 1.5, 'not-a-field', '6']) {
+    assert.equal(getFeatureFieldId(feature(null, { fieldId: value })), undefined);
   }
 });

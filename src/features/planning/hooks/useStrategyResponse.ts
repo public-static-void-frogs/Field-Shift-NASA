@@ -7,7 +7,7 @@ import { planningQueries } from '../../../api/planning/planning.queries.ts';
 import type { EventDecision } from '../../../types/planning/planning.types.ts';
 import { getStrategyDecision } from '../utils/eventPresentation.ts';
 
-export function useStrategyResponse(fieldId: number) {
+export function useStrategyResponse(fieldId: string) {
   const { t } = useTranslation();
   const { data: events } = useSuspenseQuery(planningQueries.fieldEvents(fieldId));
   const { data: fields } = useSuspenseQuery(fieldQueries.list());

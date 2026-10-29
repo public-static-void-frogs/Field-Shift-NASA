@@ -15,7 +15,13 @@ import {
   notificationQueries,
   notificationQueryKeys,
 } from '../src/api/notifications/notifications.queries.ts';
+import { mapQueries, mapQueryKeys } from '../src/api/maps/maps.queries.ts';
 import { getCalendarEvents } from '../src/features/planning/utils/eventResponses.ts';
+const initialFields = await fieldsApi.getAll();
+const firstId = initialFields[0].id;
+const secondId = initialFields[1].id;
+const missingId = '00000000-0000-4000-8000-000000000000';
+
 function client() {
   const value = createQueryClient();
   value.setDefaultOptions({
@@ -32,13 +38,13 @@ test('keys are deterministic, parameterized and separated by feature/resource', 
   );
   const keys = [
     fieldQueryKeys.list(),
-    fieldQueryKeys.byId(1),
-    fieldQueryKeys.byId(2),
-    fieldQueryKeys.properties(1),
-    fieldQueryKeys.history(1),
-    fieldQueryKeys.recommendation(1),
-    planningQueryKeys.fieldEvents(1),
-    planningQueryKeys.strategy(1),
+    fieldQueryKeys.byId(firstId),
+    fieldQueryKeys.byId(secondId),
+    fieldQueryKeys.properties(firstId),
+    fieldQueryKeys.history(firstId),
+    fieldQueryKeys.recommendation(firstId),
+    planningQueryKeys.fieldEvents(firstId),
+    planningQueryKeys.strategy(firstId),
     planningQueryKeys.responses(),
     weatherQueryKeys.history('7 days'),
     weatherQueryKeys.history('30 days'),
@@ -69,88 +75,96 @@ test('concurrent consumers share a request and fresh cached data is reused', asy
 test('HTTP responses are detached; canceled reads reject', async () => {
   const fields = await fieldsApi.getAll();
   fields[0].name = 'Changed outside the service';
-  assert.equal((await fieldsApi.getById(1)).name, 'North Meadow');
+  assert.equal((await fieldsApi.getById(firstId)).name, 'North Meadow');
   const controller = new AbortController();
   controller.abort();
   await assert.rejects(fieldsApi.getAll(controller.signal), (error) => error.name === 'AbortError');
-  assert.equal(await fieldsApi.getById(999), null);
+  assert.equal(await fieldsApi.getById(missingId), null);
 });
 
-test('field mutations invalidate dependent caches, survive refetch and clean up decisions', async () => {
+test('field mutations invalidate dependent caches and preserve GUID-linked resources', async () => {
   const cache = client();
   const params = { days: 30, metric: 'health' };
   await Promise.all([
     cache.fetchQuery(fieldQueries.list()),
-    cache.fetchQuery(fieldQueries.byId(6)),
+    cache.fetchQuery(mapQueries.geojson()),
+    cache.fetchQuery(fieldQueries.byId(firstId)),
     cache.fetchQuery(planningQueries.events()),
-    cache.fetchQuery(planningQueries.strategy(6)),
+    cache.fetchQuery(planningQueries.strategy(firstId)),
     cache.fetchQuery(overviewQueries.charts(params)),
     cache.fetchQuery(notificationQueries.list()),
   ]);
-  const initialCount = cache.getQueryData(fieldQueryKeys.list()).length;
+  let createdId;
   try {
     const field = await cache
       .getMutationCache()
       .build(cache, fieldMutations.create(cache))
       .execute({ parcelId: 6, name: '  Test field  ', crop: 'Soybeans' });
+    createdId = field.id;
     assert.equal(field.name, 'Test field');
+
+    assert.equal(typeof createdId, 'string');
+    assert.notEqual(createdId, field.parcelId);
     for (const key of [
       fieldQueryKeys.list(),
-      fieldQueryKeys.byId(6),
+      mapQueryKeys.geojson(),
+      fieldQueryKeys.byId(firstId),
       planningQueryKeys.events(),
-      planningQueryKeys.strategy(6),
+      planningQueryKeys.strategy(firstId),
       overviewQueryKeys.charts(params),
       notificationQueryKeys.list(),
     ]) {
       assert.equal(cache.getQueryState(key).isInvalidated, true, JSON.stringify(key));
     }
-    const fields = await cache.fetchQuery(fieldQueries.list());
-    assert.equal(fields.length, initialCount + 1);
+    assert.equal((await cache.fetchQuery(fieldQueries.list())).length, initialFields.length + 1);
+    assert.equal((await cache.fetchQuery(fieldQueries.byId(createdId))).name, 'Test field');
+    const addedMap = await cache.fetchQuery(mapQueries.geojson());
     assert.equal(
-      fields.some((item) => item.id === 6),
-      true,
+      addedMap.features.find((feature) => feature.properties.parcelId === 6).properties.fieldId,
+      createdId,
     );
-    assert.equal((await cache.fetchQuery(fieldQueries.byId(6))).name, 'Test field');
-    assert.equal((await cache.fetchQuery(planningQueries.strategy(6))).plan.fieldId, 6);
     assert.equal(
-      (await cache.fetchQuery(overviewQueries.charts(params))).trends[0]['field-6'] !== undefined,
-      true,
+      (await cache.fetchQuery(planningQueries.strategy(createdId))).plan.fieldId,
+      createdId,
+    );
+    assert.ok(
+      (await cache.fetchQuery(overviewQueries.charts(params))).trends.at(-1)[
+        `field-${createdId}`
+      ] !== undefined,
     );
     const events = await cache.fetchQuery(planningQueries.events());
-    assert.equal(
-      events.some((event) => event.fieldId === 6),
-      true,
-    );
-
+    const createdEvents = events.filter((event) => event.fieldId === createdId);
+    assert.ok(createdEvents.length > 0);
     const responses = await cache
       .getMutationCache()
       .build(cache, planningMutations.respondToStrategy(cache))
-      .execute({ fieldId: 6, status: 'declined' });
+      .execute({ fieldId: createdId, status: 'declined' });
     assert.equal(
-      getCalendarEvents(events, responses).some((event) => event.fieldId === 6),
+      getCalendarEvents(events, responses).some((event) => event.fieldId === createdId),
       false,
     );
     assert.deepEqual(await cache.fetchQuery(planningQueries.responses()), responses);
-    assert.deepEqual(cache.getQueryData(planningQueryKeys.responses()), responses);
-
     await assert.rejects(fieldsApi.create({ parcelId: 6, name: 'Duplicate', crop: 'Corn' }));
-    assert.equal((await fieldsApi.getAll()).length, initialCount + 1);
-    await cache.getMutationCache().build(cache, fieldMutations.remove(cache)).execute(6);
-    assert.equal((await cache.fetchQuery(fieldQueries.list())).length, initialCount);
-    assert.equal(await cache.fetchQuery(fieldQueries.byId(6)), null);
-    assert.equal(await cache.fetchQuery(planningQueries.strategy(6)), null);
+    await cache.getMutationCache().build(cache, fieldMutations.remove(cache)).execute(createdId);
+    assert.equal((await cache.fetchQuery(fieldQueries.list())).length, initialFields.length);
+    assert.equal(await cache.fetchQuery(fieldQueries.byId(createdId)), null);
+    assert.equal(await cache.fetchQuery(planningQueries.strategy(createdId)), null);
     assert.equal(
-      (await cache.fetchQuery(planningQueries.events())).some((event) => event.fieldId === 6),
+      (await cache.fetchQuery(planningQueries.events())).some(
+        (event) => event.fieldId === createdId,
+      ),
       false,
     );
-    const remainingResponses = await cache.fetchQuery(planningQueries.responses());
+    const removedMap = await cache.fetchQuery(mapQueries.geojson());
     assert.equal(
-      Object.keys(remainingResponses).some((key) => key.startsWith('field-6-')),
-      false,
+      removedMap.features.find((feature) => feature.properties.parcelId === 6).properties.fieldId,
+      null,
     );
+    const remaining = await cache.fetchQuery(planningQueries.responses());
+    assert.ok(createdEvents.every((event) => remaining[event.id] === undefined));
   } finally {
-    if (await fieldsApi.getById(6)) {
-      await fieldsApi.remove(6);
+    if (createdId && (await fieldsApi.getById(createdId))) {
+      await fieldsApi.remove(createdId);
     }
     cache.clear();
   }

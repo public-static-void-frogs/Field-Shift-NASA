@@ -10,7 +10,10 @@ export type PlanCategory =
 export type PlanPriority = 'Routine' | 'Important' | 'High priority';
 
 export interface RotationPlan {
-  fieldId: number;
+  id: string;
+  nextCropId: string;
+  followingCropId: string;
+  fieldId: string;
   currentCrop: string;
   nextCrop: string;
   followingCrop: string;
@@ -24,7 +27,7 @@ export interface RotationPlan {
 }
 export interface PlannedEvent {
   id: string;
-  fieldId: number;
+  fieldId: string;
   fieldName: string;
   date: string;
   category: PlanCategory;

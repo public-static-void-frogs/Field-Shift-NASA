@@ -1,4 +1,5 @@
 import type { Feature } from 'geojson';
+import { isGuid } from '../../../utils/ids.ts';
 import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
 
 /** Geographic bounds in Leaflet's [latitude, longitude] order. */
@@ -36,11 +37,13 @@ export function getGeoJsonBounds(
     : null;
 }
 
-export function getFeatureFieldId(feature: Feature): number | undefined {
-  const value = feature.properties?.fieldId ?? feature.id;
-  if (value === undefined || value === null || value === '') {
-    return undefined;
-  }
+export function getFeatureFieldId(feature: Feature): string | undefined {
+  const value = feature.properties?.fieldId;
+  return isGuid(value) ? value.toLowerCase() : undefined;
+}
+
+export function getFeatureParcelId(feature: Feature): number | undefined {
+  const value = feature.properties?.parcelId ?? feature.id;
   const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : undefined;
+  return Number.isSafeInteger(id) && id > 0 ? id : undefined;
 }

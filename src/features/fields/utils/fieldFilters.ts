@@ -17,7 +17,7 @@ export function filterFields(fields: Field[], options: FieldFilters) {
   return fields.filter((field) => {
     const searchable = overview
       ? field.name
-      : `${field.name} ${field.crop} Field${String(field.id).padStart(2, '0')}`;
+      : `${field.name} ${field.crop} ${field.id} Field${String(field.parcelId).padStart(2, '0')}`;
     if (!searchable.toLowerCase().includes(search)) {
       return false;
     }

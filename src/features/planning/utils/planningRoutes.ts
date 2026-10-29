@@ -1,6 +1,6 @@
 import type { PlannedEvent } from '../../../types/planning/planning.types.ts';
 
-export function calendarPath(date: string, fieldId?: number, eventId?: string): string {
+export function calendarPath(date: string, fieldId?: string, eventId?: string): string {
   const params = new URLSearchParams();
   if (fieldId) {
     params.set('field', String(fieldId));

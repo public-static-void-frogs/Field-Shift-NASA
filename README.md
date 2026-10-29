@@ -94,10 +94,10 @@ declared below the main component in the same file; keep the branch itself to a
 `return <Subcomponent />`. These rules are recorded in
 `AGENTS.md`, and the test suite checks for nested ternaries across the source tree.
 
-Field details use dedicated routes such as `/fields/4`. Adding fields uses
+Field details use dedicated routes such as `/fields/<guid>`. Adding fields uses
 `/map/add` and `/map/add/6`. Navigation supports direct links, refresh, and
 browser back/forward through React Router. Production hosting must serve `index.html`
-for application paths (for example `/fields/4`) so direct links and refreshes work. Settings, help,
+for application paths (for example `/fields/<guid>`) so direct links and refreshes work. Settings, help,
 and notifications also have their own pages. Removal uses an inline confirmation.
 The app does not use modals.
 
@@ -156,9 +156,10 @@ The scale now follows the map zoom. Overlay health/moisture readings remain demo
 `FieldMap` accepts a `geojson` prop typed as `FieldGeoJson` (defined in
 `src/types/maps/map.types.ts`): a WGS84 `FeatureCollection` of `Polygon` or `MultiPolygon`
 features. Coordinates use standard GeoJSON `[longitude, latitude]` order.
-`properties.fieldId`, or a numeric `feature.id`, associates a polygon with a field.
-An unmatched ID keeps the parcel available to add; a feature without an ID is
-rendered without navigating to an add form. Optional `properties.name` labels
+`properties.fieldId` contains the GUID of the active field, or `null` for available land.
+`properties.parcelId` (or the numeric `feature.id`) identifies the parcel for the add form.
+Fields have independent GUIDs and a separate numeric `parcelId`; recreating a field uses a fresh GUID.
+A feature without a parcel identifier does not navigate to an add form. Optional `properties.name` labels
 unmatched features. Property and field names are rendered as text, not HTML.
 Replacing the collection redraws the overlays and fits the map to its new bounds.
 
@@ -184,7 +185,7 @@ npm run test:maps
 ## Routing
 
 React Router manages clean browser URLs with `createBrowserRouter`. Route definitions
-and lazy page modules live in `src/app/routes.ts`; ID/date validation lives in
+and lazy page modules live in `src/app/routes.ts`; GUID/parcel/date validation lives in
 `src/app/route-loaders.ts`. The login route sits outside the farm layout, which
 renders child pages through `Outlet`. Matched route metadata controls sidebar
 selection and fullscreen workspaces.
@@ -272,3 +273,14 @@ the exact production URLs, intended scopes, domain-verification steps, and work
 required before submitting the actual integration for review. `vercel.json`
 configures SPA deep links; deploy this build before using the new URLs in the
 Google console.
+
+## Normalized backend data
+
+The backend loads one JSON array per collection from `app/data`. Fields own their geometry
+and property references; histories, sensor readings, crop seasons, plans, events, and strategy records link
+through GUID foreign keys. Python joins these records into the existing read models. The
+field API also exposes `farmId`, `cropId`, `parcelId`, `geometry`, and joined `properties`.
+
+Field routes and calendar filters use GUID strings. Parcel routes keep numeric land
+identifiers. Field mutations invalidate map data so adding or removing a field updates
+its parcel association. Existing numeric field links must be replaced with GUID URLs.

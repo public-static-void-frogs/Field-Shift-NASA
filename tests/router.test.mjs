@@ -6,6 +6,10 @@ import { appRoutes } from '../src/app/routes.ts';
 import { fieldLoader, parcelLoader, calendarLoader } from '../src/app/route-loaders.ts';
 import { calendarPath } from '../src/features/planning/utils/planningRoutes.ts';
 
+const fieldOne = '00000000-0000-4000-8000-000000000001';
+const fieldTwo = '00000000-0000-4000-8000-000000000002';
+const eventId = '00000000-0000-4000-8000-000000000003';
+
 const args = (params) => ({ params, request: new Request('http://localhost/'), context: {} });
 
 test('the real route tree matches static, dynamic, optional and fallback routes', () => {
@@ -13,8 +17,8 @@ test('the real route tree matches static, dynamic, optional and fallback routes'
     ['/', 'overview'],
     ['/login', 'login'],
     ['/fields', 'fields'],
-    ['/fields/1', 'field'],
-    ['/fields/2/strategy', 'strategy'],
+    [`/fields/${fieldOne}`, 'field'],
+    [`/fields/${fieldTwo}/strategy`, 'strategy'],
     ['/map', 'map'],
     ['/map/add', 'map-add'],
     ['/map/add/6', 'parcel'],
@@ -34,13 +38,13 @@ test('the real route tree matches static, dynamic, optional and fallback routes'
     false,
   );
   assert.equal(
-    matchRoutes(appRoutes, '/fields/1').some((match) => match.route.id === 'farm'),
+    matchRoutes(appRoutes, `/fields/${fieldOne}`).some((match) => match.route.id === 'farm'),
     true,
   );
 });
 
 test('route loaders validate IDs and dates before pages request data', () => {
-  assert.deepEqual(fieldLoader(args({ fieldId: '12' })), { fieldId: 12 });
+  assert.deepEqual(fieldLoader(args({ fieldId: fieldOne.toUpperCase() })), { fieldId: fieldOne });
   assert.deepEqual(parcelLoader(args({ parcelId: '6' })), { parcelId: 6 });
   for (const id of ['', '0', '-1', '1.5', '1e2', 'abc', '9007199254740992']) {
     assert.throws(
@@ -87,25 +91,22 @@ function idle(router) {
 test('router navigation preserves params, search state, and back/forward history', async () => {
   const router = createMemoryRouter(withoutViews(appRoutes), { initialEntries: ['/fields'] });
   try {
-    await router.navigate('/fields/2');
-    assert.deepEqual(router.state.loaderData.field, { fieldId: 2 });
-    await router.navigate('/fields/3/strategy');
-    assert.deepEqual(router.state.loaderData.strategy, { fieldId: 3 });
+    await router.navigate(`/fields/${fieldOne}`);
+    assert.deepEqual(router.state.loaderData.field, { fieldId: fieldOne });
+    await router.navigate(`/fields/${fieldTwo}/strategy`);
+    assert.deepEqual(router.state.loaderData.strategy, { fieldId: fieldTwo });
     await router.navigate(-1);
     await idle(router);
-    assert.equal(router.state.location.pathname, '/fields/2');
-    assert.deepEqual(router.state.loaderData.field, { fieldId: 2 });
+    assert.equal(router.state.location.pathname, `/fields/${fieldOne}`);
+    assert.deepEqual(router.state.loaderData.field, { fieldId: fieldOne });
     await router.navigate(1);
     await idle(router);
-    assert.equal(router.state.location.pathname, '/fields/3/strategy');
-    const path = calendarPath('2026-05-24', 2, 'field-2-soil-review');
+    assert.equal(router.state.location.pathname, `/fields/${fieldTwo}/strategy`);
+    const path = calendarPath('2026-05-24', fieldOne, eventId);
     await router.navigate(path, { preventScrollReset: true });
     assert.equal(router.state.location.pathname, '/calendar/2026-05-24');
-    assert.equal(new URLSearchParams(router.state.location.search).get('field'), '2');
-    assert.equal(
-      new URLSearchParams(router.state.location.search).get('event'),
-      'field-2-soil-review',
-    );
+    assert.equal(new URLSearchParams(router.state.location.search).get('field'), fieldOne);
+    assert.equal(new URLSearchParams(router.state.location.search).get('event'), eventId);
     assert.equal(router.state.preventScrollReset, true);
     await router.navigate('/fields/invalid');
     assert.equal(Object.values(router.state.errors)[0].status, 404);

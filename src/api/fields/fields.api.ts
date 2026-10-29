@@ -16,18 +16,18 @@ export type CreateFieldInput = {
 
 export const fieldsApi = {
   getAll: (signal?: AbortSignal): Promise<Field[]> => request('/fields', { signal }),
-  getById: (id: number, signal?: AbortSignal): Promise<Field | null> =>
+  getById: (id: string, signal?: AbortSignal): Promise<Field | null> =>
     request(`/fields/${id}`, { signal, allowMissing: true }),
   getParcel: (id: number, signal?: AbortSignal): Promise<Parcel | null> =>
     request(`/parcels/${id}`, { signal, allowMissing: true }),
   getCrops: (signal?: AbortSignal): Promise<CropOption[]> => request('/crops', { signal }),
-  getProperties: (id: number, signal?: AbortSignal): Promise<FieldPropertyData | null> =>
+  getProperties: (id: string, signal?: AbortSignal): Promise<FieldPropertyData | null> =>
     request(`/fields/${id}/properties`, { signal, allowMissing: true }),
-  getHistory: (id: number, signal?: AbortSignal): Promise<FieldHistory | null> =>
+  getHistory: (id: string, signal?: AbortSignal): Promise<FieldHistory | null> =>
     request(`/fields/${id}/history`, { signal, allowMissing: true }),
-  getRecommendation: (id: number, signal?: AbortSignal): Promise<FieldRecommendationData | null> =>
+  getRecommendation: (id: string, signal?: AbortSignal): Promise<FieldRecommendationData | null> =>
     request(`/fields/${id}/recommendation`, { signal, allowMissing: true }),
   create: (input: CreateFieldInput): Promise<Field> =>
     request('/fields', { method: 'POST', body: JSON.stringify(input) }),
-  remove: (id: number): Promise<number> => request(`/fields/${id}`, { method: 'DELETE' }),
+  remove: (id: string): Promise<string> => request(`/fields/${id}`, { method: 'DELETE' }),
 };

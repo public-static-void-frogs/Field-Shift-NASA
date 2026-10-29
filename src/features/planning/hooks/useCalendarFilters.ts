@@ -9,7 +9,7 @@ type CalendarFilters = {
   query: string;
 };
 
-export function useCalendarFilters(events: PlannedEvent[], fieldId?: number) {
+export function useCalendarFilters(events: PlannedEvent[], fieldId?: string) {
   const [criteria, setCriteria] = useState(initialFilters);
   function update(patch: Partial<CalendarFilters>) {
     setCriteria((current) => ({ ...current, ...patch }));

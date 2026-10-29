@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useMap } from 'react-leaflet';
 import type { Field } from '../../../types/fields/field.types.ts';
 import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
-import { getFeatureFieldId } from '../utils/mapGeometry.ts';
+import { getFeatureFieldId, getFeatureParcelId } from '../utils/mapGeometry.ts';
 import type { MapLayer } from '../utils/mapStyles.ts';
 import { getParcelLabel, parcelStyle } from '../utils/mapStyles.ts';
 
@@ -35,8 +35,9 @@ export function useParcelLayer({
           layer,
         ),
       onEachFeature: (feature, polygon) => {
-        const id = getFeatureFieldId(feature);
-        const field = fields.find((item) => item.id === id);
+        const fieldId = getFeatureFieldId(feature);
+        const id = getFeatureParcelId(feature);
+        const field = fields.find((item) => item.id === fieldId);
         const label = getParcelLabel(field, id, feature.properties?.name, t);
         const activate = () => {
           if (field) {

@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from 'react-router-dom';
+import { isGuid } from '../utils/ids.ts';
 import { isPlanDate } from '../features/planning/utils/planningDates.ts';
 
 function requirePositiveId(value: string | undefined): number {
@@ -12,11 +13,14 @@ function requirePositiveId(value: string | undefined): number {
   return id;
 }
 export type FieldRouteData = {
-  fieldId: number;
+  fieldId: string;
 };
 
 export function fieldLoader({ params }: LoaderFunctionArgs): FieldRouteData {
-  return { fieldId: requirePositiveId(params.fieldId) };
+  if (!isGuid(params.fieldId)) {
+    throw new Response(null, { status: 404 });
+  }
+  return { fieldId: params.fieldId.toLowerCase() };
 }
 export type ParcelRouteData = {
   parcelId: number;

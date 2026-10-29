@@ -4,6 +4,6 @@ export interface FarmNotification {
   severity: 'warning' | 'error' | 'info';
   title: string;
   description: string;
-  fieldId?: number;
+  fieldId?: string;
   fieldName?: string;
 }

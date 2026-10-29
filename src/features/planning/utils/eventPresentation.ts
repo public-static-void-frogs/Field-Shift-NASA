@@ -52,7 +52,7 @@ export function getEventUrgencyColor(event: PlannedEvent, today: string) {
 }
 export function filterCalendarEvents(
   events: PlannedEvent[],
-  fieldId: number | undefined,
+  fieldId: string | undefined,
   category: string,
   query: string,
 ) {

@@ -24,7 +24,7 @@ export function AddFieldPage() {
       ],
     });
   const { handleAdd, isAddingField } = useAddField(parcelId);
-  const exists = fields.some((field) => field.id === parcelId);
+  const exists = fields.some((field) => field.parcelId === parcelId);
   if (!parcel || exists) {
     return <UnavailableParcel exists={exists} />;
   }

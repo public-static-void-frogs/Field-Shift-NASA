@@ -78,8 +78,13 @@ test('seedbed preparation is after the current harvest and before planting for e
   for (const field of initialFields) {
     const planEvents = getFieldPlanEvents(field);
     const harvest = planEvents.find((item) => item.category === 'Harvest');
-    const seedbed = planEvents.find((item) => item.id.endsWith('-seedbed'));
-    const planting = planEvents.find((item) => item.id.endsWith('rotation-2027'));
+    const seedbed = planEvents.find(
+      (item) =>
+        item.category === 'Field preparation' && item.title.startsWith('Prepare the seedbed'),
+    );
+    const planting = planEvents.find(
+      (item) => item.category === 'Crop rotation' && item.title.endsWith('2027 season'),
+    );
     assert.ok(harvest.date < seedbed.date, `${field.name}: seedbed before harvest`);
     assert.ok(seedbed.date < planting.date, `${field.name}: seedbed after planting`);
   }
