@@ -1,8 +1,6 @@
 import type { FarmProfile } from '../../types/farm/farm.types.ts';
-import { mockResponse } from '../core/mock-response.ts';
-import { farmProfile } from './mocks/farm.mock.ts';
+import { request } from '../core/http.ts';
 
 export const farmApi = {
-  getProfile: (signal?: AbortSignal): Promise<FarmProfile> =>
-    mockResponse(() => farmProfile, signal),
+  getProfile: (signal?: AbortSignal): Promise<FarmProfile> => request('/farm/profile', { signal }),
 };

@@ -510,5 +510,7 @@
   "Disconnecting an app does not itself remove events or calendars already stored by Google. Google services are also governed by Google’s own terms and privacy policies.": "Відключення застосунку саме по собі не видаляє події або календарі, уже збережені Google. На сервіси Google також поширюються власні умови користування та політики конфіденційності Google.",
   "The prototype may change or become unavailable. Demo field edits reset on reload, and browser-stored preferences can be lost when site data is cleared. Keep your own copies of important plans.": "Прототип може змінюватися або ставати недоступним. Зміни демонстраційних полів скидаються після перезавантаження, а налаштування браузера можуть бути втрачені після очищення даних сайту. Зберігайте власні копії важливих планів.",
   "Changes to these terms will be published on this page with an updated date. Questions about the service or these terms can be sent to the support email below.": "Зміни цих умов публікуватимуться на цій сторінці з оновленою датою. Запитання щодо сервісу або цих умов можна надсилати на наведену нижче адресу підтримки.",
-  "Google API Services User Data Policy": "Політика щодо даних користувачів сервісів Google API"
+  "Google API Services User Data Policy": "Політика щодо даних користувачів сервісів Google API",
+  "API is unavailable": "API недоступний",
+  "We cannot connect to the service right now. Please try again in a moment.": "Зараз не вдається підключитися до сервісу. Спробуйте ще раз за мить."
 }

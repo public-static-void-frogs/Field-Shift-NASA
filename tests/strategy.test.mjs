@@ -1,35 +1,43 @@
+import './support/backend.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { initialFields } from '../src/api/fields/mocks/fields.mock.ts';
-import { getFieldStrategy } from '../src/api/planning/mocks/strategy.mock.ts';
-import { getFieldPlanEvents } from '../src/api/planning/mocks/planning.mock.ts';
+import { fieldsApi } from '../src/api/fields/fields.api.ts';
+import { planningApi } from '../src/api/planning/planning.api.ts';
+
 import { calendarEventPath } from '../src/features/planning/utils/planningRoutes.ts';
 import {
-  eventFingerprint,
   getCalendarEvents,
   getEventDecision,
-  parseEventResponses,
-  updateEventResponse,
-  updateStrategyResponse,
 } from '../src/features/planning/utils/eventResponses.ts';
 
+const initialFields = await fieldsApi.getAll();
+const strategies = new Map(
+  await Promise.all(
+    initialFields.map(async (field) => [field.id, await planningApi.getStrategy(field.id)]),
+  ),
+);
+const getFieldStrategy = (field) => strategies.get(field.id);
+const getFieldPlanEvents = (field) => getFieldStrategy(field).events;
 const events = getFieldPlanEvents(initialFields[1]);
 const event = events[0];
 
-test('accepting and rejecting a whole strategy updates every event without changing other fields', () => {
+test('accepting and rejecting a whole strategy updates every event without changing other fields', async () => {
   const otherEvents = getFieldPlanEvents(initialFields[0]);
-  const baseline = updateStrategyResponse({}, otherEvents, 'accepted');
-  const rejected = updateStrategyResponse(baseline, events, 'declined');
+  await planningApi.respondToStrategy({ fieldId: initialFields[0].id, status: 'accepted' });
+  const rejected = await planningApi.respondToStrategy({
+    fieldId: initialFields[1].id,
+    status: 'declined',
+  });
   assert.ok(events.every((item) => getEventDecision(item, rejected) === 'declined'));
   assert.deepEqual(getCalendarEvents([...events, ...otherEvents], rejected), otherEvents);
-  const accepted = parseEventResponses(
-    JSON.stringify(updateStrategyResponse(rejected, events, 'accepted')),
-  );
+  const accepted = await planningApi.respondToStrategy({
+    fieldId: initialFields[1].id,
+    status: 'accepted',
+  });
   assert.ok(
     [...events, ...otherEvents].every((item) => getEventDecision(item, accepted) === 'accepted'),
   );
   assert.deepEqual(getCalendarEvents(events, accepted), events);
-  assert.deepEqual(baseline, updateStrategyResponse(baseline, [], 'declined'));
 });
 
 test('field strategies have matching instructions, calendar proposals, and chronologically ordered forecasts', () => {
@@ -92,26 +100,37 @@ test('unanswered invitations are proposed and visible in the calendar', () => {
   assert.deepEqual(getCalendarEvents(events, {}), events);
 });
 
-test('acceptance is idempotent and survives persisted JSON round trips', () => {
-  let responses = updateEventResponse({}, event, 'accepted');
-  responses = updateEventResponse(responses, event, 'accepted');
-  assert.equal(Object.keys(responses).length, 1);
-  assert.equal(getEventDecision(event, parseEventResponses(JSON.stringify(responses))), 'accepted');
-  assert.deepEqual(getCalendarEvents(events, responses), events);
+test('acceptance is idempotent and persists through HTTP refetches', async () => {
+  const first = await planningApi.respondToStrategy({ fieldId: event.fieldId, status: 'accepted' });
+  const second = await planningApi.respondToStrategy({
+    fieldId: event.fieldId,
+    status: 'accepted',
+  });
+  assert.deepEqual(first, second);
+  const persisted = await planningApi.getResponses();
+  assert.equal(getEventDecision(event, persisted), 'accepted');
+  assert.deepEqual(getCalendarEvents(events, persisted), events);
 });
 
-test('declining hides only that invitation, and accepting it again restores it', () => {
-  const declined = updateEventResponse({}, event, 'declined');
+test('declining a strategy hides its events, and accepting it again restores them', async () => {
+  const declined = await planningApi.respondToStrategy({
+    fieldId: event.fieldId,
+    status: 'declined',
+  });
   assert.equal(getEventDecision(event, declined), 'declined');
-  assert.equal(getCalendarEvents(events, declined).length, events.length - 1);
-  assert.ok(!getCalendarEvents(events, declined).some((item) => item.id === event.id));
-  assert.ok(events.some((item) => item.id === event.id));
-  const accepted = updateEventResponse(declined, event, 'accepted');
+  assert.equal(getCalendarEvents(events, declined).length, 0);
+  const accepted = await planningApi.respondToStrategy({
+    fieldId: event.fieldId,
+    status: 'accepted',
+  });
   assert.deepEqual(getCalendarEvents(events, accepted), events);
 });
 
-test('changed event dates or details invalidate old responses', () => {
-  const accepted = updateEventResponse({}, event, 'accepted');
+test('changed event dates or details invalidate old responses', async () => {
+  const accepted = await planningApi.respondToStrategy({
+    fieldId: event.fieldId,
+    status: 'accepted',
+  });
   for (const changed of [
     { ...event, date: '2027-06-10' },
     { ...event, title: 'Updated work order' },
@@ -121,25 +140,14 @@ test('changed event dates or details invalidate old responses', () => {
   }
 });
 
-test('responses remain isolated between fields and can be reset', () => {
+test('responses remain isolated between fields and can be reset', async () => {
   const otherEvent = getFieldPlanEvents(initialFields[0])[0];
-  let responses = updateEventResponse({}, event, 'declined');
-  responses = updateEventResponse(responses, otherEvent, 'accepted');
-  responses = updateEventResponse(responses, event, 'proposed');
+  await planningApi.respondToStrategy({ fieldId: event.fieldId, status: 'declined' });
+  await planningApi.respondToStrategy({ fieldId: otherEvent.fieldId, status: 'accepted' });
+  const responses = await planningApi.respondToStrategy({
+    fieldId: event.fieldId,
+    status: 'proposed',
+  });
   assert.equal(getEventDecision(event, responses), 'proposed');
   assert.equal(getEventDecision(otherEvent, responses), 'accepted');
-});
-
-test('corrupt browser storage and invalid response values are ignored', () => {
-  for (const raw of [null, 'bad JSON', 'null', '[]', '42']) {
-    assert.deepEqual(parseEventResponses(raw), {});
-  }
-  const parsed = parseEventResponses(
-    JSON.stringify({
-      valid: { status: 'accepted', fingerprint: eventFingerprint(event) },
-      invalid: { status: 'completed', fingerprint: 'x' },
-      missingFingerprint: { status: 'declined' },
-    }),
-  );
-  assert.deepEqual(Object.keys(parsed), ['valid']);
 });

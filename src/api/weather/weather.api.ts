@@ -1,12 +1,11 @@
 import type { CurrentWeather, WeatherRecord } from '../../types/weather/weather.types.ts';
-import { mockResponse } from '../core/mock-response.ts';
-import { currentWeather, weatherHistory } from './mocks/weather.mock.ts';
+import { request } from '../core/http.ts';
 
 export type HistoryRange = '7 days' | '30 days' | '90 days';
 
 export const weatherApi = {
   getCurrent: (signal?: AbortSignal): Promise<CurrentWeather> =>
-    mockResponse(() => currentWeather, signal),
+    request('/weather/current', { signal }),
   getHistory: (range: HistoryRange, signal?: AbortSignal): Promise<WeatherRecord[]> =>
-    mockResponse(() => weatherHistory.slice(0, Number.parseInt(range)), signal),
+    request(`/weather/history?days=${Number.parseInt(range)}`, { signal }),
 };

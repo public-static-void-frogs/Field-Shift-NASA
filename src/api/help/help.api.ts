@@ -1,10 +1,7 @@
 import type { DemoSource, TeamMember } from '../../types/help/help.types.ts';
-import { mockResponse } from '../core/mock-response.ts';
-import { demoSources } from './mocks/demoSources.mock.ts';
-import { team } from './mocks/team.mock.ts';
+import { request } from '../core/http.ts';
 
 export const helpApi = {
-  getTeam: (signal?: AbortSignal): Promise<TeamMember[]> => mockResponse(() => team, signal),
-  getSources: (signal?: AbortSignal): Promise<DemoSource[]> =>
-    mockResponse(() => demoSources, signal),
+  getTeam: (signal?: AbortSignal): Promise<TeamMember[]> => request('/help/team', { signal }),
+  getSources: (signal?: AbortSignal): Promise<DemoSource[]> => request('/help/sources', { signal }),
 };

@@ -12,7 +12,7 @@ import {
   getEventUrgencyColor,
   getStrategyDecision,
 } from '../src/features/planning/utils/eventPresentation.ts';
-import { updateEventResponse } from '../src/features/planning/utils/eventResponses.ts';
+import { eventFingerprint } from '../src/features/planning/utils/eventResponses.ts';
 import {
   getWeatherChange,
   selectWeatherReading,
@@ -152,8 +152,13 @@ const events = [
 ];
 
 test('strategy totals handle mixed, stale and absent responses', () => {
-  const accepted = updateEventResponse({}, events[0], 'accepted');
-  const mixed = updateEventResponse(accepted, events[1], 'declined');
+  const accepted = {
+    [events[0].id]: { status: 'accepted', fingerprint: eventFingerprint(events[0]) },
+  };
+  const mixed = {
+    ...accepted,
+    [events[1].id]: { status: 'declined', fingerprint: eventFingerprint(events[1]) },
+  };
   assert.equal(getStrategyDecision([], {}), 'proposed');
   assert.equal(getStrategyDecision(events, mixed), 'proposed');
   assert.equal(getStrategyDecision([events[0]], mixed), 'accepted');

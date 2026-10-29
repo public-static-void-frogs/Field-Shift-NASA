@@ -1,3 +1,4 @@
+import './support/backend.mjs';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
@@ -15,14 +16,6 @@ import {
   notificationQueryKeys,
 } from '../src/api/notifications/notifications.queries.ts';
 import { getCalendarEvents } from '../src/features/planning/utils/eventResponses.ts';
-import { eventResponsesStorageKey } from '../src/features/planning/utils/eventResponses.ts';
-
-const storage = new Map();
-globalThis.localStorage = {
-  getItem: (key) => storage.get(key) ?? null,
-  setItem: (key, value) => storage.set(key, value),
-};
-
 function client() {
   const value = createQueryClient();
   value.setDefaultOptions({
@@ -73,7 +66,7 @@ test('concurrent consumers share a request and fresh cached data is reused', asy
   cache.clear();
 });
 
-test('API DTOs are detached from the backing mock store; canceled reads reject', async () => {
+test('HTTP responses are detached; canceled reads reject', async () => {
   const fields = await fieldsApi.getAll();
   fields[0].name = 'Changed outside the service';
   assert.equal((await fieldsApi.getById(1)).name, 'North Meadow');
@@ -137,7 +130,7 @@ test('field mutations invalidate dependent caches, survive refetch and clean up 
       getCalendarEvents(events, responses).some((event) => event.fieldId === 6),
       false,
     );
-    assert.deepEqual(JSON.parse(storage.get(eventResponsesStorageKey)), responses);
+    assert.deepEqual(await cache.fetchQuery(planningQueries.responses()), responses);
     assert.deepEqual(cache.getQueryData(planningQueryKeys.responses()), responses);
 
     await assert.rejects(fieldsApi.create({ parcelId: 6, name: 'Duplicate', crop: 'Corn' }));

@@ -9,7 +9,22 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite.
+Start the FastAPI backend from `../Field-Shift-NASA/backend` with `python main.py`
+(see its README for Python setup). Open the local URL printed by Vite.
+The frontend `.env` contains the entire API prefix:
+
+```dotenv
+VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
+```
+
+Copy `.env.example` to `.env` for a fresh checkout. Change this value for your backend,
+then restart Vite. Production builds read it at build time. Requests go directly to the
+configured API; allow the frontend origin through the backend's `CORS_ORIGINS` setting.
+There is no Vite API proxy.
+
+Connection failures, HTTP server errors, and requests that exceed 10 seconds display
+an **API is unavailable** page with a **Try again** button. Retrying reloads the failed
+queries without changing the current route. Validation failures retain their usual feedback.
 
 ```sh
 npm run build
@@ -31,7 +46,7 @@ are excluded.
 
 ```text
 src/
-  api/           Feature API methods, query keys/options, mutations, and mock implementations
+  api/           Feature HTTP methods, query keys/options, mutations, and shared transport
   app/           Application providers, route rendering, and theme
   components/    Common UI shared across unrelated features
   features/      Feature components, hooks, utilities, and constants
@@ -90,8 +105,7 @@ Typography and library colors are centralized in `src/app/theme.ts`: body text
 is 16px, supporting text is 14px, and controls are 42px tall. Custom CSS is limited
 to layout, map overlays, and the existing green and cream visual treatment.
 The `.editorconfig` file defines two-space indentation and consistent line endings.
-Field agronomy profiles and land history are defined in `src/api/fields/mocks/properties.mock.ts`
-and `src/api/fields/mocks/history.mock.ts`. Status tags use explicit semantic foreground and
+Field agronomy profiles and land history come from the backend field endpoints. Status tags use explicit semantic foreground and
 background colors in the shared theme for readable contrast.
 
 ## Explore
@@ -102,7 +116,7 @@ background colors in the shared theme for readable contrast.
 - **Calendar:** an Ant Design month/year calendar with field and action filters, a compact selected-day agenda, and a searchable table. Primary action buttons open dedicated detail pages with scheduling, rationale, and current field conditions. Date selection preserves the page scroll position.
 - **Environment history:** current conditions, trend charts, and 7-, 30-, or 90-day weather logs.
 
-All values and recommendations are defined in the frontend. Field changes live in the in-memory mock service and reset on refresh. React Query caches server resources and invalidates dependent queries after mutations. No backend, credentials, or AI services are required. Map imagery requires internet access to the Esri tile service.
+Demo records and recommendations are owned by the FastAPI backend. Field changes and strategy decisions are shared within one backend process, survive browser refreshes, and reset when that process restarts. React Query caches resources and invalidates dependent queries after mutations. The backend is required; no credentials or AI services are needed. Map imagery requires internet access to the Esri tile service.
 
 ## Offline dependency packages
 
@@ -120,11 +134,10 @@ Dates link to
 The entire field schedule supports Accept all and Reject all on the strategy page,
 calendar drawer, and action details. Accepted events remain confirmed; rejected events are
 hidden from the calendar but remain editable on the strategy page. Responses persist
-in browser localStorage and reset to proposed when event instructions change.
+in the backend demo repository and reset to proposed when event instructions change.
 
-Planning fixtures live in `src/api/planning/mocks/planning.mock.ts`; planting date adjustments use the
-fixed soil pH and moisture values through `src/api/planning/mocks/agronomy.mock.ts`. ML predictions,
-confidence, rationale, and system schedules are frontend fixtures. The planning clock
+Planning fixtures and calculations live in the backend `app/data` and `app/services/planning.py`.
+Predictions, confidence, rationale, and schedules remain illustrative demo data. The planning clock
 is fixed to May 24, 2026 to match the rest of the growing-season demo.
 
 ```sh
@@ -149,7 +162,7 @@ rendered without navigating to an add form. Optional `properties.name` labels
 unmatched features. Property and field names are rendered as text, not HTML.
 Replacing the collection redraws the overlays and fits the map to its new bounds.
 
-Both pages currently pass the exported `fieldGeoJson`: six hardcoded rectangular
+Map pages fetch GeoJSON from `/api/v1/maps/geojson`: six hardcoded rectangular
 sample parcels over farmland west of Ames, Iowa. These are illustrative boundaries,
 not real land ownership or surveyed parcel boundaries. To use another dataset,
 pass a different collection to the same component:
@@ -202,10 +215,9 @@ notifications, and help content.
 
 ```text
 src/api/fields/
-  fields.api.ts        Async typed API methods; the boundary for a future HTTP client
+  fields.api.ts        Typed HTTP API methods
   fields.queries.ts    Stable fieldQueryKeys and reusable fieldQueries options
   fields.mutations.ts  Mutations and invalidation of dependent resources
-  mocks/               Fixture records, generators, and the in-memory service store
 src/types/fields/      Field entities and domain data models
 ```
 
@@ -222,14 +234,16 @@ planning, overview charts, and notifications. Strategy responses update and
 invalidate their shared response query. Removing a field also removes its saved
 event responses. Filtering and other temporary UI state remain in components.
 
-The service currently uses asynchronous local mocks and returns cloned plain-data
-responses. Fixtures, sample weather, account details, help records, generated
-strategies, and the demo planning date all come from this layer. There is no HTTP
-API or live server integration. Mock requests use `networkMode: 'always'` so the
-local demo works offline; map tiles still require internet access. To connect a
-real backend, replace the feature `.api.ts` implementations while preserving their
-request/response types and query keys, then use online network mode in the query
-client. No component should import from an API `mocks/` folder.
+`src/api/core/http.ts` supplies the shared fetch transport, forwards cancellation signals,
+and surfaces HTTP errors to the existing query and mutation boundaries. Nullable detail
+lookups translate a 404 into `null`; mutations retain their status and error message.
+There are no frontend domain fixtures, generators, or stores. React Query uses its default
+online network mode. UI translations, filters, and presentation constants remain frontend concerns.
+
+The HTTP integration tests start an isolated backend on an ephemeral local port per test file.
+Install `../Field-Shift-NASA/backend/requirements-dev.txt` in its `.venv` first, or set
+`NASA_BACKEND_PYTHON` to a Python interpreter with those dependencies installed. Tests require
+local loopback access and do not call the running development backend.
 
 Run `npm test` for all checks of domain behavior, translations, and queries, or
 `npm run test:queries` for cache deduplication, key separation, mutation

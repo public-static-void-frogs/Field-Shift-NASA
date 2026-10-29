@@ -2,6 +2,8 @@ import { Button, Result } from 'antd';
 import type { ReactNode } from 'react';
 import { Component } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApiUnavailableError } from '../../api/core/http.ts';
+import { ApiUnavailablePage } from '../../pages/ApiUnavailablePage.tsx';
 
 type QueryBoundaryProps = {
   children: ReactNode;
@@ -9,20 +11,23 @@ type QueryBoundaryProps = {
 };
 
 type QueryBoundaryState = {
-  hasError: boolean;
+  error: Error | null;
 };
 
 export class QueryBoundary extends Component<QueryBoundaryProps, QueryBoundaryState> {
-  state: QueryBoundaryState = { hasError: false };
-  static getDerivedStateFromError(): QueryBoundaryState {
-    return { hasError: true };
+  state: QueryBoundaryState = { error: null };
+  static getDerivedStateFromError(error: Error): QueryBoundaryState {
+    return { error };
   }
   retry = () => {
     this.props.onReset();
-    this.setState({ hasError: false });
+    this.setState({ error: null });
   };
   render() {
-    return this.state.hasError ? <QueryError retry={this.retry} /> : this.props.children;
+    if (this.state.error instanceof ApiUnavailableError) {
+      return <ApiUnavailablePage retry={this.retry} />;
+    }
+    return this.state.error ? <QueryError retry={this.retry} /> : this.props.children;
   }
 }
 

@@ -510,5 +510,7 @@
   "Disconnecting an app does not itself remove events or calendars already stored by Google. Google services are also governed by Google’s own terms and privacy policies.": "Disconnecting an app does not itself remove events or calendars already stored by Google. Google services are also governed by Google’s own terms and privacy policies.",
   "The prototype may change or become unavailable. Demo field edits reset on reload, and browser-stored preferences can be lost when site data is cleared. Keep your own copies of important plans.": "The prototype may change or become unavailable. Demo field edits reset on reload, and browser-stored preferences can be lost when site data is cleared. Keep your own copies of important plans.",
   "Changes to these terms will be published on this page with an updated date. Questions about the service or these terms can be sent to the support email below.": "Changes to these terms will be published on this page with an updated date. Questions about the service or these terms can be sent to the support email below.",
-  "Google API Services User Data Policy": "Google API Services User Data Policy"
+  "Google API Services User Data Policy": "Google API Services User Data Policy",
+  "API is unavailable": "API is unavailable",
+  "We cannot connect to the service right now. Please try again in a moment.": "We cannot connect to the service right now. Please try again in a moment."
 }

@@ -137,6 +137,7 @@ test('custom hash navigation and navigation prop plumbing are removed', async ()
       /window\.location\.hash|hashchange|navigate=\{navigate\}|navigate:\s*Navigate/,
       path,
     );
-    assert.doesNotMatch(source, /href=["']#\/|`#\$\{|`#\//, path);
+    // In-page fragment anchors are valid; hash-based application routes are not.
+    assert.doesNotMatch(source, /href=["']#\/|`#\//, path);
   }
 });

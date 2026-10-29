@@ -1,8 +1,6 @@
 import type { FieldGeoJson } from '../../types/maps/map.types.ts';
-import { mockResponse } from '../core/mock-response.ts';
-import { fieldGeoJson } from './mocks/geojson.mock.ts';
+import { request } from '../core/http.ts';
 
 export const mapsApi = {
-  getGeoJson: (signal?: AbortSignal): Promise<FieldGeoJson> =>
-    mockResponse(() => fieldGeoJson, signal),
+  getGeoJson: (signal?: AbortSignal): Promise<FieldGeoJson> => request('/maps/geojson', { signal }),
 };

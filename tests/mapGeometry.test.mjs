@@ -1,7 +1,10 @@
+import './support/backend.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { fieldGeoJson } from '../src/api/maps/mocks/geojson.mock.ts';
+import { mapsApi } from '../src/api/maps/maps.api.ts';
 import { getFeatureFieldId, getGeoJsonBounds } from '../src/features/maps/utils/mapGeometry.ts';
+
+const fieldGeoJson = await mapsApi.getGeoJson();
 
 const feature = (geometry, properties = null, id) => ({
   type: 'Feature',

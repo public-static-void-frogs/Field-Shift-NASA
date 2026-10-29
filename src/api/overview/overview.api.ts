@@ -1,9 +1,5 @@
-import type { TrendMetric } from '../../types/overview/overview.types.ts';
-
-import type { OverviewData } from '../../types/overview/overview.types.ts';
-import { mockResponse } from '../core/mock-response.ts';
-import { getMockFields } from '../fields/mocks/fields.store.ts';
-import { getCropAreas, getSampleFieldTrends } from './mocks/overview.mock.ts';
+import type { OverviewData, TrendMetric } from '../../types/overview/overview.types.ts';
+import { request } from '../core/http.ts';
 
 export type TrendParams = {
   days: number;
@@ -12,11 +8,8 @@ export type TrendParams = {
 
 export const overviewApi = {
   getCharts: (params: TrendParams, signal?: AbortSignal): Promise<OverviewData> =>
-    mockResponse(
-      () => ({
-        trends: getSampleFieldTrends(getMockFields(), params.days, params.metric),
-        cropAreas: getCropAreas(getMockFields()),
-      }),
-      signal,
+    request(
+      `/overview/charts?${new URLSearchParams({ days: String(params.days), metric: params.metric })}`,
+      { signal },
     ),
 };

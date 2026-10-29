@@ -1,19 +1,12 @@
-import type { EventDecision } from '../../types/planning/planning.types.ts';
-
-import { updateStrategyResponse } from '../../features/planning/utils/eventResponses.ts';
 import type {
+  EventDecision,
   EventResponses,
   FieldStrategy,
   PlannedEvent,
   PlanningContext,
   RotationPlan,
 } from '../../types/planning/planning.types.ts';
-import { mockResponse } from '../core/mock-response.ts';
-import { getMockField, getMockFields } from '../fields/mocks/fields.store.ts';
-import { planningToday } from './mocks/agronomy.mock.ts';
-import { getFieldPlanEvents, getRotationPlan, getSystemPlanEvents } from './mocks/planning.mock.ts';
-import { getMockResponses, saveMockResponses } from './mocks/responses.store.ts';
-import { getFieldStrategy } from './mocks/strategy.mock.ts';
+import { request } from '../core/http.ts';
 
 type StrategyResponseInput = {
   fieldId: number;
@@ -22,34 +15,23 @@ type StrategyResponseInput = {
 
 export const planningApi = {
   getContext: (signal?: AbortSignal): Promise<PlanningContext> =>
-    mockResponse(() => ({ today: planningToday }), signal),
+    request('/planning/context', { signal }),
   getEvents: (signal?: AbortSignal): Promise<PlannedEvent[]> =>
-    mockResponse(() => getSystemPlanEvents(getMockFields()), signal),
-  getFieldEvents: (id: number, signal?: AbortSignal): Promise<PlannedEvent[]> =>
-    mockResponse(() => {
-      const field = getMockField(id);
-      return field ? getFieldPlanEvents(field) : [];
-    }, signal),
+    request('/planning/events', { signal }),
+  getFieldEvents: async (id: number, signal?: AbortSignal): Promise<PlannedEvent[]> =>
+    (await request<PlannedEvent[] | null>(`/fields/${id}/events`, {
+      signal,
+      allowMissing: true,
+    })) ?? [],
   getRotation: (id: number, signal?: AbortSignal): Promise<RotationPlan | null> =>
-    mockResponse(() => {
-      const field = getMockField(id);
-      return field ? getRotationPlan(field) : null;
-    }, signal),
+    request(`/fields/${id}/rotation`, { signal, allowMissing: true }),
   getStrategy: (id: number, signal?: AbortSignal): Promise<FieldStrategy | null> =>
-    mockResponse(() => {
-      const field = getMockField(id);
-      return field ? getFieldStrategy(field) : null;
-    }, signal),
+    request(`/fields/${id}/strategy`, { signal, allowMissing: true }),
   getResponses: (signal?: AbortSignal): Promise<EventResponses> =>
-    mockResponse(getMockResponses, signal),
+    request('/planning/responses', { signal }),
   respondToStrategy: ({ fieldId, status }: StrategyResponseInput): Promise<EventResponses> =>
-    mockResponse(() => {
-      const field = getMockField(fieldId);
-      if (!field) {
-        throw new Error('Field not found');
-      }
-      return saveMockResponses(
-        updateStrategyResponse(getMockResponses(), getFieldPlanEvents(field), status),
-      );
+    request(`/fields/${fieldId}/strategy/response`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
     }),
 };
