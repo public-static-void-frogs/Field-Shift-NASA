@@ -1,0 +1,184 @@
+{
+  "today": "2026-05-24",
+  "checkpoints": {
+    "Soil check": "Record a new soil test and pH reading before confirming correction work. Compare representative parts of the field.",
+    "Crop inspection": "Record canopy development and pest observations. Escalate new stress before continuing the schedule.",
+    "Harvest": "Confirm maturity, grain moisture, and machinery readiness. Record yield and retained residues.",
+    "Field preparation": "Check trafficability, residues, and equipment. Postpone work if the field is too wet or unworkable.",
+    "Crop rotation": "Confirm seed availability, soil readiness, and the latest forecast. Review the next season after harvest.",
+    "Irrigation": "Recheck root-zone moisture after the next watering or rain. Adjust the next operation to observed conditions.",
+    "Nutrition": "Use the fresh soil test to set the application plan. Record the product, rate, and application conditions."
+  },
+  "contingencies": [
+    {
+      "condition": "Dry conditions before planting",
+      "action": "Recheck root-zone moisture, review irrigation availability, and reassess the planting window."
+    },
+    {
+      "condition": "Rain or saturated soil near field work",
+      "action": "Delay machinery passes until the ground is workable; revise the preparation and planting events together."
+    },
+    {
+      "condition": "Soil test differs from this baseline",
+      "action": "Review the correction and nutrient plan using the new result before confirming application work."
+    },
+    {
+      "condition": "New crop stress or pest pressure",
+      "action": "Add an inspection and revisit the sequence before committing to the longer-term rotation."
+    }
+  ],
+  "eventTemplates": {
+    "soil-review": {
+      "id": "field-5-soil-review",
+      "fieldId": 5,
+      "fieldName": "South Pasture",
+      "date": "2026-05-26",
+      "category": "Soil check",
+      "title": "Check soil and rotation readiness",
+      "description": "Collect samples across South Pasture, including the weaker growth zones. Review pH, available nutrients, and root-zone moisture before confirming the next operations.",
+      "priority": "Routine",
+      "duration": "Morning · 1–2 hours",
+      "rationale": "Current pH 6.6, nitrogen 45 mg/kg, and moisture 67%."
+    },
+    "inspection": {
+      "id": "field-5-inspection",
+      "fieldId": 5,
+      "fieldName": "South Pasture",
+      "date": "2026-06-03",
+      "category": "Crop inspection",
+      "title": "Review crop growth and stressed zones",
+      "description": "Walk the field and compare canopy development in the marked health zones. Record pest pressure and changes in the corn crop.",
+      "priority": "Routine",
+      "duration": "Morning · 1 hour",
+      "rationale": "Follow up on the current crop health score of 94/100."
+    },
+    "harvest": {
+      "id": "field-5-harvest",
+      "fieldId": 5,
+      "fieldName": "South Pasture",
+      "date": "2026-10-10",
+      "category": "Harvest",
+      "title": "Harvest corn",
+      "description": "Inspect maturity and grain moisture, then arrange harvest across 28.1 hectares. Retain residues where practical and log the harvested yield.",
+      "priority": "Important",
+      "duration": "All day · weather permitting",
+      "rationale": "Expected maturity window for the current crop and growing season."
+    },
+    "cover-crop": {
+      "id": "field-5-cover-crop",
+      "fieldId": 5,
+      "fieldName": "South Pasture",
+      "date": "2026-10-24",
+      "category": "Field preparation",
+      "title": "Establish post-harvest cover",
+      "description": "Inspect harvest residues and establish a suitable winter cover where conditions allow. Protect the soil between harvest and the next main crop.",
+      "priority": "Routine",
+      "duration": "All day · conditions permitting",
+      "rationale": "A cover period is included in the gap before the next spring planting."
+    },
+    "seedbed": {
+      "id": "field-5-seedbed",
+      "fieldId": 5,
+      "fieldName": "South Pasture",
+      "date": "2027-04-08",
+      "category": "Field preparation",
+      "title": "Prepare the seedbed for soybeans",
+      "description": "Review the latest soil results, manage residues, and prepare equipment for the transition to soybeans. Confirm seed availability and the field's trafficability.",
+      "priority": "Important",
+      "duration": "All day",
+      "rationale": "Scheduled after the current harvest, aiming for 14 days before the calculated planting date."
+    },
+    "rotation-2027": {
+      "id": "field-5-rotation-2027",
+      "fieldId": 5,
+      "fieldName": "South Pasture",
+      "date": "2027-04-22",
+      "category": "Crop rotation",
+      "title": "Plant soybeans for the 2027 season",
+      "description": "Rotate South Pasture from corn to soybeans. Check soil readiness and establish the crop within the calculated ten-day planting window.",
+      "priority": "Important",
+      "duration": "All day · planting window begins",
+      "rationale": "92% model confidence. Starts with the regional soybeans planting window."
+    },
+    "rotation-2028": {
+      "id": "field-5-rotation-2028",
+      "fieldId": 5,
+      "fieldName": "South Pasture",
+      "date": "2028-04-18",
+      "category": "Crop rotation",
+      "title": "Plant corn for the 2028 season",
+      "description": "Continue the proposed rotation from soybeans to corn. Review this longer-term step after the 2027 harvest and new soil results.",
+      "priority": "Routine",
+      "duration": "All day · longer-term outlook",
+      "rationale": "Second step in the predicted crop sequence; reviewed as new field observations become available."
+    },
+    "irrigation": {
+      "id": "field-4-irrigation",
+      "fieldId": 4,
+      "fieldName": "East Ridge",
+      "date": "2026-05-25",
+      "category": "Irrigation",
+      "title": "Review irrigation and root-zone moisture",
+      "description": "Check water distribution and inspect the driest parts of East Ridge. Adjust the watering plan around the expected rain and record moisture after the next pass.",
+      "priority": "High priority",
+      "duration": "Morning · 1 hour",
+      "rationale": "Current soil moisture is 32%, below the field’s comfortable range."
+    },
+    "nutrition": {
+      "id": "field-4-nutrition",
+      "fieldId": 4,
+      "fieldName": "East Ridge",
+      "date": "2026-05-28",
+      "category": "Nutrition",
+      "title": "Review and apply the nutrient top-up",
+      "description": "Use the soil check results to confirm the nutrient plan. Arrange the planned application around the light rain window and record the applied rate.",
+      "priority": "High priority",
+      "duration": "Morning · 2–3 hours",
+      "rationale": "Available nitrogen is 12 mg/kg. Address the shortage before the next crop review."
+    }
+  },
+  "technicals": [
+    {
+      "key": "crop",
+      "parameter": "Crop sequence",
+      "value": "Winter wheat → Soybeans → Corn",
+      "role": "Changes crop family and seasonal cover."
+    },
+    {
+      "key": "ph",
+      "parameter": "Soil pH",
+      "value": "6.5",
+      "role": "No pH-related delay in this draft."
+    },
+    {
+      "key": "moisture",
+      "parameter": "Soil moisture",
+      "value": "64%",
+      "role": "No moisture-related delay in this draft."
+    },
+    {
+      "key": "nitrogen",
+      "parameter": "Available nitrogen",
+      "value": "42 mg/kg",
+      "role": "Monitor during the next soil review."
+    },
+    {
+      "key": "organic",
+      "parameter": "Organic matter",
+      "value": "3.8%",
+      "role": "Context for residue and soil management."
+    },
+    {
+      "key": "drainage",
+      "parameter": "Drainage",
+      "value": "Well drained",
+      "role": "Check trafficability before field operations."
+    },
+    {
+      "key": "root",
+      "parameter": "Rooting depth",
+      "value": "95 cm",
+      "role": "Context for root-zone sampling and moisture checks."
+    }
+  ]
+}

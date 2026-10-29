@@ -1,12 +1,6 @@
-from fastapi import FastAPI
+"""Compatibility entry point: python main.py or uvicorn main:app."""
 
-app = FastAPI(title="Field Shift NASA API")
-
-
-@app.get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Hello World"}
-
+from app.main import app as app
 
 if __name__ == "__main__":
     import uvicorn
