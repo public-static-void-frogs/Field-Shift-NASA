@@ -1,4 +1,5 @@
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
@@ -23,7 +24,10 @@ class LabelValue(BaseModel):
 
 
 class RotationPlan(BaseModel):
-    fieldId: int
+    id: UUID
+    nextCropId: UUID
+    followingCropId: UUID
+    fieldId: UUID
     currentCrop: str
     nextCrop: str
     followingCrop: str
@@ -37,8 +41,8 @@ class RotationPlan(BaseModel):
 
 
 class PlannedEvent(BaseModel):
-    id: str
-    fieldId: int
+    id: UUID
+    fieldId: UUID
     fieldName: str
     date: str
     category: str

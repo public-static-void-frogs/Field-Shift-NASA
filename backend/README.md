@@ -13,9 +13,10 @@ python main.py
 ```
 
 The server listens on `http://127.0.0.1:8000`. Start the frontend separately with
-`npm run dev`; Vite forwards `/api/*` to this backend. Its preview server uses the
-same proxy. For separate hosting, build the frontend with `VITE_API_BASE_URL`
-set to the full API prefix, e.g. `https://api.example.com/api/v1`.
+`npm run dev`. Set the frontend `.env` variable `VITE_API_BASE_URL` to the full API
+prefix (`http://127.0.0.1:8000/api/v1` locally). Requests go directly to this URL;
+there is no Vite API proxy. For separate hosting, set it to the deployed prefix,
+e.g. `https://api.example.com/api/v1`, before building the frontend.
 
 `CORS_ORIGINS` accepts a comma-separated list of frontend origins. Its default is
 `http://localhost:5173,http://127.0.0.1:5173`. Set it explicitly for deployed clients.
@@ -30,14 +31,15 @@ app/
   schemas/         Pydantic request validation and response contracts
   repositories/    Process-local field and strategy-decision storage
   services/        Field history, recommendations, planning, analytics, notifications
-  data/            Read-only JSON demo fixtures and copy templates by domain
+  data/            Normalized JSON collections with primary and foreign keys
 main.py            Compatibility entry point
 openapi.json       Generated API contract (source of truth: routes and Pydantic models)
 tests/             API lifecycle, validation, concurrency, CORS, and planning checks
 ```
 
 Routes delegate to services and the repository; they contain no fixture generators.
-Read-only fixture files are cached and copied before use. Repository mutations are
+JSON collection arrays are loaded into private indexed tables per repository. Foreign keys
+and unique primary keys are validated at startup; joins use IDs, never array order. Repository mutations are
 protected by a lock, and callers receive detached values. Use `create_app()` to get
 an isolated repository in tests. A database-backed repository can replace this demo
 storage without changing frontend fetching or query keys.
@@ -62,6 +64,15 @@ All resource routes use `/api/v1`. The existing `GET /` health response is prese
 | GET | `/farm/profile`, `/maps/geojson`, `/notifications` | Farm, boundaries, notifications |
 | GET | `/help/team`, `/help/sources` | Help content |
 
+Fields have UUID identifiers, e.g. `3bf6d7e9-8f34-59dc-abf9-5a02df771653`.
+`GET /fields/{guid}` includes `parcelId`, `farmId`, `cropId`, `geometry`, and joined
+`properties`. History and seasons include `fieldId`; planned events have UUID IDs.
+Malformed UUIDs return `422`; valid but unknown UUIDs return `404`.
+Numeric field URLs from the former demo are no longer supported.
+
+The [collection model](app/data/README.md) documents each entity, foreign key, join,
+and cascade. It includes the distinction between a field and its numeric parcel.
+
 Create a field with `{"parcelId":6,"name":"West Orchard","crop":"Soybeans"}`.
 Names are trimmed and must contain 1–60 characters. Only the six demo parcels and
 three supported crops are accepted. Success returns `201`; an occupied parcel
@@ -70,8 +81,9 @@ Errors use FastAPI's `{"detail": ...}` shape.
 
 Respond to a strategy with `{"status":"accepted"}`, `{"status":"declined"}`, or
 `{"status":"proposed"}`. The response contains all saved decisions, including
-fingerprints compatible with the frontend calendar. Deleting a field also deletes
-its decisions and updates derived schedules, analytics, and notifications.
+fingerprints compatible with the frontend calendar. Deleting a field cascades through its related records and event decisions. Maps,
+schedules, analytics, and notifications reflect the remaining field associations.
+Recreating a field on the same parcel assigns a fresh UUID.
 
 Weather history accepts 7, 30, or 90 days. Chart ranges accept 1–365 days and
 `health` or `moisture`. Defaults are 30 days and health.

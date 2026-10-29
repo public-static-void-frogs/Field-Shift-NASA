@@ -1,0 +1,3642 @@
+[
+  {
+    "id": "995817a8-673a-519a-a722-9f54426828cf",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-02-23",
+    "nitrogen": 42,
+    "health": 80,
+    "moisture": 56
+  },
+  {
+    "id": "9a1a40b9-3d42-5b26-b121-77e92986eced",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-02-24",
+    "nitrogen": 42,
+    "health": 81,
+    "moisture": 57
+  },
+  {
+    "id": "0ce83420-489b-5da1-b518-fe624d62f1cf",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-02-25",
+    "nitrogen": 42,
+    "health": 81,
+    "moisture": 58
+  },
+  {
+    "id": "0f27625d-90ab-5971-951f-683d224c2262",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-02-26",
+    "nitrogen": 42,
+    "health": 82,
+    "moisture": 59
+  },
+  {
+    "id": "b5c2d61a-6e67-53a6-b608-cd9e19928ce3",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-02-27",
+    "nitrogen": 42,
+    "health": 82,
+    "moisture": 59
+  },
+  {
+    "id": "72fb9920-d31f-5f27-8b10-576782956c9b",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-02-28",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 60
+  },
+  {
+    "id": "5de3f3ac-33a4-543e-b823-782aec9c50f8",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-01",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 61
+  },
+  {
+    "id": "a6b7cd1a-fee4-5bf1-8d79-ad959faca937",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-02",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 61
+  },
+  {
+    "id": "b438aba1-159d-5b75-b91f-2faa7cbd0e38",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-03",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 62
+  },
+  {
+    "id": "65ecda46-aa76-532b-bb43-e1d95c0b1ced",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-04",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 62
+  },
+  {
+    "id": "89ba29b2-31a3-55e4-a931-4b8c1a54c5d1",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-05",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "78704696-2c80-50be-bb7e-5b454f9bf06b",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-06",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "c73111b7-e8bf-5078-b1f2-0e8bcaddd2f1",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-07",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "1fc3de2b-e240-5709-b709-e92c0cbb9c0e",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-08",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "a15227af-c25e-5f49-a23c-0b8bf21665d7",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-09",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "3c43e95d-adaa-563f-af87-5edccf44de8c",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-10",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "569b1485-dfcf-54a9-9830-714d76e9d253",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-11",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "8881439c-715c-5b54-8df4-365ea7a253a7",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-12",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "144f4d08-3bd8-5926-9bee-dbc8d0cb07ca",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-13",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 63
+  },
+  {
+    "id": "f5225223-6be5-536a-98db-bdf6e54be388",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-14",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 62
+  },
+  {
+    "id": "d681db86-9523-5dc1-b5cd-0fb94cbb1040",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-15",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 62
+  },
+  {
+    "id": "727c9563-2aa2-5405-ba39-e8012ca748ba",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-16",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 62
+  },
+  {
+    "id": "21ed3654-7cb3-5a61-8ab0-e39a85eb9fd7",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-17",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 61
+  },
+  {
+    "id": "77e14c68-e329-592d-b400-020a3a126024",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-18",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 61
+  },
+  {
+    "id": "748b221d-c7f9-5668-9a17-8b6cf542dc7a",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-19",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 60
+  },
+  {
+    "id": "878ff373-e139-5862-a412-3eb60ecfb573",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-20",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 60
+  },
+  {
+    "id": "855ad696-b200-573f-8243-d832101e06ca",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-21",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 59
+  },
+  {
+    "id": "c6fd7111-60df-59fe-8241-8b80292fe46e",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-22",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 59
+  },
+  {
+    "id": "246112fc-b874-58f8-8237-d47dd7e29ef9",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-23",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 58
+  },
+  {
+    "id": "0cb525b6-36e0-5f1c-b711-f285f848bf35",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-24",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 58
+  },
+  {
+    "id": "08e42c57-27e9-5ffe-825e-cbcd61a829f8",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-25",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 57
+  },
+  {
+    "id": "2ed6544c-fcfe-5e8a-b0ac-bce43cd30fb6",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-26",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 57
+  },
+  {
+    "id": "c8d6832e-8359-5ff0-89d4-8cd79ad0ee12",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-27",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 57
+  },
+  {
+    "id": "2d270d8b-3dd6-57f1-950d-7475b3cee9f9",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-28",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "31f60b2f-75e9-5d16-8ebc-423b172a7c81",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-29",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "8030cc8e-5d7c-5875-92e0-8363236f9f40",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-30",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "e846e00f-0343-5dba-8268-0e000c8c044c",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-03-31",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "0c0e8984-29c9-5bc1-970d-678619972e6e",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-01",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "7fa93d93-8284-525a-8324-b4312ba55395",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-02",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "d16e9e37-3550-5a55-a60b-c2ab016f6b58",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-03",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "0c89b1b9-53b1-5fa8-a62c-3b1ccbda7ce6",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-04",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "8ccc0665-a393-5aac-a0ca-51c690298f35",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-05",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "89d6d9d7-a37a-5ca2-9d8d-53458d937009",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-06",
+    "nitrogen": 42,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "f37b04fc-4431-5b3a-a3c2-eeb48f49d13a",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-07",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 56
+  },
+  {
+    "id": "d4df1df8-a6b9-5259-ac27-ea63e7631650",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-08",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 56
+  },
+  {
+    "id": "60188767-8fe6-5b65-84ee-08364a5d5ae3",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-09",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 57
+  },
+  {
+    "id": "544067b1-c303-5f9a-aa73-4c9e50610350",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-10",
+    "nitrogen": 42,
+    "health": 84,
+    "moisture": 57
+  },
+  {
+    "id": "301d6590-915a-5916-b220-7aa542c1ac93",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-11",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "9e3e9951-1f31-5f97-a3fb-cd9c413e8c55",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-12",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 58
+  },
+  {
+    "id": "ba3d5865-a1c0-59e9-bb20-f14c73c67357",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-13",
+    "nitrogen": 42,
+    "health": 85,
+    "moisture": 58
+  },
+  {
+    "id": "14591260-8e1f-57b3-9bb8-cbb03882bb2f",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-14",
+    "nitrogen": 42,
+    "health": 86,
+    "moisture": 59
+  },
+  {
+    "id": "9d2816c7-1357-5fde-abbd-25606476104f",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-15",
+    "nitrogen": 42,
+    "health": 86,
+    "moisture": 59
+  },
+  {
+    "id": "7cd991e1-8d48-54df-ac98-f23469727044",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-16",
+    "nitrogen": 42,
+    "health": 86,
+    "moisture": 59
+  },
+  {
+    "id": "09b6d9b3-50fb-56f6-b161-8ffb61c05d5d",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-17",
+    "nitrogen": 42,
+    "health": 87,
+    "moisture": 60
+  },
+  {
+    "id": "dc7a3fdb-5edc-52a3-9847-3f275f115d7e",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-18",
+    "nitrogen": 42,
+    "health": 87,
+    "moisture": 60
+  },
+  {
+    "id": "c75ca681-71be-5ada-85a5-7456def2e58a",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-19",
+    "nitrogen": 42,
+    "health": 87,
+    "moisture": 61
+  },
+  {
+    "id": "1c187aef-0cb2-57a3-9dcc-880fad19c1f8",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-20",
+    "nitrogen": 42,
+    "health": 88,
+    "moisture": 61
+  },
+  {
+    "id": "9d4bca77-fcd6-5fcc-9c41-459dfb588347",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-21",
+    "nitrogen": 42,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "5bcb8eae-960c-59fd-bc52-90f0e89ba79d",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-22",
+    "nitrogen": 42,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "441c8c77-bf60-5b68-942d-8161074961ee",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-23",
+    "nitrogen": 42,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "7c6f2bd7-81bc-5442-be84-205ec4bbd66e",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-24",
+    "nitrogen": 42,
+    "health": 89,
+    "moisture": 62
+  },
+  {
+    "id": "a4bb0909-a361-573b-9797-9aaf9b322717",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-25",
+    "nitrogen": 42,
+    "health": 89,
+    "moisture": 63
+  },
+  {
+    "id": "1f9e004a-52e9-5fe1-8fe1-84a1e8f781b6",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-26",
+    "nitrogen": 42,
+    "health": 89,
+    "moisture": 63
+  },
+  {
+    "id": "7b5460b8-215e-5cca-be9f-513ff252b508",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-27",
+    "nitrogen": 42,
+    "health": 89,
+    "moisture": 63
+  },
+  {
+    "id": "aac8acc8-3cae-5a51-8b88-f7cf3b86b230",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-28",
+    "nitrogen": 42,
+    "health": 89,
+    "moisture": 63
+  },
+  {
+    "id": "d300f0d9-c4eb-5329-8cdd-65289f4412f6",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-29",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 63
+  },
+  {
+    "id": "d2824921-cca4-5924-8ca2-e4cd6a0e1c98",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-30",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "66acaf27-98e6-59dc-9ca7-afb863096bb5",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-01",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "2fd3d426-1709-597d-95f6-5c8d0634da9a",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-02",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "30dba9a4-65dc-5e95-a72c-5f822b795b2e",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-03",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "128cf850-b339-5673-9d1d-c4bcf68ac15c",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-04",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "28b69a66-5c70-53d8-8fb8-8a0fb2b4aff5",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-05",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "94ed7924-fade-5616-91c1-ff3bc2915ff8",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-06",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "c5e90765-76c7-5e78-8955-5595dd02dfa9",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-07",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "6e2d9c5b-2a0f-5338-9469-1c8123b53650",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-08",
+    "nitrogen": 42,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "d49717c3-8c70-538e-a7a0-964deaf0a93a",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-09",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 64
+  },
+  {
+    "id": "c2718ca5-a1d4-5be1-b952-46b343d47714",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-10",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 64
+  },
+  {
+    "id": "a222fdbe-57d1-5365-ac40-34f824e9475a",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-11",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "08031e8b-75de-5e5f-945c-2296a9635494",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-12",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "1883490f-241b-5540-adda-a99097c09a75",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-13",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "987d7ad4-fae3-5d36-b475-2a392c59bb00",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-14",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "783a1cbf-d8e6-5757-b889-6d66b1ab2e5d",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-15",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "2a0aae31-1f88-5f5b-ae31-6caa9c3c968b",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-16",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "c2b4a464-55f9-500d-835b-cfdca2e0baf7",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-17",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "2799acdf-286a-561b-9379-4bfd269ee75b",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-18",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "d1375a91-8920-5d60-b0f7-0dfd6b5836d5",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-19",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 63
+  },
+  {
+    "id": "9fa5cf80-05b4-550c-8b44-555e6fcfbc7c",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-20",
+    "nitrogen": 42,
+    "health": 91,
+    "moisture": 64
+  },
+  {
+    "id": "e5ed3299-f6f9-5a2b-989e-4e6c08c7f92d",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-21",
+    "nitrogen": 42,
+    "health": 92,
+    "moisture": 64
+  },
+  {
+    "id": "95647319-b2e3-5d91-9106-da5d9e7083b1",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-22",
+    "nitrogen": 42,
+    "health": 92,
+    "moisture": 64
+  },
+  {
+    "id": "35e0d4cf-842c-563b-b6b6-f5723941e2c0",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-23",
+    "nitrogen": 42,
+    "health": 92,
+    "moisture": 64
+  },
+  {
+    "id": "b4901d16-f325-5e9f-85d1-0ff3bc2a816f",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-24",
+    "nitrogen": 42,
+    "health": 92,
+    "moisture": 64
+  },
+  {
+    "id": "30de6f8e-a3aa-5a02-b2cc-034c3f951482",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-02-23",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 36
+  },
+  {
+    "id": "6da6274d-e03c-5488-a0b8-8c69afd6bbd7",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-02-24",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 36
+  },
+  {
+    "id": "ef7f0e3c-b4c8-5751-bf0d-831e4e15d5c8",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-02-25",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 37
+  },
+  {
+    "id": "7732323e-0d0e-5879-9bee-3467ee6e8f2e",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-02-26",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 37
+  },
+  {
+    "id": "0d066992-0a7a-5401-aca4-ab624a4330d8",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-02-27",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 37
+  },
+  {
+    "id": "2c8e88e7-b27e-5f5a-8abd-9f2be94e7a29",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-02-28",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 37
+  },
+  {
+    "id": "1e9b17db-5645-5306-8630-21282c767065",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-01",
+    "nitrogen": 28,
+    "health": 61,
+    "moisture": 37
+  },
+  {
+    "id": "c042a4c9-60bf-58b7-bb90-228cf07200b7",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-02",
+    "nitrogen": 28,
+    "health": 61,
+    "moisture": 37
+  },
+  {
+    "id": "f2f707e2-36c3-53de-8451-d0258f4665f7",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-03",
+    "nitrogen": 28,
+    "health": 61,
+    "moisture": 37
+  },
+  {
+    "id": "9c2c3462-a385-5573-9872-e240651c6c5d",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-04",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 36
+  },
+  {
+    "id": "99c6eb3b-b6a0-505b-ba8b-06616191f077",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-05",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 36
+  },
+  {
+    "id": "168f48a1-0181-5420-979d-af32623355d9",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-06",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 36
+  },
+  {
+    "id": "9e789c48-8fd1-55e5-9464-e6ea89761ad7",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-07",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 35
+  },
+  {
+    "id": "eb2d4e4c-9864-542d-9b56-f6793d144e1c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-08",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 35
+  },
+  {
+    "id": "bdfd6f10-4a30-520e-8687-2fb60c0d01c0",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-09",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 34
+  },
+  {
+    "id": "b9359e9a-fedb-5062-887f-99923f303651",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-10",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 34
+  },
+  {
+    "id": "27e36646-f6f8-5ee9-b6c1-59c5f3826ee2",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-11",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 33
+  },
+  {
+    "id": "4bc93437-5208-51e1-8858-89a04f76c6cb",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-12",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 33
+  },
+  {
+    "id": "dc77d3e1-ef1a-509a-bb08-47c69566f9c9",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-13",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 32
+  },
+  {
+    "id": "41706593-f58f-5ea4-964f-49588832143e",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-14",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 32
+  },
+  {
+    "id": "51766972-f4b3-5cd3-a131-7b019deb97eb",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-15",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 31
+  },
+  {
+    "id": "349a8991-9984-5f00-89b4-fe00146e9783",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-16",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 31
+  },
+  {
+    "id": "50c38bc2-9dcc-558b-b509-672b7f8958af",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-17",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 30
+  },
+  {
+    "id": "6126f4d8-7e38-5f36-9ff0-b4c98d2601a8",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-18",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 30
+  },
+  {
+    "id": "28a24550-ddc9-5b6c-97e2-cfda5a6b3851",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-19",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 29
+  },
+  {
+    "id": "03585b1f-1c01-5ccb-a0f3-7623d6401214",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-20",
+    "nitrogen": 28,
+    "health": 57,
+    "moisture": 29
+  },
+  {
+    "id": "0ce22248-1b3f-58ca-9e89-ad9d6558e51c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-21",
+    "nitrogen": 28,
+    "health": 57,
+    "moisture": 29
+  },
+  {
+    "id": "110ffa3f-4003-5259-abb4-8dca3df9a469",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-22",
+    "nitrogen": 28,
+    "health": 57,
+    "moisture": 29
+  },
+  {
+    "id": "b9d18b45-adf5-5b6c-90af-18e8f2ad082b",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-23",
+    "nitrogen": 28,
+    "health": 57,
+    "moisture": 28
+  },
+  {
+    "id": "1eac0cf8-4775-59f9-a2f5-d5de320921c6",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-24",
+    "nitrogen": 28,
+    "health": 57,
+    "moisture": 28
+  },
+  {
+    "id": "1e5b5e5b-5093-5f86-abe0-45651b543005",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-25",
+    "nitrogen": 28,
+    "health": 57,
+    "moisture": 28
+  },
+  {
+    "id": "2d4a47ee-d16f-51c5-8e10-f7aacc0b283c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-26",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 28
+  },
+  {
+    "id": "a69fe9d9-7fcb-55c4-8e6d-92973bfa387c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-27",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 28
+  },
+  {
+    "id": "f8262922-35e7-570e-953b-ef5916c57fbd",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-28",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 29
+  },
+  {
+    "id": "f833c54c-ac73-5f51-9267-7cece51ce176",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-29",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 29
+  },
+  {
+    "id": "a4c05f2e-84ff-5094-a9a6-89dcfdcbd9cb",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-30",
+    "nitrogen": 28,
+    "health": 58,
+    "moisture": 29
+  },
+  {
+    "id": "e945c930-d249-58ab-8d3d-789a5586a215",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-03-31",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 29
+  },
+  {
+    "id": "1bee2cc6-721a-5446-acdb-0c42613482ef",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-01",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 30
+  },
+  {
+    "id": "25b550c4-91c8-5a25-aae2-72adee2b6658",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-02",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 30
+  },
+  {
+    "id": "6a77e90e-a2ca-561f-9a97-2027df2d1c6c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-03",
+    "nitrogen": 28,
+    "health": 59,
+    "moisture": 30
+  },
+  {
+    "id": "7c643c64-da1a-557d-8265-d1a5eaaf2022",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-04",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 31
+  },
+  {
+    "id": "5736488c-20ca-52e5-8c4b-e10c7261c79b",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-05",
+    "nitrogen": 28,
+    "health": 60,
+    "moisture": 31
+  },
+  {
+    "id": "c3fa29e5-22cd-5ece-a6ea-5a6d3d2a982b",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-06",
+    "nitrogen": 28,
+    "health": 61,
+    "moisture": 32
+  },
+  {
+    "id": "ee745b69-9bd8-5e7a-a5e6-d3ecb34d226d",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-07",
+    "nitrogen": 28,
+    "health": 61,
+    "moisture": 32
+  },
+  {
+    "id": "d86b9822-72c9-54ad-a6cd-f0537a7571ce",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-08",
+    "nitrogen": 28,
+    "health": 61,
+    "moisture": 33
+  },
+  {
+    "id": "39681dc9-505a-5565-b395-9edba927850c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-09",
+    "nitrogen": 28,
+    "health": 62,
+    "moisture": 33
+  },
+  {
+    "id": "3becd30c-1c97-5fb1-a70f-b99578c4fecf",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-10",
+    "nitrogen": 28,
+    "health": 62,
+    "moisture": 34
+  },
+  {
+    "id": "578c3de2-9194-56fe-b868-59bb012141a9",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-11",
+    "nitrogen": 28,
+    "health": 62,
+    "moisture": 34
+  },
+  {
+    "id": "6d6dc48d-f49f-5f05-b3b6-20d36af8f10a",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-12",
+    "nitrogen": 28,
+    "health": 63,
+    "moisture": 35
+  },
+  {
+    "id": "c15298d5-52db-585f-913e-f30b2f0be4ce",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-13",
+    "nitrogen": 28,
+    "health": 63,
+    "moisture": 35
+  },
+  {
+    "id": "9f6a0b08-d9d2-56cb-ae16-bbf14091634b",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-14",
+    "nitrogen": 28,
+    "health": 63,
+    "moisture": 36
+  },
+  {
+    "id": "f9667455-6d86-5e7c-a73a-2b2dd3e60290",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-15",
+    "nitrogen": 28,
+    "health": 64,
+    "moisture": 36
+  },
+  {
+    "id": "9962cc9e-a5cd-5279-9e5f-087a036179b5",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-16",
+    "nitrogen": 28,
+    "health": 64,
+    "moisture": 36
+  },
+  {
+    "id": "fbc90358-fb38-5c05-bbf9-b2fa7aa6821b",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-17",
+    "nitrogen": 28,
+    "health": 64,
+    "moisture": 37
+  },
+  {
+    "id": "aac9761b-5466-54bb-bbf1-814b64681197",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-18",
+    "nitrogen": 28,
+    "health": 64,
+    "moisture": 37
+  },
+  {
+    "id": "0bd1dfbd-5ba9-5ab6-9573-a26fa655b799",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-19",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 37
+  },
+  {
+    "id": "deb5dc6c-e95b-546c-8737-9a2865b38d04",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-20",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 37
+  },
+  {
+    "id": "51c12fe2-072f-58f8-9e51-3919e0bb3606",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-21",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 37
+  },
+  {
+    "id": "fd83063f-92c8-5df6-9215-e54c0b62a287",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-22",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 38
+  },
+  {
+    "id": "1aa68ff7-9a6d-5016-bade-5a3e69daa4fc",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-23",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 38
+  },
+  {
+    "id": "c8ce11df-db28-5fba-b97c-6b05a3a478b6",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-24",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 38
+  },
+  {
+    "id": "c9d697ab-986e-59c9-87c8-e5a7e4798e36",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-25",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 38
+  },
+  {
+    "id": "1bb7a62b-a641-5aab-8892-4d004167148c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-26",
+    "nitrogen": 28,
+    "health": 65,
+    "moisture": 38
+  },
+  {
+    "id": "ab3774cc-563c-50a7-bd2e-be28e3697391",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-27",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 38
+  },
+  {
+    "id": "3b361ef0-89ff-5d54-b47b-7c407cbe6f30",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-28",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 38
+  },
+  {
+    "id": "537084da-c368-5d13-98ef-e14a0893d069",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-29",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "c35b3777-052d-518b-96db-973b3f5e996a",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-30",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "f9068cbd-fb36-5b54-83fa-3276d6c039e4",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-01",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "8b93dd25-e812-55f8-87d7-9be05fb918ee",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-02",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "6fa01a25-2bb9-5adc-b2df-e942a0d4aefd",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-03",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "983063e4-3101-530b-8a0e-6a927d68f082",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-04",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "80ef897e-53fe-59c6-a169-3b3c2d50f12f",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-05",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "6cf565f8-2a4c-5ecf-a7b6-476035c701dd",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-06",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "93de2325-d8be-5b77-833b-0aa24ac0a124",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-07",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "f4ffc4a4-9a81-5bb2-9511-a44a9556b604",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-08",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "f311793c-a3e6-5807-abd7-2cbb1d1cc7a7",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-09",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "49ffb8b2-1721-5975-bede-805a5e9c76da",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-10",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "3e1666fe-8732-53d9-aa00-073b3f8a3afb",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-11",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "2d9b0c4a-6a69-5160-8b0b-281c7eba2e5e",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-12",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "8a6e2f01-4121-5583-b34c-b0fc15b03317",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-13",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "2c967025-c238-582b-b425-56e85c7f04e0",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-14",
+    "nitrogen": 28,
+    "health": 66,
+    "moisture": 37
+  },
+  {
+    "id": "ef4f6985-e078-524d-850b-fb83b7736c08",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-15",
+    "nitrogen": 28,
+    "health": 67,
+    "moisture": 37
+  },
+  {
+    "id": "5460bfd0-c75b-5340-9d4b-1af7926295e1",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-16",
+    "nitrogen": 28,
+    "health": 67,
+    "moisture": 37
+  },
+  {
+    "id": "c4f9f260-1cc6-5bdc-9574-293a4a39a8ab",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-17",
+    "nitrogen": 28,
+    "health": 67,
+    "moisture": 37
+  },
+  {
+    "id": "bf398895-e7ff-54b0-b429-f645909bab29",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-18",
+    "nitrogen": 28,
+    "health": 67,
+    "moisture": 37
+  },
+  {
+    "id": "1b0c54c9-9b02-599b-8387-33c24c9de938",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-19",
+    "nitrogen": 28,
+    "health": 67,
+    "moisture": 37
+  },
+  {
+    "id": "b731adc5-4b16-561c-b0a9-7d3ba3be1b59",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-20",
+    "nitrogen": 28,
+    "health": 67,
+    "moisture": 37
+  },
+  {
+    "id": "5bbb2f7f-4607-5c63-acb4-6810b1f27235",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-21",
+    "nitrogen": 28,
+    "health": 67,
+    "moisture": 38
+  },
+  {
+    "id": "11f90ffa-7112-5b20-861f-52c9b2534e1c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-22",
+    "nitrogen": 28,
+    "health": 68,
+    "moisture": 38
+  },
+  {
+    "id": "6399fbba-477b-54dc-8acf-bc60cfdccfd8",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-23",
+    "nitrogen": 28,
+    "health": 68,
+    "moisture": 38
+  },
+  {
+    "id": "b9d7b213-14ef-551d-8061-ea7860bf355f",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-24",
+    "nitrogen": 28,
+    "health": 68,
+    "moisture": 38
+  },
+  {
+    "id": "e2048bad-234f-5766-8c8b-47d9f526fe40",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-02-23",
+    "nitrogen": 38,
+    "health": 80,
+    "moisture": 56
+  },
+  {
+    "id": "2cba808f-dfb4-51e0-835e-a6501da3d677",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-02-24",
+    "nitrogen": 38,
+    "health": 80,
+    "moisture": 56
+  },
+  {
+    "id": "469fa7a3-5a1a-54fb-9854-425ba07e8be2",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-02-25",
+    "nitrogen": 38,
+    "health": 79,
+    "moisture": 56
+  },
+  {
+    "id": "bfdf9b9c-b209-5817-b8fa-0739bcd5d540",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-02-26",
+    "nitrogen": 38,
+    "health": 79,
+    "moisture": 55
+  },
+  {
+    "id": "5d4b6c2d-fc64-56fb-ad5f-a946ce4564a4",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-02-27",
+    "nitrogen": 38,
+    "health": 79,
+    "moisture": 55
+  },
+  {
+    "id": "afb86999-5e5d-5de8-a623-c6ef3b887ceb",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-02-28",
+    "nitrogen": 38,
+    "health": 79,
+    "moisture": 54
+  },
+  {
+    "id": "121b9b2a-4b92-5b6a-818c-b305d4769261",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-01",
+    "nitrogen": 38,
+    "health": 78,
+    "moisture": 53
+  },
+  {
+    "id": "36f87e41-7abb-554a-9773-02d3ebe82854",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-02",
+    "nitrogen": 38,
+    "health": 78,
+    "moisture": 53
+  },
+  {
+    "id": "5850d1ee-521a-55b5-84ab-3c5e3330ed32",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-03",
+    "nitrogen": 38,
+    "health": 78,
+    "moisture": 52
+  },
+  {
+    "id": "b5b788f9-c7f5-5fd5-b6fc-6c266f8f4f1a",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-04",
+    "nitrogen": 38,
+    "health": 78,
+    "moisture": 52
+  },
+  {
+    "id": "ddd69808-03b2-5ba6-beeb-ad7f9d63a49c",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-05",
+    "nitrogen": 38,
+    "health": 77,
+    "moisture": 51
+  },
+  {
+    "id": "7da98216-eb41-557a-af05-a719c43fc3d9",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-06",
+    "nitrogen": 38,
+    "health": 77,
+    "moisture": 50
+  },
+  {
+    "id": "f39dbce6-881e-5127-809b-5db54ce0846b",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-07",
+    "nitrogen": 38,
+    "health": 77,
+    "moisture": 50
+  },
+  {
+    "id": "e19451b6-1749-596f-a0a7-0d2ff480dcec",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-08",
+    "nitrogen": 38,
+    "health": 77,
+    "moisture": 49
+  },
+  {
+    "id": "2b0a350e-589a-598f-b6a6-5e370c766070",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-09",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 49
+  },
+  {
+    "id": "1d1302a3-ce6b-540a-a890-ff294676647d",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-10",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 48
+  },
+  {
+    "id": "7e671983-bc3a-52f1-8ebd-f69c342ef0fc",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-11",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 48
+  },
+  {
+    "id": "03482e62-cf73-5590-abbe-65345a8ab9c3",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-12",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "ae470057-d437-5045-90c3-9cf4a70f11f4",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-13",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "b439ab17-2981-5cd4-b13b-16c1ba5abff8",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-14",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "4c3d1274-0438-587f-9c99-1639cd5dd9be",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-15",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "b482b7dc-5f45-5ece-8cfe-3fb85fd187f0",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-16",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "4d758b7a-44bd-55ac-917a-724694bd46d5",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-17",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "59e77651-47af-581e-bbd5-e8499c07eb4d",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-18",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "1dc1e208-066f-5f34-9472-0baf9e3fec2e",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-19",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "3c955f0f-1949-5a2f-8c6e-169f41cf96f9",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-20",
+    "nitrogen": 38,
+    "health": 76,
+    "moisture": 47
+  },
+  {
+    "id": "979580ec-b0e6-5a17-aa9a-c893cb87a2fa",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-21",
+    "nitrogen": 38,
+    "health": 77,
+    "moisture": 47
+  },
+  {
+    "id": "e9d319e1-1550-5f85-8ceb-7d102c0867ac",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-22",
+    "nitrogen": 38,
+    "health": 77,
+    "moisture": 48
+  },
+  {
+    "id": "c5565cf0-554a-5743-b7eb-826925a20109",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-23",
+    "nitrogen": 38,
+    "health": 77,
+    "moisture": 48
+  },
+  {
+    "id": "645fc39d-de22-51fd-be33-45728a458866",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-24",
+    "nitrogen": 38,
+    "health": 78,
+    "moisture": 49
+  },
+  {
+    "id": "7a8d231b-41dc-593d-894a-a96a334501c4",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-25",
+    "nitrogen": 38,
+    "health": 78,
+    "moisture": 49
+  },
+  {
+    "id": "5460a863-e202-5b8e-9ef5-0675b44bc063",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-26",
+    "nitrogen": 38,
+    "health": 78,
+    "moisture": 50
+  },
+  {
+    "id": "1bec639c-b801-5db8-9e56-89491ed4ce5f",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-27",
+    "nitrogen": 38,
+    "health": 79,
+    "moisture": 50
+  },
+  {
+    "id": "10ee6c53-af92-5203-9cba-a260b65572bf",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-28",
+    "nitrogen": 38,
+    "health": 79,
+    "moisture": 51
+  },
+  {
+    "id": "b227180d-59e3-570d-8058-8ed925e69bb5",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-29",
+    "nitrogen": 38,
+    "health": 79,
+    "moisture": 51
+  },
+  {
+    "id": "b5374460-bf37-5966-834c-16be6a9b4824",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-30",
+    "nitrogen": 38,
+    "health": 80,
+    "moisture": 52
+  },
+  {
+    "id": "c311f5b2-78e8-5e26-aa7c-ba3b996439cc",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-03-31",
+    "nitrogen": 38,
+    "health": 80,
+    "moisture": 52
+  },
+  {
+    "id": "c277af03-e29c-51d1-89ba-33ff52a624e1",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-01",
+    "nitrogen": 38,
+    "health": 81,
+    "moisture": 53
+  },
+  {
+    "id": "f5a883b8-7067-5afe-b613-a14348490994",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-02",
+    "nitrogen": 38,
+    "health": 81,
+    "moisture": 53
+  },
+  {
+    "id": "dab51794-bc95-5822-98da-bc85b20fc424",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-03",
+    "nitrogen": 38,
+    "health": 82,
+    "moisture": 54
+  },
+  {
+    "id": "cebd7650-860a-5862-a580-050df3990839",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-04",
+    "nitrogen": 38,
+    "health": 82,
+    "moisture": 55
+  },
+  {
+    "id": "721acd62-bb2c-5cf1-b0ed-a7fcf67929be",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-05",
+    "nitrogen": 38,
+    "health": 82,
+    "moisture": 55
+  },
+  {
+    "id": "2096425c-5ceb-5e8d-83fa-ebabfb423e32",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-06",
+    "nitrogen": 38,
+    "health": 83,
+    "moisture": 55
+  },
+  {
+    "id": "ce75b29d-a352-5614-acf0-db05ac474a43",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-07",
+    "nitrogen": 38,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "7d2b069e-fc39-52a5-9cb6-33586cc79490",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-08",
+    "nitrogen": 38,
+    "health": 83,
+    "moisture": 56
+  },
+  {
+    "id": "4d151991-b43d-5a22-95d8-b7b698ccddff",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-09",
+    "nitrogen": 38,
+    "health": 83,
+    "moisture": 57
+  },
+  {
+    "id": "4a9caf83-6fe1-586f-8745-0391ae7cc236",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-10",
+    "nitrogen": 38,
+    "health": 84,
+    "moisture": 57
+  },
+  {
+    "id": "9151c6b7-e4e0-541d-8a93-63b9e4d2510f",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-11",
+    "nitrogen": 38,
+    "health": 84,
+    "moisture": 57
+  },
+  {
+    "id": "ec36e7b4-3f59-5cbc-b3ad-38ab36e66f04",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-12",
+    "nitrogen": 38,
+    "health": 84,
+    "moisture": 57
+  },
+  {
+    "id": "972a2555-d185-5225-ae65-db5cf64aba4c",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-13",
+    "nitrogen": 38,
+    "health": 84,
+    "moisture": 57
+  },
+  {
+    "id": "748cd205-2792-5657-90e3-4136aa5dc234",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-14",
+    "nitrogen": 38,
+    "health": 84,
+    "moisture": 58
+  },
+  {
+    "id": "d5e4bd31-2785-5f16-afe7-db71b1637904",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-15",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 58
+  },
+  {
+    "id": "43bd1267-c2f4-5eaf-a7a2-c6a94333b13e",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-16",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 58
+  },
+  {
+    "id": "4840e22b-6892-5d34-b837-fc2e267b5308",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-17",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 58
+  },
+  {
+    "id": "2d87a33c-b5cc-54d0-a9b7-174eb8a8df1c",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-18",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 58
+  },
+  {
+    "id": "1a62aa07-5637-5b47-a606-446d6ffe035a",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-19",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "e9de35db-27a1-5cc8-968c-2507b18df53e",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-20",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "9ff966bd-6c24-5117-86a4-2d9d78998845",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-21",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "25498f6e-a1af-5e6e-beb0-e14c83c45669",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-22",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "6a02725e-1dd3-5100-bbab-5bbd1cfc62cd",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-23",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "11f7be25-08ba-52f5-9c58-b09d81b2eb59",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-24",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "90ba7d54-f742-545a-a5e8-37861b9f393e",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-25",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 57
+  },
+  {
+    "id": "a9af6696-cdf0-5786-89bb-a6906918732a",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-26",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "45561b22-fec3-5a40-b77c-af9d49bf16c4",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-27",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "1512b2b6-20bd-5b87-9897-72d6351d934b",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-28",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "df67bc9f-a751-584b-b089-edde782e7638",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-29",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "a506c036-4cf7-5e98-b7ed-bacb8b39b0f9",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-30",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "30b6ac10-bc47-527d-98dd-e44b4f3e042d",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-01",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "af975c0c-c14d-5281-8677-3b48cd75dc4c",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-02",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "02e67283-2bc5-5419-a9de-229d67a764b2",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-03",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "e7475eb7-56e8-500a-9b1f-10979f8d084a",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-04",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 55
+  },
+  {
+    "id": "61f0f650-4696-5e3d-a7d3-59248c6d3b29",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-05",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 55
+  },
+  {
+    "id": "5a2c0859-5e39-5a5c-99dd-a2f5d884cc12",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-06",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 55
+  },
+  {
+    "id": "bd3612c3-4417-5681-b54d-bcd0e789703a",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-07",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 55
+  },
+  {
+    "id": "1217f4de-d2aa-5604-a532-f71f59457166",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-08",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "2e9bb8aa-d562-5445-9c98-e8756274a650",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-09",
+    "nitrogen": 38,
+    "health": 85,
+    "moisture": 56
+  },
+  {
+    "id": "6d196e4a-bb32-5157-bcf5-9c20b98c64c2",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-10",
+    "nitrogen": 38,
+    "health": 86,
+    "moisture": 56
+  },
+  {
+    "id": "c41f85ec-6bc1-51c4-94ee-b93a14bef874",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-11",
+    "nitrogen": 38,
+    "health": 86,
+    "moisture": 56
+  },
+  {
+    "id": "8bbe081f-9ea6-5d99-befe-dc4dda98fdcb",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-12",
+    "nitrogen": 38,
+    "health": 86,
+    "moisture": 56
+  },
+  {
+    "id": "22d23b6a-9cb6-56de-8f38-9e27e887efab",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-13",
+    "nitrogen": 38,
+    "health": 86,
+    "moisture": 56
+  },
+  {
+    "id": "d6d18253-08f5-521c-b389-1c222a837302",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-14",
+    "nitrogen": 38,
+    "health": 86,
+    "moisture": 56
+  },
+  {
+    "id": "18cd73d8-0bb8-527f-bf70-7a117c128a09",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-15",
+    "nitrogen": 38,
+    "health": 86,
+    "moisture": 57
+  },
+  {
+    "id": "15d6fbf2-3da7-5793-9cdd-7367bcb108ac",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-16",
+    "nitrogen": 38,
+    "health": 87,
+    "moisture": 57
+  },
+  {
+    "id": "82f1505d-aba2-587a-83f2-719f69e74a02",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-17",
+    "nitrogen": 38,
+    "health": 87,
+    "moisture": 57
+  },
+  {
+    "id": "00a6e286-dd2d-5394-9402-c66349c40d9a",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-18",
+    "nitrogen": 38,
+    "health": 87,
+    "moisture": 57
+  },
+  {
+    "id": "29a2039d-b1c3-57cd-aec0-0e54b8ac5c88",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-19",
+    "nitrogen": 38,
+    "health": 87,
+    "moisture": 57
+  },
+  {
+    "id": "7bcd491e-3591-5d4d-ba5d-97cf901685d7",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-20",
+    "nitrogen": 38,
+    "health": 87,
+    "moisture": 57
+  },
+  {
+    "id": "4e614d5a-fba5-57b7-bd50-b42632e76861",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-21",
+    "nitrogen": 38,
+    "health": 88,
+    "moisture": 58
+  },
+  {
+    "id": "b249bf52-f85a-517c-a412-3377b3b1b7ac",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-22",
+    "nitrogen": 38,
+    "health": 88,
+    "moisture": 58
+  },
+  {
+    "id": "67223965-adc4-5eb9-aa95-ee1f0f1bb593",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-23",
+    "nitrogen": 38,
+    "health": 88,
+    "moisture": 58
+  },
+  {
+    "id": "e671f66b-8200-5861-a779-7e1b50b219fd",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-24",
+    "nitrogen": 38,
+    "health": 88,
+    "moisture": 58
+  },
+  {
+    "id": "15620851-8ea6-55e4-af93-d69921d4e41b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-02-23",
+    "nitrogen": 12,
+    "health": 34,
+    "moisture": 25
+  },
+  {
+    "id": "d9c4039f-55d4-542f-b51f-898bc041417e",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-02-24",
+    "nitrogen": 12,
+    "health": 33,
+    "moisture": 24
+  },
+  {
+    "id": "c6f55113-150d-57bf-9c54-18ea3d26c823",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-02-25",
+    "nitrogen": 12,
+    "health": 33,
+    "moisture": 24
+  },
+  {
+    "id": "e8e24f70-8e83-5c26-8049-a802afba977a",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-02-26",
+    "nitrogen": 12,
+    "health": 33,
+    "moisture": 23
+  },
+  {
+    "id": "3b8d12fb-e7ce-5f98-8441-788890548017",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-02-27",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 22
+  },
+  {
+    "id": "67b39312-cfbf-56d5-aab5-096630621684",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-02-28",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 22
+  },
+  {
+    "id": "dccadba7-8099-528b-a949-e0b6f41b2312",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-01",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 21
+  },
+  {
+    "id": "aa58a6f4-17f6-54c5-aa04-bf573f77debd",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-02",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 21
+  },
+  {
+    "id": "dbb31293-b62c-55d2-b341-33f6308bbf1a",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-03",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 20
+  },
+  {
+    "id": "12006c31-d2fa-59d4-8b0a-ad4b13d749f8",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-04",
+    "nitrogen": 12,
+    "health": 31,
+    "moisture": 20
+  },
+  {
+    "id": "9b4c6679-32c3-5a32-8a4c-0b63e390ba3b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-05",
+    "nitrogen": 12,
+    "health": 31,
+    "moisture": 20
+  },
+  {
+    "id": "58f07118-5715-5de1-99c9-3d5b5614d2c2",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-06",
+    "nitrogen": 12,
+    "health": 31,
+    "moisture": 19
+  },
+  {
+    "id": "6d8f63bc-9e2d-58b4-b98b-313377b020d9",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-07",
+    "nitrogen": 12,
+    "health": 31,
+    "moisture": 19
+  },
+  {
+    "id": "77140806-6cc1-5caa-bcae-a57bbd6b48a6",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-08",
+    "nitrogen": 12,
+    "health": 31,
+    "moisture": 19
+  },
+  {
+    "id": "274f8eb0-4f47-502a-94e9-2c2553dcb4b2",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-09",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 19
+  },
+  {
+    "id": "a6a92700-ad02-5194-9756-82001e73bfcb",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-10",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 20
+  },
+  {
+    "id": "c6828cac-b67f-5c68-ae31-10d50d94a9de",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-11",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 20
+  },
+  {
+    "id": "5ded852d-ddb0-565c-89e6-5cc36e46038b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-12",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 20
+  },
+  {
+    "id": "9744b0b5-5336-59cf-800c-8f82e574c7db",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-13",
+    "nitrogen": 12,
+    "health": 32,
+    "moisture": 20
+  },
+  {
+    "id": "9caf8f8d-2d59-508c-875b-8d6d6219cd29",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-14",
+    "nitrogen": 12,
+    "health": 33,
+    "moisture": 21
+  },
+  {
+    "id": "9f824eed-4ca8-5b87-a9dc-550fba09b1c0",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-15",
+    "nitrogen": 12,
+    "health": 33,
+    "moisture": 21
+  },
+  {
+    "id": "a0fded1f-36d5-5283-b038-01d4051c99ba",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-16",
+    "nitrogen": 12,
+    "health": 33,
+    "moisture": 22
+  },
+  {
+    "id": "d80ef313-fb93-502b-b031-9c3de311c3e8",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-17",
+    "nitrogen": 12,
+    "health": 34,
+    "moisture": 22
+  },
+  {
+    "id": "191157de-7c1f-50e4-8044-8616e7b40959",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-18",
+    "nitrogen": 12,
+    "health": 34,
+    "moisture": 23
+  },
+  {
+    "id": "154b5a9b-d7c3-5e15-908c-712f164b7cbe",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-19",
+    "nitrogen": 12,
+    "health": 35,
+    "moisture": 23
+  },
+  {
+    "id": "e237828b-9458-5334-85d4-4f1cdf3bec34",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-20",
+    "nitrogen": 12,
+    "health": 35,
+    "moisture": 24
+  },
+  {
+    "id": "c82d45a7-f95e-5eec-93f4-11f7cbd43da9",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-21",
+    "nitrogen": 12,
+    "health": 36,
+    "moisture": 25
+  },
+  {
+    "id": "17d0dc10-9691-542d-8b11-9299665f642d",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-22",
+    "nitrogen": 12,
+    "health": 36,
+    "moisture": 25
+  },
+  {
+    "id": "d99f6b75-f65c-5c0f-b5d4-2d5ca0a215f2",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-23",
+    "nitrogen": 12,
+    "health": 36,
+    "moisture": 26
+  },
+  {
+    "id": "34fa10a8-22c6-576a-9e1e-cb4089c78d36",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-24",
+    "nitrogen": 12,
+    "health": 37,
+    "moisture": 27
+  },
+  {
+    "id": "18306edf-1d4f-5dcc-b8c3-515d5a51274d",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-25",
+    "nitrogen": 12,
+    "health": 37,
+    "moisture": 27
+  },
+  {
+    "id": "c67b0ba0-6361-5f6a-bc0f-0ceb33a57ef8",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-26",
+    "nitrogen": 12,
+    "health": 38,
+    "moisture": 28
+  },
+  {
+    "id": "e0e1aa58-bfca-5ffa-9faa-f0f1de1061dc",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-27",
+    "nitrogen": 12,
+    "health": 38,
+    "moisture": 28
+  },
+  {
+    "id": "2bff6dcc-82d4-5623-8234-c0134b754e99",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-28",
+    "nitrogen": 12,
+    "health": 39,
+    "moisture": 29
+  },
+  {
+    "id": "9d9e1db4-6953-5233-81f2-baf829e9783c",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-29",
+    "nitrogen": 12,
+    "health": 39,
+    "moisture": 29
+  },
+  {
+    "id": "13fc3a75-2f78-5707-8fdc-25bd426c7913",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-30",
+    "nitrogen": 12,
+    "health": 39,
+    "moisture": 30
+  },
+  {
+    "id": "5158c40f-3db9-515c-ba04-6bb42d68a9fd",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-03-31",
+    "nitrogen": 12,
+    "health": 40,
+    "moisture": 30
+  },
+  {
+    "id": "686d492e-0137-58e7-b7ed-204eeb615e76",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-01",
+    "nitrogen": 12,
+    "health": 40,
+    "moisture": 31
+  },
+  {
+    "id": "37a45297-617b-5b07-a633-0fd7811c8c06",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-02",
+    "nitrogen": 12,
+    "health": 40,
+    "moisture": 31
+  },
+  {
+    "id": "edfe4957-4f16-5ecb-8b32-9f0beb5d3142",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-03",
+    "nitrogen": 12,
+    "health": 40,
+    "moisture": 31
+  },
+  {
+    "id": "835607ab-6543-5fb4-a923-430c2520406f",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-04",
+    "nitrogen": 12,
+    "health": 40,
+    "moisture": 31
+  },
+  {
+    "id": "896c7b9c-542c-5b9e-a881-e2eaea984455",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-05",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "9e2408b3-2eea-51ba-88d8-f487912b6268",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-06",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "61f22fb3-6304-5bd0-939b-0f3a406fa47a",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-07",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "6d6dfcc3-c7a1-59cc-b7fe-16ae51e06033",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-08",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "7c174c8a-adee-5083-9af7-32ad6f782278",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-09",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "75bd1773-147e-5ae8-9c38-3b4d21a84ce4",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-10",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "38b59eb7-6d64-5131-8876-270bb853ac8c",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-11",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "57242772-5dfa-5623-a53f-e5479136f95f",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-12",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "945389f2-f9bb-5d93-92ce-66f2bfe4ce2c",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-13",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "0744691f-9442-571f-b1a3-b4d2c5cfb2f0",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-14",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 31
+  },
+  {
+    "id": "5bbd0052-6af5-50dd-a667-236cfb7f32bf",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-15",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 30
+  },
+  {
+    "id": "b17506e4-170f-55bc-b39e-d0af68f39164",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-16",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 30
+  },
+  {
+    "id": "539cab38-daed-53f0-8828-9e70d50e0441",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-17",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 30
+  },
+  {
+    "id": "51e356ae-15c3-5dfc-b62b-9c4ac79abb8a",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-18",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 30
+  },
+  {
+    "id": "b3e6ee10-da86-5f4a-b7bc-d86397d94cba",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-19",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 29
+  },
+  {
+    "id": "b2b406c1-7942-5902-af33-51b33aaccac5",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-20",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 29
+  },
+  {
+    "id": "32533886-8c1c-55a4-8b4c-b229932f1e9f",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-21",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 29
+  },
+  {
+    "id": "960d16d1-c1af-5212-ba82-2de6e86c1e61",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-22",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 29
+  },
+  {
+    "id": "a966247e-2c41-59c0-85d6-77210f604ecc",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-23",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 29
+  },
+  {
+    "id": "b847e1ad-8029-5ee6-833d-579235ea538e",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-24",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "52f69244-17ca-5516-bf97-ce9fcd41ce05",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-25",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "d0d28ace-4eff-55de-9f86-93ddeade0bb3",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-26",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "75ea9d36-3494-502d-bb05-f07249748a41",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-27",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "6d15ee27-209a-5c0b-9eb5-e90a5c93bbf4",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-28",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "6fdcb6c0-3f88-5cd3-9a42-44eb88dc9583",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-29",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "a1ade950-3534-527d-ba7b-8e1e42789c13",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-30",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "dcb45b2a-da2d-51de-8ee5-035a3466fa63",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-01",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "56601a92-7562-5031-8a87-cc909b2f9dd2",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-02",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 28
+  },
+  {
+    "id": "b64a547d-1ae4-561e-875c-1e4b54845a81",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-03",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 29
+  },
+  {
+    "id": "6424e49e-90d6-5bca-b9bf-210107d7e591",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-04",
+    "nitrogen": 12,
+    "health": 41,
+    "moisture": 29
+  },
+  {
+    "id": "1dfbbf67-4e3c-5273-ad01-66990a5e80f9",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-05",
+    "nitrogen": 12,
+    "health": 42,
+    "moisture": 29
+  },
+  {
+    "id": "184a3338-fb7f-505b-878d-86fbedf8e687",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-06",
+    "nitrogen": 12,
+    "health": 42,
+    "moisture": 29
+  },
+  {
+    "id": "226ead08-ffe6-5655-9ee2-0077402e054d",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-07",
+    "nitrogen": 12,
+    "health": 42,
+    "moisture": 29
+  },
+  {
+    "id": "3b67e242-b8c5-5213-9b82-93f983469448",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-08",
+    "nitrogen": 12,
+    "health": 42,
+    "moisture": 29
+  },
+  {
+    "id": "ec185ce9-0677-5ac1-85ea-97ab841abdaa",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-09",
+    "nitrogen": 12,
+    "health": 42,
+    "moisture": 30
+  },
+  {
+    "id": "f12c124f-25e4-53ad-8f5f-667904a6cdf9",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-10",
+    "nitrogen": 12,
+    "health": 43,
+    "moisture": 30
+  },
+  {
+    "id": "f9c78319-ab6e-54d3-83f3-bd52c8a6db8a",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-11",
+    "nitrogen": 12,
+    "health": 43,
+    "moisture": 30
+  },
+  {
+    "id": "42f3473f-2785-55a4-ba68-b4c178a162c2",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-12",
+    "nitrogen": 12,
+    "health": 43,
+    "moisture": 30
+  },
+  {
+    "id": "a9b3fe60-f191-5a42-ab91-30b91add40a6",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-13",
+    "nitrogen": 12,
+    "health": 43,
+    "moisture": 31
+  },
+  {
+    "id": "989c15c6-7ae0-5b1c-ac76-d8facbbe4206",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-14",
+    "nitrogen": 12,
+    "health": 43,
+    "moisture": 31
+  },
+  {
+    "id": "353d3e36-a773-578c-9d0b-7680a3a75c21",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-15",
+    "nitrogen": 12,
+    "health": 44,
+    "moisture": 31
+  },
+  {
+    "id": "17ffa6fc-710c-509e-9db4-b64c687580d7",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-16",
+    "nitrogen": 12,
+    "health": 44,
+    "moisture": 31
+  },
+  {
+    "id": "abc3332c-3f5e-5587-be78-6a1ca5feac34",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-17",
+    "nitrogen": 12,
+    "health": 44,
+    "moisture": 31
+  },
+  {
+    "id": "7a3ad10b-7433-5cc2-9752-82d8bfb48384",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-18",
+    "nitrogen": 12,
+    "health": 44,
+    "moisture": 31
+  },
+  {
+    "id": "dbf50187-9375-5806-892d-fe16a8581cbb",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-19",
+    "nitrogen": 12,
+    "health": 44,
+    "moisture": 32
+  },
+  {
+    "id": "f71affa8-6664-5dd1-a90f-5be765932a84",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-20",
+    "nitrogen": 12,
+    "health": 44,
+    "moisture": 32
+  },
+  {
+    "id": "dc08f63b-13a4-593c-8240-59fc6c56906a",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-21",
+    "nitrogen": 12,
+    "health": 45,
+    "moisture": 32
+  },
+  {
+    "id": "87abcc0a-54d8-55fc-9a84-b3b34b5ec45b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-22",
+    "nitrogen": 12,
+    "health": 45,
+    "moisture": 32
+  },
+  {
+    "id": "1bd46307-5674-57c6-9121-02369f42748e",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-23",
+    "nitrogen": 12,
+    "health": 45,
+    "moisture": 32
+  },
+  {
+    "id": "a3b82a44-6b6c-540d-a099-45a4d8ebdf48",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-24",
+    "nitrogen": 12,
+    "health": 45,
+    "moisture": 32
+  },
+  {
+    "id": "321af6d4-b171-5566-a7e5-c1ea2e41e9b9",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-02-23",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 54
+  },
+  {
+    "id": "6ea5c3dd-0f60-556c-8808-3d609177949a",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-02-24",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "f92ed236-d916-58fb-a660-6e02afda0121",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-02-25",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "90383e84-594b-5f67-aab5-880d1a5e1e70",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-02-26",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "8e445689-f13e-5d2f-a9d0-8fd196164a80",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-02-27",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "ff44411e-31bf-5f5e-915f-278540b586d3",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-02-28",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "bce8023e-ca6f-528e-bd6d-b666946e9355",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-01",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "46c0730f-4ee2-5c5d-931b-096f2d9a643b",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-02",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "0d427ab4-ae58-5441-af6d-9992e39b7fbb",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-03",
+    "nitrogen": 45,
+    "health": 79,
+    "moisture": 53
+  },
+  {
+    "id": "920ad25f-f05a-54c2-bfdf-917fb7bff74c",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-04",
+    "nitrogen": 45,
+    "health": 80,
+    "moisture": 54
+  },
+  {
+    "id": "0d8ed1c8-8aa0-5831-aab3-0ac069629a31",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-05",
+    "nitrogen": 45,
+    "health": 80,
+    "moisture": 54
+  },
+  {
+    "id": "a4e49e15-b9cd-56c1-81a3-3505b96b9aa4",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-06",
+    "nitrogen": 45,
+    "health": 80,
+    "moisture": 55
+  },
+  {
+    "id": "6d636e71-d071-5ac8-93a7-f3da849419e0",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-07",
+    "nitrogen": 45,
+    "health": 81,
+    "moisture": 55
+  },
+  {
+    "id": "738ea32b-0fdb-5d91-ba83-7e2720d27a02",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-08",
+    "nitrogen": 45,
+    "health": 81,
+    "moisture": 56
+  },
+  {
+    "id": "d7c4e60a-0042-5eaf-9830-8654243d5b18",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-09",
+    "nitrogen": 45,
+    "health": 82,
+    "moisture": 56
+  },
+  {
+    "id": "9311e46e-5950-5265-9fe4-ce67df0f2a79",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-10",
+    "nitrogen": 45,
+    "health": 82,
+    "moisture": 57
+  },
+  {
+    "id": "155c2315-ff97-553d-82ab-b80e3c4b6441",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-11",
+    "nitrogen": 45,
+    "health": 83,
+    "moisture": 58
+  },
+  {
+    "id": "16d854f8-b1d9-5c73-8c57-70fc8226112f",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-12",
+    "nitrogen": 45,
+    "health": 83,
+    "moisture": 59
+  },
+  {
+    "id": "c5218d88-54a8-5992-970f-1bfb13013159",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-13",
+    "nitrogen": 45,
+    "health": 84,
+    "moisture": 59
+  },
+  {
+    "id": "8c1c85cf-5ca1-5b4a-bb84-f232cb4c9311",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-14",
+    "nitrogen": 45,
+    "health": 84,
+    "moisture": 60
+  },
+  {
+    "id": "a20bb330-5c34-5341-8c65-fe01f7c12b66",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-15",
+    "nitrogen": 45,
+    "health": 85,
+    "moisture": 61
+  },
+  {
+    "id": "d6b3b1b5-221f-5a1b-be2d-027942901983",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-16",
+    "nitrogen": 45,
+    "health": 85,
+    "moisture": 61
+  },
+  {
+    "id": "182bca41-9696-5014-bc03-fe6dabb59bb0",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-17",
+    "nitrogen": 45,
+    "health": 86,
+    "moisture": 62
+  },
+  {
+    "id": "1290ffe9-6057-5c77-99e0-d0b9a3f88867",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-18",
+    "nitrogen": 45,
+    "health": 86,
+    "moisture": 63
+  },
+  {
+    "id": "cf9a7ed0-b0f5-5247-b63a-7557cee64e42",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-19",
+    "nitrogen": 45,
+    "health": 86,
+    "moisture": 63
+  },
+  {
+    "id": "22daf3d8-d63c-5c2c-b5f1-297cbb74b491",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-20",
+    "nitrogen": 45,
+    "health": 87,
+    "moisture": 64
+  },
+  {
+    "id": "50e814ff-5789-5022-98e5-0a4db4ed5773",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-21",
+    "nitrogen": 45,
+    "health": 87,
+    "moisture": 64
+  },
+  {
+    "id": "34bda401-cf67-5572-8d1e-771a7aadeb45",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-22",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 65
+  },
+  {
+    "id": "9356948a-d54f-5bfa-863c-28b5d0921eaf",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-23",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 65
+  },
+  {
+    "id": "96b61592-a715-553a-b51e-f52d14dc8af9",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-24",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 66
+  },
+  {
+    "id": "5a71eafa-0671-5d01-8fcf-09461a8da1b0",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-25",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 66
+  },
+  {
+    "id": "e79fb2ab-ea8e-5138-84e3-105788050d5b",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-26",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "bc94a82d-5bd2-56cd-b50e-3f40717157a4",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-27",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "2c815366-c8c8-5e33-89a8-f0264a12b157",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-28",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "4efd136d-8922-5251-b8b1-b7cb310f3dce",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-29",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "14f1dce2-7209-5b22-acc4-497a7d547d8d",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-30",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "5bc81226-7f31-5cac-b92a-1c5b938b5588",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-03-31",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "739590bf-a7e3-5f3e-b810-daa42ab9d305",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-01",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "c96d51be-aba1-5022-987d-d6806006f818",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-02",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "1b43519c-2d28-5d95-be27-af592db10231",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-03",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "83245375-c013-5061-b154-5d4d4bfacc91",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-04",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 66
+  },
+  {
+    "id": "0579c385-af7d-59e6-8d03-d5e6ae8597bc",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-05",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 65
+  },
+  {
+    "id": "92a87bbc-bdb0-5f31-a380-d46218ff82c3",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-06",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 65
+  },
+  {
+    "id": "cc3f8c26-8bc2-5332-9d22-1bae1956f35d",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-07",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 65
+  },
+  {
+    "id": "c1fec570-b8c4-567a-a7fa-fe15587eaaaf",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-08",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 64
+  },
+  {
+    "id": "4b57b218-7321-592a-9aa8-fabd2f6f079d",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-09",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 64
+  },
+  {
+    "id": "a883b949-816e-5626-9662-1b1b2c774d73",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-10",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 64
+  },
+  {
+    "id": "5af46f24-b413-5643-8bf7-96c79ad9cc31",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-11",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 64
+  },
+  {
+    "id": "1aa96ff5-4923-5714-9d21-5da538584af3",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-12",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 63
+  },
+  {
+    "id": "87434c95-7b9d-5364-b3df-b62d66deb06d",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-13",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 63
+  },
+  {
+    "id": "5a1f2efe-14d3-5e32-9dc8-608a5597d170",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-14",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 63
+  },
+  {
+    "id": "030f7515-7ce6-5572-9b54-8bdff352914d",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-15",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "f2684ed2-4a15-5b6e-b9f6-5deacdf3b4be",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-16",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "92cf7e9a-58de-5a24-818b-60e19dd81318",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-17",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "6abfd656-c36e-5e17-81de-3f8b4823d831",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-18",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "9aeeea48-1625-5d30-b4b9-c55506ef33e0",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-19",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "4eb4dc30-5473-5cf0-91fb-53ff5fc5b017",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-20",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "1d66269a-d3ef-53d0-8126-5f92a60c727a",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-21",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "a5a2076b-a5bb-5bc4-9bb2-0d1f4e9e6fd7",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-22",
+    "nitrogen": 45,
+    "health": 88,
+    "moisture": 62
+  },
+  {
+    "id": "747b5ebf-bcea-59e4-91d1-ff9e4d27f1d2",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-23",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 62
+  },
+  {
+    "id": "cdaef600-0efb-525a-a298-507c1266e5be",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-24",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 62
+  },
+  {
+    "id": "9ecea1da-b5d7-5e10-aa05-cb75b0d77a9d",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-25",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 62
+  },
+  {
+    "id": "623418d5-4de0-593f-a80f-0f683de0cf16",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-26",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 62
+  },
+  {
+    "id": "72fc1cce-7550-5d67-9012-cc7e1c584da4",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-27",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 63
+  },
+  {
+    "id": "48ee2b7f-9864-575c-9a90-f93e73d6b94f",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-28",
+    "nitrogen": 45,
+    "health": 89,
+    "moisture": 63
+  },
+  {
+    "id": "2a4c0b44-8bd6-5155-9492-3b0f348a99ad",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-29",
+    "nitrogen": 45,
+    "health": 90,
+    "moisture": 63
+  },
+  {
+    "id": "a46a4e18-2051-5501-bc56-6e00c94c9418",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-30",
+    "nitrogen": 45,
+    "health": 90,
+    "moisture": 63
+  },
+  {
+    "id": "b0915e2b-1d2b-519e-8871-8ddb2e859c4b",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-01",
+    "nitrogen": 45,
+    "health": 90,
+    "moisture": 63
+  },
+  {
+    "id": "0fb1ba26-968b-50c1-b05c-c48a4420fb79",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-02",
+    "nitrogen": 45,
+    "health": 90,
+    "moisture": 64
+  },
+  {
+    "id": "7fb6dc1c-a844-54ae-88be-d14d930bdcc3",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-03",
+    "nitrogen": 45,
+    "health": 91,
+    "moisture": 64
+  },
+  {
+    "id": "da6e04ad-2b32-59c5-9542-55048ae442ed",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-04",
+    "nitrogen": 45,
+    "health": 91,
+    "moisture": 64
+  },
+  {
+    "id": "2e71ef40-498a-5cad-8c91-488353e0d2e2",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-05",
+    "nitrogen": 45,
+    "health": 91,
+    "moisture": 65
+  },
+  {
+    "id": "d9cd9c03-ec85-512b-a871-dd68395c3400",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-06",
+    "nitrogen": 45,
+    "health": 91,
+    "moisture": 65
+  },
+  {
+    "id": "32460b28-bf06-59dc-a7a2-b324db999090",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-07",
+    "nitrogen": 45,
+    "health": 92,
+    "moisture": 65
+  },
+  {
+    "id": "0da6c9ae-1e41-54f8-96c5-8d888d2d732c",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-08",
+    "nitrogen": 45,
+    "health": 92,
+    "moisture": 65
+  },
+  {
+    "id": "14366876-28f8-5230-b8c9-e7c4c4b33683",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-09",
+    "nitrogen": 45,
+    "health": 92,
+    "moisture": 66
+  },
+  {
+    "id": "00ee89ec-1e75-5145-b497-98d5106aa78e",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-10",
+    "nitrogen": 45,
+    "health": 92,
+    "moisture": 66
+  },
+  {
+    "id": "0510edc3-6ed3-581a-897b-32a7b1f65c6a",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-11",
+    "nitrogen": 45,
+    "health": 92,
+    "moisture": 66
+  },
+  {
+    "id": "adfa13d2-e1a6-59a0-87d2-1cd0eedb31d9",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-12",
+    "nitrogen": 45,
+    "health": 93,
+    "moisture": 66
+  },
+  {
+    "id": "a50d6b88-bf7e-5bd4-9a6f-f7e799022ac3",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-13",
+    "nitrogen": 45,
+    "health": 93,
+    "moisture": 66
+  },
+  {
+    "id": "c8394576-692e-5421-9072-0d14fa7d6203",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-14",
+    "nitrogen": 45,
+    "health": 93,
+    "moisture": 66
+  },
+  {
+    "id": "7e62dc26-e501-53a8-a2d4-25f0529570ad",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-15",
+    "nitrogen": 45,
+    "health": 93,
+    "moisture": 67
+  },
+  {
+    "id": "ffbcddd9-d4f9-516d-b66d-2f7afb26207f",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-16",
+    "nitrogen": 45,
+    "health": 93,
+    "moisture": 67
+  },
+  {
+    "id": "bc10d4f6-3fed-597a-979b-5199afc5a733",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-17",
+    "nitrogen": 45,
+    "health": 93,
+    "moisture": 67
+  },
+  {
+    "id": "8532aa5a-4391-5d77-9c30-bbb71f4940b7",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-18",
+    "nitrogen": 45,
+    "health": 93,
+    "moisture": 67
+  },
+  {
+    "id": "a8692f63-efbc-5118-a094-f6c440a80f5e",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-19",
+    "nitrogen": 45,
+    "health": 94,
+    "moisture": 67
+  },
+  {
+    "id": "fa8b3a08-1bb5-5c86-9d94-0125ca410544",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-20",
+    "nitrogen": 45,
+    "health": 94,
+    "moisture": 67
+  },
+  {
+    "id": "c781369f-f700-51f3-b637-6d084ffc6522",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-21",
+    "nitrogen": 45,
+    "health": 94,
+    "moisture": 67
+  },
+  {
+    "id": "bb2f940a-afda-5e06-8203-8555d9d2ff19",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-22",
+    "nitrogen": 45,
+    "health": 94,
+    "moisture": 67
+  },
+  {
+    "id": "003f5754-0b8a-53b6-a053-44fa02095761",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-23",
+    "nitrogen": 45,
+    "health": 94,
+    "moisture": 67
+  },
+  {
+    "id": "d6d36d2f-72ee-526f-b686-e804c67b106a",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-24",
+    "nitrogen": 45,
+    "health": 94,
+    "moisture": 67
+  }
+]

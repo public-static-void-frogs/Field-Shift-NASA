@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from uuid import UUID
 
-from app.api.dependencies import FieldId, Store
-from app.data import fixture
+from fastapi import APIRouter
+
+from app.api.dependencies import FieldId, ParcelId, Store
 from app.schemas.fields import (
     CreateField,
     CropOption,
@@ -35,16 +36,13 @@ def create_field(input: CreateField, store: Store):
 
 
 @router.get("/crops", response_model=list[CropOption])
-def crops():
-    return fixture("fields")["crops"]
+def crops(store: Store):
+    return [dict(value=row["name"], label=row["name"]) for row in store.all("crops")]
 
 
-@router.get("/parcels/{field_id}", response_model=Parcel)
-def parcel(field_id: FieldId):
-    result = next((p for p in fixture("fields")["parcels"] if p["id"] == field_id), None)
-    if result is None:
-        raise HTTPException(404, "Parcel not found")
-    return result
+@router.get("/parcels/{parcel_id}", response_model=Parcel)
+def parcel(parcel_id: ParcelId, store: Store):
+    return store.parcel(parcel_id)
 
 
 @router.get("/fields/{field_id}", response_model=Field)
@@ -52,7 +50,7 @@ def field(field_id: FieldId, store: Store):
     return store.require_field(field_id)
 
 
-@router.delete("/fields/{field_id}", response_model=int)
+@router.delete("/fields/{field_id}", response_model=UUID)
 def delete_field(field_id: FieldId, store: Store):
     return store.remove(field_id)
 
@@ -66,9 +64,9 @@ def properties(field_id: FieldId, store: Store):
     "/fields/{field_id}/history", response_model=FieldHistory, response_model_exclude_unset=True
 )
 def history(field_id: FieldId, store: Store):
-    return service.history(store.require_field(field_id))
+    return service.history(store, field_id)
 
 
 @router.get("/fields/{field_id}/recommendation", response_model=Recommendation)
 def recommendation(field_id: FieldId, store: Store):
-    return service.recommendation(store.require_field(field_id))
+    return service.recommendation(store, field_id)

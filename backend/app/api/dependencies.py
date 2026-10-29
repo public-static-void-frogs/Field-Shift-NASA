@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, Path, Request
 
@@ -10,4 +11,5 @@ def repository(request: Request) -> DemoRepository:
 
 
 Store = Annotated[DemoRepository, Depends(repository)]
-FieldId = Annotated[int, Path(gt=0)]
+FieldId = UUID
+ParcelId = Annotated[int, Path(gt=0)]

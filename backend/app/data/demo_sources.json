@@ -1,0 +1,23 @@
+[
+  {
+    "id": "weather",
+    "key": "weather",
+    "name": "Example weather archive",
+    "data": "Daily temperature, rainfall, and humidity",
+    "format": "CSV"
+  },
+  {
+    "id": "soil",
+    "key": "soil",
+    "name": "Sample soil survey",
+    "data": "Soil pH, moisture, nutrients, and organic matter",
+    "format": "GeoJSON"
+  },
+  {
+    "id": "crop",
+    "key": "crop",
+    "name": "Demo crop reference",
+    "data": "Crop characteristics, planting windows, and rotation sequences",
+    "format": "JSON"
+  }
+]

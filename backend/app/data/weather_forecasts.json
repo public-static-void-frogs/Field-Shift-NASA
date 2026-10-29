@@ -1,0 +1,37 @@
+[
+  {
+    "id": "68930982-293b-5104-a166-cbe3fc9f2415",
+    "weatherId": "5d42d666-9acb-58b6-8ff0-278c53e98226",
+    "day": "Today",
+    "temperature": 24,
+    "condition": "sunny"
+  },
+  {
+    "id": "21f23ce7-f371-5d4d-9a3f-b1a38bfd0348",
+    "weatherId": "5d42d666-9acb-58b6-8ff0-278c53e98226",
+    "day": "Mon",
+    "temperature": 26,
+    "condition": "sunny"
+  },
+  {
+    "id": "48329d4b-44b9-50f8-af5f-f5a5745f2d17",
+    "weatherId": "5d42d666-9acb-58b6-8ff0-278c53e98226",
+    "day": "Tue",
+    "temperature": 22,
+    "condition": "cloudy"
+  },
+  {
+    "id": "d8a67815-0761-5b91-bd84-64813a072915",
+    "weatherId": "5d42d666-9acb-58b6-8ff0-278c53e98226",
+    "day": "Wed",
+    "temperature": 23,
+    "condition": "cloudy"
+  },
+  {
+    "id": "ee33d27c-155b-5c99-9d6a-bff64b6a3482",
+    "weatherId": "5d42d666-9acb-58b6-8ff0-278c53e98226",
+    "day": "Thu",
+    "temperature": 19,
+    "condition": "rain"
+  }
+]

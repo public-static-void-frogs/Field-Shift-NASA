@@ -1,6 +1,9 @@
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel
+
+from app.schemas.geometry import Geometry
 
 
 class FarmProfile(BaseModel):
@@ -69,7 +72,7 @@ class Notification(BaseModel):
     id: str
     kind: Literal["field", "weather"]
     severity: Literal["error", "warning", "info"]
-    fieldId: int | None = None
+    fieldId: UUID | None = None
     fieldName: str | None = None
     title: str
     description: str
@@ -86,13 +89,10 @@ class Overview(BaseModel):
     cropAreas: list[CropArea]
 
 
-class Geometry(BaseModel):
-    type: Literal["Polygon"]
-    coordinates: list[list[list[float]]]
-
-
 class MapProperties(BaseModel):
-    fieldId: int
+    fieldId: UUID | None
+    parcelId: int
+    name: str
 
 
 class MapFeature(BaseModel):

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "4c75b6c8-ced2-5841-8c50-b4abd82b1f87",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "year": 2026,
+    "planted": "September 18, 2025",
+    "harvested": "Growing season in progress",
+    "soilCondition": "Soil structure maintained",
+    "yield": "Not harvested"
+  },
+  {
+    "id": "6c868389-6237-5266-980a-5aca793ca29b",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "cropId": "c49380e3-28c4-538a-b03e-ef0008ac2235",
+    "year": 2025,
+    "planted": "April 24, 2025",
+    "harvested": "September 10, 2025",
+    "yield": "3.8 t/ha",
+    "soilCondition": "Residues retained; cover established"
+  },
+  {
+    "id": "f4398753-2d44-50eb-b817-791974174a8f",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "year": 2024,
+    "planted": "April 18, 2024",
+    "harvested": "October 8, 2024",
+    "yield": "10.5 t/ha",
+    "soilCondition": "Organic matter improved"
+  },
+  {
+    "id": "1b37dec8-b705-5366-8243-0f04f9608f32",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "year": 2023,
+    "planted": "September 20, 2022",
+    "harvested": "July 16, 2023",
+    "yield": "6.8 t/ha",
+    "soilCondition": "Baseline soil survey completed"
+  },
+  {
+    "id": "cbd9cab5-76f6-520b-97ee-0e44835769e0",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "year": 2026,
+    "planted": "April 12, 2026",
+    "harvested": "Growing season in progress",
+    "soilCondition": "Soil structure maintained",
+    "yield": "Not harvested"
+  },
+  {
+    "id": "09eabea1-4101-546e-a2ed-7242e4dd2527",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "cropId": "c49380e3-28c4-538a-b03e-ef0008ac2235",
+    "year": 2025,
+    "planted": "April 24, 2025",
+    "harvested": "September 10, 2025",
+    "yield": "4.0 t/ha",
+    "soilCondition": "Residues retained; cover established"
+  },
+  {
+    "id": "7c4e0e02-bbcf-5236-8a86-7b116466f314",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "year": 2024,
+    "planted": "September 20, 2023",
+    "harvested": "July 16, 2024",
+    "yield": "7.1 t/ha",
+    "soilCondition": "Organic matter improved"
+  },
+  {
+    "id": "d82238d5-6bc8-54d2-ae7f-0a4aa2463549",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "year": 2023,
+    "planted": "April 18, 2023",
+    "harvested": "October 8, 2023",
+    "yield": "10.6 t/ha",
+    "soilCondition": "Baseline soil survey completed"
+  },
+  {
+    "id": "079ea9e1-0865-5736-9e67-855aac7bc2d7",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "cropId": "c49380e3-28c4-538a-b03e-ef0008ac2235",
+    "year": 2026,
+    "planted": "April 21, 2026",
+    "harvested": "Growing season in progress",
+    "soilCondition": "Soil structure maintained",
+    "yield": "Not harvested"
+  },
+  {
+    "id": "9a27ef13-cd48-5471-9ad4-e83db7c6e0f4",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "year": 2025,
+    "planted": "April 18, 2025",
+    "harvested": "October 8, 2025",
+    "yield": "10.4 t/ha",
+    "soilCondition": "Residues retained; cover established"
+  },
+  {
+    "id": "12db61d1-21dd-56e5-b8a1-86eca982dc28",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "cropId": "c49380e3-28c4-538a-b03e-ef0008ac2235",
+    "year": 2024,
+    "planted": "April 24, 2024",
+    "harvested": "September 10, 2024",
+    "yield": "3.5 t/ha",
+    "soilCondition": "Organic matter improved"
+  },
+  {
+    "id": "cf0bfa12-584f-5cf2-9f19-4b689598fa4f",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "year": 2023,
+    "planted": "September 20, 2022",
+    "harvested": "July 16, 2023",
+    "yield": "6.6 t/ha",
+    "soilCondition": "Baseline soil survey completed"
+  },
+  {
+    "id": "c21a6058-dc99-5e3a-84f8-2bfb17a6c352",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "year": 2026,
+    "planted": "September 22, 2025",
+    "harvested": "Growing season in progress",
+    "soilCondition": "Low nitrogen; nutrient review due",
+    "yield": "Not harvested"
+  },
+  {
+    "id": "4e5c7271-45b5-59b4-9c90-8aa7378aacb4",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "cropId": "c49380e3-28c4-538a-b03e-ef0008ac2235",
+    "year": 2025,
+    "planted": "April 24, 2025",
+    "harvested": "September 10, 2025",
+    "yield": "3.8 t/ha",
+    "soilCondition": "Residues retained; cover established"
+  },
+  {
+    "id": "18610f17-ff3c-562d-a199-8230c030e164",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "year": 2024,
+    "planted": "April 18, 2024",
+    "harvested": "October 8, 2024",
+    "yield": "10.5 t/ha",
+    "soilCondition": "Organic matter improved"
+  },
+  {
+    "id": "1ad423eb-30dd-53d9-88d0-e25ea86cf84e",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "year": 2023,
+    "planted": "September 20, 2022",
+    "harvested": "July 16, 2023",
+    "yield": "6.8 t/ha",
+    "soilCondition": "Baseline soil survey completed"
+  },
+  {
+    "id": "c02605f8-f379-529e-a48a-20997c7fd76e",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "year": 2026,
+    "planted": "April 16, 2026",
+    "harvested": "Growing season in progress",
+    "soilCondition": "Soil structure maintained",
+    "yield": "Not harvested"
+  },
+  {
+    "id": "e1a7b43d-0e6b-5583-bfeb-99239cb14931",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "year": 2025,
+    "planted": "September 20, 2024",
+    "harvested": "July 16, 2025",
+    "yield": "7.2 t/ha",
+    "soilCondition": "Residues retained; cover established"
+  },
+  {
+    "id": "625c3fdd-2b88-5683-adcf-d8dd37d0d587",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "cropId": "c49380e3-28c4-538a-b03e-ef0008ac2235",
+    "year": 2024,
+    "planted": "April 24, 2024",
+    "harvested": "September 10, 2024",
+    "yield": "3.9 t/ha",
+    "soilCondition": "Organic matter improved"
+  },
+  {
+    "id": "9d2b781f-82b7-5ba6-96bc-b42a11dc6b41",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "year": 2023,
+    "planted": "April 18, 2023",
+    "harvested": "October 8, 2023",
+    "yield": "10.6 t/ha",
+    "soilCondition": "Baseline soil survey completed"
+  }
+]

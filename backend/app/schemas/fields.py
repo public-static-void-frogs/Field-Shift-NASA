@@ -1,7 +1,10 @@
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 from pydantic import Field as Value
+
+from app.schemas.geometry import Geometry
 
 Crop = Literal["Winter wheat", "Corn", "Soybeans"]
 
@@ -14,7 +17,12 @@ class CreateField(BaseModel):
 
 
 class Field(BaseModel):
-    id: int
+    id: UUID
+    parcelId: int
+    farmId: UUID
+    cropId: UUID
+    geometry: Geometry
+    properties: "PropertyData"
     name: str
     crop: Crop
     area: float
@@ -75,7 +83,8 @@ class PropertyData(BaseModel):
 
 
 class LandEvent(BaseModel):
-    id: str
+    id: UUID
+    fieldId: UUID
     date: str
     category: str
     title: str
@@ -85,6 +94,9 @@ class LandEvent(BaseModel):
 
 
 class CropSeason(BaseModel):
+    id: UUID
+    fieldId: UUID
+    cropId: UUID
     year: int
     crop: str
     planted: str
@@ -102,3 +114,6 @@ class Recommendation(BaseModel):
     title: str
     description: str
     nextStep: str
+
+
+Field.model_rebuild()

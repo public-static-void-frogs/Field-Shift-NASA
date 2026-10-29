@@ -1,275 +1,262 @@
-{
-  "fields": [
-    {
-      "id": 1,
-      "name": "North Meadow",
-      "crop": "Winter wheat",
-      "area": 24.8,
-      "health": 92,
-      "moisture": 64,
-      "nitrogen": 42,
-      "status": "Healthy",
-      "planted": "September 18, 2025"
+[
+  {
+    "id": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "farmId": "ace78ff5-8584-52d9-9914-8cb1bd65d954",
+    "parcelId": 1,
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "name": "North Meadow",
+    "area": 24.8,
+    "status": "Healthy",
+    "planted": "September 18, 2025",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -93.748,
+            42.043
+          ],
+          [
+            -93.742,
+            42.043
+          ],
+          [
+            -93.742,
+            42.047
+          ],
+          [
+            -93.748,
+            42.047
+          ],
+          [
+            -93.748,
+            42.043
+          ]
+        ]
+      ]
     },
-    {
-      "id": 2,
-      "name": "Riverside",
-      "crop": "Corn",
-      "area": 18.5,
-      "health": 68,
-      "moisture": 38,
-      "nitrogen": 28,
-      "status": "Needs attention",
-      "planted": "April 12, 2026"
-    },
-    {
-      "id": 3,
-      "name": "Oak Valley",
-      "crop": "Soybeans",
-      "area": 32.2,
-      "health": 88,
-      "moisture": 58,
-      "nitrogen": 38,
-      "status": "Healthy",
-      "planted": "April 21, 2026"
-    },
-    {
-      "id": 4,
-      "name": "East Ridge",
-      "crop": "Winter wheat",
-      "area": 16.4,
-      "health": 45,
-      "moisture": 32,
-      "nitrogen": 12,
-      "status": "Critical",
-      "planted": "September 22, 2025"
-    },
-    {
-      "id": 5,
-      "name": "South Pasture",
-      "crop": "Corn",
-      "area": 28.1,
-      "health": 94,
-      "moisture": 67,
-      "nitrogen": 45,
-      "status": "Healthy",
-      "planted": "April 16, 2026"
+    "properties": {
+      "soilProfileId": "2c73246c-a5ff-53f3-9756-56bbab160dca",
+      "crop": {
+        "variety": "Everest",
+        "emergence": 96,
+        "plantDensity": 285,
+        "vegetationIndex": 0.82,
+        "yieldTarget": 7.2,
+        "harvestWindow": "July 8–18, 2026"
+      },
+      "growthStage": "Heading · BBCH 55",
+      "lastSample": "May 23, 2026 · 0–30 cm depth",
+      "cultivationPractice": "Reduced tillage",
+      "tenure": "Owner operated"
     }
-  ],
-  "parcels": [
-    {
-      "id": 1,
-      "name": "North Meadow",
-      "crop": "Soybeans",
-      "area": 12.6,
-      "soilType": "Loam"
+  },
+  {
+    "id": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "farmId": "ace78ff5-8584-52d9-9914-8cb1bd65d954",
+    "parcelId": 2,
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "name": "Riverside",
+    "area": 18.5,
+    "status": "Needs attention",
+    "planted": "April 12, 2026",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -93.74,
+            42.043
+          ],
+          [
+            -93.734,
+            42.043
+          ],
+          [
+            -93.734,
+            42.047
+          ],
+          [
+            -93.74,
+            42.047
+          ],
+          [
+            -93.74,
+            42.043
+          ]
+        ]
+      ]
     },
-    {
-      "id": 2,
-      "name": "Riverside",
-      "crop": "Soybeans",
-      "area": 12.6,
-      "soilType": "Loam"
-    },
-    {
-      "id": 3,
-      "name": "Oak Valley",
-      "crop": "Soybeans",
-      "area": 12.6,
-      "soilType": "Loam"
-    },
-    {
-      "id": 4,
-      "name": "East Ridge",
-      "crop": "Soybeans",
-      "area": 12.6,
-      "soilType": "Loam"
-    },
-    {
-      "id": 5,
-      "name": "South Pasture",
-      "crop": "Soybeans",
-      "area": 12.6,
-      "soilType": "Loam"
-    },
-    {
-      "id": 6,
-      "name": "West Orchard",
-      "crop": "Soybeans",
-      "area": 12.6,
-      "soilType": "Loam"
+    "properties": {
+      "soilProfileId": "8dd0d673-5984-5dfc-9130-2d40684f83b9",
+      "crop": {
+        "variety": "Pioneer P1197",
+        "emergence": 91,
+        "plantDensity": 8,
+        "vegetationIndex": 0.61,
+        "yieldTarget": 10.5,
+        "harvestWindow": "October 2–15, 2026"
+      },
+      "growthStage": "Vegetative · V6",
+      "lastSample": "May 23, 2026 · 0–30 cm depth",
+      "cultivationPractice": "Reduced tillage",
+      "tenure": "Owner operated"
     }
-  ],
-  "crops": [
-    {
-      "value": "Winter wheat",
-      "label": "Winter wheat"
+  },
+  {
+    "id": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "farmId": "ace78ff5-8584-52d9-9914-8cb1bd65d954",
+    "parcelId": 3,
+    "cropId": "c49380e3-28c4-538a-b03e-ef0008ac2235",
+    "name": "Oak Valley",
+    "area": 32.2,
+    "status": "Healthy",
+    "planted": "April 21, 2026",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -93.748,
+            42.037
+          ],
+          [
+            -93.742,
+            42.037
+          ],
+          [
+            -93.742,
+            42.041
+          ],
+          [
+            -93.748,
+            42.041
+          ],
+          [
+            -93.748,
+            42.037
+          ]
+        ]
+      ]
     },
-    {
-      "value": "Corn",
-      "label": "Corn"
-    },
-    {
-      "value": "Soybeans",
-      "label": "Soybeans"
+    "properties": {
+      "soilProfileId": "433c1c83-9fec-5b9d-956f-d52f25abd0b2",
+      "crop": {
+        "variety": "Asgrow AG28X9",
+        "emergence": 95,
+        "plantDensity": 36,
+        "vegetationIndex": 0.77,
+        "yieldTarget": 3.8,
+        "harvestWindow": "September 20–30, 2026"
+      },
+      "growthStage": "Vegetative · V3",
+      "lastSample": "May 23, 2026 · 0–30 cm depth",
+      "cultivationPractice": "Reduced tillage",
+      "tenure": "Owner operated"
     }
-  ],
-  "properties": {
-    "1": {
-      "soilType": "Silt loam",
-      "soilPh": 6.5,
-      "phosphorus": 34,
-      "potassium": 185,
-      "organicMatter": 3.8,
-      "soilTemperature": 18.4,
-      "conductivity": 0.4,
-      "cationExchange": 18.2,
-      "bulkDensity": 1.25,
-      "rootingDepth": 95,
-      "variety": "Everest",
-      "emergence": 96,
-      "plantDensity": 285,
-      "vegetationIndex": 0.82,
-      "yieldTarget": 7.2,
-      "harvestWindow": "July 8–18, 2026",
-      "elevation": 284,
-      "slope": 1.8,
-      "drainage": "Well drained",
-      "irrigation": "Rain-fed",
-      "lastIrrigation": "Not irrigated",
-      "waterApplied": 0,
-      "rainfall": 24.6,
-      "waterCapacity": 182
+  },
+  {
+    "id": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "farmId": "ace78ff5-8584-52d9-9914-8cb1bd65d954",
+    "parcelId": 4,
+    "cropId": "d14f06a6-77ee-59cc-9ead-8dc336ea09ea",
+    "name": "East Ridge",
+    "area": 16.4,
+    "status": "Critical",
+    "planted": "September 22, 2025",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -93.732,
+            42.043
+          ],
+          [
+            -93.726,
+            42.043
+          ],
+          [
+            -93.726,
+            42.047
+          ],
+          [
+            -93.732,
+            42.047
+          ],
+          [
+            -93.732,
+            42.043
+          ]
+        ]
+      ]
     },
-    "2": {
-      "soilType": "Clay loam",
-      "soilPh": 6.2,
-      "phosphorus": 25,
-      "potassium": 142,
-      "organicMatter": 3.1,
-      "soilTemperature": 20.2,
-      "conductivity": 0.6,
-      "cationExchange": 21.4,
-      "bulkDensity": 1.38,
-      "rootingDepth": 78,
-      "variety": "Pioneer P1197",
-      "emergence": 91,
-      "plantDensity": 8,
-      "vegetationIndex": 0.61,
-      "yieldTarget": 10.5,
-      "harvestWindow": "October 2–15, 2026",
-      "elevation": 267,
-      "slope": 0.9,
-      "drainage": "Moderately drained",
-      "irrigation": "Center pivot",
-      "lastIrrigation": "May 16, 2026",
-      "waterApplied": 46,
-      "rainfall": 18.2,
-      "waterCapacity": 165
+    "properties": {
+      "soilProfileId": "59bc88b5-2f33-5765-929a-41a810e7e76f",
+      "crop": {
+        "variety": "Zenda",
+        "emergence": 84,
+        "plantDensity": 242,
+        "vegetationIndex": 0.43,
+        "yieldTarget": 6.4,
+        "harvestWindow": "July 10–22, 2026"
+      },
+      "growthStage": "Heading · BBCH 55",
+      "lastSample": "May 23, 2026 · 0–30 cm depth",
+      "cultivationPractice": "Reduced tillage",
+      "tenure": "Owner operated"
+    }
+  },
+  {
+    "id": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "farmId": "ace78ff5-8584-52d9-9914-8cb1bd65d954",
+    "parcelId": 5,
+    "cropId": "d08f4aa3-316c-55b3-9e6c-e2efc3a8aa9d",
+    "name": "South Pasture",
+    "area": 28.1,
+    "status": "Healthy",
+    "planted": "April 16, 2026",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -93.74,
+            42.037
+          ],
+          [
+            -93.734,
+            42.037
+          ],
+          [
+            -93.734,
+            42.041
+          ],
+          [
+            -93.74,
+            42.041
+          ],
+          [
+            -93.74,
+            42.037
+          ]
+        ]
+      ]
     },
-    "3": {
-      "soilType": "Loam",
-      "soilPh": 6.8,
-      "phosphorus": 31,
-      "potassium": 172,
-      "organicMatter": 4.2,
-      "soilTemperature": 19.1,
-      "conductivity": 0.3,
-      "cationExchange": 19.6,
-      "bulkDensity": 1.21,
-      "rootingDepth": 110,
-      "variety": "Asgrow AG28X9",
-      "emergence": 95,
-      "plantDensity": 36,
-      "vegetationIndex": 0.77,
-      "yieldTarget": 3.8,
-      "harvestWindow": "September 20–30, 2026",
-      "elevation": 291,
-      "slope": 2.4,
-      "drainage": "Well drained",
-      "irrigation": "Rain-fed",
-      "lastIrrigation": "Not irrigated",
-      "waterApplied": 0,
-      "rainfall": 26.8,
-      "waterCapacity": 195
-    },
-    "4": {
-      "soilType": "Sandy loam",
-      "soilPh": 5.6,
-      "phosphorus": 16,
-      "potassium": 98,
-      "organicMatter": 2.1,
-      "soilTemperature": 21.8,
-      "conductivity": 0.7,
-      "cationExchange": 11.8,
-      "bulkDensity": 1.46,
-      "rootingDepth": 62,
-      "variety": "Zenda",
-      "emergence": 84,
-      "plantDensity": 242,
-      "vegetationIndex": 0.43,
-      "yieldTarget": 6.4,
-      "harvestWindow": "July 10–22, 2026",
-      "elevation": 308,
-      "slope": 4.2,
-      "drainage": "Rapidly drained",
-      "irrigation": "Traveling sprinkler",
-      "lastIrrigation": "May 12, 2026",
-      "waterApplied": 28,
-      "rainfall": 15.4,
-      "waterCapacity": 128
-    },
-    "5": {
-      "soilType": "Silt loam",
-      "soilPh": 6.6,
-      "phosphorus": 38,
-      "potassium": 204,
-      "organicMatter": 4.5,
-      "soilTemperature": 18.9,
-      "conductivity": 0.4,
-      "cationExchange": 23.1,
-      "bulkDensity": 1.19,
-      "rootingDepth": 120,
-      "variety": "DeKalb DKC62-53",
-      "emergence": 98,
-      "plantDensity": 8.5,
-      "vegetationIndex": 0.85,
-      "yieldTarget": 12.2,
-      "harvestWindow": "October 5–18, 2026",
-      "elevation": 275,
-      "slope": 1.2,
-      "drainage": "Tile drained",
-      "irrigation": "Center pivot",
-      "lastIrrigation": "May 20, 2026",
-      "waterApplied": 52,
-      "rainfall": 28.2,
-      "waterCapacity": 210
-    },
-    "6": {
-      "soilType": "Loam",
-      "soilPh": 6.4,
-      "phosphorus": 29,
-      "potassium": 163,
-      "organicMatter": 3.6,
-      "soilTemperature": 19.6,
-      "conductivity": 0.5,
-      "cationExchange": 17.5,
-      "bulkDensity": 1.28,
-      "rootingDepth": 90,
-      "variety": "Asgrow AG28X9",
-      "emergence": 94,
-      "plantDensity": 35,
-      "vegetationIndex": 0.74,
-      "yieldTarget": 3.6,
-      "harvestWindow": "September 24–October 4, 2026",
-      "elevation": 288,
-      "slope": 2.1,
-      "drainage": "Well drained",
-      "irrigation": "Drip irrigation",
-      "lastIrrigation": "May 19, 2026",
-      "waterApplied": 34,
-      "rainfall": 22.4,
-      "waterCapacity": 178
+    "properties": {
+      "soilProfileId": "05fb1909-d0a5-52fb-a5a4-7a706e1926ad",
+      "crop": {
+        "variety": "DeKalb DKC62-53",
+        "emergence": 98,
+        "plantDensity": 8.5,
+        "vegetationIndex": 0.85,
+        "yieldTarget": 12.2,
+        "harvestWindow": "October 5–18, 2026"
+      },
+      "growthStage": "Vegetative · V6",
+      "lastSample": "May 23, 2026 · 0–30 cm depth",
+      "cultivationPractice": "Reduced tillage",
+      "tenure": "Owner operated"
     }
   }
-}
+]

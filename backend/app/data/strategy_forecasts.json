@@ -1,0 +1,807 @@
+[
+  {
+    "id": "2a0d87d8-29b3-558a-aace-e5bb2d20202f",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-24",
+    "stage": "Current",
+    "progress": 0,
+    "health": 92,
+    "moisture": 64,
+    "currentHealth": 92,
+    "currentMoisture": 64,
+    "healthImprovement": [
+      92,
+      92
+    ],
+    "moistureImprovement": [
+      64,
+      64
+    ],
+    "range": [
+      92,
+      92
+    ]
+  },
+  {
+    "id": "e47ea689-1439-514e-9573-c08b54b16ee4",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-06-14",
+    "stage": "Soil review",
+    "progress": 0.2,
+    "health": 93,
+    "moisture": 62,
+    "currentHealth": 92,
+    "currentMoisture": 64,
+    "healthImprovement": [
+      92,
+      93
+    ],
+    "moistureImprovement": [
+      62,
+      64
+    ],
+    "range": [
+      86,
+      100
+    ]
+  },
+  {
+    "id": "950e895e-b76d-5ed7-a47c-9299f0d1105e",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-07-16",
+    "stage": "Harvest",
+    "progress": 0.35,
+    "health": 93,
+    "moisture": 61,
+    "currentHealth": 92,
+    "currentMoisture": 64,
+    "healthImprovement": [
+      92,
+      93
+    ],
+    "moistureImprovement": [
+      61,
+      64
+    ],
+    "range": [
+      84,
+      100
+    ]
+  },
+  {
+    "id": "15d8755b-1b76-51a1-b068-7a3bb0369ec2",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2027-04-08",
+    "stage": "Preparation",
+    "progress": 0.55,
+    "health": 94,
+    "moisture": 59,
+    "currentHealth": 92,
+    "currentMoisture": 64,
+    "healthImprovement": [
+      92,
+      94
+    ],
+    "moistureImprovement": [
+      59,
+      64
+    ],
+    "range": [
+      83,
+      100
+    ]
+  },
+  {
+    "id": "a8511c7d-467b-5238-8fbc-9f49ffc3fa6b",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2027-04-22",
+    "stage": "Planting",
+    "progress": 0.7,
+    "health": 95,
+    "moisture": 58,
+    "currentHealth": 92,
+    "currentMoisture": 64,
+    "healthImprovement": [
+      92,
+      95
+    ],
+    "moistureImprovement": [
+      58,
+      64
+    ],
+    "range": [
+      82,
+      100
+    ]
+  },
+  {
+    "id": "57fea404-db2c-54a0-bc2d-2e948c7e7ee2",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2027-06-06",
+    "stage": "Establishment",
+    "progress": 0.85,
+    "health": 95,
+    "moisture": 56,
+    "currentHealth": 92,
+    "currentMoisture": 64,
+    "healthImprovement": [
+      92,
+      95
+    ],
+    "moistureImprovement": [
+      56,
+      64
+    ],
+    "range": [
+      80,
+      100
+    ]
+  },
+  {
+    "id": "c304062f-d89b-5f02-8353-fac28dc443c8",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2028-04-18",
+    "stage": "Next season",
+    "progress": 1,
+    "health": 96,
+    "moisture": 55,
+    "currentHealth": 92,
+    "currentMoisture": 64,
+    "healthImprovement": [
+      92,
+      96
+    ],
+    "moistureImprovement": [
+      55,
+      64
+    ],
+    "range": [
+      79,
+      100
+    ]
+  },
+  {
+    "id": "42c4fcce-072b-5edf-8c71-da83fcd6a29d",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-24",
+    "stage": "Current",
+    "progress": 0,
+    "health": 68,
+    "moisture": 38,
+    "currentHealth": 68,
+    "currentMoisture": 38,
+    "healthImprovement": [
+      68,
+      68
+    ],
+    "moistureImprovement": [
+      38,
+      38
+    ],
+    "range": [
+      68,
+      68
+    ]
+  },
+  {
+    "id": "98eed255-cb63-596a-babe-254e622ae884",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-06-14",
+    "stage": "Soil review",
+    "progress": 0.2,
+    "health": 71,
+    "moisture": 41,
+    "currentHealth": 68,
+    "currentMoisture": 38,
+    "healthImprovement": [
+      68,
+      71
+    ],
+    "moistureImprovement": [
+      38,
+      41
+    ],
+    "range": [
+      64,
+      78
+    ]
+  },
+  {
+    "id": "ed83592e-05db-5380-add5-debfdca2dc05",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-10-10",
+    "stage": "Harvest",
+    "progress": 0.35,
+    "health": 74,
+    "moisture": 44,
+    "currentHealth": 68,
+    "currentMoisture": 38,
+    "healthImprovement": [
+      68,
+      74
+    ],
+    "moistureImprovement": [
+      38,
+      44
+    ],
+    "range": [
+      65,
+      83
+    ]
+  },
+  {
+    "id": "a0f35e17-e39d-5fd2-9a5e-31fbd1381052",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2027-04-11",
+    "stage": "Preparation",
+    "progress": 0.55,
+    "health": 77,
+    "moisture": 47,
+    "currentHealth": 68,
+    "currentMoisture": 38,
+    "healthImprovement": [
+      68,
+      77
+    ],
+    "moistureImprovement": [
+      38,
+      47
+    ],
+    "range": [
+      66,
+      88
+    ]
+  },
+  {
+    "id": "1ff6d32a-6d16-5fdd-b832-abba205cc88c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2027-04-25",
+    "stage": "Planting",
+    "progress": 0.7,
+    "health": 79,
+    "moisture": 50,
+    "currentHealth": 68,
+    "currentMoisture": 38,
+    "healthImprovement": [
+      68,
+      79
+    ],
+    "moistureImprovement": [
+      38,
+      50
+    ],
+    "range": [
+      66,
+      92
+    ]
+  },
+  {
+    "id": "c11243f9-4c63-563a-bf8f-a8e235862feb",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2027-06-09",
+    "stage": "Establishment",
+    "progress": 0.85,
+    "health": 82,
+    "moisture": 52,
+    "currentHealth": 68,
+    "currentMoisture": 38,
+    "healthImprovement": [
+      68,
+      82
+    ],
+    "moistureImprovement": [
+      38,
+      52
+    ],
+    "range": [
+      67,
+      97
+    ]
+  },
+  {
+    "id": "89183531-06be-5221-9779-2f6a18ef620b",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2028-04-18",
+    "stage": "Next season",
+    "progress": 1,
+    "health": 84,
+    "moisture": 55,
+    "currentHealth": 68,
+    "currentMoisture": 38,
+    "healthImprovement": [
+      68,
+      84
+    ],
+    "moistureImprovement": [
+      38,
+      55
+    ],
+    "range": [
+      67,
+      100
+    ]
+  },
+  {
+    "id": "c3b4e912-f3c6-5a47-85f6-7b2ecfab2f29",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-24",
+    "stage": "Current",
+    "progress": 0,
+    "health": 88,
+    "moisture": 58,
+    "currentHealth": 88,
+    "currentMoisture": 58,
+    "healthImprovement": [
+      88,
+      88
+    ],
+    "moistureImprovement": [
+      58,
+      58
+    ],
+    "range": [
+      88,
+      88
+    ]
+  },
+  {
+    "id": "4e90bec0-8b3d-568a-b2ac-bc6c24face4f",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-06-14",
+    "stage": "Soil review",
+    "progress": 0.2,
+    "health": 89,
+    "moisture": 57,
+    "currentHealth": 88,
+    "currentMoisture": 58,
+    "healthImprovement": [
+      88,
+      89
+    ],
+    "moistureImprovement": [
+      57,
+      58
+    ],
+    "range": [
+      82,
+      96
+    ]
+  },
+  {
+    "id": "ed95c7da-3d98-5e3d-9d7e-72f8659fee22",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-09-20",
+    "stage": "Harvest",
+    "progress": 0.35,
+    "health": 89,
+    "moisture": 57,
+    "currentHealth": 88,
+    "currentMoisture": 58,
+    "healthImprovement": [
+      88,
+      89
+    ],
+    "moistureImprovement": [
+      57,
+      58
+    ],
+    "range": [
+      80,
+      98
+    ]
+  },
+  {
+    "id": "0e4aef6f-4293-5384-bc6c-f7c48735257d",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-09-21",
+    "stage": "Preparation",
+    "progress": 0.55,
+    "health": 90,
+    "moisture": 56,
+    "currentHealth": 88,
+    "currentMoisture": 58,
+    "healthImprovement": [
+      88,
+      90
+    ],
+    "moistureImprovement": [
+      56,
+      58
+    ],
+    "range": [
+      79,
+      100
+    ]
+  },
+  {
+    "id": "12a22b59-65f9-57f6-beae-f27b0a704742",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-09-25",
+    "stage": "Planting",
+    "progress": 0.7,
+    "health": 91,
+    "moisture": 56,
+    "currentHealth": 88,
+    "currentMoisture": 58,
+    "healthImprovement": [
+      88,
+      91
+    ],
+    "moistureImprovement": [
+      56,
+      58
+    ],
+    "range": [
+      78,
+      100
+    ]
+  },
+  {
+    "id": "bd910f0f-6fd6-583c-8ce3-cdb35eae4a8b",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-11-09",
+    "stage": "Establishment",
+    "progress": 0.85,
+    "health": 91,
+    "moisture": 55,
+    "currentHealth": 88,
+    "currentMoisture": 58,
+    "healthImprovement": [
+      88,
+      91
+    ],
+    "moistureImprovement": [
+      55,
+      58
+    ],
+    "range": [
+      76,
+      100
+    ]
+  },
+  {
+    "id": "d60dbf5e-2c1a-52e1-8743-df9e137e063e",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2028-04-22",
+    "stage": "Next season",
+    "progress": 1,
+    "health": 92,
+    "moisture": 55,
+    "currentHealth": 88,
+    "currentMoisture": 58,
+    "healthImprovement": [
+      88,
+      92
+    ],
+    "moistureImprovement": [
+      55,
+      58
+    ],
+    "range": [
+      75,
+      100
+    ]
+  },
+  {
+    "id": "da6956bc-da81-5a22-9082-0142041a6ed4",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-24",
+    "stage": "Current",
+    "progress": 0,
+    "health": 45,
+    "moisture": 32,
+    "currentHealth": 45,
+    "currentMoisture": 32,
+    "healthImprovement": [
+      45,
+      45
+    ],
+    "moistureImprovement": [
+      32,
+      32
+    ],
+    "range": [
+      45,
+      45
+    ]
+  },
+  {
+    "id": "abac7c03-6832-5c6b-a86d-b2ecb25c2904",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-06-14",
+    "stage": "Soil review",
+    "progress": 0.2,
+    "health": 53,
+    "moisture": 37,
+    "currentHealth": 45,
+    "currentMoisture": 32,
+    "healthImprovement": [
+      45,
+      53
+    ],
+    "moistureImprovement": [
+      32,
+      37
+    ],
+    "range": [
+      46,
+      60
+    ]
+  },
+  {
+    "id": "b4a438bb-9b9f-552e-8e76-b0a3725555b6",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-07-16",
+    "stage": "Harvest",
+    "progress": 0.35,
+    "health": 59,
+    "moisture": 40,
+    "currentHealth": 45,
+    "currentMoisture": 32,
+    "healthImprovement": [
+      45,
+      59
+    ],
+    "moistureImprovement": [
+      32,
+      40
+    ],
+    "range": [
+      50,
+      68
+    ]
+  },
+  {
+    "id": "32e4490f-bd7d-5df0-9ef7-8eca20b5c942",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2027-04-18",
+    "stage": "Preparation",
+    "progress": 0.55,
+    "health": 66,
+    "moisture": 45,
+    "currentHealth": 45,
+    "currentMoisture": 32,
+    "healthImprovement": [
+      45,
+      66
+    ],
+    "moistureImprovement": [
+      32,
+      45
+    ],
+    "range": [
+      55,
+      77
+    ]
+  },
+  {
+    "id": "ff3465d0-1e66-5448-b76d-3955f720f61b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2027-05-02",
+    "stage": "Planting",
+    "progress": 0.7,
+    "health": 72,
+    "moisture": 48,
+    "currentHealth": 45,
+    "currentMoisture": 32,
+    "healthImprovement": [
+      45,
+      72
+    ],
+    "moistureImprovement": [
+      32,
+      48
+    ],
+    "range": [
+      59,
+      85
+    ]
+  },
+  {
+    "id": "4b62e496-6bdd-59bf-bf49-4687e4e1f5f7",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2027-06-16",
+    "stage": "Establishment",
+    "progress": 0.85,
+    "health": 78,
+    "moisture": 52,
+    "currentHealth": 45,
+    "currentMoisture": 32,
+    "healthImprovement": [
+      45,
+      78
+    ],
+    "moistureImprovement": [
+      32,
+      52
+    ],
+    "range": [
+      63,
+      93
+    ]
+  },
+  {
+    "id": "bbad1d27-2547-53a2-a439-ce0744e4abab",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2028-04-18",
+    "stage": "Next season",
+    "progress": 1,
+    "health": 84,
+    "moisture": 55,
+    "currentHealth": 45,
+    "currentMoisture": 32,
+    "healthImprovement": [
+      45,
+      84
+    ],
+    "moistureImprovement": [
+      32,
+      55
+    ],
+    "range": [
+      67,
+      100
+    ]
+  },
+  {
+    "id": "fa2b7b15-e43a-53ce-8928-743a7c652762",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-24",
+    "stage": "Current",
+    "progress": 0,
+    "health": 94,
+    "moisture": 67,
+    "currentHealth": 94,
+    "currentMoisture": 67,
+    "healthImprovement": [
+      94,
+      94
+    ],
+    "moistureImprovement": [
+      67,
+      67
+    ],
+    "range": [
+      94,
+      94
+    ]
+  },
+  {
+    "id": "7c19186c-5754-5301-9b53-cbe3bfd9c3f3",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-06-14",
+    "stage": "Soil review",
+    "progress": 0.2,
+    "health": 95,
+    "moisture": 65,
+    "currentHealth": 94,
+    "currentMoisture": 67,
+    "healthImprovement": [
+      94,
+      95
+    ],
+    "moistureImprovement": [
+      65,
+      67
+    ],
+    "range": [
+      88,
+      100
+    ]
+  },
+  {
+    "id": "1c99995c-8c58-56cb-8167-62ceabe01280",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-10-10",
+    "stage": "Harvest",
+    "progress": 0.35,
+    "health": 95,
+    "moisture": 63,
+    "currentHealth": 94,
+    "currentMoisture": 67,
+    "healthImprovement": [
+      94,
+      95
+    ],
+    "moistureImprovement": [
+      63,
+      67
+    ],
+    "range": [
+      86,
+      100
+    ]
+  },
+  {
+    "id": "38102d0d-9ae5-5f68-a34b-b11a6cd356d1",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2027-04-08",
+    "stage": "Preparation",
+    "progress": 0.55,
+    "health": 96,
+    "moisture": 60,
+    "currentHealth": 94,
+    "currentMoisture": 67,
+    "healthImprovement": [
+      94,
+      96
+    ],
+    "moistureImprovement": [
+      60,
+      67
+    ],
+    "range": [
+      85,
+      100
+    ]
+  },
+  {
+    "id": "a35c8a2f-92c3-5e90-81a2-91d415c5bf93",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2027-04-22",
+    "stage": "Planting",
+    "progress": 0.7,
+    "health": 97,
+    "moisture": 59,
+    "currentHealth": 94,
+    "currentMoisture": 67,
+    "healthImprovement": [
+      94,
+      97
+    ],
+    "moistureImprovement": [
+      59,
+      67
+    ],
+    "range": [
+      84,
+      100
+    ]
+  },
+  {
+    "id": "3229442d-1b8b-5f1c-8572-6f4048ec1e06",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2027-06-06",
+    "stage": "Establishment",
+    "progress": 0.85,
+    "health": 97,
+    "moisture": 57,
+    "currentHealth": 94,
+    "currentMoisture": 67,
+    "healthImprovement": [
+      94,
+      97
+    ],
+    "moistureImprovement": [
+      57,
+      67
+    ],
+    "range": [
+      82,
+      100
+    ]
+  },
+  {
+    "id": "3d370f3c-3a7b-5e6f-b53e-d14e48559a61",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2028-04-18",
+    "stage": "Next season",
+    "progress": 1,
+    "health": 98,
+    "moisture": 55,
+    "currentHealth": 94,
+    "currentMoisture": 67,
+    "healthImprovement": [
+      94,
+      98
+    ],
+    "moistureImprovement": [
+      55,
+      67
+    ],
+    "range": [
+      81,
+      100
+    ]
+  }
+]

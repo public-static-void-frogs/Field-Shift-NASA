@@ -3,7 +3,6 @@ from typing import Literal
 from fastapi import APIRouter, Query
 
 from app.api.dependencies import Store
-from app.data import fixture
 from app.schemas.resources import (
     CurrentWeather,
     DemoSource,
@@ -14,40 +13,40 @@ from app.schemas.resources import (
     TeamMember,
     WeatherRecord,
 )
-from app.services.notifications import notifications
+from app.services import resources as service
 from app.services.overview import charts
 
 router = APIRouter()
 
 
 @router.get("/farm/profile", response_model=FarmProfile, tags=["farm"])
-def farm():
-    return fixture("farm")
+def farm(store: Store):
+    return service.farm_profile(store)
 
 
 @router.get("/weather/current", response_model=CurrentWeather, tags=["weather"])
-def current_weather():
-    return fixture("weather")["current"]
+def current_weather(store: Store):
+    return service.current_weather(store)
 
 
 @router.get("/weather/history", response_model=list[WeatherRecord], tags=["weather"])
-def weather_history(days: Literal["7", "30", "90"] = "30"):
-    return fixture("weather")["history"][: int(days)]
+def weather_history(store: Store, days: Literal["7", "30", "90"] = "30"):
+    return service.weather_history(store, int(days))
 
 
 @router.get("/maps/geojson", response_model=FieldGeoJson, tags=["maps"])
-def geojson():
-    return fixture("maps")
+def geojson(store: Store):
+    return service.geojson(store)
 
 
 @router.get("/help/team", response_model=list[TeamMember], tags=["help"])
-def team():
-    return fixture("help")["team"]
+def team(store: Store):
+    return store.all("team_members")
 
 
 @router.get("/help/sources", response_model=list[DemoSource], tags=["help"])
-def sources():
-    return fixture("help")["sources"]
+def sources(store: Store):
+    return store.all("demo_sources")
 
 
 @router.get(
@@ -57,7 +56,7 @@ def sources():
     tags=["notifications"],
 )
 def list_notifications(store: Store):
-    return notifications(store.fields())
+    return service.notifications(store)
 
 
 @router.get("/overview/charts", response_model=Overview, tags=["overview"])
@@ -66,4 +65,4 @@ def overview(
     days: int = Query(default=30, ge=1, le=365),
     metric: Literal["health", "moisture"] = "health",
 ):
-    return charts(store.fields(), days, metric)
+    return charts(store, days, metric)

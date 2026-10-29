@@ -101,22 +101,22 @@
         }
       }
     },
-    "/api/v1/parcels/{field_id}": {
+    "/api/v1/parcels/{parcel_id}": {
       "get": {
         "tags": [
           "fields"
         ],
         "summary": "Parcel",
-        "operationId": "parcel_api_v1_parcels__field_id__get",
+        "operationId": "parcel_api_v1_parcels__parcel_id__get",
         "parameters": [
           {
-            "name": "field_id",
+            "name": "parcel_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
               "exclusiveMinimum": 0,
-              "title": "Field Id"
+              "title": "Parcel Id"
             }
           }
         ],
@@ -157,8 +157,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -198,8 +198,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -210,7 +210,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
+                  "type": "string",
+                  "format": "uuid",
                   "title": "Response Delete Field Api V1 Fields  Field Id  Delete"
                 }
               }
@@ -242,8 +243,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -285,8 +286,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -328,8 +329,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -442,8 +443,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -489,8 +490,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -532,8 +533,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -575,8 +576,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
+              "type": "string",
+              "format": "uuid",
               "title": "Field Id"
             }
           }
@@ -1017,6 +1018,21 @@
       },
       "CropSeason": {
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "fieldId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Fieldid"
+          },
+          "cropId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Cropid"
+          },
           "year": {
             "type": "integer",
             "title": "Year"
@@ -1044,6 +1060,9 @@
         },
         "type": "object",
         "required": [
+          "id",
+          "fieldId",
+          "cropId",
           "year",
           "crop",
           "planted",
@@ -1243,8 +1262,44 @@
       "Field": {
         "properties": {
           "id": {
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "title": "Id"
+          },
+          "parcelId": {
+            "type": "integer",
+            "title": "Parcelid"
+          },
+          "farmId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Farmid"
+          },
+          "cropId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Cropid"
+          },
+          "geometry": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PolygonGeometry"
+              },
+              {
+                "$ref": "#/components/schemas/MultiPolygonGeometry"
+              }
+            ],
+            "title": "Geometry",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
+                "Polygon": "#/components/schemas/PolygonGeometry"
+              }
+            }
+          },
+          "properties": {
+            "$ref": "#/components/schemas/PropertyData"
           },
           "name": {
             "type": "string",
@@ -1292,6 +1347,11 @@
         "type": "object",
         "required": [
           "id",
+          "parcelId",
+          "farmId",
+          "cropId",
+          "geometry",
+          "properties",
           "name",
           "crop",
           "area",
@@ -1627,34 +1687,6 @@
         ],
         "title": "ForecastDay"
       },
-      "Geometry": {
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "Polygon",
-            "title": "Type"
-          },
-          "coordinates": {
-            "items": {
-              "items": {
-                "items": {
-                  "type": "number"
-                },
-                "type": "array"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "title": "Coordinates"
-          }
-        },
-        "type": "object",
-        "required": [
-          "type",
-          "coordinates"
-        ],
-        "title": "Geometry"
-      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1690,7 +1722,13 @@
         "properties": {
           "id": {
             "type": "string",
+            "format": "uuid",
             "title": "Id"
+          },
+          "fieldId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Fieldid"
           },
           "date": {
             "type": "string",
@@ -1731,6 +1769,7 @@
         "type": "object",
         "required": [
           "id",
+          "fieldId",
           "date",
           "category",
           "title",
@@ -1753,7 +1792,22 @@
             "$ref": "#/components/schemas/MapProperties"
           },
           "geometry": {
-            "$ref": "#/components/schemas/Geometry"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PolygonGeometry"
+              },
+              {
+                "$ref": "#/components/schemas/MultiPolygonGeometry"
+              }
+            ],
+            "title": "Geometry",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
+                "Polygon": "#/components/schemas/PolygonGeometry"
+              }
+            }
           }
         },
         "type": "object",
@@ -1768,15 +1822,71 @@
       "MapProperties": {
         "properties": {
           "fieldId": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Fieldid"
+          },
+          "parcelId": {
+            "type": "integer",
+            "title": "Parcelid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
           }
         },
         "type": "object",
         "required": [
-          "fieldId"
+          "fieldId",
+          "parcelId",
+          "name"
         ],
         "title": "MapProperties"
+      },
+      "MultiPolygonGeometry": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "MultiPolygon",
+            "title": "Type"
+          },
+          "coordinates": {
+            "items": {
+              "items": {
+                "items": {
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array",
+                  "maxItems": 2,
+                  "minItems": 2
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Coordinates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "MultiPolygonGeometry"
       },
       "Notification": {
         "properties": {
@@ -1804,7 +1914,8 @@
           "fieldId": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string",
+                "format": "uuid"
               },
               {
                 "type": "null"
@@ -1918,10 +2029,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "format": "uuid",
             "title": "Id"
           },
           "fieldId": {
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "title": "Fieldid"
           },
           "fieldName": {
@@ -1985,6 +2098,41 @@
         ],
         "title": "PlanningContext"
       },
+      "PolygonGeometry": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Polygon",
+            "title": "Type"
+          },
+          "coordinates": {
+            "items": {
+              "items": {
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Coordinates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "PolygonGeometry"
+      },
       "PropertyData": {
         "properties": {
           "soil": {
@@ -2046,8 +2194,24 @@
       },
       "RotationPlan": {
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nextCropId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Nextcropid"
+          },
+          "followingCropId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Followingcropid"
+          },
           "fieldId": {
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "title": "Fieldid"
           },
           "currentCrop": {
@@ -2099,6 +2263,9 @@
         },
         "type": "object",
         "required": [
+          "id",
+          "nextCropId",
+          "followingCropId",
           "fieldId",
           "currentCrop",
           "nextCrop",

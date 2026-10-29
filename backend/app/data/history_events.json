@@ -1,0 +1,1017 @@
+[
+  {
+    "id": "bc4f1f9a-8c16-5fce-933d-90ad89f9eae3",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-24",
+    "category": "Soil conditions",
+    "title": "Field health review completed",
+    "description": "North Meadow is showing steady growth. Moisture and nutrients are supporting the current crop.",
+    "measurements": [
+      "Nitrogen 42 mg/kg",
+      "Moisture 64%",
+      "Crop health 92/100"
+    ],
+    "attention": false
+  },
+  {
+    "id": "8d9261bf-09ec-5045-b13e-8f4540696d7f",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-23",
+    "category": "Soil conditions",
+    "title": "Topsoil laboratory results received",
+    "description": "Composite samples were collected from five points at 0–30 cm depth. Results were added to the field’s soil record.",
+    "measurements": [
+      "pH 6.5",
+      "Organic matter 3.8%",
+      "Phosphorus 34 mg/kg"
+    ]
+  },
+  {
+    "id": "98009d35-8131-5079-a357-27ed5e7be280",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-22",
+    "category": "Field work",
+    "title": "Winter wheat growth inspection",
+    "description": "Crop establishment and canopy coverage were checked on the morning field walk. No significant pest pressure was recorded.",
+    "measurements": [
+      "NDVI 0.82",
+      "Establishment 96%"
+    ],
+    "attention": false
+  },
+  {
+    "id": "b4adfb2c-6160-5b9e-9ba4-70b3abc138e5",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-18",
+    "category": "Weather & water",
+    "title": "Light rain replenished the topsoil",
+    "description": "An overnight shower brought moisture to the root zone. Field access resumed after the surface dried.",
+    "measurements": [
+      "Rainfall 5.4 mm",
+      "Air temperature 19°C"
+    ]
+  },
+  {
+    "id": "d98ae7dc-3b56-5555-8b05-5b09bb253d48",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-05-12",
+    "category": "Weather & water",
+    "title": "Water balance reviewed",
+    "description": "Rainfall and root-zone moisture were reviewed. No supplemental watering was needed at this point.",
+    "measurements": [
+      "Rain-fed management"
+    ]
+  },
+  {
+    "id": "071b9d0a-b2ac-5033-ae64-92fd9911ff31",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-23",
+    "category": "Soil conditions",
+    "title": "Spring soil structure assessment",
+    "description": "Root-zone samples were assessed for compaction, drainage, and biological activity. Crop residues remained evenly distributed.",
+    "measurements": [
+      "Bulk density 1.25 g/cm³",
+      "Rooting depth 95 cm"
+    ]
+  },
+  {
+    "id": "bbf19946-3bb7-5a3f-9f1c-eed5de1ed003",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-04-05",
+    "category": "Field work",
+    "title": "Spring nutrient application recorded",
+    "description": "A balanced fertilizer blend was applied. Application rates and machinery passes were logged for the growing season.",
+    "measurements": [
+      "Nitrogen applied 40 kg/ha",
+      "Even spread confirmed"
+    ]
+  },
+  {
+    "id": "56ee55a8-f058-5aab-8f98-9238e5dc4284",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2026-02-16",
+    "category": "Soil conditions",
+    "title": "Winter ground cover inspection",
+    "description": "Overwintering wheat was checked after a cold spell. Ground cover helped protect the soil from wind erosion.",
+    "measurements": [
+      "Soil temperature 4°C",
+      "Erosion risk low"
+    ]
+  },
+  {
+    "id": "4d12770d-85e9-5b6f-b83f-099129e9a8fa",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2025-10-25",
+    "category": "Soil conditions",
+    "title": "Post-harvest soil test completed",
+    "description": "Nutrient carryover and organic matter were measured to establish a baseline for the next growing season.",
+    "measurements": [
+      "pH 6.6",
+      "Organic matter 3.7%"
+    ]
+  },
+  {
+    "id": "fd746837-e085-5cac-a2cc-0877caa01f64",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2025-09-18",
+    "category": "Crop rotation",
+    "title": "Winter wheat planted for the 2026 season",
+    "description": "The field transitioned from soybeans to winter wheat. Seedbed preparation and sowing were completed across the field.",
+    "measurements": [
+      "Planted area 24.8 ha",
+      "Reduced-tillage establishment"
+    ]
+  },
+  {
+    "id": "ed592f59-28e1-53d5-8025-17260db09cb7",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2025-09-10",
+    "category": "Crop rotation",
+    "title": "Soybeans harvest completed",
+    "description": "Harvested grain was weighed and moisture tested. Residues were retained to protect the surface and return organic material to the soil.",
+    "measurements": [
+      "Harvest yield 3.8 t/ha",
+      "Area 24.8 ha"
+    ]
+  },
+  {
+    "id": "10eda625-6d9e-5c58-ad76-0c48223bdf93",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2025-07-01",
+    "category": "Field work",
+    "title": "Field margins and drainage inspected",
+    "description": "Grass buffer strips were maintained. Drainage outlets and the field’s access track were checked after summer showers.",
+    "measurements": [
+      "Drainage: well drained"
+    ]
+  },
+  {
+    "id": "10e31e6c-d5bf-5c47-a294-116a415dadef",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2025-03-19",
+    "category": "Soil conditions",
+    "title": "Annual soil fertility review",
+    "description": "The season’s nutrient plan was reviewed against the previous harvest and crop rotation. Soil organic matter and pH were tracked against the baseline.",
+    "measurements": [
+      "Organic matter 3.6%"
+    ]
+  },
+  {
+    "id": "19f2a240-9899-5335-ba52-054c26a99f47",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2024-10-18",
+    "category": "Crop rotation",
+    "title": "Corn season closed",
+    "description": "The corn season was closed with harvest records and a soil condition assessment. A different crop was selected for the following year.",
+    "measurements": [
+      "Harvest yield 10.5 t/ha"
+    ]
+  },
+  {
+    "id": "3a8bc0fb-ca23-54bc-a2fd-7b218f85faf3",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2024-03-20",
+    "category": "Soil conditions",
+    "title": "Reduced-tillage practice introduced",
+    "description": "Cultivation depth was reduced to preserve soil structure. Crop residues were left on the surface to support soil biology and moisture retention.",
+    "measurements": [
+      "Cultivation depth 12 cm"
+    ]
+  },
+  {
+    "id": "a49c32a0-76ca-5229-87f1-22f932abbe01",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2023-10-20",
+    "category": "Crop rotation",
+    "title": "Winter wheat harvest archived",
+    "description": "Harvest and machinery records were added to the long-term land history for future crop planning.",
+    "measurements": [
+      "Harvest yield 6.8 t/ha"
+    ]
+  },
+  {
+    "id": "6498fea3-923b-565e-a4f5-238ad23a16d3",
+    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
+    "date": "2023-03-14",
+    "category": "Soil conditions",
+    "title": "Baseline land and soil survey",
+    "description": "North Meadow was surveyed for soil texture, slope, and drainage. This assessment established the first reference point for long-term soil monitoring.",
+    "measurements": [
+      "Silt loam",
+      "Slope 1.8%",
+      "Organic matter 3.4%"
+    ]
+  },
+  {
+    "id": "81ffb465-3552-54f1-b5eb-b4f36df28a9c",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-24",
+    "category": "Soil conditions",
+    "title": "Field health review flagged a change",
+    "description": "Drying soil was recorded in Riverside. Irrigation scheduling was flagged for review.",
+    "measurements": [
+      "Nitrogen 28 mg/kg",
+      "Moisture 38%",
+      "Crop health 68/100"
+    ],
+    "attention": true
+  },
+  {
+    "id": "db3a5709-8611-569b-8348-634df9c7f004",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-23",
+    "category": "Soil conditions",
+    "title": "Topsoil laboratory results received",
+    "description": "Composite samples were collected from five points at 0–30 cm depth. Results were added to the field’s soil record.",
+    "measurements": [
+      "pH 6.2",
+      "Organic matter 3.1%",
+      "Phosphorus 25 mg/kg"
+    ]
+  },
+  {
+    "id": "653b4a48-29bf-5507-b6f6-bb385476c859",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-22",
+    "category": "Field work",
+    "title": "Corn growth inspection",
+    "description": "Crop establishment and canopy coverage were checked on the morning field walk. No significant pest pressure was recorded.",
+    "measurements": [
+      "NDVI 0.61",
+      "Establishment 91%"
+    ],
+    "attention": false
+  },
+  {
+    "id": "d0141348-1c3a-5836-915f-f5cb0b0a09ca",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-18",
+    "category": "Weather & water",
+    "title": "Light rain replenished the topsoil",
+    "description": "An overnight shower brought moisture to the root zone. Field access resumed after the surface dried.",
+    "measurements": [
+      "Rainfall 6.0 mm",
+      "Air temperature 19°C"
+    ]
+  },
+  {
+    "id": "f1676a1a-b169-5424-8d5e-e9178ea6d454",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-05-16",
+    "category": "Weather & water",
+    "title": "Irrigation pass completed",
+    "description": "Water was applied using the center pivot system. Distribution and equipment pressure were checked.",
+    "measurements": [
+      "Application depth 14 mm"
+    ]
+  },
+  {
+    "id": "2458df89-509a-54c7-a78f-bed12b0853d7",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-23",
+    "category": "Soil conditions",
+    "title": "Spring soil structure assessment",
+    "description": "Root-zone samples were assessed for compaction, drainage, and biological activity. Crop residues remained evenly distributed.",
+    "measurements": [
+      "Bulk density 1.38 g/cm³",
+      "Rooting depth 78 cm"
+    ]
+  },
+  {
+    "id": "31da6a2d-d694-555d-9ece-f4492be1b3de",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-12",
+    "category": "Crop rotation",
+    "title": "Corn planted for the 2026 season",
+    "description": "The field transitioned from soybeans to corn. Seedbed preparation and sowing were completed across the field.",
+    "measurements": [
+      "Planted area 18.5 ha",
+      "Reduced-tillage establishment"
+    ]
+  },
+  {
+    "id": "c8a15838-c708-5b23-8c28-55fa143164e1",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-04-05",
+    "category": "Field work",
+    "title": "Spring nutrient application recorded",
+    "description": "A balanced fertilizer blend was applied. Application rates and machinery passes were logged for the growing season.",
+    "measurements": [
+      "Nitrogen applied 45 kg/ha",
+      "Even spread confirmed"
+    ]
+  },
+  {
+    "id": "a9da784c-3266-5664-a5ac-9772676a4d87",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2026-02-16",
+    "category": "Soil conditions",
+    "title": "Winter ground cover inspection",
+    "description": "Crop residues protected the surface through winter. No substantial erosion channels were found.",
+    "measurements": [
+      "Soil temperature 4°C",
+      "Erosion risk low"
+    ]
+  },
+  {
+    "id": "89b0c61f-f105-5833-afb8-ed5d6a461c8d",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2025-10-25",
+    "category": "Soil conditions",
+    "title": "Post-harvest soil test completed",
+    "description": "Nutrient carryover and organic matter were measured to establish a baseline for the next growing season.",
+    "measurements": [
+      "pH 6.3",
+      "Organic matter 3.0%"
+    ]
+  },
+  {
+    "id": "8b3012d7-2502-5ddf-92a0-2f7de191b6ba",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2025-09-10",
+    "category": "Crop rotation",
+    "title": "Soybeans harvest completed",
+    "description": "Harvested grain was weighed and moisture tested. Residues were retained to protect the surface and return organic material to the soil.",
+    "measurements": [
+      "Harvest yield 4.0 t/ha",
+      "Area 18.5 ha"
+    ]
+  },
+  {
+    "id": "063ffa41-6523-549b-b4c1-e95a5bf9ed75",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2025-07-01",
+    "category": "Field work",
+    "title": "Field margins and drainage inspected",
+    "description": "Grass buffer strips were maintained. Drainage outlets and the field’s access track were checked after summer showers.",
+    "measurements": [
+      "Drainage: moderately drained"
+    ]
+  },
+  {
+    "id": "d3a626ca-ebf0-5eac-bbc0-2d6d3ddc7f87",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2025-03-19",
+    "category": "Soil conditions",
+    "title": "Annual soil fertility review",
+    "description": "The season’s nutrient plan was reviewed against the previous harvest and crop rotation. Soil organic matter and pH were tracked against the baseline.",
+    "measurements": [
+      "Organic matter 2.9%"
+    ]
+  },
+  {
+    "id": "48a78252-48d7-509b-a32a-9718e859b6bf",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2024-10-18",
+    "category": "Crop rotation",
+    "title": "Winter wheat season closed",
+    "description": "The winter wheat season was closed with harvest records and a soil condition assessment. A different crop was selected for the following year.",
+    "measurements": [
+      "Harvest yield 7.1 t/ha"
+    ]
+  },
+  {
+    "id": "d52bd88b-ad9d-5d56-bb7c-eb3880926d6e",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2024-03-20",
+    "category": "Soil conditions",
+    "title": "Reduced-tillage practice introduced",
+    "description": "Cultivation depth was reduced to preserve soil structure. Crop residues were left on the surface to support soil biology and moisture retention.",
+    "measurements": [
+      "Cultivation depth 12 cm"
+    ]
+  },
+  {
+    "id": "8b32387c-bf46-5359-9433-addf2c2d6267",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2023-10-20",
+    "category": "Crop rotation",
+    "title": "Corn harvest archived",
+    "description": "Harvest and machinery records were added to the long-term land history for future crop planning.",
+    "measurements": [
+      "Harvest yield 10.6 t/ha"
+    ]
+  },
+  {
+    "id": "b2e374e3-3104-59c1-92f6-a41fb940f848",
+    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
+    "date": "2023-03-14",
+    "category": "Soil conditions",
+    "title": "Baseline land and soil survey",
+    "description": "Riverside was surveyed for soil texture, slope, and drainage. This assessment established the first reference point for long-term soil monitoring.",
+    "measurements": [
+      "Clay loam",
+      "Slope 0.9%",
+      "Organic matter 2.7%"
+    ]
+  },
+  {
+    "id": "f7078cec-d5e1-5446-8578-83c85ce9c285",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-24",
+    "category": "Soil conditions",
+    "title": "Field health review completed",
+    "description": "Oak Valley is showing steady growth. Moisture and nutrients are supporting the current crop.",
+    "measurements": [
+      "Nitrogen 38 mg/kg",
+      "Moisture 58%",
+      "Crop health 88/100"
+    ],
+    "attention": false
+  },
+  {
+    "id": "4f2daa99-4c0e-5896-ba74-aa79f644eb5a",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-23",
+    "category": "Soil conditions",
+    "title": "Topsoil laboratory results received",
+    "description": "Composite samples were collected from five points at 0–30 cm depth. Results were added to the field’s soil record.",
+    "measurements": [
+      "pH 6.8",
+      "Organic matter 4.2%",
+      "Phosphorus 31 mg/kg"
+    ]
+  },
+  {
+    "id": "53253945-1378-595a-9e67-a213c7466f1f",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-22",
+    "category": "Field work",
+    "title": "Soybeans growth inspection",
+    "description": "Crop establishment and canopy coverage were checked on the morning field walk. No significant pest pressure was recorded.",
+    "measurements": [
+      "NDVI 0.77",
+      "Establishment 95%"
+    ],
+    "attention": false
+  },
+  {
+    "id": "4f0cc9a7-2bd0-59c8-a2e1-e8ea124bdfd7",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-18",
+    "category": "Weather & water",
+    "title": "Light rain replenished the topsoil",
+    "description": "An overnight shower brought moisture to the root zone. Field access resumed after the surface dried.",
+    "measurements": [
+      "Rainfall 6.6 mm",
+      "Air temperature 19°C"
+    ]
+  },
+  {
+    "id": "46124633-e8ba-5249-ab39-786bbf2242a7",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-05-12",
+    "category": "Weather & water",
+    "title": "Water balance reviewed",
+    "description": "Rainfall and root-zone moisture were reviewed. No supplemental watering was needed at this point.",
+    "measurements": [
+      "Rain-fed management"
+    ]
+  },
+  {
+    "id": "7279caff-c13c-54a0-88bc-514873933780",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-23",
+    "category": "Soil conditions",
+    "title": "Spring soil structure assessment",
+    "description": "Root-zone samples were assessed for compaction, drainage, and biological activity. Crop residues remained evenly distributed.",
+    "measurements": [
+      "Bulk density 1.21 g/cm³",
+      "Rooting depth 110 cm"
+    ]
+  },
+  {
+    "id": "4e7526fa-7913-5323-8529-bd76599d6fa5",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-21",
+    "category": "Crop rotation",
+    "title": "Soybeans planted for the 2026 season",
+    "description": "The field transitioned from corn to soybeans. Seedbed preparation and sowing were completed across the field.",
+    "measurements": [
+      "Planted area 32.2 ha",
+      "Reduced-tillage establishment"
+    ]
+  },
+  {
+    "id": "9f9db523-ae25-50f7-97c2-3c04cd96d900",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-04-05",
+    "category": "Field work",
+    "title": "Spring nutrient application recorded",
+    "description": "A balanced fertilizer blend was applied. Application rates and machinery passes were logged for the growing season.",
+    "measurements": [
+      "Nitrogen applied 50 kg/ha",
+      "Even spread confirmed"
+    ]
+  },
+  {
+    "id": "1d32b511-8a20-5d3a-9aa1-d93f9efddd68",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2026-02-16",
+    "category": "Soil conditions",
+    "title": "Winter ground cover inspection",
+    "description": "Crop residues protected the surface through winter. No substantial erosion channels were found.",
+    "measurements": [
+      "Soil temperature 4°C",
+      "Erosion risk low"
+    ]
+  },
+  {
+    "id": "abc84d8a-b67a-55db-a79f-e8df133c6d6f",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2025-10-25",
+    "category": "Soil conditions",
+    "title": "Post-harvest soil test completed",
+    "description": "Nutrient carryover and organic matter were measured to establish a baseline for the next growing season.",
+    "measurements": [
+      "pH 6.9",
+      "Organic matter 4.1%"
+    ]
+  },
+  {
+    "id": "bfc0d939-7e88-56ff-a6aa-abfed0f256b9",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2025-10-08",
+    "category": "Crop rotation",
+    "title": "Corn harvest completed",
+    "description": "Harvested grain was weighed and moisture tested. Residues were retained to protect the surface and return organic material to the soil.",
+    "measurements": [
+      "Harvest yield 10.4 t/ha",
+      "Area 32.2 ha"
+    ]
+  },
+  {
+    "id": "55539de7-0889-5d8d-bdc6-79a26d915384",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2025-07-01",
+    "category": "Field work",
+    "title": "Field margins and drainage inspected",
+    "description": "Grass buffer strips were maintained. Drainage outlets and the field’s access track were checked after summer showers.",
+    "measurements": [
+      "Drainage: well drained"
+    ]
+  },
+  {
+    "id": "10383c3f-8e02-5ffb-b01e-02dcf6a60e62",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2025-03-19",
+    "category": "Soil conditions",
+    "title": "Annual soil fertility review",
+    "description": "The season’s nutrient plan was reviewed against the previous harvest and crop rotation. Soil organic matter and pH were tracked against the baseline.",
+    "measurements": [
+      "Organic matter 4.0%"
+    ]
+  },
+  {
+    "id": "ce61ddd8-3afd-55f1-9f8e-84c1490f392c",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2024-10-18",
+    "category": "Crop rotation",
+    "title": "Soybeans season closed",
+    "description": "The soybeans season was closed with harvest records and a soil condition assessment. A different crop was selected for the following year.",
+    "measurements": [
+      "Harvest yield 3.5 t/ha"
+    ]
+  },
+  {
+    "id": "4ed01d68-6e1e-52f6-ba79-5302e1af2883",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2024-03-20",
+    "category": "Soil conditions",
+    "title": "Reduced-tillage practice introduced",
+    "description": "Cultivation depth was reduced to preserve soil structure. Crop residues were left on the surface to support soil biology and moisture retention.",
+    "measurements": [
+      "Cultivation depth 12 cm"
+    ]
+  },
+  {
+    "id": "2aae0c50-bc29-5bd7-9f3c-47d0187492a3",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2023-10-20",
+    "category": "Crop rotation",
+    "title": "Winter wheat harvest archived",
+    "description": "Harvest and machinery records were added to the long-term land history for future crop planning.",
+    "measurements": [
+      "Harvest yield 6.6 t/ha"
+    ]
+  },
+  {
+    "id": "a9e4d60a-36f5-5b1e-9bc3-bf0ea2d894c0",
+    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
+    "date": "2023-03-14",
+    "category": "Soil conditions",
+    "title": "Baseline land and soil survey",
+    "description": "Oak Valley was surveyed for soil texture, slope, and drainage. This assessment established the first reference point for long-term soil monitoring.",
+    "measurements": [
+      "Loam",
+      "Slope 2.4%",
+      "Organic matter 3.8%"
+    ]
+  },
+  {
+    "id": "6ce21386-20b3-5fe6-987f-279b87a22d67",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-24",
+    "category": "Soil conditions",
+    "title": "Field health review flagged a change",
+    "description": "Low nitrogen and dry topsoil were recorded in East Ridge. A nutrient application and irrigation review were added to the work plan.",
+    "measurements": [
+      "Nitrogen 12 mg/kg",
+      "Moisture 32%",
+      "Crop health 45/100"
+    ],
+    "attention": true
+  },
+  {
+    "id": "b9ce98ef-fa50-567a-999d-ce934681d48b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-23",
+    "category": "Soil conditions",
+    "title": "Topsoil laboratory results received",
+    "description": "Composite samples were collected from five points at 0–30 cm depth. Results were added to the field’s soil record.",
+    "measurements": [
+      "pH 5.6",
+      "Organic matter 2.1%",
+      "Phosphorus 16 mg/kg"
+    ]
+  },
+  {
+    "id": "cf91cb3c-46cd-592f-b085-6f9de031fdea",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-22",
+    "category": "Field work",
+    "title": "Winter wheat growth inspection",
+    "description": "Uneven canopy and pale leaves were observed along the ridge. The affected area was marked for follow-up.",
+    "measurements": [
+      "NDVI 0.43",
+      "Establishment 84%"
+    ],
+    "attention": true
+  },
+  {
+    "id": "c85f2bc3-3a09-5963-a5f6-597b282a334d",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-18",
+    "category": "Weather & water",
+    "title": "Light rain replenished the topsoil",
+    "description": "An overnight shower brought moisture to the root zone. Field access resumed after the surface dried.",
+    "measurements": [
+      "Rainfall 7.2 mm",
+      "Air temperature 19°C"
+    ]
+  },
+  {
+    "id": "86d85991-a5b1-55b0-9455-cb26a32d4eb9",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-05-12",
+    "category": "Weather & water",
+    "title": "Irrigation pass completed",
+    "description": "Water was applied using the traveling sprinkler system. Distribution and equipment pressure were checked.",
+    "measurements": [
+      "Application depth 14 mm"
+    ]
+  },
+  {
+    "id": "df9a6bef-95e4-53f5-9420-bf1f08cd9737",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-23",
+    "category": "Soil conditions",
+    "title": "Spring soil structure assessment",
+    "description": "Root-zone samples were assessed for compaction, drainage, and biological activity. Crop residues remained evenly distributed.",
+    "measurements": [
+      "Bulk density 1.46 g/cm³",
+      "Rooting depth 62 cm"
+    ]
+  },
+  {
+    "id": "d2c46287-7dba-57da-ab60-427e8971bde1",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-04-05",
+    "category": "Field work",
+    "title": "Spring nutrient application recorded",
+    "description": "A balanced fertilizer blend was applied. Application rates and machinery passes were logged for the growing season.",
+    "measurements": [
+      "Nitrogen applied 55 kg/ha",
+      "Even spread confirmed"
+    ]
+  },
+  {
+    "id": "411480a3-f9d7-5572-98ba-3be8811e258b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2026-02-16",
+    "category": "Soil conditions",
+    "title": "Winter ground cover inspection",
+    "description": "Overwintering wheat was checked after a cold spell. Ground cover helped protect the soil from wind erosion.",
+    "measurements": [
+      "Soil temperature 4°C",
+      "Erosion risk low"
+    ]
+  },
+  {
+    "id": "3d9f15cd-0bbb-59b7-9150-b20f762a0f77",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2025-10-25",
+    "category": "Soil conditions",
+    "title": "Post-harvest soil test completed",
+    "description": "Nutrient carryover and organic matter were measured to establish a baseline for the next growing season.",
+    "measurements": [
+      "pH 5.7",
+      "Organic matter 2.0%"
+    ]
+  },
+  {
+    "id": "04c17cf7-3534-5d35-8c7d-846db5af02cc",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2025-09-22",
+    "category": "Crop rotation",
+    "title": "Winter wheat planted for the 2026 season",
+    "description": "The field transitioned from soybeans to winter wheat. Seedbed preparation and sowing were completed across the field.",
+    "measurements": [
+      "Planted area 16.4 ha",
+      "Reduced-tillage establishment"
+    ]
+  },
+  {
+    "id": "7df986ba-5088-50eb-83ee-b835ac26f035",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2025-09-10",
+    "category": "Crop rotation",
+    "title": "Soybeans harvest completed",
+    "description": "Harvested grain was weighed and moisture tested. Residues were retained to protect the surface and return organic material to the soil.",
+    "measurements": [
+      "Harvest yield 3.8 t/ha",
+      "Area 16.4 ha"
+    ]
+  },
+  {
+    "id": "a29d94d3-09ce-5ea5-a1de-79db09b04d4b",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2025-07-01",
+    "category": "Field work",
+    "title": "Field margins and drainage inspected",
+    "description": "Grass buffer strips were maintained. Drainage outlets and the field’s access track were checked after summer showers.",
+    "measurements": [
+      "Drainage: rapidly drained"
+    ]
+  },
+  {
+    "id": "032fe3e5-ef82-5d5f-9f32-b7aaa59a4598",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2025-03-19",
+    "category": "Soil conditions",
+    "title": "Annual soil fertility review",
+    "description": "The season’s nutrient plan was reviewed against the previous harvest and crop rotation. Soil organic matter and pH were tracked against the baseline.",
+    "measurements": [
+      "Organic matter 1.9%"
+    ]
+  },
+  {
+    "id": "c0eac734-c2b7-563a-9aa8-955c451c0655",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2024-10-18",
+    "category": "Crop rotation",
+    "title": "Corn season closed",
+    "description": "The corn season was closed with harvest records and a soil condition assessment. A different crop was selected for the following year.",
+    "measurements": [
+      "Harvest yield 10.5 t/ha"
+    ]
+  },
+  {
+    "id": "893084e4-ef29-51ef-a4e2-2372364b25e2",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2024-03-20",
+    "category": "Soil conditions",
+    "title": "Reduced-tillage practice introduced",
+    "description": "Cultivation depth was reduced to preserve soil structure. Crop residues were left on the surface to support soil biology and moisture retention.",
+    "measurements": [
+      "Cultivation depth 12 cm"
+    ]
+  },
+  {
+    "id": "37877155-eaf5-56cc-ae78-7a2d4e4e8efb",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2023-10-20",
+    "category": "Crop rotation",
+    "title": "Winter wheat harvest archived",
+    "description": "Harvest and machinery records were added to the long-term land history for future crop planning.",
+    "measurements": [
+      "Harvest yield 6.8 t/ha"
+    ]
+  },
+  {
+    "id": "04f65ac0-d558-5348-b220-bed99259d1f6",
+    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
+    "date": "2023-03-14",
+    "category": "Soil conditions",
+    "title": "Baseline land and soil survey",
+    "description": "East Ridge was surveyed for soil texture, slope, and drainage. This assessment established the first reference point for long-term soil monitoring.",
+    "measurements": [
+      "Sandy loam",
+      "Slope 4.2%",
+      "Organic matter 1.7%"
+    ]
+  },
+  {
+    "id": "4d027757-e7a2-5a16-8b3c-50f48e7cbd8a",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-24",
+    "category": "Soil conditions",
+    "title": "Field health review completed",
+    "description": "South Pasture is showing steady growth. Moisture and nutrients are supporting the current crop.",
+    "measurements": [
+      "Nitrogen 45 mg/kg",
+      "Moisture 67%",
+      "Crop health 94/100"
+    ],
+    "attention": false
+  },
+  {
+    "id": "8b09276d-3933-5a03-822c-4eace90b4557",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-23",
+    "category": "Soil conditions",
+    "title": "Topsoil laboratory results received",
+    "description": "Composite samples were collected from five points at 0–30 cm depth. Results were added to the field’s soil record.",
+    "measurements": [
+      "pH 6.6",
+      "Organic matter 4.5%",
+      "Phosphorus 38 mg/kg"
+    ]
+  },
+  {
+    "id": "780b7e51-a122-5b6b-948e-d0c893ac74aa",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-22",
+    "category": "Field work",
+    "title": "Corn growth inspection",
+    "description": "Crop establishment and canopy coverage were checked on the morning field walk. No significant pest pressure was recorded.",
+    "measurements": [
+      "NDVI 0.85",
+      "Establishment 98%"
+    ],
+    "attention": false
+  },
+  {
+    "id": "70c41de3-8ccf-5d59-9ca2-9b953d3c4fd5",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-20",
+    "category": "Weather & water",
+    "title": "Irrigation pass completed",
+    "description": "Water was applied using the center pivot system. Distribution and equipment pressure were checked.",
+    "measurements": [
+      "Application depth 14 mm"
+    ]
+  },
+  {
+    "id": "5b341b24-1512-5c02-b5d9-5862586ff7bc",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-05-18",
+    "category": "Weather & water",
+    "title": "Light rain replenished the topsoil",
+    "description": "An overnight shower brought moisture to the root zone. Field access resumed after the surface dried.",
+    "measurements": [
+      "Rainfall 7.8 mm",
+      "Air temperature 19°C"
+    ]
+  },
+  {
+    "id": "eff553e2-19fe-5d27-856e-fbffa4202f95",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-23",
+    "category": "Soil conditions",
+    "title": "Spring soil structure assessment",
+    "description": "Root-zone samples were assessed for compaction, drainage, and biological activity. Crop residues remained evenly distributed.",
+    "measurements": [
+      "Bulk density 1.19 g/cm³",
+      "Rooting depth 120 cm"
+    ]
+  },
+  {
+    "id": "5e64c020-3327-557b-a81a-ff423d9fb02d",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-16",
+    "category": "Crop rotation",
+    "title": "Corn planted for the 2026 season",
+    "description": "The field transitioned from winter wheat to corn. Seedbed preparation and sowing were completed across the field.",
+    "measurements": [
+      "Planted area 28.1 ha",
+      "Reduced-tillage establishment"
+    ]
+  },
+  {
+    "id": "d079d686-e1d0-589b-aa9c-a90cedd3552f",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-04-05",
+    "category": "Field work",
+    "title": "Spring nutrient application recorded",
+    "description": "A balanced fertilizer blend was applied. Application rates and machinery passes were logged for the growing season.",
+    "measurements": [
+      "Nitrogen applied 60 kg/ha",
+      "Even spread confirmed"
+    ]
+  },
+  {
+    "id": "969fd0e1-4067-58c6-af93-33ae868e9af1",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2026-02-16",
+    "category": "Soil conditions",
+    "title": "Winter ground cover inspection",
+    "description": "Crop residues protected the surface through winter. No substantial erosion channels were found.",
+    "measurements": [
+      "Soil temperature 4°C",
+      "Erosion risk low"
+    ]
+  },
+  {
+    "id": "fff1a8a2-b02b-543f-8ee1-7373de9d0481",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2025-10-25",
+    "category": "Soil conditions",
+    "title": "Post-harvest soil test completed",
+    "description": "Nutrient carryover and organic matter were measured to establish a baseline for the next growing season.",
+    "measurements": [
+      "pH 6.7",
+      "Organic matter 4.4%"
+    ]
+  },
+  {
+    "id": "61eab0a2-e585-5c1b-8b07-c4f39289be9b",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2025-07-16",
+    "category": "Crop rotation",
+    "title": "Winter wheat harvest completed",
+    "description": "Harvested grain was weighed and moisture tested. Residues were retained to protect the surface and return organic material to the soil.",
+    "measurements": [
+      "Harvest yield 7.2 t/ha",
+      "Area 28.1 ha"
+    ]
+  },
+  {
+    "id": "834e3878-8a0a-5e96-a15b-bbea25d8a4fc",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2025-07-01",
+    "category": "Field work",
+    "title": "Field margins and drainage inspected",
+    "description": "Grass buffer strips were maintained. Drainage outlets and the field’s access track were checked after summer showers.",
+    "measurements": [
+      "Drainage: tile drained"
+    ]
+  },
+  {
+    "id": "368c3b60-5e87-59f3-ad8c-22fa471f6c59",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2025-03-19",
+    "category": "Soil conditions",
+    "title": "Annual soil fertility review",
+    "description": "The season’s nutrient plan was reviewed against the previous harvest and crop rotation. Soil organic matter and pH were tracked against the baseline.",
+    "measurements": [
+      "Organic matter 4.3%"
+    ]
+  },
+  {
+    "id": "1b3a0b7f-ffb9-5ac8-b7f3-6027cc290086",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2024-10-18",
+    "category": "Crop rotation",
+    "title": "Soybeans season closed",
+    "description": "The soybeans season was closed with harvest records and a soil condition assessment. A different crop was selected for the following year.",
+    "measurements": [
+      "Harvest yield 3.9 t/ha"
+    ]
+  },
+  {
+    "id": "7eae1f25-1d28-5596-9d22-029537b49ddf",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2024-03-20",
+    "category": "Soil conditions",
+    "title": "Reduced-tillage practice introduced",
+    "description": "Cultivation depth was reduced to preserve soil structure. Crop residues were left on the surface to support soil biology and moisture retention.",
+    "measurements": [
+      "Cultivation depth 12 cm"
+    ]
+  },
+  {
+    "id": "c8105dda-c967-5849-9b35-0d22df341f44",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2023-10-20",
+    "category": "Crop rotation",
+    "title": "Corn harvest archived",
+    "description": "Harvest and machinery records were added to the long-term land history for future crop planning.",
+    "measurements": [
+      "Harvest yield 10.6 t/ha"
+    ]
+  },
+  {
+    "id": "082efef0-a5c5-5904-bc7e-57221949d613",
+    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
+    "date": "2023-03-14",
+    "category": "Soil conditions",
+    "title": "Baseline land and soil survey",
+    "description": "South Pasture was surveyed for soil texture, slope, and drainage. This assessment established the first reference point for long-term soil monitoring.",
+    "measurements": [
+      "Silt loam",
+      "Slope 1.2%",
+      "Organic matter 4.1%"
+    ]
+  }
+]
