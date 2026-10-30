@@ -52,6 +52,10 @@ test('keys are deterministic, parameterized and separated by feature/resource', 
     planningQueryKeys.responses(),
     weatherQueryKeys.history(weatherLocation, { range: '7 days' }),
     weatherQueryKeys.history(weatherLocation, { range: '30 days' }),
+    weatherQueryKeys.forecast(weatherLocation, firstId),
+    weatherQueryKeys.forecast(weatherLocation, secondId),
+    weatherQueryKeys.history(weatherLocation, { range: '7 days' }, firstId),
+    weatherQueryKeys.history(weatherLocation, { range: '7 days' }, secondId),
     overviewQueryKeys.charts({ days: 30, metric: 'health' }),
     overviewQueryKeys.charts({ days: 90, metric: 'health' }),
     overviewQueryKeys.charts({ days: 30, metric: 'moisture' }),
@@ -245,4 +249,27 @@ test('weather caches isolate coordinates, dates and units; settings changes clea
     await settingsApi.update(weatherLocation);
     cache.clear();
   }
+});
+
+test('field-scoped weather contracts carry backend limits, scores and alerts in independent caches', async () => {
+  const cache = client();
+  const [first, second] = await Promise.all([
+    cache.fetchQuery(weatherQueries.forecast(weatherLocation, firstId)),
+    cache.fetchQuery(weatherQueries.forecast(weatherLocation, secondId)),
+  ]);
+  assert.equal(first.cropAssessment.context.fieldId, firstId);
+  assert.equal(second.cropAssessment.context.fieldId, secondId);
+  assert.notEqual(first.cropAssessment.context.crop, second.cropAssessment.context.crop);
+  assert.equal(first.cropAssessment.model.kind, 'heuristic_stub');
+  assert.equal(first.cropAssessment.model.scoreMeaning, 'suitability_0_bad_100_good');
+  assert.ok(
+    first.records.some((day) => day.cropAssessment.alerts.some((alert) => alert.reading === 'low')),
+  );
+  assert.equal(first.records[0].cropAssessment.metrics.temperature.valueRiskLevel, 'good');
+  const history = await cache.fetchQuery(
+    weatherQueries.history(weatherLocation, { range: '7 days' }, firstId),
+  );
+  assert.equal(history.cropAssessment.context.fieldId, firstId);
+  assert.equal(history.cropAssessment.context.climate.source, 'history_window');
+  cache.clear();
 });

@@ -114,7 +114,7 @@ background colors in the shared theme for readable contrast.
 - **Field map:** pan, zoom, recenter, switch layers, select a field, or add an available parcel.
 - **My fields:** search and filter fields by crop or health status. Each field page starts with a real satellite map focused on that field’s GeoJSON boundary. Below it are the rotation plan, an AI-style explanation with a blue-purple gradient border, crop/soil/water properties, and searchable land history. Field management and removal controls are at the bottom. The detail map has no heatmap or metric overlay controls.
 - **Calendar:** an Ant Design month/year calendar with field and action filters, a compact selected-day agenda, and a searchable table. Primary action buttons open dedicated detail pages with scheduling, rationale, and current field conditions. Date selection preserves the page scroll position.
-- **Environment history:** current conditions, trend charts, and 7-, 30-, or 90-day weather logs.
+- **Environment history:** a selectable 14-day forecast, trend charts, and 7-, 30-, or 90-day weather logs.
 
 Demo records and recommendations are owned by the FastAPI backend. Field changes and strategy decisions are shared within one backend process, survive browser refreshes, and reset when that process restarts. React Query caches resources and invalidates dependent queries after mutations. The backend and PostgreSQL are required. Register an account to sign in; no AI services are needed. Map imagery requires internet access to the Esri tile service.
 
@@ -315,9 +315,14 @@ register test users; their Node transport emulates a browser cookie jar.
 ## Environment
 
 Weather comes from Open-Meteo through the backend using the map location, time zone,
-and units saved in Settings. Environment keeps the existing metric tabs and shows
-current weather, a selectable 14-day conditions calendar, forecast trends, past
-conditions, custom date ranges, and a visible daily environment log. Missing readings
+and units saved in Settings. Environment starts with metric tabs, followed by a
+single scrollable row of 14 daily forecast cards with filled weather icons,
+selected-day descriptions and a daily insight panel, and a forecast chart.
+The selected-day card animates the matching weather scene for all supported
+conditions, with a neutral fallback and static scenes for reduced-motion preferences.
+The insight uses local forecast-based templates, styled like the field explanation;
+it does not call an AI service. Forecast dates are selected with the day cards. Past conditions pairs a chart with a compact selected-metric
+card, plus custom date ranges and a visible daily environment log. Missing readings
 show a dash; weather errors remain within their panel. No sample weather is used.
 
 The backend shares cached current/forecast data, and React Query deduplicates readers
@@ -325,3 +330,15 @@ across Overview, Environment, strategy, and notifications. Historical and foreca
 moisture use different model depths, displayed in day details. Crop health and rotation
 recommendations remain illustrative. See the backend's `docs/weather-integration.md`
 for API semantics, source licensing, and local Postman simulations.
+
+Environment crop assessments are scoped to the selected field. The API uses the field's
+geometry center and farm time zone, its crop and soil profile, and the requested weather
+window. Charts show backend-provided good/caution/high-risk zones, labelled daily values,
+and overnight temperature warnings. Day cards and selected-day details show ⚠️ when the
+backend returns crop alerts. Suitability runs from 0 (poor) to 100 (good).
+
+These assessments use a versioned heuristic stub, not a trained ML model. The frontend
+consumes structured bounds, scores, coverage, and alerts; it does not calculate crop
+thresholds. The backend's `docs/weather-integration.md` describes replacement of the
+estimator and the `field_id` contract. Unscoped weather requests retain account-location
+behavior and return no crop assessment.

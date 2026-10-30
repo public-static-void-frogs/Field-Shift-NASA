@@ -7,10 +7,22 @@ export type HistoryPeriod = { range: HistoryRange } | { startDate: string; endDa
 export const weatherApi = {
   getCurrent: (signal?: AbortSignal): Promise<CurrentWeather> =>
     request('/weather/current', { signal }),
-  getForecast: (signal?: AbortSignal): Promise<WeatherSeries> =>
-    request('/weather/forecast', { signal }),
-  getHistory: (period: HistoryPeriod, signal?: AbortSignal): Promise<WeatherSeries> => {
+  getForecast: (signal?: AbortSignal, fieldId?: string): Promise<WeatherSeries> => {
     const params = new URLSearchParams();
+    if (fieldId) {
+      params.set('field_id', fieldId);
+    }
+    return request(`/weather/forecast?${params}`, { signal });
+  },
+  getHistory: (
+    period: HistoryPeriod,
+    signal?: AbortSignal,
+    fieldId?: string,
+  ): Promise<WeatherSeries> => {
+    const params = new URLSearchParams();
+    if (fieldId) {
+      params.set('field_id', fieldId);
+    }
     if ('range' in period) {
       params.set('days', String(Number.parseInt(period.range)));
     } else {

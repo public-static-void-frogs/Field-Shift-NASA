@@ -1,3 +1,4 @@
+import { formatCropAlert } from '../utils/cropRiskPresentation.ts';
 import { WeatherConditionIcon } from './WeatherConditionIcon';
 import { useTranslation } from 'react-i18next';
 import type {
@@ -43,6 +44,20 @@ export function WeatherChartTooltip({ active, payload, metric, units }: WeatherC
       <small>
         {t('Precipitation')} {formatWeatherValue(record.rainfall, units.rainfall)}
       </small>
+      {record.cropAssessment && (
+        <small>
+          {t('Suitability {{score}} / 100', {
+            score: formatWeatherValue(record.cropAssessment.suitabilityScore),
+          })}
+        </small>
+      )}
+      {record.cropAssessment?.alerts
+        .filter((alert) => alert.metric === metric)
+        .map((alert) => (
+          <small key={`${alert.metric}-${alert.reading}`}>
+            ⚠️ {formatCropAlert(alert, units, t)}
+          </small>
+        ))}
     </div>
   );
 }

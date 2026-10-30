@@ -286,7 +286,7 @@ export function FieldStrategyPage() {
           })}
         </section>
 
-        <ForecastPanel />
+        <ForecastPanel fieldId={field.id} />
 
         <Card title={t('Technical basis')} className="strategy-table-card">
           <Table

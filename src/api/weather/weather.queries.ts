@@ -21,9 +21,10 @@ function locationKey(location: WeatherLocation) {
 export const weatherQueryKeys = {
   all: () => ['weather'] as const,
   current: (location: WeatherLocation) => ['weather', locationKey(location), 'current'] as const,
-  forecast: (location: WeatherLocation) => ['weather', locationKey(location), 'forecast'] as const,
-  history: (location: WeatherLocation, period: HistoryPeriod) =>
-    ['weather', locationKey(location), 'history', period] as const,
+  forecast: (location: WeatherLocation, fieldId?: string) =>
+    ['weather', locationKey(location), 'forecast', fieldId ?? null] as const,
+  history: (location: WeatherLocation, period: HistoryPeriod, fieldId?: string) =>
+    ['weather', locationKey(location), 'history', period, fieldId ?? null] as const,
 };
 
 const pollingOptions = {
@@ -40,19 +41,19 @@ export const weatherQueries = {
       queryFn: ({ signal }) => weatherApi.getCurrent(signal),
       enabled: location.latitude !== null && location.longitude !== null,
     }),
-  forecast: (location: WeatherLocation) =>
+  forecast: (location: WeatherLocation, fieldId?: string) =>
     queryOptions({
       ...pollingOptions,
-      queryKey: weatherQueryKeys.forecast(location),
-      queryFn: ({ signal }) => weatherApi.getForecast(signal),
-      enabled: location.latitude !== null && location.longitude !== null,
+      queryKey: weatherQueryKeys.forecast(location, fieldId),
+      queryFn: ({ signal }) => weatherApi.getForecast(signal, fieldId),
+      enabled: Boolean(fieldId) || (location.latitude !== null && location.longitude !== null),
     }),
-  history: (location: WeatherLocation, period: HistoryPeriod) =>
+  history: (location: WeatherLocation, period: HistoryPeriod, fieldId?: string) =>
     queryOptions({
-      queryKey: weatherQueryKeys.history(location, period),
-      queryFn: ({ signal }) => weatherApi.getHistory(period, signal),
+      queryKey: weatherQueryKeys.history(location, period, fieldId),
+      queryFn: ({ signal }) => weatherApi.getHistory(period, signal, fieldId),
       staleTime: 30 * 60_000,
       retry: false,
-      enabled: location.latitude !== null && location.longitude !== null,
+      enabled: Boolean(fieldId) || (location.latitude !== null && location.longitude !== null),
     }),
 };

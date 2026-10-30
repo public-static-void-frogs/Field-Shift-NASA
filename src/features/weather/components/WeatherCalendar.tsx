@@ -1,6 +1,7 @@
+import { WeatherRiskIndicator } from './WeatherRiskIndicator';
 import { WeatherConditionIcon } from './WeatherConditionIcon';
 import type { CSSProperties } from 'react';
-import { CloudRain } from 'lucide-react';
+import { Droplet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type {
   WeatherMetric,
@@ -42,6 +43,12 @@ export function WeatherCalendar({
           dayLabel = t('Tomorrow');
         }
         const color = weatherColor(record[metric], metric, units);
+        let alertLabel = '';
+        if (record.cropAssessment?.alerts.length) {
+          const risk =
+            record.cropAssessment.riskLevel === 'high' ? t('High crop risk') : t('Crop caution');
+          alertLabel = `, ${risk}`;
+        }
         let secondaryValue = formatWeatherValue(record.rainfall, units.rainfall);
         if (metric === 'rainfall') {
           secondaryValue = formatWeatherValue(record.rainChance, '%');
@@ -60,16 +67,18 @@ export function WeatherCalendar({
             data-selected={selectedKey === record.key}
             data-today={record.today}
             aria-pressed={selectedKey === record.key}
-            aria-label={`${dateLabel}: ${t(record.conditions)}, ${config.title} ${formatWeatherValue(record[metric], config.unit)}`}
+            aria-label={`${dateLabel}: ${t(record.conditions)}, ${config.title} ${formatWeatherValue(record[metric], config.unit)}${alertLabel}`}
             onClick={() => onSelect(record.key)}
             style={{ '--day-color': color } as CSSProperties}
           >
-            <span className="weather-calendar-weekday">{dayLabel}</span>
+            <span className="weather-calendar-weekday">
+              {dayLabel}
+              <WeatherRiskIndicator assessment={record.cropAssessment} />
+            </span>
             <span className="weather-calendar-date">{dateLabel}</span>
             <WeatherConditionIcon
               conditions={record.conditions}
-              size={27}
-              strokeWidth={1.4}
+              size={40}
               className="weather-calendar-icon"
             />
             <strong className="weather-calendar-value">
@@ -77,7 +86,7 @@ export function WeatherCalendar({
               <small>{config.unit}</small>
             </strong>
             <span className="weather-calendar-secondary">
-              <CloudRain size={12} />
+              <Droplet size={12} fill="currentColor" strokeWidth={0} />
               {secondaryValue}
             </span>
             <span className="weather-calendar-color" />

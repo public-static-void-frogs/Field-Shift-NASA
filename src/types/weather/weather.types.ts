@@ -12,6 +12,7 @@ export interface WeatherRecord {
   windDirection: number | null;
   moisture: number | null;
   rainChance: number | null;
+  cropAssessment: CropDayAssessment | null;
 }
 
 export type WeatherMetric = 'temperature' | 'rainfall' | 'moisture' | 'humidity' | 'wind';
@@ -40,6 +41,7 @@ export interface WeatherMetadata {
 }
 
 export interface WeatherSeries extends WeatherMetadata {
+  cropAssessment: CropAssessment | null;
   records: WeatherRecord[];
 }
 
@@ -58,4 +60,74 @@ export interface CurrentWeather extends WeatherMetadata {
   windDirection: number | null;
   rainChance: number | null;
   forecast: WeatherRecord[];
+}
+
+export type CropRiskLevel = 'good' | 'caution' | 'high' | 'unknown';
+
+export interface CropMetricBounds {
+  unit: string;
+  criticalLow: number | null;
+  goodLow: number;
+  ideal: number;
+  goodHigh: number;
+  criticalHigh: number | null;
+}
+
+export interface CropRiskAlert {
+  metric: WeatherMetric;
+  reading: 'value' | 'low';
+  severity: 'caution' | 'high';
+  code: 'below_critical' | 'below_good' | 'above_good' | 'above_critical';
+  value: number;
+  boundary: number;
+  unit: string;
+}
+
+export interface CropMetricAssessment {
+  riskLevel: CropRiskLevel;
+  valueRiskLevel: CropRiskLevel;
+  lowRiskLevel: CropRiskLevel | null;
+  suitabilityScore: number | null;
+}
+
+export interface CropDayAssessment {
+  suitabilityScore: number | null;
+  riskLevel: CropRiskLevel;
+  coverage: 'complete' | 'partial' | 'unavailable';
+  metrics: Record<WeatherMetric, CropMetricAssessment>;
+  alerts: CropRiskAlert[];
+}
+
+export interface CropAssessment {
+  model: {
+    id: string;
+    version: string;
+    kind: 'heuristic_stub' | 'ml_model';
+    scoreMeaning: 'suitability_0_bad_100_good';
+  };
+  context: {
+    fieldId: string;
+    fieldName: string;
+    crop: string;
+    latitude: number;
+    longitude: number;
+    soil: {
+      soilType: string;
+      soilPh: number;
+      organicMatter: number;
+      waterCapacity: number;
+      drainage: string;
+    };
+    climate: {
+      source: 'forecast_window' | 'history_window';
+      startDate: string;
+      endDate: string;
+      meanHigh: number | null;
+      meanLow: number | null;
+      meanHumidity: number | null;
+      meanDailyRainfall: number | null;
+      sampleDays: number;
+    };
+  };
+  bounds: Record<WeatherMetric, CropMetricBounds>;
 }

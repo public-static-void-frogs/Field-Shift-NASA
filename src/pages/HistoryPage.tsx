@@ -3,18 +3,17 @@ import { WeatherConditionIcon } from '../features/weather/components/WeatherCond
 import { useWeatherHistoryBounds } from '../features/weather/hooks/useWeatherHistoryBounds.ts';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import type { TableColumnsType } from 'antd';
-import { Card, DatePicker, Flex, Segmented, Space, Table } from 'antd';
-import { CalendarDays, History, MapPin } from 'lucide-react';
+import { Card, DatePicker, Flex, Segmented, Select, Space, Table } from 'antd';
+import { History } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { farmQueries } from '../api/farm/farm.queries.ts';
 import { weatherQueries } from '../api/weather/weather.queries.ts';
 import { ForecastPanel } from '../features/weather/components/ForecastPanel';
 import { HistoryChart } from '../features/weather/components/HistoryChart';
 import { WeatherDayDetails } from '../features/weather/components/WeatherDayDetails';
-import { WeatherHistorySummary } from '../features/weather/components/WeatherHistorySummary';
 import { WeatherMetricTabs } from '../features/weather/components/WeatherMetricTabs';
-import { WeatherSource } from '../features/weather/components/WeatherSource';
 import { WeatherStatus } from '../features/weather/components/WeatherStatus';
 import { historyRanges } from '../features/weather/constants/weather.constants.ts';
 import { useWeatherSelection } from '../features/weather/hooks/useWeatherSelection.ts';
@@ -32,38 +31,46 @@ import type {
 
 export function HistoryPage() {
   const { t } = useTranslation();
-  const { data: preferences } = useSuspenseQuery(farmQueries.profile());
+  const { data: fields } = useSuspenseQuery(fieldQueries.list());
+  const [selectedFieldId, setFieldId] = useState<string>();
+  const field = fields.find((item) => item.id === selectedFieldId) ?? fields[0];
   const [metric, setMetric] = useState<WeatherMetric>('temperature');
 
   return (
     <div className="environment-page">
-      <header className="environment-page-heading">
-        <div>
-          <h1>{t('Environment')}</h1>
-          <p>{t('Weather and growing conditions')}</p>
+      <div className="environment-sticky-header">
+        <WeatherMetricTabs metric={metric} onChange={setMetric} />
+        <div className="weather-assessment-toolbar">
+          <Select
+            id="weather-field"
+            aria-label={t('Field for crop assessment')}
+            value={field?.id}
+            onChange={setFieldId}
+            disabled={!fields.length}
+            placeholder={t('Add a field to assess crop conditions')}
+            options={fields.map((item) => ({
+              value: item.id,
+              label: `${item.name} · ${item.crop}`,
+            }))}
+          />
         </div>
-        <span>
-          <MapPin size={15} />
-          {preferences.location || t('My farm')}
-        </span>
-      </header>
-      <WeatherMetricTabs metric={metric} onChange={setMetric} />
-      <ForecastPanel metric={metric} showNow />
-      <HistoricalWeather metric={metric} />
+      </div>
+      <ForecastPanel metric={metric} fieldId={field?.id} />
+      <HistoricalWeather metric={metric} fieldId={field?.id} />
     </div>
   );
 }
 
-type HistoricalWeatherProps = { metric: WeatherMetric };
+type HistoricalWeatherProps = { metric: WeatherMetric; fieldId?: string };
 
-function HistoricalWeather({ metric }: HistoricalWeatherProps) {
+function HistoricalWeather({ metric, fieldId }: HistoricalWeatherProps) {
   const { t } = useTranslation();
   const { data: preferences } = useSuspenseQuery(farmQueries.profile());
   const { range, dates, period, changeRange, changeDates, selectedKey, selectReading } =
     useWeatherSelection();
-  const query = useQuery(weatherQueries.history(preferences, period));
+  const query = useQuery(weatherQueries.history(preferences, period, fieldId));
   const series = query.data;
-  const bounds = useWeatherHistoryBounds(preferences.timeZone);
+  const bounds = useWeatherHistoryBounds(series?.timeZone ?? preferences.timeZone);
 
   return (
     <section className="environment-past" aria-label={t('Past conditions')}>
@@ -109,7 +116,9 @@ function HistoricalWeather({ metric }: HistoricalWeatherProps) {
           />
         ) : (
           <WeatherStatus
-            hasLocation={preferences.latitude !== null && preferences.longitude !== null}
+            hasLocation={
+              Boolean(fieldId) || (preferences.latitude !== null && preferences.longitude !== null)
+            }
             pending={query.isLoading}
             error={query.error}
             retry={() => void query.refetch()}
@@ -128,33 +137,32 @@ type HistoryExplorerProps = {
 };
 
 function HistoryExplorer({ series, metric, selectedKey, onSelect }: HistoryExplorerProps) {
+  const { t } = useTranslation();
   const { records, units } = series;
   const selected = selectWeatherReading(records, selectedKey);
 
   return (
     <>
-      <div className="weather-forecast-layout">
-        <div className="weather-forecast-main">
-          <WeatherHistorySummary records={records} metric={metric} units={units} />
-          <HistoryChart
-            records={records}
-            metric={metric}
-            selectedKey={selected.key}
-            onSelect={onSelect}
-            units={units}
-          />
-        </div>
-        <WeatherDayDetails
-          record={selected}
-          records={records}
-          metric={metric}
-          units={units}
-          soilDepth={series.soilDepth}
-          onSelect={onSelect}
-        />
-      </div>
-      <WeatherSource data={series} />
-      <DailyLog series={series} selectedKey={selected.key} onSelect={onSelect} />
+      <HistoryChart
+        records={records}
+        metric={metric}
+        selectedKey={selected.key}
+        onSelect={onSelect}
+        units={units}
+        assessment={series.cropAssessment}
+      />
+      <WeatherDayDetails
+        record={selected}
+        records={records}
+        metric={metric}
+        units={units}
+        soilDepth={series.soilDepth}
+        onSelect={onSelect}
+      />
+      <details className="weather-history-log">
+        <summary>{t('Daily environment log')}</summary>
+        <DailyLog series={series} selectedKey={selected.key} onSelect={onSelect} />
+      </details>
     </>
   );
 }
@@ -212,10 +220,6 @@ function DailyLog({ series, selectedKey, onSelect }: DailyLogProps) {
 
   return (
     <section className="weather-daily-log" aria-label={t('Daily environment log')}>
-      <h3 className="weather-section-title">
-        <CalendarDays size={18} />
-        {t('Daily environment log')}
-      </h3>
       <Table<WeatherRecord>
         rowKey="date"
         columns={columns}
