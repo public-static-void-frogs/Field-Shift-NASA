@@ -223,3 +223,59 @@ test('risk gradients follow backend bounds and have continuous, ordered stops', 
   );
   assert.equal(rainfall.at(-1).color, '#d9e2bb');
 });
+
+test('gradient samples use each day’s backend limits with exact endpoints and interpolated transitions', async () => {
+  const { cropBoundsAtPosition, weatherDayBounds, cropChartDomain } =
+    await import('../src/features/weather/utils/cropRiskPresentation.ts');
+  const normal = {
+    unit: '°C',
+    criticalLow: 0,
+    goodLow: 8,
+    ideal: 18,
+    goodHigh: 24,
+    criticalHigh: 30,
+  };
+  const humid = {
+    ...normal,
+    criticalLow: 2,
+    goodLow: 9,
+    ideal: 17,
+    goodHigh: 22,
+    criticalHigh: 26,
+  };
+  const rows = [
+    record('2026-10-30', { temperature: 20 }),
+    record('2026-10-31', { temperature: 20 }),
+  ];
+  rows[0].cropAssessment = { bounds: { temperature: normal } };
+  rows[1].cropAssessment = { bounds: { temperature: humid } };
+  assert.deepEqual(cropBoundsAtPosition(rows, 'temperature', normal, 0), normal);
+  assert.deepEqual(cropBoundsAtPosition(rows, 'temperature', normal, 1), humid);
+  assert.deepEqual(cropBoundsAtPosition(rows, 'temperature', normal, -1), normal);
+  assert.deepEqual(cropBoundsAtPosition(rows, 'temperature', normal, 2), humid);
+  const midpoint = cropBoundsAtPosition(rows, 'temperature', normal, 0.5);
+  assert.equal(midpoint.criticalHigh, 28);
+  assert.equal(midpoint.goodHigh, 23);
+  assert.equal(midpoint.criticalLow, 1);
+  assert.equal(weatherDayBounds(rows[1], 'temperature', normal).criticalHigh, 26);
+  assert.deepEqual(cropBoundsAtPosition([record('2026-10-30')], 'temperature', normal, 0), normal);
+  assert.equal(cropBoundsAtPosition([], 'temperature', undefined, 0), undefined);
+  assert.equal(
+    cropBoundsAtPosition(
+      rows.map((row) => ({
+        ...row,
+        cropAssessment: { bounds: { rainfall: { ...normal, criticalLow: null } } },
+      })),
+      'rainfall',
+      undefined,
+      0.5,
+    ).criticalLow,
+    null,
+  );
+  const cold = {
+    ...rows[1],
+    cropAssessment: { bounds: { temperature: { ...humid, criticalLow: -12 } } },
+  };
+  const domain = cropChartDomain([rows[0], cold], 'temperature', normal);
+  assert.ok(domain[0] < -12 && domain[1] > 30);
+});

@@ -114,36 +114,35 @@ export function WeatherValueLabel({
   );
 }
 
-type WeatherRiskBackgroundProps = {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  fill: string;
-  padding: number;
+type WeatherBoundaryLabelProps = {
+  x?: number | string;
+  y?: number | string;
+  value?: number | string;
+  index?: number;
+  count: number;
+  unit: string;
 };
 
-export function WeatherRiskBackground({
+export function WeatherBoundaryLabel({
   x,
   y,
-  width,
-  height,
-  fill,
-  padding,
-}: WeatherRiskBackgroundProps) {
-  if (x === undefined || y === undefined || width === undefined || height === undefined) {
+  value,
+  index,
+  count,
+  unit,
+}: WeatherBoundaryLabelProps) {
+  if (
+    index !== count - 1 ||
+    typeof x !== 'number' ||
+    typeof y !== 'number' ||
+    typeof value !== 'number'
+  ) {
     return null;
   }
 
   return (
-    <rect
-      className="weather-risk-background"
-      x={x - padding}
-      y={y}
-      width={width + padding * 2}
-      height={height}
-      fill={fill}
-      pointerEvents="none"
-    />
+    <text x={x + 56} y={y + 18} textAnchor="end" fill="#a32120" fontSize={13} pointerEvents="none">
+      ⚠ {formatWeatherValue(value, unit)}
+    </text>
   );
 }

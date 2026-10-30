@@ -18,13 +18,28 @@ function locationKey(location: WeatherLocation) {
   };
 }
 
+const cropAssessmentContractVersion = 'daily-bounds-v1';
+
 export const weatherQueryKeys = {
   all: () => ['weather'] as const,
   current: (location: WeatherLocation) => ['weather', locationKey(location), 'current'] as const,
   forecast: (location: WeatherLocation, fieldId?: string) =>
-    ['weather', locationKey(location), 'forecast', fieldId ?? null] as const,
+    [
+      'weather',
+      locationKey(location),
+      'forecast',
+      fieldId ?? null,
+      cropAssessmentContractVersion,
+    ] as const,
   history: (location: WeatherLocation, period: HistoryPeriod, fieldId?: string) =>
-    ['weather', locationKey(location), 'history', period, fieldId ?? null] as const,
+    [
+      'weather',
+      locationKey(location),
+      'history',
+      period,
+      fieldId ?? null,
+      cropAssessmentContractVersion,
+    ] as const,
 };
 
 const pollingOptions = {

@@ -21,13 +21,14 @@ import type {
 import {
   cropChartDomain,
   cropRiskColors,
-  cropZoneGradient,
+  weatherDayBounds,
   weatherReadingRisk,
 } from '../utils/cropRiskPresentation.ts';
 import { formatWeatherValue } from '../utils/weatherPresentation.ts';
 import { useHistoryChart } from '../hooks/useHistoryChart.ts';
 import { WeatherChartTooltip } from './WeatherChartTooltip';
-import { WeatherRiskBackground, WeatherValueDot, WeatherValueLabel } from './WeatherChartMarks';
+import { WeatherBoundaryLabel, WeatherValueDot, WeatherValueLabel } from './WeatherChartMarks';
+import { WeatherRiskBackground } from './WeatherRiskBackground';
 
 type HistoryChartProps = {
   records: WeatherRecord[];
@@ -61,8 +62,6 @@ export function HistoryChart({
   const [minimum, maximum] = cropChartDomain(records, metric, bounds);
   const strokeId = `${gradientId}-risk`;
   const lowStrokeId = `${gradientId}-low-risk`;
-  const zoneId = `${gradientId}-zones`;
-  const zoneStops = bounds ? cropZoneGradient(bounds, minimum, maximum) : [];
   const today = records.find((record) => record.today);
   const unit = config.unit;
   const labelSpacing = metric === 'wind' ? 90 : 76;
@@ -100,11 +99,6 @@ export function HistoryChart({
               onClick={selectPoint}
             >
               <defs>
-                <linearGradient id={zoneId} x1="0" y1="0" x2="0" y2="1">
-                  {zoneStops.map((stop) => (
-                    <stop key={stop.offset} offset={`${stop.offset}%`} stopColor={stop.color} />
-                  ))}
-                </linearGradient>
                 <linearGradient id={strokeId} x1="0" y1="0" x2="1" y2="0">
                   {timeline.map((record, index) => (
                     <stop
@@ -150,42 +144,66 @@ export function HistoryChart({
                   yAxisId="value"
                   y1={minimum}
                   y2={maximum}
-                  fill={`url(#${zoneId})`}
-                  shape={<WeatherRiskBackground fill={`url(#${zoneId})`} padding={64} />}
+                  shape={
+                    <WeatherRiskBackground
+                      records={timeline}
+                      metric={metric}
+                      bounds={bounds}
+                      minimum={minimum}
+                      maximum={maximum}
+                      padding={64}
+                    />
+                  }
                   fillOpacity={1}
                   stroke="none"
                 />
               )}
               <CartesianGrid vertical stroke="#789075" strokeOpacity={0.2} />
-              {bounds?.criticalLow !== null && bounds?.criticalLow !== undefined && (
-                <ReferenceLine
+              {bounds && (
+                <Line
                   yAxisId="value"
-                  y={bounds.criticalLow}
+                  type="linear"
+                  dataKey={(record: WeatherRecord) =>
+                    weatherDayBounds(record, metric, bounds)?.criticalLow ?? null
+                  }
                   stroke="#c7362f"
                   strokeWidth={2}
                   strokeDasharray="7 4"
-                  label={{
-                    value: `⚠ ${formatWeatherValue(bounds.criticalLow, unit)}`,
-                    position: 'insideTopRight',
-                    fill: '#a32120',
-                    fontSize: 12,
-                  }}
-                />
+                  dot={false}
+                  activeDot={false}
+                  isAnimationActive={false}
+                  connectNulls={false}
+                >
+                  <LabelList
+                    dataKey={(record: WeatherRecord) =>
+                      weatherDayBounds(record, metric, bounds)?.criticalLow ?? null
+                    }
+                    content={<WeatherBoundaryLabel count={timeline.length} unit={unit} />}
+                  />
+                </Line>
               )}
-              {bounds?.criticalHigh !== null && bounds?.criticalHigh !== undefined && (
-                <ReferenceLine
+              {bounds && (
+                <Line
                   yAxisId="value"
-                  y={bounds.criticalHigh}
+                  type="linear"
+                  dataKey={(record: WeatherRecord) =>
+                    weatherDayBounds(record, metric, bounds)?.criticalHigh ?? null
+                  }
                   stroke="#c7362f"
                   strokeWidth={2}
                   strokeDasharray="7 4"
-                  label={{
-                    value: `⚠ ${formatWeatherValue(bounds.criticalHigh, unit)}`,
-                    position: 'insideTopRight',
-                    fill: '#a32120',
-                    fontSize: 12,
-                  }}
-                />
+                  dot={false}
+                  activeDot={false}
+                  isAnimationActive={false}
+                  connectNulls={false}
+                >
+                  <LabelList
+                    dataKey={(record: WeatherRecord) =>
+                      weatherDayBounds(record, metric, bounds)?.criticalHigh ?? null
+                    }
+                    content={<WeatherBoundaryLabel count={timeline.length} unit={unit} />}
+                  />
+                </Line>
               )}
               <Tooltip
                 content={<WeatherChartTooltip metric={metric} units={units} />}

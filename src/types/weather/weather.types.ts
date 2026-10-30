@@ -91,6 +91,7 @@ export interface CropMetricAssessment {
 }
 
 export interface CropDayAssessment {
+  bounds: Record<WeatherMetric, CropMetricBounds>;
   suitabilityScore: number | null;
   riskLevel: CropRiskLevel;
   coverage: 'complete' | 'partial' | 'unavailable';

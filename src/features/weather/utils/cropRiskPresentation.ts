@@ -50,6 +50,16 @@ export function cropChartDomain(
     if (metric === 'temperature') {
       readings.push(record.low);
     }
+    const dailyBounds = record.cropAssessment?.bounds?.[metric];
+    if (dailyBounds) {
+      readings.push(
+        dailyBounds.criticalLow,
+        dailyBounds.goodLow,
+        dailyBounds.ideal,
+        dailyBounds.goodHigh,
+        dailyBounds.criticalHigh,
+      );
+    }
     return readings.filter((value): value is number => value !== null);
   });
   if (bounds) {
@@ -106,4 +116,55 @@ export function cropZoneGradient(bounds: CropMetricBounds, minimum: number, maxi
       offset: Math.max(0, Math.min(100, ((maximum - value) / (maximum - minimum)) * 100)),
       color,
     }));
+}
+
+export function weatherDayBounds(
+  record: WeatherRecord,
+  metric: WeatherMetric,
+  fallback?: CropMetricBounds,
+) {
+  return record.cropAssessment?.bounds?.[metric] ?? fallback;
+}
+
+export function cropBoundsAtPosition(
+  records: WeatherRecord[],
+  metric: WeatherMetric,
+  fallback: CropMetricBounds | undefined,
+  position: number,
+): CropMetricBounds | undefined {
+  if (!records.length) {
+    return fallback;
+  }
+  const clamped = Math.max(0, Math.min(records.length - 1, position));
+  const index = Math.floor(clamped);
+  const left = weatherDayBounds(records[index], metric, fallback);
+  const right = weatherDayBounds(
+    records[Math.min(index + 1, records.length - 1)],
+    metric,
+    fallback,
+  );
+  if (!left || !right) {
+    return left ?? right;
+  }
+  const fraction = clamped - index;
+  function blend(a: number, b: number) {
+    return a + (b - a) * fraction;
+  }
+  function blendNullable(a: number | null, b: number | null) {
+    if (fraction === 0) {
+      return a;
+    }
+    if (a === null || b === null) {
+      return null;
+    }
+    return blend(a, b);
+  }
+  return {
+    unit: left.unit,
+    criticalLow: blendNullable(left.criticalLow, right.criticalLow),
+    goodLow: blend(left.goodLow, right.goodLow),
+    ideal: blend(left.ideal, right.ideal),
+    goodHigh: blend(left.goodHigh, right.goodHigh),
+    criticalHigh: blendNullable(left.criticalHigh, right.criticalHigh),
+  };
 }

@@ -333,7 +333,9 @@ for API semantics, source licensing, and local Postman simulations.
 
 Environment crop assessments are scoped to the selected field. The API uses the field's
 geometry center and farm time zone, its crop and soil profile, and the requested weather
-window. Charts show backend-provided good/caution/high-risk zones, labelled daily values,
+window. Each daily assessment includes the bounds used for its scores and alerts.
+Charts interpolate those daily limits into a continuous gradient and changing critical
+curves; series bounds are reference metadata. Charts show backend-provided good/caution/high-risk zones, labelled daily values,
 and overnight temperature warnings. Day cards and selected-day details show ⚠️ when the
 backend returns crop alerts. Suitability runs from 0 (poor) to 100 (good).
 
