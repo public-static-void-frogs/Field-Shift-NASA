@@ -124,10 +124,120 @@ class CropConditionsTests(unittest.TestCase):
         self.assertEqual(a["suitabilityScore"], b["suitabilityScore"])
         self.assertEqual(a["metrics"], b["metrics"])
         low = metric["cropAssessment"]["bounds"]["temperature"]["criticalLow"]
-        self.assertEqual(
-            converted["cropAssessment"]["bounds"]["temperature"]["criticalLow"], low * 9 / 5 + 32
+        self.assertAlmostEqual(
+            converted["cropAssessment"]["bounds"]["temperature"]["criticalLow"],
+            low * 9 / 5 + 32,
+            delta=0.02,
         )
         self.assertEqual(converted["cropAssessment"]["bounds"]["rainfall"]["unit"], "in")
+
+    def condition_series(self, **changes):
+        series = self.service.forecast(self.preferences)
+        for row in series["records"]:
+            row.update(temperature=29, low=18, humidity=55, moisture=25, rainfall=1, wind=8)
+            row.update(changes)
+        return series
+
+    def test_humidity_changes_temperature_risk_without_changing_temperature(self):
+        normal = self.predict(self.condition_series())
+        humid_series = self.condition_series(humidity=98)
+        before = deepcopy(humid_series)
+        humid = self.predict(humid_series)
+        first = normal["cropAssessment"]["bounds"]["temperature"]
+        second = humid["cropAssessment"]["bounds"]["temperature"]
+        self.assertLess(second["criticalHigh"], first["criticalHigh"])
+        self.assertLess(second["goodHigh"], first["goodHigh"])
+        self.assertEqual(normal["records"][0]["temperature"], humid["records"][0]["temperature"])
+        self.assertEqual(
+            normal["records"][0]["cropAssessment"]["metrics"]["temperature"]["valueRiskLevel"],
+            "caution",
+        )
+        self.assertEqual(
+            humid["records"][0]["cropAssessment"]["metrics"]["temperature"]["valueRiskLevel"],
+            "high",
+        )
+        self.assertTrue(
+            any(
+                alert["metric"] == "temperature"
+                and alert["code"] == "above_critical"
+                and alert["boundary"] == second["criticalHigh"]
+                for alert in humid["records"][0]["cropAssessment"]["alerts"]
+            )
+        )
+        self.assertEqual(humid_series, before)
+        self.assertEqual(humid, self.predict(humid_series))
+        self.assertEqual(humid["cropAssessment"]["model"]["version"], "1.2.0")
+
+    def test_soil_water_air_heat_and_wind_have_cross_metric_effects(self):
+        baseline = self.predict(self.condition_series())["cropAssessment"]["bounds"]
+        dry = self.predict(self.condition_series(moisture=1))["cropAssessment"]["bounds"]
+        self.assertLess(dry["temperature"]["criticalHigh"], baseline["temperature"]["criticalHigh"])
+        self.assertLess(dry["wind"]["criticalHigh"], baseline["wind"]["criticalHigh"])
+        wet = self.predict(self.condition_series(moisture=60, rainfall=20))["cropAssessment"][
+            "bounds"
+        ]
+        self.assertLess(wet["rainfall"]["criticalHigh"], baseline["rainfall"]["criticalHigh"])
+        self.assertLess(wet["humidity"]["criticalHigh"], baseline["humidity"]["criticalHigh"])
+        self.assertGreater(
+            wet["temperature"]["criticalLow"], baseline["temperature"]["criticalLow"]
+        )
+        hot_windy = self.predict(self.condition_series(temperature=38, humidity=20, wind=50))[
+            "cropAssessment"
+        ]["bounds"]
+        self.assertGreater(hot_windy["moisture"]["goodLow"], baseline["moisture"]["goodLow"])
+
+    def test_drainage_and_ph_affect_limits_with_weather_and_crop_unchanged(self):
+        series = self.condition_series()
+        normal = self.predict(series)["cropAssessment"]["bounds"]
+        other = deepcopy(self.field)
+        other["properties"]["soil"].update(drainage="Poorly drained", soilPh=4.5)
+        stressed = self.predict(series, other)["cropAssessment"]["bounds"]
+        for metric in ("temperature", "rainfall", "moisture", "humidity"):
+            with self.subTest(metric=metric):
+                self.assertLess(stressed[metric]["criticalHigh"], normal[metric]["criticalHigh"])
+
+    def test_extreme_combinations_keep_all_crop_and_soil_limits_ordered(self):
+        for crop in ("Winter wheat", "Corn", "Soybeans"):
+            for texture in ("Loam", "Sandy loam", "Clay"):
+                for readings in (
+                    dict(temperature=-10, humidity=100, moisture=60, rainfall=40, wind=70),
+                    dict(temperature=45, humidity=5, moisture=1, rainfall=0, wind=70),
+                    dict(temperature=45, humidity=100, moisture=1, rainfall=40, wind=70),
+                    dict(
+                        temperature=None,
+                        low=None,
+                        humidity=None,
+                        moisture=None,
+                        rainfall=None,
+                        wind=None,
+                    ),
+                ):
+                    with self.subTest(crop=crop, texture=texture, readings=readings):
+                        field = deepcopy(self.field)
+                        field["crop"] = crop
+                        field["properties"]["soil"].update(
+                            soilType=texture,
+                            drainage="Poorly drained",
+                            soilPh=4.5,
+                            waterCapacity=100,
+                            organicMatter=2,
+                        )
+                        result = self.predict(self.condition_series(**readings), field)
+                        WeatherSeries.model_validate(result)
+                        for bounds in result["cropAssessment"]["bounds"].values():
+                            self.assertLessEqual(bounds["goodLow"], bounds["ideal"])
+                            self.assertLessEqual(bounds["ideal"], bounds["goodHigh"])
+
+    def test_missing_interaction_inputs_do_not_become_dry_or_windy_conditions(self):
+        normal = self.predict(self.condition_series(temperature=20))["cropAssessment"]["bounds"]
+        missing = self.predict(
+            self.condition_series(
+                temperature=20, humidity=None, moisture=None, rainfall=None, wind=None
+            )
+        )
+        self.assertEqual(missing["cropAssessment"]["bounds"], normal)
+        self.assertEqual(missing["records"][0]["cropAssessment"]["coverage"], "partial")
+        self.assertEqual(missing["records"][0]["cropAssessment"]["riskLevel"], "unknown")
 
     def test_scoped_routes_use_field_geometry_time_zone_and_validate_ids_before_weather(self):
         directory, app = isolated_app()
@@ -163,3 +273,28 @@ class CropConditionsTests(unittest.TestCase):
                 response.json()["cropAssessment"]["context"]["climate"]["source"], "history_window"
             )
             self.assertIsNone(client.get("/api/v1/weather/forecast").json()["cropAssessment"])
+
+    def test_daily_limits_and_alerts_follow_that_days_inputs_not_window_averages(self):
+        series = self.condition_series()
+        series["records"][1]["humidity"] = 98
+        result = self.predict(series)
+        normal, humid = result["records"][:2]
+        a, b = normal["cropAssessment"], humid["cropAssessment"]
+        self.assertEqual(normal["temperature"], humid["temperature"])
+        self.assertLess(
+            b["bounds"]["temperature"]["criticalHigh"], a["bounds"]["temperature"]["criticalHigh"]
+        )
+        self.assertEqual(a["metrics"]["temperature"]["valueRiskLevel"], "caution")
+        self.assertEqual(b["metrics"]["temperature"]["valueRiskLevel"], "high")
+        alert = next(alert for alert in b["alerts"] if alert["metric"] == "temperature")
+        self.assertEqual(alert["boundary"], b["bounds"]["temperature"]["criticalHigh"])
+        self.assertEqual(set(b["bounds"]), set(result["cropAssessment"]["bounds"]))
+        # Reordering the history or selecting a shorter window must not change daily limits.
+        reverse = deepcopy(series)
+        reverse["records"].reverse()
+        for row in self.predict(reverse)["records"]:
+            original = next(day for day in result["records"] if day["date"] == row["date"])
+            self.assertEqual(row["cropAssessment"], original["cropAssessment"])
+        single = {**series, "records": [series["records"][1]]}
+        self.assertEqual(self.predict(single)["records"][0]["cropAssessment"], b)
+        WeatherSeries.model_validate(result)

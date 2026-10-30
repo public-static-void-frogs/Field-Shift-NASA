@@ -67,7 +67,9 @@ class CropModelMetadata(BaseModel):
 class CropAssessment(BaseModel):
     model: CropModelMetadata
     context: CropAssessmentContext
-    bounds: dict[WeatherMetric, CropMetricBounds]
+    bounds: dict[WeatherMetric, CropMetricBounds] = Field(
+        description="Window reference limits; daily assessments carry the limits used for each reading."
+    )
 
     @field_validator("bounds")
     @classmethod
@@ -95,13 +97,16 @@ class CropMetricAssessment(BaseModel):
 
 
 class CropDayAssessment(BaseModel):
+    bounds: dict[WeatherMetric, CropMetricBounds] = Field(
+        description="Daily crop limits used to assess this record and draw the chart zones."
+    )
     suitabilityScore: float | None = Field(ge=0, le=100)
     riskLevel: RiskLevel
     coverage: Literal["complete", "partial", "unavailable"]
     metrics: dict[WeatherMetric, CropMetricAssessment]
     alerts: list[CropRiskAlert]
 
-    @field_validator("metrics")
+    @field_validator("metrics", "bounds")
     @classmethod
     def complete_metrics(cls, value):
         if set(value) != {"temperature", "rainfall", "moisture", "humidity", "wind"}:

@@ -122,50 +122,126 @@ def _evaluate(value, bounds):
     return "good", round(100 - 25 * abs(value - bounds.ideal) / span, 1), None, None
 
 
+def _pressure(value, start, span):
+    """A bounded illustrative interaction; absent inputs contribute no adjustment."""
+    if value is None:
+        return 0.0
+    return max(0.0, min(1.0, (value - start) / span))
+
+
+def _mean_si(series, key, metric):
+    values = [
+        _si(row[key], metric, series["units"]) for row in series["records"] if row[key] is not None
+    ]
+    return round(mean(values), 4) if values else None
+
+
+def _condition_priors(series, context):
+    """Limits for the supplied readings, with cross-metric and field interactions.
+
+    A singleton series produces daily limits; the full series supplies reference
+    metadata. Coefficients are illustrative, not calibrated crop physiology.
+    """
+    soil = context.soil
+    heat = _mean_si(series, "temperature", "temperature")
+    humidity = _mean_si(series, "humidity", "humidity")
+    water = _mean_si(series, "moisture", "moisture")
+    rain = _mean_si(series, "rainfall", "rainfall")
+    wind = _mean_si(series, "wind", "wind")
+    adaptation = 0 if heat is None else max(-1.5, min(1.5, (heat - 20) / 10))
+    buffering = max(-1, min(1, (soil.waterCapacity - 170) / 60 + (soil.organicMatter - 3.5) / 3))
+    moisture = [7, 15, 25, 35, 48]
+    if "sand" in soil.soilType.lower():
+        moisture = [4, 8, 17, 27, 38]
+    elif "clay" in soil.soilType.lower():
+        moisture = [10, 20, 30, 42, 55]
+    # Relative to the soil texture's base range, so clay is not treated like sand.
+    dry_soil = _pressure(None if water is None else moisture[1] - water, 0, moisture[1])
+    wet_soil = _pressure(water, moisture[3], moisture[4] - moisture[3])
+    humid_air = _pressure(humidity, 70, 25)
+    dry_air = _pressure(None if humidity is None else 45 - humidity, 0, 25)
+    hot_weather = _pressure(heat, 25, 10)
+    windy_weather = _pressure(wind, 15, 20)
+    sustained_rain = _pressure(rain, 4, 12)
+    drainage = soil.drainage.lower()
+    poor_drainage = float("poor" in drainage)
+    ph_stress = max(_pressure(6 - soil.soilPh, 0, 1.5), _pressure(soil.soilPh, 7.5, 1.5))
+
+    temperature = list(CROP_TEMPERATURES[context.crop])
+    temperature[0] += 1.5 * wet_soil + 0.5 * windy_weather
+    temperature[1] += 0.8 * wet_soil
+    temperature[2] += adaptation - 0.6 * humid_air
+    temperature[3] += adaptation - 1.2 * humid_air - 1.5 * dry_soil - 0.5 * dry_air
+    temperature[4] += buffering - 2 * humid_air - 2.5 * dry_soil - 0.8 * dry_air - ph_stress
+
+    # Warm/wet combinations narrow the humidity range, especially for the demo
+    # crops with greater illustrative sensitivity to damp conditions.
+    damp_sensitivity = {"Winter wheat": 1.0, "Corn": 0.7, "Soybeans": 0.9}[context.crop]
+    damp_pressure = damp_sensitivity * (wet_soil + 0.5 * sustained_rain)
+    humidity_bounds = [
+        20 + 3 * dry_soil,
+        40 + 2 * dry_soil,
+        60 - 2 * wet_soil,
+        80 - 4 * damp_pressure - 2 * hot_weather,
+        95 - 5 * damp_pressure - 2 * hot_weather - 2 * poor_drainage,
+    ]
+    moisture[0] += 2 * hot_weather + windy_weather + dry_air
+    moisture[1] += 3 * hot_weather + 2 * windy_weather + dry_air
+    moisture[2] += hot_weather - humid_air
+    moisture[3] -= 2 * humid_air + 2 * poor_drainage
+    moisture[4] -= 3 * humid_air + 2 * sustained_rain + 2 * poor_drainage
+
+    rainfall_high = max(6, min(12, soil.waterCapacity / 20))
+    if "drained" in drainage and "moderately" not in drainage and not poor_drainage:
+        rainfall_high += 1
+    rainfall_high *= 1 - 0.2 * wet_soil - 0.1 * humid_air - 0.15 * poor_drainage
+    return {
+        "temperature": temperature,
+        "moisture": moisture,
+        "rainfall": [None, 0, 2, rainfall_high, rainfall_high * 2],
+        "humidity": humidity_bounds,
+        "wind": [
+            None,
+            0,
+            8,
+            20 - 3 * dry_soil - 2 * hot_weather,
+            35 - 5 * dry_soil - 3 * dry_air - 2 * hot_weather,
+        ],
+    }
+
+
+def _metric_bounds(series, context):
+    return {
+        metric: CropMetricBounds(
+            unit=series["units"].get(metric, "%"),
+            **dict(zip(("criticalLow", "goodLow", "ideal", "goodHigh", "criticalHigh"), values)),
+        )
+        for metric, values in _condition_priors(series, context).items()
+    }
+
+
+def _display_bounds(bounds, units):
+    return {
+        metric: dict(
+            unit=value.unit,
+            **{
+                key: _display(getattr(value, key), metric, units)
+                for key in ("criticalLow", "goodLow", "ideal", "goodHigh", "criticalHigh")
+            },
+        )
+        for metric, value in bounds.items()
+    }
+
+
 class HeuristicCropConditionModel:
     """Stable replaceable predictor; a trained implementation can return this same result shape."""
 
     def predict(self, series, context):
         result = deepcopy(series)
         units = series["units"]
-        soil = context.soil
-        climate_high = _si(context.climate.meanHigh, "temperature", units)
-        # Limited window adaptation, plus a small soil-buffering adjustment; no climatic normals implied.
-        adaptation = 0 if climate_high is None else max(-1.5, min(1.5, (climate_high - 20) / 10))
-        buffering = max(
-            -1, min(1, (soil.waterCapacity - 170) / 60 + (soil.organicMatter - 3.5) / 3)
-        )
-        temperature = list(CROP_TEMPERATURES[context.crop])
-        temperature[2] += adaptation
-        temperature[3] += adaptation
-        temperature[4] += buffering
-        moisture = [7, 15, 25, 35, 48]
-        if "sand" in soil.soilType.lower():
-            moisture = [4, 8, 17, 27, 38]
-        elif "clay" in soil.soilType.lower():
-            moisture = [10, 20, 30, 42, 55]
-        rainfall_high = round(max(6, min(12, soil.waterCapacity / 20)), 2)
-        if "drained" in soil.drainage.lower() and "moderately" not in soil.drainage.lower():
-            rainfall_high += 1
-        priors = {
-            "temperature": temperature,
-            "moisture": moisture,
-            "rainfall": [None, 0, 2, rainfall_high, rainfall_high * 2],
-            "humidity": [20, 40, 60, 80, 95],
-            "wind": [None, 0, 8, 20, 35],
-        }
-        bounds = {}
-        for metric, values in priors.items():
-            bounds[metric] = CropMetricBounds(
-                unit=units.get(metric, "%"),
-                **{
-                    key: value
-                    for key, value in zip(
-                        ("criticalLow", "goodLow", "ideal", "goodHigh", "criticalHigh"), values
-                    )
-                },
-            )
+        reference_bounds = _metric_bounds(series, context)
         for record in result["records"]:
+            bounds = _metric_bounds({**series, "records": [record]}, context)
             alerts, metrics, scores = [], {}, []
             available = 0
             for metric in METRICS:
@@ -215,24 +291,16 @@ class HeuristicCropConditionModel:
             if not scores:
                 coverage = "unavailable"
             record["cropAssessment"] = dict(
+                bounds=_display_bounds(bounds, units),
                 suitabilityScore=min(scores) if scores else None,
                 riskLevel=level,
                 coverage=coverage,
                 metrics=metrics,
                 alerts=alerts,
             )
-        converted = {}
-        for metric, value in bounds.items():
-            converted[metric] = dict(
-                unit=value.unit,
-                **{
-                    key: _display(getattr(value, key), metric, units)
-                    for key in ("criticalLow", "goodLow", "ideal", "goodHigh", "criticalHigh")
-                },
-            )
         result["cropAssessment"] = dict(
-            model=dict(id="crop-conditions-estimator", version="1.0.0", kind="heuristic_stub"),
+            model=dict(id="crop-conditions-estimator", version="1.2.0", kind="heuristic_stub"),
             context=context.model_dump(mode="json"),
-            bounds=converted,
+            bounds=_display_bounds(reference_bounds, units),
         )
         return result

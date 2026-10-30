@@ -88,6 +88,9 @@ FastAPI schemas in `app/schemas/crop_conditions.py` and the frontend DTOs in
 - Series `cropAssessment.bounds`: all five metrics, each with `unit`, nullable
   `criticalLow` / `criticalHigh`, `goodLow`, `ideal`, and `goodHigh`. The ideal lies
   inside the inclusive good interval. Critical limits lie strictly outside it.
+- Record `cropAssessment.bounds`: all five per-day limits in response units. These
+  are the source for chart zones and critical curves and the limits used for that
+  day's scores and alert boundaries. Series bounds remain window reference metadata.
 - Record `cropAssessment`: `suitabilityScore` (0 poor, 100 good; null if no inputs),
   `riskLevel` (`good`, `caution`, `high`, `unknown`), `coverage` (`complete`, `partial`,
   `unavailable`), all five `metrics`, and `alerts`.
@@ -106,8 +109,28 @@ so averaging cannot hide a severe condition. Coverage qualifies partial scores.
 
 `HeuristicCropConditionModel.predict(series, context)` implements the replaceable
 `CropConditionModel` interface, configured as `app.state.crop_model`. It uses crop-specific
-illustrative temperature priors, soil texture/water buffering and drainage, and a bounded
-weather-window temperature adjustment. It normalizes calculations to Celsius/mm/km/h,
+illustrative temperature priors and deterministic interactions between the weather window
+and field soil inputs. Estimator version `1.2.0` includes:
+
+- Higher humidity lowers the temperature good/high-risk upper bounds.
+- Dry soil narrows heat and wind tolerance; wet soil lowers rainfall/humidity upper
+  limits and raises the cold-risk lower limit.
+- Hot, dry, windy windows raise the soil-moisture lower limits.
+- Warm, wet windows narrow the humidity range, with crop-specific damp sensitivity.
+- Soil texture, water capacity, organic matter, drainage, and pH modify the limits.
+
+These are deliberately small, bounded, synthetic adjustments, **not calibrated agronomic
+coefficients**. Each record uses its own humidity, moisture, rainfall, wind and temperature
+alongside the field soil/crop inputs. A humid day can therefore have a lower heat
+boundary than the next day even at the same temperature. Daily limits remain stable
+when the date range or record order changes. Series limits summarize the window for
+reference and backward compatibility; they do not define the new chart background. Missing interaction inputs contribute no
+adjustment; this does not make their individual assessment known or safe.
+The response adds required daily `bounds` to each crop assessment. The chart paints a
+smooth two-dimensional gradient by interpolating those limits between date positions;
+critical curves use the same interpolation. Daily scores and alerts are evaluated
+against their own record's limits. No sensor data is modified or randomized.
+The estimator normalizes calculations to Celsius/mm/km/h,
 then converts every returned limit and alert to response units. Dry daily rainfall alone
 is not drought: lower rainfall has no critical limit. Shallow model soil moisture is a
 proxy, with different forecast/archive depths; the thresholds are not calibrated.
@@ -123,16 +146,17 @@ caches a field assessment inside the provider response.
 Environment starts with metric tabs and an explicit field selector (the first listed
 field is the initial UI selection). Forecast and history cache keys include `field_id`;
 field changes invalidate weather caches. Both charts render backend good/caution/high
-zones and critical/ideal lines, coloured points and numeric labels. Temperature low
+gradient zones, critical-limit lines, coloured readings and numeric labels. Temperature low
 values have their own dotted line and warning labels. Long timelines show selected
-point labels and keep other values available in tooltips; narrow screens scroll the
-chart horizontally. ⚠️ icons on day cards and selected-day details use backend daily
-alerts, including warnings from other metrics. The large reading keeps a stable slate
+point labels and keep other values available in tooltips. Forecasts can scroll
+horizontally on narrow screens; history fits its available width. ⚠️ icons on day
+cards and selected-day details use backend daily alerts, including warnings from other metrics. The large reading keeps a stable slate
 colour, and its animated weather scene remains independent from crop risk.
 
-The interface identifies the heuristic as a prototype, displays the field/crop/soil
-basis, reports score meaning and missing-input coverage, and retains provider source
-metadata. It never presents the heuristic as a trained or calibrated model.
+The API metadata and this document identify the heuristic as a prototype and retain
+its version and field/crop/soil basis. Charts omit model/prototype labels and repeated
+legends to keep the interface focused on readings and warnings. Daily details retain
+missing-input coverage; the model is not trained or calibrated.
 
 ## Verification
 
@@ -151,7 +175,9 @@ WEATHER_SIMULATION_URL=http://127.0.0.1:4407/open-meteo .venv/bin/python -m unit
 ```
 
 The test-only stand-in follows Open-Meteo variable names and response shapes. It
-supports success, null readings, 429, 503, malformed JSON shapes, and delayed responses.
+supports success, null readings, 429, 503, malformed JSON shapes, delayed responses,
+paired warm-normal / warm-humid scenarios, and a humidity wave within one response. The latter hold temperature constant
+while varying humidity and verify the resulting heat-limit and alert changes.
 The tests execute the real FastAPI routes and real HTTP client; mock values never
 enter application runtime. No provider-owned Postman mock was reused or published.
 The context document records the scope of evidence and live-provider limitations.

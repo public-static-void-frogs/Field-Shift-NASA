@@ -1005,7 +1005,7 @@
           "weather"
         ],
         "summary": "Weather History",
-        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0–7 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and returns estimated crop limits and daily risk assessments; climate context uses this requested history window.",
+        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0\u20137 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and returns estimated crop limits and daily risk assessments; climate context uses this requested history window.",
         "operationId": "weather_history_api_v1_weather_history_get",
         "security": [
           {
@@ -1108,7 +1108,7 @@
           "weather"
         ],
         "summary": "Weather Forecast",
-        "description": "14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0–1 cm. An optional field_id returns backend crop limits, suitability scores and structured daily alerts using a versioned illustrative estimator. Its climate context is the forecast window, not long-term climate normals. Omitting field_id preserves account-location weather and returns null cropAssessment. This is not a calibrated agronomic prediction.",
+        "description": "14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0\u20131 cm. An optional field_id returns backend crop limits, suitability scores and structured daily alerts using a versioned illustrative estimator. Its climate context is the forecast window, not long-term climate normals. Omitting field_id preserves account-location weather and returns null cropAssessment. This is not a calibrated agronomic prediction.",
         "operationId": "weather_forecast_api_v1_weather_forecast_get",
         "security": [
           {
@@ -1505,7 +1505,8 @@
               ]
             },
             "type": "object",
-            "title": "Bounds"
+            "title": "Bounds",
+            "description": "Window reference limits; daily assessments carry the limits used for each reading."
           }
         },
         "type": "object",
@@ -1640,6 +1641,23 @@
       },
       "CropDayAssessment": {
         "properties": {
+          "bounds": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CropMetricBounds"
+            },
+            "propertyNames": {
+              "enum": [
+                "temperature",
+                "rainfall",
+                "moisture",
+                "humidity",
+                "wind"
+              ]
+            },
+            "type": "object",
+            "title": "Bounds",
+            "description": "Daily crop limits used to assess this record and draw the chart zones."
+          },
           "suitabilityScore": {
             "anyOf": [
               {
@@ -1698,6 +1716,7 @@
         },
         "type": "object",
         "required": [
+          "bounds",
           "suitabilityScore",
           "riskLevel",
           "coverage",

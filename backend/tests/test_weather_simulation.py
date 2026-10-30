@@ -85,3 +85,57 @@ class WeatherSimulationTests(unittest.TestCase):
         self.assertIsNone(day["suitabilityScore"])
         self.assertEqual(day["metrics"]["moisture"]["riskLevel"], "unknown")
         self.assertFalse(any(alert["metric"] == "moisture" for alert in day["alerts"]))
+
+    def test_humidity_changes_heat_limits_through_the_authenticated_route(self):
+        field_id = self.app.state.repository.fields()[0]["id"]
+        outcomes = []
+        for mode in ("warm_normal", "warm_humid"):
+            httpx.get(SIMULATION + "/__control", params={"mode": mode})
+            self.app.state.weather._cache.clear()
+            response = self.client.get(f"/api/v1/weather/forecast?field_id={field_id}")
+            self.assertEqual(response.status_code, 200, response.text)
+            outcomes.append(response.json())
+            self.assertEqual(httpx.get(SIMULATION + "/__control").json()["requests"], 1)
+        normal, humid = outcomes
+        self.assertEqual(normal["records"][0]["temperature"], humid["records"][0]["temperature"])
+        self.assertEqual(humid["records"][0]["humidity"], 98)
+        self.assertLess(
+            humid["cropAssessment"]["bounds"]["temperature"]["criticalHigh"],
+            normal["cropAssessment"]["bounds"]["temperature"]["criticalHigh"],
+        )
+        self.assertEqual(
+            normal["records"][0]["cropAssessment"]["metrics"]["temperature"]["valueRiskLevel"],
+            "caution",
+        )
+        self.assertEqual(
+            humid["records"][0]["cropAssessment"]["metrics"]["temperature"]["valueRiskLevel"],
+            "high",
+        )
+
+    def test_one_response_has_daily_zones_and_matching_alerts_over_http(self):
+        httpx.get(SIMULATION + "/__control", params={"mode": "humidity_wave"})
+        field_id = self.app.state.repository.fields()[0]["id"]
+        for path in (
+            f"/api/v1/weather/forecast?field_id={field_id}",
+            f"/api/v1/weather/history?days=7&field_id={field_id}",
+        ):
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200, response.text)
+            body = response.json()
+            self.assertEqual(body["cropAssessment"]["model"]["version"], "1.2.0")
+            limits = []
+            for row in body["records"]:
+                self.assertEqual(row["temperature"], 29)
+                day = row["cropAssessment"]
+                limit = day["bounds"]["temperature"]["criticalHigh"]
+                limits.append(limit)
+                for alert in day["alerts"]:
+                    metric_bounds = day["bounds"][alert["metric"]]
+                    key = {
+                        "above_critical": "criticalHigh",
+                        "below_critical": "criticalLow",
+                        "above_good": "goodHigh",
+                        "below_good": "goodLow",
+                    }[alert["code"]]
+                    self.assertEqual(alert["boundary"], metric_bounds[key])
+            self.assertGreater(len(set(limits)), 1)
