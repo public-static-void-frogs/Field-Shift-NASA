@@ -14,7 +14,7 @@ Start the FastAPI backend from `../Field-Shift-NASA/backend` with `python main.p
 The frontend `.env` contains the entire API prefix:
 
 ```dotenv
-VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
+VITE_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
 Copy `.env.example` to `.env` for a fresh checkout. Change this value for your backend,
@@ -116,7 +116,7 @@ background colors in the shared theme for readable contrast.
 - **Calendar:** an Ant Design month/year calendar with field and action filters, a compact selected-day agenda, and a searchable table. Primary action buttons open dedicated detail pages with scheduling, rationale, and current field conditions. Date selection preserves the page scroll position.
 - **Environment history:** current conditions, trend charts, and 7-, 30-, or 90-day weather logs.
 
-Demo records and recommendations are owned by the FastAPI backend. Field changes and strategy decisions are shared within one backend process, survive browser refreshes, and reset when that process restarts. React Query caches resources and invalidates dependent queries after mutations. The backend is required; no credentials or AI services are needed. Map imagery requires internet access to the Esri tile service.
+Demo records and recommendations are owned by the FastAPI backend. Field changes and strategy decisions are shared within one backend process, survive browser refreshes, and reset when that process restarts. React Query caches resources and invalidates dependent queries after mutations. The backend and PostgreSQL are required. Register an account to sign in; no AI services are needed. Map imagery requires internet access to the Esri tile service.
 
 ## Offline dependency packages
 
@@ -186,7 +186,7 @@ npm run test:maps
 
 React Router manages clean browser URLs with `createBrowserRouter`. Route definitions
 and lazy page modules live in `src/app/routes.ts`; GUID/parcel/date validation lives in
-`src/app/route-loaders.ts`. The login route sits outside the farm layout, which
+`src/app/route-loaders.ts`. The login and registration routes sit outside the authenticated farm layout, which
 renders child pages through `Outlet`. Matched route metadata controls sidebar
 selection and fullscreen workspaces.
 
@@ -284,3 +284,30 @@ field API also exposes `farmId`, `cropId`, `parcelId`, `geometry`, and joined `p
 Field routes and calendar filters use GUID strings. Parcel routes keep numeric land
 identifiers. Field mutations invalidate map data so adding or removing a field updates
 its parcel association. Existing numeric field links must be replaced with GUID URLs.
+
+## Accounts and saved settings
+
+Set up the backend database and signing secret using
+[the backend auth guide](../Field-Shift-NASA/backend/docs/authentication.md).
+Open Vite at `http://localhost:5173` with `VITE_API_BASE_URL=http://localhost:8000/api/v1`.
+Use the same hostname for the UI and API so SameSite cookies work. The local `.env`
+has been updated accordingly.
+
+`/register` uses two steps: account details (name, email, password confirmation),
+then an optional farm name and a required map location. The map requests browser
+geolocation with permission and supports manual selection or choosing its center.
+The selected latitude and longitude are stored with the location label. It signs in immediately and preserves the original requested page. `/login`
+verifies email/password with the API. The JWT stays in an HttpOnly cookie; requests
+include browser credentials. Private routes redirect to login when the session expires.
+Settings provides logout, which revokes all existing sessions for the account.
+
+Settings saves account information, application preferences, and farm/location labels
+per user. Session lifetime defaults to 24 hours and accepts 1–720 hours; saving renews
+the current cookie and configures future logins. Account changes and settings survive
+API restarts. Farm labels are preferences; fields and planning remain shared demo data.
+Language changes apply immediately; use Save to persist them to your account.
+
+Authentication and settings use the same API/query/mutation organization as existing
+resources. Successful login/registration/logout clears cached private resources.
+Frontend integration tests create temporary databases, run Alembic migrations, and
+register test users; their Node transport emulates a browser cookie jar.

@@ -1,4 +1,6 @@
 export interface FarmProfile {
+  language: 'en' | 'uk';
+  sessionLifetimeHours: number;
   availableSeasons: string[];
   farmName: string;
   season: string;
@@ -7,6 +9,8 @@ export interface FarmProfile {
   email: string;
   role: string;
   location: string;
+  latitude: number | null;
+  longitude: number | null;
   locationLabel: string;
   timeZone: string;
   units: 'metric' | 'imperial';

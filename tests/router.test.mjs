@@ -16,6 +16,7 @@ test('the real route tree matches static, dynamic, optional and fallback routes'
   for (const [path, id] of [
     ['/', 'overview'],
     ['/login', 'login'],
+    ['/register', 'register'],
     ['/fields', 'fields'],
     [`/fields/${fieldOne}`, 'field'],
     [`/fields/${fieldTwo}/strategy`, 'strategy'],

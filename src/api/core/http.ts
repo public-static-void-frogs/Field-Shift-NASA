@@ -39,6 +39,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   try {
     const response = await fetch(`${baseUrl.replace(/\/$/, '')}${path}`, {
       ...init,
+      credentials: 'include',
       signal,
       headers,
     });

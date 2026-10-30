@@ -12,16 +12,16 @@ export const privacySections: PolicySection[] = [
     id: 'demo-data',
     title: 'Data in the current demo',
     paragraphs: [
-      'The current app has no connected authentication service, Google connection, or server-side user account. The account profile, field records, weather, and recommendations are sample data.',
-      'Field names and crops entered in the demo are held in memory and reset on reload. The demo login does not verify credentials or send them to an authentication server. Do not enter real passwords.',
+      'Account names, email addresses, password hashes, and per-user settings are stored in the application database. Fields, weather, and recommendations remain illustrative demo data. Google is not connected.',
+      'Registration and login send your credentials to the application API. Passwords are stored as Argon2 hashes. Field edits and planning decisions are shared demo state and reset when the API restarts.',
     ],
   },
   {
     id: 'browser-storage',
     title: 'Browser storage and retention',
     paragraphs: [
-      'Your language preference and accepted or rejected field-plan events are stored locally in your browser until you clear this website’s stored data. They are not linked to a Google Account.',
-      'The app does not currently store Google tokens, Google profile information, or Google Calendar events. Closing or reloading the app clears its in-memory demo field changes; saved browser preferences remain until removed.',
+      'A session token is stored in an HttpOnly cookie. Sessions last 24 hours by default; you can change the lifetime in Settings. Your selected language is also cached in this browser. Account settings persist in the database until changed or removed.',
+      'The app does not store Google tokens, Google profile information, or Google Calendar events. Reloading the browser preserves your account and settings. Logging out clears the session cookie and revokes all existing sessions for your account.',
     ],
   },
   {
@@ -38,7 +38,7 @@ export const privacySections: PolicySection[] = [
     title: 'Data sharing and service providers',
     paragraphs: [
       'The current demo sends no Google user data to any third party. If you later connect Google Calendar, exported field-plan information will be sent to Google to provide the calendar feature you request.',
-      'Vercel delivers this website. When maps load, your browser also requests imagery from Esri. These providers receive technical connection information such as your IP address; map requests also identify the displayed map area. The demo does not request your device’s location.',
+      'Vercel delivers this website. Map imagery is requested from Esri, which receives technical connection information and the displayed map area. During registration, your browser asks permission to use your position to initialize the location map. You can decline and select a point manually. Selected coordinates are saved with your account settings when you create the account.',
     ],
   },
   {
@@ -63,7 +63,7 @@ export const termsSections: PolicySection[] = [
     id: 'responsible-use',
     title: 'Responsible use',
     paragraphs: [
-      'Use the app lawfully and do not attempt to access other people’s accounts, disrupt the service, or submit content you are not entitled to use. Do not enter confidential production records or real credentials into the demo.',
+      'Use the app lawfully and do not attempt to access other people’s accounts, disrupt the service, or submit content you are not entitled to use. Use a unique password and avoid confidential production records in the demo.',
     ],
   },
   {
@@ -85,7 +85,7 @@ export const termsSections: PolicySection[] = [
     id: 'availability',
     title: 'Availability and updates',
     paragraphs: [
-      'The prototype may change or become unavailable. Demo field edits reset on reload, and browser-stored preferences can be lost when site data is cleared. Keep your own copies of important plans.',
+      'The prototype may change or become unavailable. Demo field edits reset when the API restarts. Clearing browser data signs you out; account settings remain in the database. Keep your own copies of important plans.',
       'Changes to these terms will be published on this page with an updated date. Questions about the service or these terms can be sent to the support email below.',
     ],
   },

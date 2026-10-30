@@ -9,9 +9,9 @@ import {
   Map,
   PanelLeftClose,
   PanelLeftOpen,
-  Settings2,
   Sprout,
 } from 'lucide-react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { farmQueries } from '../../../api/farm/farm.queries.ts';
@@ -23,8 +23,13 @@ const { Sider, Content } = Layout;
 
 export function AppLayout() {
   const { handle, active, collapsed, setCollapsed } = useAppLayout();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: preferences } = useSuspenseQuery(farmQueries.profile());
+  useEffect(() => {
+    if (preferences.language !== i18n.resolvedLanguage) {
+      void i18n.changeLanguage(preferences.language);
+    }
+  }, [preferences.language, i18n]);
   const mainItems = [
     {
       key: '/',
@@ -106,22 +111,21 @@ export function AppLayout() {
                 ),
               },
               {
-                key: '/settings',
-                label: <NavLink to="/settings">{t('Settings')}</NavLink>,
-                icon: <Settings2 size={21} />,
-              },
-              {
                 key: '/help',
                 label: <NavLink to="/help">{t('Help & resources')}</NavLink>,
                 icon: <CircleHelp size={21} />,
               },
             ]}
           />
-          <RouterButton type="text" className="profile" to="/settings">
-            <Avatar size={40}>{preferences.initials}</Avatar>
+          <RouterButton
+            type="text"
+            className="profile"
+            to="/settings"
+            icon={<Avatar size={28}>{preferences.initials}</Avatar>}
+            aria-label={preferences.fullName}
+          >
             <span className="sidebar-label">
               <strong>{preferences.fullName}</strong>
-              <span>{t(preferences.role)}</span>
             </span>
           </RouterButton>
         </div>

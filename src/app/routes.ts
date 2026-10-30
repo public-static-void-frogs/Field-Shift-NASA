@@ -41,9 +41,15 @@ export const appRoutes: RouteObject[] = [
         lazy: async () => ({ Component: (await import('../pages/LoginPage')).LoginPage }),
       },
       {
+        id: 'register',
+        path: 'register',
+        lazy: async () => ({ Component: (await import('../pages/RegisterPage')).RegisterPage }),
+      },
+      {
         id: 'farm',
         lazy: async () => ({
-          Component: (await import('../features/layout/components/AppLayout')).AppLayout,
+          Component: (await import('../features/auth/components/AuthenticatedLayout'))
+            .AuthenticatedLayout,
         }),
         children: [
           {

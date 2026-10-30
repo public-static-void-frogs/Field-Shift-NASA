@@ -1,13 +1,19 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Avatar, Button, Card, Form, Input, Select, Space, Typography } from 'antd';
-import { Camera, MapPin } from 'lucide-react';
+import { Avatar, Button, Card, Form, Input, InputNumber, Select, Space, Typography } from 'antd';
+import { Camera, LogOut } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { farmQueries } from '../api/farm/farm.queries.ts';
+import { useLogout } from '../features/auth/hooks/useLogout.ts';
+import { useSettingsForm } from '../features/settings/hooks/useSettingsForm.ts';
+import type { SettingsSection } from '../features/settings/utils/settingsForm.ts';
+import { LocationPicker } from '../features/maps/components/LocationPicker.tsx';
 import '../styles/settings.css';
 
 export function SettingsPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { data: preferences } = useSuspenseQuery(farmQueries.profile());
+  const settings = useSettingsForm(preferences);
+  const { logout, pending: logoutPending } = useLogout();
 
   return (
     <div className="settings-page">
@@ -17,27 +23,21 @@ export function SettingsPage() {
       <Form
         layout="vertical"
         requiredMark={false}
-        onValuesChange={(changed) => {
-          if (changed.language) {
-            void i18n.changeLanguage(changed.language);
-          }
-        }}
-        initialValues={{
-          fullName: preferences.fullName,
-          email: preferences.email,
-          farmName: preferences.farmName,
-          season: preferences.season,
-          location: preferences.location,
-          timeZone: preferences.timeZone,
-          units: preferences.units,
-          language: i18n.resolvedLanguage,
-          theme: preferences.theme,
-        }}
+        form={settings.form}
+        disabled={settings.pending}
+        onValuesChange={settings.onValuesChange}
+        initialValues={settings.initialValues}
       >
         <div className="settings-grid">
           <Card
             title={t('Account information')}
-            extra={<SectionActions section={t('Account information')} />}
+            extra={
+              <SectionActions
+                section="account"
+                label={t('Account information')}
+                settings={settings}
+              />
+            }
           >
             <div className="settings-profile-photo">
               <Avatar size={72}>{preferences.initials}</Avatar>
@@ -47,11 +47,38 @@ export function SettingsPage() {
                   {t('Change photo')}
                 </Button>
               </div>
+              <Button
+                className="settings-logout"
+                icon={<LogOut size={18} />}
+                onClick={() => {
+                  void logout();
+                }}
+                loading={logoutPending}
+              >
+                {t('Log out')}
+              </Button>
             </div>
-            <Form.Item label={t('Full name')} name="fullName">
+            <Form.Item
+              label={t('Full name')}
+              name="fullName"
+              rules={[
+                { required: true, whitespace: true, max: 120, message: t('Enter your full name.') },
+              ]}
+            >
               <Input autoComplete="name" />
             </Form.Item>
-            <Form.Item label={t('Email address')} name="email">
+            <Form.Item
+              label={t('Email address')}
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  type: 'email',
+                  max: 254,
+                  message: t('Enter a valid email address.'),
+                },
+              ]}
+            >
               <Input type="email" autoComplete="email" />
             </Form.Item>
             <div className="settings-account-role">
@@ -61,7 +88,13 @@ export function SettingsPage() {
           </Card>
           <Card
             title={t('Application preferences')}
-            extra={<SectionActions section={t('Application preferences')} />}
+            extra={
+              <SectionActions
+                section="preferences"
+                label={t('Application preferences')}
+                settings={settings}
+              />
+            }
           >
             <Form.Item label={t('Measurement units')} name="units">
               <Select
@@ -88,28 +121,75 @@ export function SettingsPage() {
                 ]}
               />
             </Form.Item>
+            <Form.Item
+              label={t('Session lifetime (hours)')}
+              name="sessionLifetimeHours"
+              extra={t('Default: 24 hours. Applies to this session and future logins.')}
+              rules={[
+                {
+                  required: true,
+                  type: 'integer',
+                  min: 1,
+                  max: 720,
+                  message: t('Choose 1–720 hours.'),
+                },
+              ]}
+            >
+              <InputNumber min={1} max={720} precision={0} />
+            </Form.Item>
           </Card>
           <Card
-            title={t('Farm and location')}
-            className="settings-location-card"
-            extra={<SectionActions section={t('Farm and location')} />}
+            title={t('Farm information')}
+            extra={
+              <SectionActions section="farm" label={t('Farm information')} settings={settings} />
+            }
           >
             <div className="settings-location-grid">
-              <Form.Item label={t('Farm name')} name="farmName">
+              <Form.Item label={t('Farm name (optional)')} name="farmName" rules={[{ max: 120 }]}>
                 <Input />
-              </Form.Item>
-              <Form.Item label={t('Current location')} name="location">
-                <Input prefix={<MapPin size={17} />} />
               </Form.Item>
               <Form.Item label={t('Growing season')} name="season">
                 <Select
                   options={preferences.availableSeasons.map((value) => ({ value, label: value }))}
                 />
               </Form.Item>
-              <Form.Item label={t('Time zone')} name="timeZone">
-                <Input readOnly />
+              <Form.Item
+                label={t('Time zone')}
+                name="timeZone"
+                rules={[
+                  { required: true, whitespace: true, message: t('Enter a valid time zone.') },
+                ]}
+              >
+                <Input placeholder="Europe/Kyiv" />
               </Form.Item>
             </div>
+          </Card>
+          <Card
+            title={t('Current location')}
+            className="settings-location-card"
+            extra={
+              <SectionActions
+                section="location"
+                label={t('Current location')}
+                settings={settings}
+              />
+            }
+          >
+            <Form.Item name="location" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name="latitude" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name="longitude" hidden>
+              <Input />
+            </Form.Item>
+            <LocationPicker
+              value={settings.coordinates}
+              onChange={settings.setLocation}
+              disabled={settings.pending}
+              autoLocate={false}
+            />
           </Card>
         </div>
       </Form>
@@ -117,17 +197,33 @@ export function SettingsPage() {
   );
 }
 
-type SectionActionsProps = { section: string };
+type SectionActionsProps = {
+  section: SettingsSection;
+  label: string;
+  settings: ReturnType<typeof useSettingsForm>;
+};
 
-function SectionActions({ section }: SectionActionsProps) {
+function SectionActions({ section, label, settings }: SectionActionsProps) {
   const { t } = useTranslation();
 
   return (
     <Space size={8}>
-      <Button disabled aria-label={t('Clear {{value0}}', { value0: section })}>
+      <Button
+        disabled={settings.pending || !settings.isDirty(section)}
+        onClick={() => settings.reset(section)}
+        aria-label={t('Clear {{value0}}', { value0: label })}
+      >
         {t('Clear')}
       </Button>
-      <Button type="primary" disabled aria-label={t('Save {{value0}}', { value0: section })}>
+      <Button
+        type="primary"
+        loading={settings.pending}
+        disabled={settings.pending || !settings.isDirty(section)}
+        onClick={() => {
+          void settings.save(section);
+        }}
+        aria-label={t('Save {{value0}}', { value0: label })}
+      >
         {t('Save')}
       </Button>
     </Space>

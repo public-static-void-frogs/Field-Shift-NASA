@@ -23,7 +23,7 @@ export function SupportPage() {
         <h2>{t('Remove data from this demo')}</h2>
         <p>
           {t(
-            'The demo stores your selected language and accepted or rejected strategy events in this browser. Use your browser’s site settings to clear stored data for this website. This removes both preferences and saved strategy decisions.',
+            'Clear this website’s browser data to remove the local language preference and session cookie. Your account and saved settings remain in the database. Contact support to request account or data removal.',
           )}
         </p>
         <p>

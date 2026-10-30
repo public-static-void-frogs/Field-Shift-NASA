@@ -8,3 +8,8 @@ export interface FieldMapProperties {
 }
 
 export type FieldGeoJson = FeatureCollection<Polygon | MultiPolygon, FieldMapProperties | null>;
+
+export interface LocationPoint {
+  latitude: number;
+  longitude: number;
+}

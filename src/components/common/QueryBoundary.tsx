@@ -1,6 +1,8 @@
 import { Button, Result } from 'antd';
 import type { ReactNode } from 'react';
 import { Component } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { isUnauthorized } from '../../features/auth/utils/auth.ts';
 import { useTranslation } from 'react-i18next';
 import { ApiUnavailableError } from '../../api/core/http.ts';
 import { ApiUnavailablePage } from '../../pages/ApiUnavailablePage.tsx';
@@ -24,6 +26,9 @@ export class QueryBoundary extends Component<QueryBoundaryProps, QueryBoundarySt
     this.setState({ error: null });
   };
   render() {
+    if (isUnauthorized(this.state.error)) {
+      return <SessionExpired />;
+    }
     if (this.state.error instanceof ApiUnavailableError) {
       return <ApiUnavailablePage retry={this.retry} />;
     }
@@ -50,4 +55,10 @@ function QueryError({ retry }: QueryErrorProps) {
       }
     />
   );
+}
+
+function SessionExpired() {
+  const { pathname, search } = useLocation();
+
+  return <Navigate to={`/login?next=${encodeURIComponent(pathname + search)}`} replace />;
 }

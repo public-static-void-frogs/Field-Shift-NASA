@@ -1,5 +1,8 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after } from 'node:test';
 
@@ -7,6 +10,7 @@ import { after } from 'node:test';
 const directory = fileURLToPath(new URL('../../../Field-Shift-NASA/backend', import.meta.url));
 const virtualenv = `${directory}/.venv/bin/python`;
 const python = process.env.NASA_BACKEND_PYTHON ?? (existsSync(virtualenv) ? virtualenv : 'python3');
+const databaseDirectory = await mkdtemp(join(tmpdir(), 'nasa-api-test-'));
 const server = spawn(
   python,
   [
@@ -15,6 +19,9 @@ const server = spawn(
     `
 import socket
 import uvicorn
+from alembic import command
+from alembic.config import Config
+command.upgrade(Config('alembic.ini'), 'head')
 sock = socket.socket()
 sock.bind(('127.0.0.1', 0))
 sock.listen(128)
@@ -22,7 +29,17 @@ print(f'READY_PORT={sock.getsockname()[1]}', flush=True)
 uvicorn.Server(uvicorn.Config('app.main:app', log_level='error')).run(sockets=[sock])
 `,
   ],
-  { cwd: directory, stdio: ['ignore', 'pipe', 'pipe'] },
+  {
+    cwd: directory,
+    env: {
+      ...process.env,
+      DATABASE_URL: `sqlite:///${databaseDirectory}/test.db`,
+      JWT_SECRET: 'frontend-test-signing-key-with-at-least-32-bytes',
+      JWT_ISSUER: 'frontend-test-fieldshift',
+      COOKIE_SECURE: 'false',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  },
 );
 let errors = '';
 server.stderr.on('data', (data) => {
@@ -73,11 +90,42 @@ try {
   throw error;
 }
 process.env.VITE_API_BASE_URL = `${baseUrl}/api/v1`;
-after(() => {
+// Node has no browser cookie jar. Preserve the real HttpOnly cookie in this test transport.
+const registration = await nativeFetch(`${baseUrl}/api/v1/auth/register`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'frontend-test@example.com',
+    fullName: 'Frontend Test',
+    password: 'Test-password-123',
+    farmName: 'Test farm',
+  }),
+});
+if (registration.status !== 201) {
+  server.kill();
+  throw new Error(`Test account registration failed: ${await registration.text()}`);
+}
+let cookie = registration.headers.get('set-cookie').split(';')[0];
+globalThis.fetch = async (input, init = {}) => {
+  const headers = new Headers(init.headers);
+  if (String(input).startsWith(baseUrl)) {
+    headers.set('Cookie', cookie);
+  }
+  const response = await nativeFetch(input, { ...init, headers });
+  const nextCookie = response.headers.get('set-cookie');
+  if (nextCookie && String(input).startsWith(baseUrl)) {
+    cookie = nextCookie.split(';')[0];
+  }
+  return response;
+};
+after(async () => {
+  globalThis.fetch = nativeFetch;
   if (originalApiUrl === undefined) {
     delete process.env.VITE_API_BASE_URL;
   } else {
     process.env.VITE_API_BASE_URL = originalApiUrl;
   }
   server.kill();
+  await new Promise((resolve) => server.once('exit', resolve));
+  await rm(databaseDirectory, { recursive: true, force: true });
 });

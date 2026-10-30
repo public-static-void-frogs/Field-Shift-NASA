@@ -194,7 +194,7 @@ export function HistoryPage() {
       <Card
         className="history-table"
         title={t('Daily environment log')}
-        extra={<Tag>{preferences.farmName}</Tag>}
+        extra={<Tag>{preferences.farmName || t('My farm')}</Tag>}
       >
         <ConfigProvider
           theme={{

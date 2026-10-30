@@ -124,3 +124,40 @@
     animation: none;
   }
 }
+
+.registration-clearing {
+  width: min(100%, 680px);
+}
+
+.registration-clearing .login-brand {
+  margin-bottom: 16px;
+}
+.registration-steps {
+  margin-bottom: 24px;
+}
+.registration-account-step {
+  max-width: 420px;
+  margin-inline: auto;
+}
+.registration-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+.registration-actions .ant-btn-primary {
+  margin-top: 0;
+}
+.login-clearing > .ant-alert,
+.login-clearing form > .ant-alert {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .login-page:has(.registration-clearing) {
+    padding: 72px 16px 16px;
+  }
+  .registration-clearing {
+    padding: 24px 20px;
+  }
+}

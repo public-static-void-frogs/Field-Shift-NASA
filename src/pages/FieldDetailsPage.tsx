@@ -44,7 +44,7 @@ export function FieldDetailsPage() {
           value2: propertyData.soil.soilType,
         })}
         eyebrow={t('{{value0}} · FIELD {{value1}}', {
-          value0: preferences.farmName.toUpperCase(),
+          value0: (preferences.farmName || t('My farm')).toUpperCase(),
           value1: String(field.id).padStart(2, '0'),
         })}
         actions={

@@ -76,7 +76,7 @@ export function FieldMap({
       </MapContainer>
       <div className="map-location">
         <MapPin size={13} />
-        {preferences.farmName}
+        {preferences.farmName || t('My farm')}
         <span>·</span>
         {preferences.locationLabel}
       </div>

@@ -38,7 +38,7 @@ export function AddFieldPage() {
         title={t('Welcome a new field.')}
         description={t('Give this parcel a name and tell us what you’re growing.')}
         eyebrow={t('{{farmName}} · PARCEL {{parcelId}}', {
-          farmName: preferences.farmName.toUpperCase(),
+          farmName: (preferences.farmName || t('My farm')).toUpperCase(),
           parcelId: String(parcelId).padStart(2, '0'),
         })}
       />
