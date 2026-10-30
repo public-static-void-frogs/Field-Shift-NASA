@@ -59,3 +59,29 @@ class WeatherSimulationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         self.assertIsNone(response.json()["records"][0]["moisture"])
         self.assertIsNone(response.json()["records"][0]["rainfall"])
+
+    def test_field_crop_assessment_and_missing_inputs_over_http(self):
+        field = self.app.state.repository.fields()[0]
+        response = self.client.get(f"/api/v1/weather/forecast?field_id={field['id']}")
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        self.assertEqual(body["cropAssessment"]["context"]["fieldId"], field["id"])
+        self.assertEqual(body["cropAssessment"]["model"]["kind"], "heuristic_stub")
+        self.assertEqual(
+            body["records"][0]["cropAssessment"]["metrics"]["temperature"]["lowRiskLevel"], "high"
+        )
+        self.assertTrue(
+            any(
+                alert["reading"] == "low"
+                for alert in body["records"][0]["cropAssessment"]["alerts"]
+            )
+        )
+        httpx.get(SIMULATION + "/__control", params={"mode": "missing"})
+        self.app.state.weather._cache.clear()
+        response = self.client.get(f"/api/v1/weather/forecast?field_id={field['id']}")
+        self.assertEqual(response.status_code, 200, response.text)
+        day = response.json()["records"][0]["cropAssessment"]
+        self.assertEqual(day["coverage"], "unavailable")
+        self.assertIsNone(day["suitabilityScore"])
+        self.assertEqual(day["metrics"]["moisture"]["riskLevel"], "unknown")
+        self.assertFalse(any(alert["metric"] == "moisture" for alert in day["alerts"]))

@@ -1,8 +1,10 @@
 # Weather integration
 
 The backend fetches Open-Meteo model data using the signed-in account's saved
-latitude, longitude, time zone, and metric/imperial preferences. It never selects
-the demo farm's station, falls back to a hardcoded location, or returns demo weather.
+latitude, longitude, time zone, and metric/imperial preferences for unscoped requests.
+An explicit `field_id` on forecast/history instead selects that field's geometry bounding-box
+center and its farm time zone, retaining the account's unit preference. Weather remains
+live provider data; the selected demo field's crop and soil are illustrative inputs.
 Accounts without coordinates receive 422; the UI links to Settings to select a point.
 
 ## API contract
@@ -64,21 +66,73 @@ The hosted free Open-Meteo endpoint is for noncommercial use under its usage lim
 commercial deployment requires an appropriate service plan or self-hosting. Preserve
 Open-Meteo attribution and upstream data licensing.
 
-## UI and cleanup
+## Crop-condition contract
 
-Environment preserves the underlined metric tabs, shows current conditions separately
-from a clickable fourteen-day calendar and forecast trend, and exposes past conditions,
-custom date ranges, and an always-visible paginated daily log. Colors encode readings,
-not crop-specific safety thresholds. Cold temperatures are blue and warmth is amber/red.
-The location appears once in the page header. Unsupported measurements display a dash.
+`GET /weather/forecast?field_id=<UUID>` and `GET /weather/history?...&field_id=<UUID>`
+return the same weather envelope with additional crop assessments. The authenticated
+field must exist: malformed UUIDs return 422, missing fields return 404, and both are
+checked before contacting the provider. The field's location can supply coordinates
+even if account coordinates are unset. Omitting `field_id` preserves saved-location
+behavior, with `cropAssessment: null` in the series and daily records. Current weather
+remains unscoped. No field is implicitly chosen by the server.
 
-Removed: current/history/forecast/station weather fixtures, the station foreign key,
-the fixed Thursday rain notification, embedded claims of upcoming Thursday rain, and
-simulated strategy soil-moisture forecasts. Crop health, nutrient data, and rotation
-recommendations remain explicitly illustrative; weather does not validate those models.
-Notification weather outlooks derive from the next three days of live forecasts:
-freezing lows, wind at least 40 km/h, or precipitation probability at least 60%.
-They are not official warnings and missing values are not assessed.
+FastAPI schemas in `app/schemas/crop_conditions.py` and the frontend DTOs in
+`src/types/weather/weather.types.ts` define:
+
+- Series `cropAssessment.model`: identifier, version, `kind` (`heuristic_stub` or
+  `ml_model`), and `scoreMeaning: suitability_0_bad_100_good`.
+- Series `cropAssessment.context`: selected field/crop, requested coordinates,
+  soil type/pH/organic matter/water capacity/drainage, and weather-window summary.
+  Climate `source` explicitly identifies a forecast or historical window; these
+  features are **not long-term climate normals**. Summary values use response units.
+- Series `cropAssessment.bounds`: all five metrics, each with `unit`, nullable
+  `criticalLow` / `criticalHigh`, `goodLow`, `ideal`, and `goodHigh`. The ideal lies
+  inside the inclusive good interval. Critical limits lie strictly outside it.
+- Record `cropAssessment`: `suitabilityScore` (0 poor, 100 good; null if no inputs),
+  `riskLevel` (`good`, `caution`, `high`, `unknown`), `coverage` (`complete`, `partial`,
+  `unavailable`), all five `metrics`, and `alerts`.
+- Each metric returns aggregate `riskLevel`, primary `valueRiskLevel`, optional
+  temperature `lowRiskLevel`, and `suitabilityScore`. Daytime high and overnight low
+  are evaluated separately. A mild daytime high does not conceal a freezing night.
+- Alerts carry `metric`, `reading` (`value` or `low`), `severity`, `code`
+  (`below_critical`, `below_good`, `above_good`, `above_critical`), measured `value`,
+  breached `boundary`, and `unit`. The frontend translates these structured reasons.
+
+Values at or beyond a critical limit are high risk. Values outside the good interval
+but inside critical limits are caution. Missing readings are unknown, never zero or
+safe. Overall risk is the highest available risk; absent inputs prevent an otherwise
+all-good day being called good. Overall score is the worst available metric score,
+so averaging cannot hide a severe condition. Coverage qualifies partial scores.
+
+`HeuristicCropConditionModel.predict(series, context)` implements the replaceable
+`CropConditionModel` interface, configured as `app.state.crop_model`. It uses crop-specific
+illustrative temperature priors, soil texture/water buffering and drainage, and a bounded
+weather-window temperature adjustment. It normalizes calculations to Celsius/mm/km/h,
+then converts every returned limit and alert to response units. Dry daily rainfall alone
+is not drought: lower rainfall has no critical limit. Shallow model soil moisture is a
+proxy, with different forecast/archive depths; the thresholds are not calibrated.
+
+Replace this object with a trained predictor returning the same validated schema,
+set `kind: ml_model`, and supply its own model ID/version. No frontend threshold or
+risk algorithm needs replacing. Raw provider weather retains its existing cache;
+assessment is computed afterward using the requested field, and never mutates or
+caches a field assessment inside the provider response.
+
+## UI
+
+Environment starts with metric tabs and an explicit field selector (the first listed
+field is the initial UI selection). Forecast and history cache keys include `field_id`;
+field changes invalidate weather caches. Both charts render backend good/caution/high
+zones and critical/ideal lines, coloured points and numeric labels. Temperature low
+values have their own dotted line and warning labels. Long timelines show selected
+point labels and keep other values available in tooltips; narrow screens scroll the
+chart horizontally. ⚠️ icons on day cards and selected-day details use backend daily
+alerts, including warnings from other metrics. The large reading keeps a stable slate
+colour, and its animated weather scene remains independent from crop risk.
+
+The interface identifies the heuristic as a prototype, displays the field/crop/soil
+basis, reports score meaning and missing-input coverage, and retains provider source
+metadata. It never presents the heuristic as a trained or calibrated model.
 
 ## Verification
 

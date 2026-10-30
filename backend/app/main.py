@@ -9,6 +9,7 @@ from app.core.config import Settings
 from app.core.database import database_engine, session_factory
 from app.core.errors import ResourceConflict, ResourceNotFound
 from app.repositories.demo import DemoRepository
+from app.services.crop_conditions import HeuristicCropConditionModel
 from app.services.weather import WeatherService
 
 
@@ -36,6 +37,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
     app.state.engine = engine
     app.state.sessions = session_factory(engine)
     app.state.weather = WeatherService(config)
+    app.state.crop_model = HeuristicCropConditionModel()
 
     @app.middleware("http")
     async def browser_security(request: Request, call_next):

@@ -1005,7 +1005,7 @@
           "weather"
         ],
         "summary": "Weather History",
-        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0\u20137 cm, not a field sensor or root-zone measurement.",
+        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0–7 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and returns estimated crop limits and daily risk assessments; climate context uses this requested history window.",
         "operationId": "weather_history_api_v1_weather_history_get",
         "security": [
           {
@@ -1013,6 +1013,25 @@
           }
         ],
         "parameters": [
+          {
+            "name": "field_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location.",
+              "title": "Field Id"
+            },
+            "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location."
+          },
           {
             "name": "days",
             "in": "query",
@@ -1089,8 +1108,34 @@
           "weather"
         ],
         "summary": "Weather Forecast",
-        "description": "14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0\u20131 cm. This is a grid-model forecast, not a calibrated field/strategy prediction.",
+        "description": "14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0–1 cm. An optional field_id returns backend crop limits, suitability scores and structured daily alerts using a versioned illustrative estimator. Its climate context is the forecast window, not long-term climate normals. Omitting field_id preserves account-location weather and returns null cropAssessment. This is not a calibrated agronomic prediction.",
         "operationId": "weather_forecast_api_v1_weather_forecast_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location.",
+              "title": "Field Id"
+            },
+            "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1108,12 +1153,7 @@
           "503": {
             "description": "Provider unavailable; no demo fallback"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/maps/geojson": {
@@ -1443,6 +1483,375 @@
         ],
         "title": "CropArea"
       },
+      "CropAssessment": {
+        "properties": {
+          "model": {
+            "$ref": "#/components/schemas/CropModelMetadata"
+          },
+          "context": {
+            "$ref": "#/components/schemas/CropAssessmentContext"
+          },
+          "bounds": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CropMetricBounds"
+            },
+            "propertyNames": {
+              "enum": [
+                "temperature",
+                "rainfall",
+                "moisture",
+                "humidity",
+                "wind"
+              ]
+            },
+            "type": "object",
+            "title": "Bounds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "context",
+          "bounds"
+        ],
+        "title": "CropAssessment"
+      },
+      "CropAssessmentContext": {
+        "properties": {
+          "fieldId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Fieldid"
+          },
+          "fieldName": {
+            "type": "string",
+            "title": "Fieldname"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "soil": {
+            "$ref": "#/components/schemas/CropSoilContext"
+          },
+          "climate": {
+            "$ref": "#/components/schemas/CropClimateContext"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fieldId",
+          "fieldName",
+          "crop",
+          "latitude",
+          "longitude",
+          "soil",
+          "climate"
+        ],
+        "title": "CropAssessmentContext"
+      },
+      "CropClimateContext": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "forecast_window",
+              "history_window"
+            ],
+            "title": "Source"
+          },
+          "startDate": {
+            "type": "string",
+            "title": "Startdate"
+          },
+          "endDate": {
+            "type": "string",
+            "title": "Enddate"
+          },
+          "meanHigh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meanhigh"
+          },
+          "meanLow": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meanlow"
+          },
+          "meanHumidity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meanhumidity"
+          },
+          "meanDailyRainfall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meandailyrainfall"
+          },
+          "sampleDays": {
+            "type": "integer",
+            "title": "Sampledays"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "startDate",
+          "endDate",
+          "meanHigh",
+          "meanLow",
+          "meanHumidity",
+          "meanDailyRainfall",
+          "sampleDays"
+        ],
+        "title": "CropClimateContext"
+      },
+      "CropDayAssessment": {
+        "properties": {
+          "suitabilityScore": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suitabilityscore"
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "good",
+              "caution",
+              "high",
+              "unknown"
+            ],
+            "title": "Risklevel"
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "partial",
+              "unavailable"
+            ],
+            "title": "Coverage"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CropMetricAssessment"
+            },
+            "propertyNames": {
+              "enum": [
+                "temperature",
+                "rainfall",
+                "moisture",
+                "humidity",
+                "wind"
+              ]
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/CropRiskAlert"
+            },
+            "type": "array",
+            "title": "Alerts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "suitabilityScore",
+          "riskLevel",
+          "coverage",
+          "metrics",
+          "alerts"
+        ],
+        "title": "CropDayAssessment"
+      },
+      "CropMetricAssessment": {
+        "properties": {
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "good",
+              "caution",
+              "high",
+              "unknown"
+            ],
+            "title": "Risklevel"
+          },
+          "valueRiskLevel": {
+            "type": "string",
+            "enum": [
+              "good",
+              "caution",
+              "high",
+              "unknown"
+            ],
+            "title": "Valuerisklevel"
+          },
+          "lowRiskLevel": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "good",
+                  "caution",
+                  "high",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lowrisklevel"
+          },
+          "suitabilityScore": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suitabilityscore"
+          }
+        },
+        "type": "object",
+        "required": [
+          "riskLevel",
+          "valueRiskLevel",
+          "suitabilityScore"
+        ],
+        "title": "CropMetricAssessment"
+      },
+      "CropMetricBounds": {
+        "properties": {
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "criticalLow": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criticallow"
+          },
+          "goodLow": {
+            "type": "number",
+            "title": "Goodlow"
+          },
+          "ideal": {
+            "type": "number",
+            "title": "Ideal"
+          },
+          "goodHigh": {
+            "type": "number",
+            "title": "Goodhigh"
+          },
+          "criticalHigh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criticalhigh"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit",
+          "criticalLow",
+          "goodLow",
+          "ideal",
+          "goodHigh",
+          "criticalHigh"
+        ],
+        "title": "CropMetricBounds"
+      },
+      "CropModelMetadata": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "heuristic_stub",
+              "ml_model"
+            ],
+            "title": "Kind"
+          },
+          "scoreMeaning": {
+            "type": "string",
+            "const": "suitability_0_bad_100_good",
+            "title": "Scoremeaning",
+            "default": "suitability_0_bad_100_good"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "kind"
+        ],
+        "title": "CropModelMetadata"
+      },
       "CropOption": {
         "properties": {
           "value": {
@@ -1465,6 +1874,70 @@
           "label"
         ],
         "title": "CropOption"
+      },
+      "CropRiskAlert": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "temperature",
+              "rainfall",
+              "moisture",
+              "humidity",
+              "wind"
+            ],
+            "title": "Metric"
+          },
+          "reading": {
+            "type": "string",
+            "enum": [
+              "value",
+              "low"
+            ],
+            "title": "Reading"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "caution",
+              "high"
+            ],
+            "title": "Severity"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "below_critical",
+              "below_good",
+              "above_good",
+              "above_critical"
+            ],
+            "title": "Code"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "boundary": {
+            "type": "number",
+            "title": "Boundary"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric",
+          "reading",
+          "severity",
+          "code",
+          "value",
+          "boundary",
+          "unit"
+        ],
+        "title": "CropRiskAlert"
       },
       "CropSeason": {
         "properties": {
@@ -1521,6 +1994,39 @@
           "soilCondition"
         ],
         "title": "CropSeason"
+      },
+      "CropSoilContext": {
+        "properties": {
+          "soilType": {
+            "type": "string",
+            "title": "Soiltype"
+          },
+          "soilPh": {
+            "type": "number",
+            "title": "Soilph"
+          },
+          "organicMatter": {
+            "type": "number",
+            "title": "Organicmatter"
+          },
+          "waterCapacity": {
+            "type": "number",
+            "title": "Watercapacity"
+          },
+          "drainage": {
+            "type": "string",
+            "title": "Drainage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "soilType",
+          "soilPh",
+          "organicMatter",
+          "waterCapacity",
+          "drainage"
+        ],
+        "title": "CropSoilContext"
       },
       "CurrentWeather": {
         "properties": {
@@ -3321,6 +3827,16 @@
               }
             ],
             "title": "Rainchance"
+          },
+          "cropAssessment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CropDayAssessment"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -3395,6 +3911,16 @@
               "historical_model"
             ],
             "title": "Datakind"
+          },
+          "cropAssessment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CropAssessment"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "records": {
             "items": {

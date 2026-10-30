@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from app.schemas.crop_conditions import CropAssessment, CropDayAssessment
+
 
 class WeatherUnits(BaseModel):
     temperature: str
@@ -42,9 +44,11 @@ class WeatherRecord(BaseModel):
     windDirection: float | None
     moisture: float | None
     rainChance: float | None
+    cropAssessment: CropDayAssessment | None = None
 
 
 class WeatherSeries(WeatherMetadata):
+    cropAssessment: CropAssessment | None = None
     records: list[WeatherRecord]
 
 
