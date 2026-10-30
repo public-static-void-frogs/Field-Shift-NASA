@@ -74,7 +74,7 @@ def field_records(field, reference):
             id=key(),
             fieldId=fid,
             title="Things are growing in the right direction.",
-            description=f"{field['name']} is in good shape. Soil moisture and nitrogen levels are supporting steady {field['crop'].lower()} growth. Keep your current care routine and check again after Thursday’s expected rain.",
+            description=f"{field['name']} is in good shape. Soil moisture and nitrogen levels are supporting steady {field['crop'].lower()} growth. Keep your current care routine and check the live weather outlook before scheduling field work.",
             nextStep="Check crop growth and soil moisture in 3 days.",
         )
     ]

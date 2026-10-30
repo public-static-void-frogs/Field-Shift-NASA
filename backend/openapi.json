@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Field Shift NASA API",
-    "description": "Authenticated farm demo API. Accounts and preferences persist in SQL; farm data remains illustrative and process-local.",
+    "description": "Authenticated farm API with live Open-Meteo weather from saved account coordinates. Accounts and preferences persist in SQL; agronomic demo data remains process-local.",
     "version": "1.0.0"
   },
   "paths": {
@@ -1005,6 +1005,7 @@
           "weather"
         ],
         "summary": "Weather History",
+        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0\u20137 cm, not a field sensor or root-zone measurement.",
         "operationId": "weather_history_api_v1_weather_history_get",
         "security": [
           {
@@ -1026,6 +1027,40 @@
               "default": "30",
               "title": "Days"
             }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Date"
+            }
           }
         ],
         "responses": {
@@ -1034,26 +1069,51 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherRecord"
-                  },
-                  "title": "Response Weather History Api V1 Weather History Get"
+                  "$ref": "#/components/schemas/WeatherSeries"
                 }
               }
             }
           },
           "422": {
-            "description": "Validation Error",
+            "description": "Missing location or invalid date range"
+          },
+          "503": {
+            "description": "Provider unavailable or malformed response; no demo fallback"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/forecast": {
+      "get": {
+        "tags": [
+          "weather"
+        ],
+        "summary": "Weather Forecast",
+        "description": "14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0\u20131 cm. This is a grid-model forecast, not a calibrated field/strategy prediction.",
+        "operationId": "weather_forecast_api_v1_weather_forecast_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/WeatherSeries"
                 }
               }
             }
+          },
+          "422": {
+            "description": "Missing saved coordinates"
+          },
+          "503": {
+            "description": "Provider unavailable; no demo fallback"
           }
-        }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
       }
     },
     "/api/v1/maps/geojson": {
@@ -1464,49 +1524,162 @@
       },
       "CurrentWeather": {
         "properties": {
-          "condition": {
-            "type": "string",
-            "title": "Condition"
-          },
           "location": {
             "type": "string",
             "title": "Location"
           },
-          "temperature": {
+          "latitude": {
             "type": "number",
-            "title": "Temperature"
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "gridLatitude": {
+            "type": "number",
+            "title": "Gridlatitude"
+          },
+          "gridLongitude": {
+            "type": "number",
+            "title": "Gridlongitude"
+          },
+          "timeZone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "fetchedAt": {
+            "type": "string",
+            "title": "Fetchedat"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": "Open-Meteo"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "title": "Sourceurl",
+            "default": "https://open-meteo.com/"
+          },
+          "units": {
+            "$ref": "#/components/schemas/WeatherUnits"
+          },
+          "soilDepth": {
+            "type": "string",
+            "title": "Soildepth"
+          },
+          "dataKind": {
+            "type": "string",
+            "enum": [
+              "forecast",
+              "historical_model"
+            ],
+            "title": "Datakind"
+          },
+          "observedAt": {
+            "type": "string",
+            "title": "Observedat"
+          },
+          "condition": {
+            "type": "string",
+            "title": "Condition"
           },
           "conditions": {
             "type": "string",
             "title": "Conditions"
           },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          },
           "feelsLike": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Feelslike"
           },
           "high": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "High"
           },
           "low": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low"
           },
           "humidity": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Humidity"
           },
           "wind": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Wind"
           },
+          "windDirection": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winddirection"
+          },
           "rainChance": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Rainchance"
           },
           "forecast": {
             "items": {
-              "$ref": "#/components/schemas/ForecastDay"
+              "$ref": "#/components/schemas/WeatherRecord"
             },
             "type": "array",
             "title": "Forecast"
@@ -1514,15 +1687,26 @@
         },
         "type": "object",
         "required": [
-          "condition",
           "location",
-          "temperature",
+          "latitude",
+          "longitude",
+          "gridLatitude",
+          "gridLongitude",
+          "timeZone",
+          "fetchedAt",
+          "units",
+          "soilDepth",
+          "dataKind",
+          "observedAt",
+          "condition",
           "conditions",
+          "temperature",
           "feelsLike",
           "high",
           "low",
           "humidity",
           "wind",
+          "windDirection",
           "rainChance",
           "forecast"
         ],
@@ -2043,17 +2227,9 @@
             "type": "integer",
             "title": "Health"
           },
-          "moisture": {
-            "type": "integer",
-            "title": "Moisture"
-          },
           "currentHealth": {
             "type": "integer",
             "title": "Currenthealth"
-          },
-          "currentMoisture": {
-            "type": "integer",
-            "title": "Currentmoisture"
           },
           "healthImprovement": {
             "items": {
@@ -2061,13 +2237,6 @@
             },
             "type": "array",
             "title": "Healthimprovement"
-          },
-          "moistureImprovement": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array",
-            "title": "Moistureimprovement"
           },
           "range": {
             "items": {
@@ -2083,37 +2252,11 @@
           "stage",
           "progress",
           "health",
-          "moisture",
           "currentHealth",
-          "currentMoisture",
           "healthImprovement",
-          "moistureImprovement",
           "range"
         ],
         "title": "Forecast"
-      },
-      "ForecastDay": {
-        "properties": {
-          "day": {
-            "type": "string",
-            "title": "Day"
-          },
-          "temperature": {
-            "type": "number",
-            "title": "Temperature"
-          },
-          "condition": {
-            "type": "string",
-            "title": "Condition"
-          }
-        },
-        "type": "object",
-        "required": [
-          "day",
-          "temperature",
-          "condition"
-        ],
-        "title": "ForecastDay"
       },
       "HTTPValidationError": {
         "properties": {
@@ -3080,29 +3223,104 @@
             "type": "string",
             "title": "Conditions"
           },
+          "weatherCode": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weathercode"
+          },
           "temperature": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Temperature"
           },
           "low": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low"
           },
           "rainfall": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Rainfall"
           },
           "humidity": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Humidity"
           },
           "wind": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Wind"
           },
+          "windDirection": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winddirection"
+          },
           "moisture": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Moisture"
+          },
+          "rainChance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rainchance"
           }
         },
         "type": "object",
@@ -3111,14 +3329,129 @@
           "date",
           "today",
           "conditions",
+          "weatherCode",
           "temperature",
           "low",
           "rainfall",
           "humidity",
           "wind",
-          "moisture"
+          "windDirection",
+          "moisture",
+          "rainChance"
         ],
         "title": "WeatherRecord"
+      },
+      "WeatherSeries": {
+        "properties": {
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "gridLatitude": {
+            "type": "number",
+            "title": "Gridlatitude"
+          },
+          "gridLongitude": {
+            "type": "number",
+            "title": "Gridlongitude"
+          },
+          "timeZone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "fetchedAt": {
+            "type": "string",
+            "title": "Fetchedat"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": "Open-Meteo"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "title": "Sourceurl",
+            "default": "https://open-meteo.com/"
+          },
+          "units": {
+            "$ref": "#/components/schemas/WeatherUnits"
+          },
+          "soilDepth": {
+            "type": "string",
+            "title": "Soildepth"
+          },
+          "dataKind": {
+            "type": "string",
+            "enum": [
+              "forecast",
+              "historical_model"
+            ],
+            "title": "Datakind"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/WeatherRecord"
+            },
+            "type": "array",
+            "title": "Records"
+          }
+        },
+        "type": "object",
+        "required": [
+          "location",
+          "latitude",
+          "longitude",
+          "gridLatitude",
+          "gridLongitude",
+          "timeZone",
+          "fetchedAt",
+          "units",
+          "soilDepth",
+          "dataKind",
+          "records"
+        ],
+        "title": "WeatherSeries"
+      },
+      "WeatherUnits": {
+        "properties": {
+          "temperature": {
+            "type": "string",
+            "title": "Temperature"
+          },
+          "rainfall": {
+            "type": "string",
+            "title": "Rainfall"
+          },
+          "wind": {
+            "type": "string",
+            "title": "Wind"
+          },
+          "humidity": {
+            "type": "string",
+            "title": "Humidity",
+            "default": "%"
+          },
+          "moisture": {
+            "type": "string",
+            "title": "Moisture",
+            "default": "%"
+          }
+        },
+        "type": "object",
+        "required": [
+          "temperature",
+          "rainfall",
+          "wind"
+        ],
+        "title": "WeatherUnits"
       }
     },
     "securitySchemes": {

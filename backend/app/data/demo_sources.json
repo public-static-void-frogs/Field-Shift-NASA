@@ -2,9 +2,9 @@
   {
     "id": "weather",
     "key": "weather",
-    "name": "Example weather archive",
-    "data": "Daily temperature, rainfall, and humidity",
-    "format": "CSV"
+    "name": "Open-Meteo",
+    "data": "Live weather, historical model estimates and 14-day forecasts",
+    "format": "JSON API"
   },
   {
     "id": "soil",

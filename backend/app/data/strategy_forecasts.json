@@ -6,16 +6,10 @@
     "stage": "Current",
     "progress": 0,
     "health": 92,
-    "moisture": 64,
     "currentHealth": 92,
-    "currentMoisture": 64,
     "healthImprovement": [
       92,
       92
-    ],
-    "moistureImprovement": [
-      64,
-      64
     ],
     "range": [
       92,
@@ -29,16 +23,10 @@
     "stage": "Soil review",
     "progress": 0.2,
     "health": 93,
-    "moisture": 62,
     "currentHealth": 92,
-    "currentMoisture": 64,
     "healthImprovement": [
       92,
       93
-    ],
-    "moistureImprovement": [
-      62,
-      64
     ],
     "range": [
       86,
@@ -52,16 +40,10 @@
     "stage": "Harvest",
     "progress": 0.35,
     "health": 93,
-    "moisture": 61,
     "currentHealth": 92,
-    "currentMoisture": 64,
     "healthImprovement": [
       92,
       93
-    ],
-    "moistureImprovement": [
-      61,
-      64
     ],
     "range": [
       84,
@@ -75,16 +57,10 @@
     "stage": "Preparation",
     "progress": 0.55,
     "health": 94,
-    "moisture": 59,
     "currentHealth": 92,
-    "currentMoisture": 64,
     "healthImprovement": [
       92,
       94
-    ],
-    "moistureImprovement": [
-      59,
-      64
     ],
     "range": [
       83,
@@ -98,16 +74,10 @@
     "stage": "Planting",
     "progress": 0.7,
     "health": 95,
-    "moisture": 58,
     "currentHealth": 92,
-    "currentMoisture": 64,
     "healthImprovement": [
       92,
       95
-    ],
-    "moistureImprovement": [
-      58,
-      64
     ],
     "range": [
       82,
@@ -121,16 +91,10 @@
     "stage": "Establishment",
     "progress": 0.85,
     "health": 95,
-    "moisture": 56,
     "currentHealth": 92,
-    "currentMoisture": 64,
     "healthImprovement": [
       92,
       95
-    ],
-    "moistureImprovement": [
-      56,
-      64
     ],
     "range": [
       80,
@@ -144,16 +108,10 @@
     "stage": "Next season",
     "progress": 1,
     "health": 96,
-    "moisture": 55,
     "currentHealth": 92,
-    "currentMoisture": 64,
     "healthImprovement": [
       92,
       96
-    ],
-    "moistureImprovement": [
-      55,
-      64
     ],
     "range": [
       79,
@@ -167,16 +125,10 @@
     "stage": "Current",
     "progress": 0,
     "health": 68,
-    "moisture": 38,
     "currentHealth": 68,
-    "currentMoisture": 38,
     "healthImprovement": [
       68,
       68
-    ],
-    "moistureImprovement": [
-      38,
-      38
     ],
     "range": [
       68,
@@ -190,16 +142,10 @@
     "stage": "Soil review",
     "progress": 0.2,
     "health": 71,
-    "moisture": 41,
     "currentHealth": 68,
-    "currentMoisture": 38,
     "healthImprovement": [
       68,
       71
-    ],
-    "moistureImprovement": [
-      38,
-      41
     ],
     "range": [
       64,
@@ -213,16 +159,10 @@
     "stage": "Harvest",
     "progress": 0.35,
     "health": 74,
-    "moisture": 44,
     "currentHealth": 68,
-    "currentMoisture": 38,
     "healthImprovement": [
       68,
       74
-    ],
-    "moistureImprovement": [
-      38,
-      44
     ],
     "range": [
       65,
@@ -236,16 +176,10 @@
     "stage": "Preparation",
     "progress": 0.55,
     "health": 77,
-    "moisture": 47,
     "currentHealth": 68,
-    "currentMoisture": 38,
     "healthImprovement": [
       68,
       77
-    ],
-    "moistureImprovement": [
-      38,
-      47
     ],
     "range": [
       66,
@@ -259,16 +193,10 @@
     "stage": "Planting",
     "progress": 0.7,
     "health": 79,
-    "moisture": 50,
     "currentHealth": 68,
-    "currentMoisture": 38,
     "healthImprovement": [
       68,
       79
-    ],
-    "moistureImprovement": [
-      38,
-      50
     ],
     "range": [
       66,
@@ -282,16 +210,10 @@
     "stage": "Establishment",
     "progress": 0.85,
     "health": 82,
-    "moisture": 52,
     "currentHealth": 68,
-    "currentMoisture": 38,
     "healthImprovement": [
       68,
       82
-    ],
-    "moistureImprovement": [
-      38,
-      52
     ],
     "range": [
       67,
@@ -305,16 +227,10 @@
     "stage": "Next season",
     "progress": 1,
     "health": 84,
-    "moisture": 55,
     "currentHealth": 68,
-    "currentMoisture": 38,
     "healthImprovement": [
       68,
       84
-    ],
-    "moistureImprovement": [
-      38,
-      55
     ],
     "range": [
       67,
@@ -328,16 +244,10 @@
     "stage": "Current",
     "progress": 0,
     "health": 88,
-    "moisture": 58,
     "currentHealth": 88,
-    "currentMoisture": 58,
     "healthImprovement": [
       88,
       88
-    ],
-    "moistureImprovement": [
-      58,
-      58
     ],
     "range": [
       88,
@@ -351,16 +261,10 @@
     "stage": "Soil review",
     "progress": 0.2,
     "health": 89,
-    "moisture": 57,
     "currentHealth": 88,
-    "currentMoisture": 58,
     "healthImprovement": [
       88,
       89
-    ],
-    "moistureImprovement": [
-      57,
-      58
     ],
     "range": [
       82,
@@ -374,16 +278,10 @@
     "stage": "Harvest",
     "progress": 0.35,
     "health": 89,
-    "moisture": 57,
     "currentHealth": 88,
-    "currentMoisture": 58,
     "healthImprovement": [
       88,
       89
-    ],
-    "moistureImprovement": [
-      57,
-      58
     ],
     "range": [
       80,
@@ -397,16 +295,10 @@
     "stage": "Preparation",
     "progress": 0.55,
     "health": 90,
-    "moisture": 56,
     "currentHealth": 88,
-    "currentMoisture": 58,
     "healthImprovement": [
       88,
       90
-    ],
-    "moistureImprovement": [
-      56,
-      58
     ],
     "range": [
       79,
@@ -420,16 +312,10 @@
     "stage": "Planting",
     "progress": 0.7,
     "health": 91,
-    "moisture": 56,
     "currentHealth": 88,
-    "currentMoisture": 58,
     "healthImprovement": [
       88,
       91
-    ],
-    "moistureImprovement": [
-      56,
-      58
     ],
     "range": [
       78,
@@ -443,16 +329,10 @@
     "stage": "Establishment",
     "progress": 0.85,
     "health": 91,
-    "moisture": 55,
     "currentHealth": 88,
-    "currentMoisture": 58,
     "healthImprovement": [
       88,
       91
-    ],
-    "moistureImprovement": [
-      55,
-      58
     ],
     "range": [
       76,
@@ -466,16 +346,10 @@
     "stage": "Next season",
     "progress": 1,
     "health": 92,
-    "moisture": 55,
     "currentHealth": 88,
-    "currentMoisture": 58,
     "healthImprovement": [
       88,
       92
-    ],
-    "moistureImprovement": [
-      55,
-      58
     ],
     "range": [
       75,
@@ -489,16 +363,10 @@
     "stage": "Current",
     "progress": 0,
     "health": 45,
-    "moisture": 32,
     "currentHealth": 45,
-    "currentMoisture": 32,
     "healthImprovement": [
       45,
       45
-    ],
-    "moistureImprovement": [
-      32,
-      32
     ],
     "range": [
       45,
@@ -512,16 +380,10 @@
     "stage": "Soil review",
     "progress": 0.2,
     "health": 53,
-    "moisture": 37,
     "currentHealth": 45,
-    "currentMoisture": 32,
     "healthImprovement": [
       45,
       53
-    ],
-    "moistureImprovement": [
-      32,
-      37
     ],
     "range": [
       46,
@@ -535,16 +397,10 @@
     "stage": "Harvest",
     "progress": 0.35,
     "health": 59,
-    "moisture": 40,
     "currentHealth": 45,
-    "currentMoisture": 32,
     "healthImprovement": [
       45,
       59
-    ],
-    "moistureImprovement": [
-      32,
-      40
     ],
     "range": [
       50,
@@ -558,16 +414,10 @@
     "stage": "Preparation",
     "progress": 0.55,
     "health": 66,
-    "moisture": 45,
     "currentHealth": 45,
-    "currentMoisture": 32,
     "healthImprovement": [
       45,
       66
-    ],
-    "moistureImprovement": [
-      32,
-      45
     ],
     "range": [
       55,
@@ -581,16 +431,10 @@
     "stage": "Planting",
     "progress": 0.7,
     "health": 72,
-    "moisture": 48,
     "currentHealth": 45,
-    "currentMoisture": 32,
     "healthImprovement": [
       45,
       72
-    ],
-    "moistureImprovement": [
-      32,
-      48
     ],
     "range": [
       59,
@@ -604,16 +448,10 @@
     "stage": "Establishment",
     "progress": 0.85,
     "health": 78,
-    "moisture": 52,
     "currentHealth": 45,
-    "currentMoisture": 32,
     "healthImprovement": [
       45,
       78
-    ],
-    "moistureImprovement": [
-      32,
-      52
     ],
     "range": [
       63,
@@ -627,16 +465,10 @@
     "stage": "Next season",
     "progress": 1,
     "health": 84,
-    "moisture": 55,
     "currentHealth": 45,
-    "currentMoisture": 32,
     "healthImprovement": [
       45,
       84
-    ],
-    "moistureImprovement": [
-      32,
-      55
     ],
     "range": [
       67,
@@ -650,16 +482,10 @@
     "stage": "Current",
     "progress": 0,
     "health": 94,
-    "moisture": 67,
     "currentHealth": 94,
-    "currentMoisture": 67,
     "healthImprovement": [
       94,
       94
-    ],
-    "moistureImprovement": [
-      67,
-      67
     ],
     "range": [
       94,
@@ -673,16 +499,10 @@
     "stage": "Soil review",
     "progress": 0.2,
     "health": 95,
-    "moisture": 65,
     "currentHealth": 94,
-    "currentMoisture": 67,
     "healthImprovement": [
       94,
       95
-    ],
-    "moistureImprovement": [
-      65,
-      67
     ],
     "range": [
       88,
@@ -696,16 +516,10 @@
     "stage": "Harvest",
     "progress": 0.35,
     "health": 95,
-    "moisture": 63,
     "currentHealth": 94,
-    "currentMoisture": 67,
     "healthImprovement": [
       94,
       95
-    ],
-    "moistureImprovement": [
-      63,
-      67
     ],
     "range": [
       86,
@@ -719,16 +533,10 @@
     "stage": "Preparation",
     "progress": 0.55,
     "health": 96,
-    "moisture": 60,
     "currentHealth": 94,
-    "currentMoisture": 67,
     "healthImprovement": [
       94,
       96
-    ],
-    "moistureImprovement": [
-      60,
-      67
     ],
     "range": [
       85,
@@ -742,16 +550,10 @@
     "stage": "Planting",
     "progress": 0.7,
     "health": 97,
-    "moisture": 59,
     "currentHealth": 94,
-    "currentMoisture": 67,
     "healthImprovement": [
       94,
       97
-    ],
-    "moistureImprovement": [
-      59,
-      67
     ],
     "range": [
       84,
@@ -765,16 +567,10 @@
     "stage": "Establishment",
     "progress": 0.85,
     "health": 97,
-    "moisture": 57,
     "currentHealth": 94,
-    "currentMoisture": 67,
     "healthImprovement": [
       94,
       97
-    ],
-    "moistureImprovement": [
-      57,
-      67
     ],
     "range": [
       82,
@@ -788,16 +584,10 @@
     "stage": "Next season",
     "progress": 1,
     "health": 98,
-    "moisture": 55,
     "currentHealth": 94,
-    "currentMoisture": 67,
     "healthImprovement": [
       94,
       98
-    ],
-    "moistureImprovement": [
-      55,
-      67
     ],
     "range": [
       81,

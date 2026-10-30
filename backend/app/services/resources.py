@@ -1,4 +1,4 @@
-"""Join farm ownership, weather observations, help records, and map boundaries."""
+"""Join farm ownership, help records, and map boundaries."""
 
 
 def farm_profile(store, user):
@@ -15,24 +15,6 @@ def farm_profile(store, user):
         role="Farm owner",
         locationLabel=user.settings.location,
     )
-
-
-def current_weather(store):
-    farm = store.all("farms")[0]
-    current = store.related("current_weather", "stationId", farm["weatherStationId"])[0]
-    return dict(
-        current,
-        location=store.require("weather_stations", current["stationId"])["name"],
-        forecast=store.related("weather_forecasts", "weatherId", current["id"]),
-    )
-
-
-def weather_history(store, days):
-    farm = store.all("farms")[0]
-    return sorted(
-        store.related("weather_history", "stationId", farm["weatherStationId"]),
-        key=lambda row: row["key"],
-    )[:days]
 
 
 def geojson(store):

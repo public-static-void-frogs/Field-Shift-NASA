@@ -7,25 +7,11 @@
     "projected": 96
   },
   {
-    "id": "4bb9c004-1c10-5ce1-92d6-6309d95ba8ec",
-    "fieldId": "3bf6d7e9-8f34-59dc-abf9-5a02df771653",
-    "name": "Soil moisture",
-    "current": 64,
-    "projected": 55
-  },
-  {
     "id": "1b605c93-fbfd-5f24-b19c-f67d9449ddd0",
     "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
     "name": "Crop health",
     "current": 68,
     "projected": 84
-  },
-  {
-    "id": "0ce5550f-e249-5310-be1a-c39c6daf6cbd",
-    "fieldId": "3f5dac99-a289-5951-b857-e5bd8bc7463e",
-    "name": "Soil moisture",
-    "current": 38,
-    "projected": 55
   },
   {
     "id": "cbe2277f-22c2-57e6-9617-58b778e0f634",
@@ -35,13 +21,6 @@
     "projected": 92
   },
   {
-    "id": "155bae8a-6e92-54cd-a29a-3feb9109626b",
-    "fieldId": "db2d7d21-8739-5ed8-b02b-c964bbb48b5a",
-    "name": "Soil moisture",
-    "current": 58,
-    "projected": 55
-  },
-  {
     "id": "4ec5d018-f415-54de-8cf5-843ad4235120",
     "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
     "name": "Crop health",
@@ -49,24 +28,10 @@
     "projected": 84
   },
   {
-    "id": "8aa994ac-1763-5246-a034-bb444cdd6723",
-    "fieldId": "22f0c8a6-65c8-5f91-98db-0c31f59701cc",
-    "name": "Soil moisture",
-    "current": 32,
-    "projected": 55
-  },
-  {
     "id": "3a56b516-596d-5e21-a204-7f3adc58f53a",
     "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
     "name": "Crop health",
     "current": 94,
     "projected": 98
-  },
-  {
-    "id": "4b797b2a-791e-58bd-9822-d0a4f53c42b7",
-    "fieldId": "361bf65c-5e30-58df-96bb-c1287ace9f19",
-    "name": "Soil moisture",
-    "current": 67,
-    "projected": 55
   }
 ]

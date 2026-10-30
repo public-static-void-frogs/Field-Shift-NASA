@@ -69,7 +69,6 @@ class ApiTests(unittest.TestCase):
             "/crops",
             "/parcels/6",
             "/farm/profile",
-            "/weather/current",
             "/maps/geojson",
             "/help/team",
             "/help/sources",
@@ -80,8 +79,6 @@ class ApiTests(unittest.TestCase):
             "/planning/responses",
         ]:
             self.get(path)
-        for days in [7, 30, 90]:
-            self.assertEqual(len(self.get(f"/weather/history?days={days}")), days)
         for field in self.fields:
             fid = field["id"]
             for resource in [

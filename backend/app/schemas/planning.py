@@ -63,11 +63,8 @@ class Forecast(BaseModel):
     stage: str
     progress: float
     health: int
-    moisture: int
     currentHealth: int
-    currentMoisture: int
     healthImprovement: list[int]
-    moistureImprovement: list[int]
     range: list[int]
 
 

@@ -64,7 +64,7 @@ All resource routes use `/api/v1`. The existing `GET /` health response is prese
 | GET         | `/crops`, `/parcels/{id}`                                      | Crop choices and parcel details               |
 | GET         | `/planning/context`, `/planning/events`, `/planning/responses` | Shared planning resources                     |
 | GET         | `/overview/charts?days=30&metric=health`                       | Trends and crop areas                         |
-| GET         | `/weather/current`, `/weather/history?days=30`                 | Current and historical demo weather           |
+| GET         | `/weather/current`, `/weather/forecast`, `/weather/history?days=30`                 | Live weather, historical estimates and forecasts           |
 | GET         | `/farm/profile`, `/maps/geojson`, `/notifications`             | Farm, boundaries, notifications               |
 | GET         | `/help/team`, `/help/sources`                                  | Help content                                  |
 
@@ -98,7 +98,7 @@ Weather history accepts 7, 30, or 90 days. Chart ranges accept 1–365 days and
 ## Demo storage limitations
 
 JWT cookie authentication and database-backed accounts/settings are implemented. No external data feed is connected. Seed data,
-weather, boundaries, and agronomic projections remain illustrative. The planning
+boundaries and agronomic projections remain illustrative. Weather uses live Open-Meteo model data for saved account coordinates. The planning
 clock stays fixed at May 24, 2026. Changes survive frontend refreshes, are shared
 by clients of the same process, and reset when it restarts. Run one worker for
 this demo; multiple workers would have independent in-memory state. Browser-local
@@ -122,3 +122,7 @@ Regenerate the checked-in contract from this directory after changing routes or 
 ```sh
 python -c 'import json; from pathlib import Path; from app.main import app; Path("openapi.json").write_text(json.dumps(app.openapi(), indent=2) + "\n")'
 ```
+
+## Weather
+
+See [Weather integration](docs/weather-integration.md) for source semantics, dates, units, caching, configuration, licensing, and local failure simulations. No weather API key is required for the default noncommercial Open-Meteo endpoint.

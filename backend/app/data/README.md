@@ -32,13 +32,9 @@ code, team slug, or source key.
 | `plan_contingencies` | Join collection: `planId → rotation_plans`, `contingencyId → contingencies` |
 | `event_responses` | `eventId → planned_events`; status and reviewed-content fingerprint; initially empty |
 | `notifications` | `farmId → farms`, optional `fieldId → fields`; field names are joined |
-| `farms` | `ownerId → users`, `weatherStationId → weather_stations`; location and season information |
+| `farms` | `ownerId → users`; location and season information |
 | `users` | Demo owner identity and preferences |
 | `planning_contexts` | `farmId → farms`; demo season clock |
-| `weather_stations` | Weather locations |
-| `current_weather` | `stationId → weather_stations`; current observation |
-| `weather_forecasts` | `weatherId → current_weather`; forecast days |
-| `weather_history` | `stationId → weather_stations`; historical observations |
 | `team_members`, `demo_sources` | Independent help content |
 | `event_templates`, `technical_templates` | Reference defaults used only to provision a new field's related records |
 
@@ -79,3 +75,5 @@ links, events, and event responses. It preserves the parcel, soil survey, crop
 catalog, and shared guidance. All creation/deletion/decision mutations happen in
 memory under a lock and reset on backend restart; JSON seed files are not rewritten.
 This is a database-shaped fixture store, with no database or persistent write layer.
+
+Weather is fetched from Open-Meteo using saved user coordinates. No weather fixtures are loaded. See `docs/weather-integration.md`.

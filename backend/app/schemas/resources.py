@@ -25,39 +25,6 @@ class FarmProfile(BaseModel):
     sessionLifetimeHours: int
 
 
-class ForecastDay(BaseModel):
-    day: str
-    temperature: float
-    condition: str
-
-
-class CurrentWeather(BaseModel):
-    condition: str
-    location: str
-    temperature: float
-    conditions: str
-    feelsLike: float
-    high: float
-    low: float
-    humidity: float
-    wind: float
-    rainChance: float
-    forecast: list[ForecastDay]
-
-
-class WeatherRecord(BaseModel):
-    key: int
-    date: str
-    today: bool
-    conditions: str
-    temperature: float
-    low: float
-    rainfall: float
-    humidity: float
-    wind: float
-    moisture: float
-
-
 class TeamMember(BaseModel):
     id: str
     name: str

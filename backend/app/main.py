@@ -9,6 +9,7 @@ from app.core.config import Settings
 from app.core.database import database_engine, session_factory
 from app.core.errors import ResourceConflict, ResourceNotFound
 from app.repositories.demo import DemoRepository
+from app.services.weather import WeatherService
 
 
 def create_app(config: Settings | None = None) -> FastAPI:
@@ -18,19 +19,23 @@ def create_app(config: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app):
         config.validate()
-        yield
-        engine.dispose()
+        try:
+            yield
+        finally:
+            app.state.weather.close()
+            engine.dispose()
 
     app = FastAPI(
         lifespan=lifespan,
         title="Field Shift NASA API",
         version="1.0.0",
-        description="Authenticated farm demo API. Accounts and preferences persist in SQL; farm data remains illustrative and process-local.",
+        description="Authenticated farm API with live Open-Meteo weather from saved account coordinates. Accounts and preferences persist in SQL; agronomic demo data remains process-local.",
     )
     app.state.repository = DemoRepository()
     app.state.config = config
     app.state.engine = engine
     app.state.sessions = session_factory(engine)
+    app.state.weather = WeatherService(config)
 
     @app.middleware("http")
     async def browser_security(request: Request, call_next):

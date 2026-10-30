@@ -10,7 +10,7 @@ from app.core.errors import ResourceConflict, ResourceNotFound
 
 # Relationships are checked on startup and used for cascade deletion.
 REFERENCES = {
-    "farms": {"ownerId": "users", "weatherStationId": "weather_stations"},
+    "farms": {"ownerId": "users"},
     "fields": {"farmId": "farms", "parcelId": "parcels", "cropId": "crops"},
     "parcels": {"farmId": "farms", "soilProfileId": "soil_profiles", "suggestedCropId": "crops"},
     "crops": {"nextCropId": "crops"},
@@ -27,9 +27,6 @@ REFERENCES = {
     "event_responses": {"eventId": "planned_events"},
     "planning_contexts": {"farmId": "farms"},
     "notifications": {"farmId": "farms", "fieldId": "fields"},
-    "current_weather": {"stationId": "weather_stations"},
-    "weather_history": {"stationId": "weather_stations"},
-    "weather_forecasts": {"weatherId": "current_weather"},
     "event_templates": {"checkpointId": "checkpoints"},
 }
 

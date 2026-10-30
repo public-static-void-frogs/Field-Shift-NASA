@@ -136,7 +136,7 @@ def field_events(field, reference):
     if moisture < 45:
         add(
             "irrigation",
-            description=f"Check water distribution and inspect the driest parts of {name}. Adjust the watering plan around the expected rain and record moisture after the next pass.",
+            description=f"Check water distribution and inspect the driest parts of {name}. Review the live precipitation forecast before adjusting the watering plan and record moisture after the next pass.",
             rationale=f"Current soil moisture is {moisture}%, below the field’s comfortable range.",
         )
     if nitrogen < 30:
@@ -181,7 +181,6 @@ def strategy(field, reference):
     forecast = []
     for index, (day, stage, progress) in enumerate(sorted(milestones)):
         h = floor(health + (projected - health) * progress + 0.5)
-        m = floor(moisture + (55 - moisture) * progress + 0.5)
         uncertainty = 0 if index == 0 else 5 + index * 2
         forecast.append(
             dict(
@@ -189,11 +188,8 @@ def strategy(field, reference):
                 stage=stage,
                 progress=progress,
                 health=h,
-                moisture=m,
                 currentHealth=health,
-                currentMoisture=moisture,
                 healthImprovement=[health, h],
-                moistureImprovement=[min(moisture, m), max(moisture, m)],
                 range=[max(0, h - uncertainty), min(100, h + uncertainty)],
             )
         )
@@ -231,7 +227,6 @@ def strategy(field, reference):
         forecast=forecast,
         comparison=[
             dict(name="Crop health", current=health, projected=projected),
-            dict(name="Soil moisture", current=moisture, projected=55),
         ],
         technicals=technicals,
         contingencies=data["contingencies"],

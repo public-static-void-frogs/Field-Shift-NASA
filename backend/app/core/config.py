@@ -19,6 +19,20 @@ def cors_origins() -> list[str]:
 
 @dataclass
 class Settings:
+    weather_forecast_url: str = field(
+        default_factory=lambda: os.getenv(
+            "WEATHER_FORECAST_URL", "https://api.open-meteo.com/v1/forecast"
+        )
+    )
+    weather_archive_url: str = field(
+        default_factory=lambda: os.getenv(
+            "WEATHER_ARCHIVE_URL", "https://archive-api.open-meteo.com/v1/archive"
+        )
+    )
+    weather_timeout_seconds: float = 5
+    weather_forecast_ttl_seconds: int = 600
+    weather_history_ttl_seconds: int = 21600
+    weather_cache_size: int = 256
     database_url: str = field(default_factory=lambda: os.getenv("DATABASE_URL", ""))
     jwt_secret: str = field(default_factory=lambda: os.getenv("JWT_SECRET", ""))
     jwt_issuer: str = field(default_factory=lambda: os.getenv("JWT_ISSUER", ""))

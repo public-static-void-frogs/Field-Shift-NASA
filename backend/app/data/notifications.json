@@ -16,13 +16,5 @@
     "severity": "warning",
     "title": "{{value0}} needs a little care",
     "description": "Soil moisture is low. Check your irrigation schedule."
-  },
-  {
-    "id": "3a48e224-05dc-5005-a491-a85cbc410b10",
-    "farmId": "ace78ff5-8584-52d9-9914-8cb1bd65d954",
-    "kind": "weather",
-    "severity": "info",
-    "title": "Light rain expected Thursday",
-    "description": "A good window to plan nutrient applications."
   }
 ]
