@@ -1,20 +1,51 @@
-from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import fields, planning, resources
-from app.core.config import cors_origins
+from app.api import auth, fields, planning, resources
+from app.core.config import Settings
+from app.core.database import database_engine, session_factory
 from app.core.errors import ResourceConflict, ResourceNotFound
 from app.repositories.demo import DemoRepository
 
 
-def create_app() -> FastAPI:
+def create_app(config: Settings | None = None) -> FastAPI:
+    config = config or Settings()
+    engine = database_engine(config.database_url) if config.database_url else None
+
+    @asynccontextmanager
+    async def lifespan(app):
+        config.validate()
+        yield
+        engine.dispose()
+
     app = FastAPI(
+        lifespan=lifespan,
         title="Field Shift NASA API",
         version="1.0.0",
-        description="Demo farm API. Illustrative hardcoded data; changes are shared within one process and reset on restart.",
+        description="Authenticated farm demo API. Accounts and preferences persist in SQL; farm data remains illustrative and process-local.",
     )
     app.state.repository = DemoRepository()
+    app.state.config = config
+    app.state.engine = engine
+    app.state.sessions = session_factory(engine)
+
+    @app.middleware("http")
+    async def browser_security(request: Request, call_next):
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+            origin = request.headers.get("origin")
+            if origin and origin not in config.allowed_origins:
+                return JSONResponse(status_code=403, content={"detail": "Untrusted request origin"})
+            if request.headers.get("sec-fetch-site") == "cross-site":
+                return JSONResponse(
+                    status_code=403, content={"detail": "Cross-site requests are not allowed"}
+                )
+        response = await call_next(request)
+        if request.url.path.startswith("/api/v1"):
+            response.headers["Cache-Control"] = "no-store"
+        return response
 
     @app.exception_handler(ResourceNotFound)
     def not_found(request: Request, error: ResourceNotFound):
@@ -26,12 +57,14 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=cors_origins(),
+        allow_origins=config.allowed_origins,
+        allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["Content-Type"],
     )
+    app.include_router(auth.router, prefix="/api/v1")
     for router in (fields.router, planning.router, resources.router):
-        app.include_router(router, prefix="/api/v1")
+        app.include_router(router, prefix="/api/v1", dependencies=[Depends(auth.current_user)])
 
     @app.get("/", tags=["health"])
     def root() -> dict[str, str]:

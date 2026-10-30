@@ -1,10 +1,20 @@
 """Join farm ownership, weather observations, help records, and map boundaries."""
 
 
-def farm_profile(store):
+def farm_profile(store, user):
+    from app.schemas.auth import SettingsInput
+
     farm = store.all("farms")[0]
-    owner = store.require("users", farm["ownerId"])
-    return dict(owner, **{k: v for k, v in farm.items() if k != "id"}, farmName=farm["name"])
+    preferences = SettingsInput.model_validate(user.settings).model_dump(by_alias=True)
+    return dict(
+        preferences,
+        availableSeasons=farm["availableSeasons"],
+        fullName=user.full_name,
+        initials="".join(part[0] for part in user.full_name.split()[:2]).upper(),
+        email=user.email,
+        role="Farm owner",
+        locationLabel=user.settings.location,
+    )
 
 
 def current_weather(store):

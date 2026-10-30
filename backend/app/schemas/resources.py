@@ -15,10 +15,14 @@ class FarmProfile(BaseModel):
     email: str
     role: str
     location: str
+    latitude: float | None
+    longitude: float | None
     locationLabel: str
     timeZone: str
     units: str
     theme: str
+    language: Literal["en", "uk"]
+    sessionLifetimeHours: int
 
 
 class ForecastDay(BaseModel):

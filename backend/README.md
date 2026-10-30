@@ -1,7 +1,8 @@
 # Field Shift NASA backend
 
 FastAPI demo API for `../../nasa-fields-demo-app`. Python 3.10+ is required.
-All demo/domain data formerly held in the frontend API mocks is owned here.
+Accounts and per-user settings persist in PostgreSQL. All other demo/domain data remains hardcoded.
+See [authentication and setup](docs/authentication.md) for the cookie contract and configuration.
 
 ## Run locally
 
@@ -9,13 +10,17 @@ All demo/domain data formerly held in the frontend API mocks is owned here.
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+cp .env.example .env
+# Set JWT_SECRET in .env to a generated secret of at least 32 bytes.
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+alembic upgrade head
 python main.py
 ```
 
 The server listens on `http://127.0.0.1:8000`. Start the frontend separately with
 `npm run dev`. Set the frontend `.env` variable `VITE_API_BASE_URL` to the full API
-prefix (`http://127.0.0.1:8000/api/v1` locally). Requests go directly to this URL;
-there is no Vite API proxy. For separate hosting, set it to the deployed prefix,
+prefix (`http://localhost:8000/api/v1` locally). Requests go directly to this URL;
+there is no Vite API proxy. Open Vite at `http://localhost:5173` to keep cookie sites consistent. For separate hosting, set it to the deployed prefix,
 e.g. `https://api.example.com/api/v1`, before building the frontend.
 
 `CORS_ORIGINS` accepts a comma-separated list of frontend origins. Its default is
@@ -41,8 +46,7 @@ Routes delegate to services and the repository; they contain no fixture generato
 JSON collection arrays are loaded into private indexed tables per repository. Foreign keys
 and unique primary keys are validated at startup; joins use IDs, never array order. Repository mutations are
 protected by a lock, and callers receive detached values. Use `create_app()` to get
-an isolated repository in tests. A database-backed repository can replace this demo
-storage without changing frontend fetching or query keys.
+an isolated repository in tests. SQLAlchemy stores accounts and settings separately; the demo repository remains responsible for all other resources.
 
 ## API contract
 
@@ -50,25 +54,28 @@ Interactive docs: [Swagger UI](http://127.0.0.1:8000/docs).
 Live schema: [OpenAPI](http://127.0.0.1:8000/openapi.json).
 All resource routes use `/api/v1`. The existing `GET /` health response is preserved.
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| GET, POST | `/fields` | List or create fields |
-| GET, DELETE | `/fields/{id}` | Fetch or remove a field |
-| GET | `/fields/{id}/properties`, `/history`, `/recommendation` | Field detail resources |
-| GET | `/fields/{id}/events`, `/rotation`, `/strategy` | Field planning resources |
-| PUT | `/fields/{id}/strategy/response` | Accept, decline, or reset the entire strategy |
-| GET | `/crops`, `/parcels/{id}` | Crop choices and parcel details |
-| GET | `/planning/context`, `/planning/events`, `/planning/responses` | Shared planning resources |
-| GET | `/overview/charts?days=30&metric=health` | Trends and crop areas |
-| GET | `/weather/current`, `/weather/history?days=30` | Current and historical demo weather |
-| GET | `/farm/profile`, `/maps/geojson`, `/notifications` | Farm, boundaries, notifications |
-| GET | `/help/team`, `/help/sources` | Help content |
+| Method      | Path                                                           | Purpose                                       |
+| ----------- | -------------------------------------------------------------- | --------------------------------------------- |
+| GET, POST   | `/fields`                                                      | List or create fields                         |
+| GET, DELETE | `/fields/{id}`                                                 | Fetch or remove a field                       |
+| GET         | `/fields/{id}/properties`, `/history`, `/recommendation`       | Field detail resources                        |
+| GET         | `/fields/{id}/events`, `/rotation`, `/strategy`                | Field planning resources                      |
+| PUT         | `/fields/{id}/strategy/response`                               | Accept, decline, or reset the entire strategy |
+| GET         | `/crops`, `/parcels/{id}`                                      | Crop choices and parcel details               |
+| GET         | `/planning/context`, `/planning/events`, `/planning/responses` | Shared planning resources                     |
+| GET         | `/overview/charts?days=30&metric=health`                       | Trends and crop areas                         |
+| GET         | `/weather/current`, `/weather/history?days=30`                 | Current and historical demo weather           |
+| GET         | `/farm/profile`, `/maps/geojson`, `/notifications`             | Farm, boundaries, notifications               |
+| GET         | `/help/team`, `/help/sources`                                  | Help content                                  |
 
 Fields have UUID identifiers, e.g. `3bf6d7e9-8f34-59dc-abf9-5a02df771653`.
 `GET /fields/{guid}` includes `parcelId`, `farmId`, `cropId`, `geometry`, and joined
 `properties`. History and seasons include `fieldId`; planned events have UUID IDs.
 Malformed UUIDs return `422`; valid but unknown UUIDs return `404`.
 Numeric field URLs from the former demo are no longer supported.
+
+The [core and dataset contract report](docs/core-and-source-data-contract.md) describes
+the desired agronomic outputs, required source-data structure, and integration boundaries.
 
 The [collection model](app/data/README.md) documents each entity, foreign key, join,
 and cascade. It includes the distinction between a field and its numeric parcel.
@@ -90,7 +97,7 @@ Weather history accepts 7, 30, or 90 days. Chart ranges accept 1–365 days and
 
 ## Demo storage limitations
 
-No authentication, database, or external data feed is implemented. Seed data,
+JWT cookie authentication and database-backed accounts/settings are implemented. No external data feed is connected. Seed data,
 weather, boundaries, and agronomic projections remain illustrative. The planning
 clock stays fixed at May 24, 2026. Changes survive frontend refreshes, are shared
 by clients of the same process, and reset when it restarts. Run one worker for
@@ -102,8 +109,8 @@ strategy decisions from the former frontend implementation are not imported.
 ```sh
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
-ruff check app tests main.py
-ruff format --check app tests main.py
+ruff check app tests migrations main.py
+ruff format --check app tests migrations main.py
 ```
 
 The frontend's `npm test` also starts isolated backend processes to exercise fetch,

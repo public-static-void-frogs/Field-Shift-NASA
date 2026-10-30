@@ -2,6 +2,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Query
 
+from app.api.auth import CurrentUser
 from app.api.dependencies import Store
 from app.schemas.resources import (
     CurrentWeather,
@@ -20,8 +21,8 @@ router = APIRouter()
 
 
 @router.get("/farm/profile", response_model=FarmProfile, tags=["farm"])
-def farm(store: Store):
-    return service.farm_profile(store)
+def farm(store: Store, user: CurrentUser):
+    return service.farm_profile(store, user)
 
 
 @router.get("/weather/current", response_model=CurrentWeather, tags=["weather"])

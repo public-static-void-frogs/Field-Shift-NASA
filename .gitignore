@@ -3,3 +3,9 @@ __pycache__/
 *.py[cod]
 .venv/
 .pytest_cache/
+
+# Local database configuration and signing secrets
+.env
+.env.*
+!.env.example
+*.db

@@ -8,9 +8,9 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from support import isolated_app, register
 from uvicorn.importer import import_from_string
 
-from app.main import create_app
 from app.repositories.demo import REFERENCES, DemoRepository
 from app.services.planning_builder import planting_date
 
@@ -20,9 +20,13 @@ DATA = Path(__file__).parents[1] / "app/data"
 
 class ApiTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.directory, self.app = isolated_app()
+        self.addCleanup(self.directory.cleanup)
+        self.addCleanup(self.app.state.engine.dispose)
         self.store = self.app.state.repository
         self.client = TestClient(self.app)
+        self.addCleanup(self.client.close)
+        self.assertEqual(register(self.client).status_code, 201)
         self.fields = self.get("/fields")
         self.first, self.second = (row["id"] for row in self.fields[:2])
         self.missing = str(uuid4())
