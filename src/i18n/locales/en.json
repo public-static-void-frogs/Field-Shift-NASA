@@ -677,5 +677,7 @@
   "Select a field to show crop limits and alerts.": "Select a field to show crop limits and alerts.",
   "Prototype estimate": "Prototype estimate",
   "About crop assessment": "About crop assessment",
-  "Selected day": "Selected day"
+  "Selected day": "Selected day",
+  "Previous day": "Previous day",
+  "Next day": "Next day"
 }

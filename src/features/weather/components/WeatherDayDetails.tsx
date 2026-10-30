@@ -1,4 +1,5 @@
-import { Select } from 'antd';
+import { Button, Select } from 'antd';
+import { CheckCircle2, ChevronLeft, ChevronRight, CircleHelp, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type {
   WeatherMetric,
@@ -11,6 +12,13 @@ import {
   formatWeatherValue,
   getWeatherMetricConfig,
 } from '../utils/weatherPresentation.ts';
+
+const statusIcons = {
+  good: CheckCircle2,
+  caution: TriangleAlert,
+  high: TriangleAlert,
+  unknown: CircleHelp,
+};
 
 type WeatherDayDetailsProps = {
   record: WeatherRecord;
@@ -40,6 +48,10 @@ export function WeatherDayDetails({
     unknown: 'Incomplete assessment',
   };
   const risk = assessment?.riskLevel ?? 'unknown';
+  const index = records.findIndex((item) => item.key === record.key);
+  const previous = records[index + 1];
+  const next = records[index - 1];
+  const StatusIcon = statusIcons[risk];
 
   return (
     <section
@@ -47,31 +59,63 @@ export function WeatherDayDetails({
       aria-label={t('Selected day conditions')}
       aria-live="polite"
     >
-      <div className="weather-history-date">
-        <label htmlFor="weather-history-day">{t('Selected day')}</label>
-        <Select
-          id="weather-history-day"
-          aria-label={t('Inspect weather date')}
-          value={record.key}
-          onChange={onSelect}
-          options={records.map((item) => ({
-            value: item.key,
-            label: formatWeatherDate(item.date, i18n.resolvedLanguage),
-          }))}
-        />
+      <div className="weather-history-inspector-row">
+        <div className="weather-history-day-navigation">
+          <Button
+            type="text"
+            icon={<ChevronLeft size={20} />}
+            aria-label={t('Previous day')}
+            disabled={!previous}
+            onClick={() => {
+              if (previous) {
+                onSelect(previous.key);
+              }
+            }}
+          />
+          <Select
+            id="weather-history-day"
+            variant="borderless"
+            aria-label={t('Inspect weather date')}
+            value={record.key}
+            onChange={onSelect}
+            options={records.map((item) => ({
+              value: item.key,
+              label: formatWeatherDate(item.date, i18n.resolvedLanguage),
+            }))}
+          />
+          <Button
+            type="text"
+            icon={<ChevronRight size={20} />}
+            aria-label={t('Next day')}
+            disabled={!next}
+            onClick={() => {
+              if (next) {
+                onSelect(next.key);
+              }
+            }}
+          />
+        </div>
+        <div className="weather-history-measurement">
+          <strong>
+            {formatWeatherValue(record[metric])}
+            <span>{config.unit}</span>
+          </strong>
+          <div className="weather-history-measurement-description">
+            <span>{config.title}</span>
+            {metric === 'temperature' && (
+              <span>
+                {t('Daily low')} {formatWeatherValue(record.low, config.unit)}
+              </span>
+            )}
+            {metric === 'moisture' && <span>{soilDepth}</span>}
+          </div>
+        </div>
+        <div className="weather-history-condition" data-risk={risk}>
+          <StatusIcon size={21} aria-hidden="true" />
+          <strong>{t(labels[risk])}</strong>
+        </div>
       </div>
-      <div className="weather-history-value">
-        <span>{config.title}</span>
-        <strong>{formatWeatherValue(record[metric], config.unit)}</strong>
-        {metric === 'temperature' && (
-          <span>
-            {t('Daily low')} {formatWeatherValue(record.low, config.unit)}
-          </span>
-        )}
-        {metric === 'moisture' && <span>{soilDepth}</span>}
-      </div>
-      <div className="weather-history-condition" data-risk={risk}>
-        <strong>{t(labels[risk])}</strong>
+      <div className="weather-history-alerts" data-risk={risk}>
         {alerts.length > 0 && (
           <ul>
             {alerts.map((alert) => (

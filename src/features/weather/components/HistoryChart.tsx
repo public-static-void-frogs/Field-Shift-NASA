@@ -1,3 +1,4 @@
+import './weather.css';
 import { useTranslation } from 'react-i18next';
 import {
   CartesianGrid,

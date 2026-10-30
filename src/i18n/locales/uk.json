@@ -677,5 +677,7 @@
   "Select a field to show crop limits and alerts.": "Виберіть поле, щоб побачити межі та попередження для культури.",
   "Prototype estimate": "Оцінка прототипу",
   "About crop assessment": "Про оцінку умов вирощування",
-  "Selected day": "Вибраний день"
+  "Selected day": "Вибраний день",
+  "Previous day": "Попередній день",
+  "Next day": "Наступний день"
 }

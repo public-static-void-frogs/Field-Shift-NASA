@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query';
+import { hashKey, keepPreviousData, queryOptions } from '@tanstack/react-query';
 import type { UserSettings } from '../../types/auth/auth.types.ts';
 import type { HistoryPeriod } from './weather.api.ts';
 import { weatherApi } from './weather.api.ts';
@@ -53,6 +53,17 @@ export const weatherQueries = {
       queryKey: weatherQueryKeys.history(location, period, fieldId),
       queryFn: ({ signal }) => weatherApi.getHistory(period, signal, fieldId),
       staleTime: 30 * 60_000,
+      placeholderData: (previousData, previousQuery) => {
+        if (!previousQuery) {
+          return undefined;
+        }
+        const previousKey = previousQuery.queryKey;
+        const sameLocation = hashKey([previousKey[1]]) === hashKey([locationKey(location)]);
+        if (!sameLocation || previousKey[4] !== (fieldId ?? null)) {
+          return undefined;
+        }
+        return keepPreviousData(previousData);
+      },
       retry: false,
       enabled: Boolean(fieldId) || (location.latitude !== null && location.longitude !== null),
     }),

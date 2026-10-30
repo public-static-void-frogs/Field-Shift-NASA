@@ -2,7 +2,7 @@ import './support/backend.mjs';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { hashKey } from '@tanstack/react-query';
+import { hashKey, QueryObserver } from '@tanstack/react-query';
 import { createQueryClient } from '../src/api/core/query-client.ts';
 import { fieldsApi } from '../src/api/fields/fields.api.ts';
 import { fieldQueries, fieldQueryKeys } from '../src/api/fields/fields.queries.ts';
@@ -272,4 +272,67 @@ test('field-scoped weather contracts carry backend limits, scores and alerts in 
   assert.equal(history.cropAssessment.context.fieldId, firstId);
   assert.equal(history.cropAssessment.context.climate.source, 'history_window');
   cache.clear();
+});
+
+test('history observer keeps its data while a different date range is fetching', async () => {
+  const cache = client();
+  const weekOptions = weatherQueries.history(weatherLocation, { range: '7 days' }, firstId);
+  const week = { records: [{ date: '2026-10-29' }] };
+  cache.setQueryData(weekOptions.queryKey, week);
+  const observer = new QueryObserver(cache, weekOptions);
+  const unsubscribe = observer.subscribe(() => {});
+  try {
+    for (const period of [
+      { range: '30 days' },
+      { startDate: '2026-09-01', endDate: '2026-09-15' },
+    ]) {
+      const previous = observer.getCurrentResult().data;
+      let resolve;
+      const pending = new Promise((done) => {
+        resolve = done;
+      });
+      const options = {
+        ...weatherQueries.history(weatherLocation, period, firstId),
+        queryFn: () => pending,
+      };
+      observer.setOptions(options);
+      assert.strictEqual(observer.getCurrentResult().data, previous);
+      assert.equal(observer.getCurrentResult().isPlaceholderData, true);
+      assert.equal(observer.getCurrentResult().fetchStatus, 'fetching');
+      const replacement = { records: [{ date: '2026-09-15' }], period };
+      resolve(replacement);
+      await cache.fetchQuery(options);
+      assert.deepEqual(observer.getCurrentResult().data, replacement);
+      assert.equal(observer.getCurrentResult().isPlaceholderData, false);
+    }
+  } finally {
+    unsubscribe();
+    cache.clear();
+  }
+});
+
+test('history placeholder never carries readings into a different field, location or unit system', () => {
+  const cache = client();
+  const options = weatherQueries.history(weatherLocation, { range: '7 days' }, firstId);
+  cache.setQueryData(options.queryKey, { records: [{ date: '2026-10-29' }] });
+  const observer = new QueryObserver(cache, options);
+  const unsubscribe = observer.subscribe(() => {});
+  try {
+    for (const [location, fieldId] of [
+      [weatherLocation, secondId],
+      [{ ...weatherLocation, latitude: weatherLocation.latitude + 1 }, firstId],
+      [{ ...weatherLocation, units: 'imperial' }, firstId],
+    ]) {
+      observer.setOptions(options);
+      observer.setOptions({
+        ...weatherQueries.history(location, { range: '30 days' }, fieldId),
+        queryFn: () => new Promise(() => {}),
+      });
+      assert.equal(observer.getCurrentResult().data, undefined);
+      assert.equal(observer.getCurrentResult().isPlaceholderData, false);
+    }
+  } finally {
+    unsubscribe();
+    cache.clear();
+  }
 });

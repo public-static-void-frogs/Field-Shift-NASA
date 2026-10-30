@@ -73,7 +73,11 @@ function HistoricalWeather({ metric, fieldId }: HistoricalWeatherProps) {
   const bounds = useWeatherHistoryBounds(series?.timeZone ?? preferences.timeZone);
 
   return (
-    <section className="environment-past" aria-label={t('Past conditions')}>
+    <section
+      className="environment-past"
+      aria-label={t('Past conditions')}
+      aria-busy={query.isFetching}
+    >
       <Card
         className="weather-history-card"
         title={
