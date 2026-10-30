@@ -116,6 +116,12 @@
   border: 0;
   border-radius: 12px;
   color: #707d65;
+  transition-property: color, background-color;
+}
+
+.sidebar .profile.ant-btn:not(:disabled):is(:hover, :active) {
+  border: 0;
+  box-shadow: none;
 }
 
 .sidebar .profile.ant-btn:not(:disabled):hover {
