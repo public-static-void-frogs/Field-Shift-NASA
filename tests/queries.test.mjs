@@ -15,8 +15,12 @@ import {
   notificationQueries,
   notificationQueryKeys,
 } from '../src/api/notifications/notifications.queries.ts';
+import { settingsApi } from '../src/api/settings/settings.api.ts';
+import { settingsMutations } from '../src/api/settings/settings.mutations.ts';
+import { farmQueries } from '../src/api/farm/farm.queries.ts';
 import { mapQueries, mapQueryKeys } from '../src/api/maps/maps.queries.ts';
 import { getCalendarEvents } from '../src/features/planning/utils/eventResponses.ts';
+const weatherLocation = await settingsApi.get();
 const initialFields = await fieldsApi.getAll();
 const firstId = initialFields[0].id;
 const secondId = initialFields[1].id;
@@ -46,8 +50,8 @@ test('keys are deterministic, parameterized and separated by feature/resource', 
     planningQueryKeys.fieldEvents(firstId),
     planningQueryKeys.strategy(firstId),
     planningQueryKeys.responses(),
-    weatherQueryKeys.history('7 days'),
-    weatherQueryKeys.history('30 days'),
+    weatherQueryKeys.history(weatherLocation, { range: '7 days' }),
+    weatherQueryKeys.history(weatherLocation, { range: '30 days' }),
     overviewQueryKeys.charts({ days: 30, metric: 'health' }),
     overviewQueryKeys.charts({ days: 90, metric: 'health' }),
     overviewQueryKeys.charts({ days: 30, metric: 'moisture' }),
@@ -173,11 +177,11 @@ test('field mutations invalidate dependent caches and preserve GUID-linked resou
 test('weather ranges have independent caches and failed queries can be retried', async () => {
   const cache = client();
   const [week, month] = await Promise.all([
-    cache.fetchQuery(weatherQueries.history('7 days')),
-    cache.fetchQuery(weatherQueries.history('30 days')),
+    cache.fetchQuery(weatherQueries.history(weatherLocation, { range: '7 days' })),
+    cache.fetchQuery(weatherQueries.history(weatherLocation, { range: '30 days' })),
   ]);
-  assert.equal(week.length, 7);
-  assert.equal(month.length, 30);
+  assert.equal(week.records.length, 7);
+  assert.equal(month.records.length, 30);
   await assert.rejects(
     cache.fetchQuery({
       queryKey: ['test', 'recovery'],
@@ -211,5 +215,34 @@ test('UI does not import mock implementations', async () => {
     if (!file.includes('/api/')) {
       assert.doesNotMatch(source, /(?:from\s*|import\s*\()['"][^'"]*\/mocks\//, file);
     }
+  }
+});
+
+test('weather caches isolate coordinates, dates and units; settings changes clear old weather', async () => {
+  assert.notEqual(
+    hashKey(weatherQueryKeys.current(weatherLocation)),
+    hashKey(weatherQueryKeys.current({ ...weatherLocation, longitude: 10 })),
+  );
+  assert.notEqual(
+    hashKey(weatherQueryKeys.forecast(weatherLocation)),
+    hashKey(weatherQueryKeys.forecast({ ...weatherLocation, units: 'imperial' })),
+  );
+  const cache = client();
+  await cache.fetchQuery(weatherQueries.current(weatherLocation));
+  await cache.fetchQuery(farmQueries.profile());
+  const history = await cache.fetchQuery(
+    weatherQueries.history(weatherLocation, { startDate: '2025-07-01', endDate: '2025-07-07' }),
+  );
+  assert.equal(history.records[0].date, '2025-07-07');
+  const updated = { ...weatherLocation, longitude: 20, location: 'New location' };
+  try {
+    await cache.getMutationCache().build(cache, settingsMutations.update(cache)).execute(updated);
+    assert.equal(cache.getQueryData(weatherQueryKeys.current(weatherLocation)), undefined);
+    const result = await cache.fetchQuery(weatherQueries.current(updated));
+    assert.equal(result.longitude, 20);
+    assert.equal(result.location, 'New location');
+  } finally {
+    await settingsApi.update(weatherLocation);
+    cache.clear();
   }
 });

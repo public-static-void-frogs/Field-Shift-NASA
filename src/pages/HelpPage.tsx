@@ -48,7 +48,7 @@ export function HelpPage() {
                   key: 'history',
                   label: t('Where can I find weather history?'),
                   children: t(
-                    'Open Environment history and choose a 7-, 30-, or 90-day range to explore temperature, rainfall, soil moisture, and daily conditions.',
+                    'Open Environment to explore the 14-day forecast, recent weather, or a custom historical date range for your saved location.',
                   ),
                 },
                 {

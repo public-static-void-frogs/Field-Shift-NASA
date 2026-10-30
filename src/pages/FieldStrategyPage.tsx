@@ -15,6 +15,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { ForecastPanel } from '../features/weather/components/ForecastPanel';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
 import { planningQueries } from '../api/planning/planning.queries.ts';
 import type { FieldRouteData } from '../app/route-loaders.ts';
@@ -49,18 +50,6 @@ export function FieldStrategyPage() {
       deltaUnit: t('points'),
       description: t(
         'Projected crop health after the recommended checks and rotation. The dashed line keeps today’s reading as a reference.',
-      ),
-    },
-    {
-      title: t('Soil moisture outlook'),
-      currentKey: 'currentMoisture',
-      projectedKey: 'moisture',
-      gainKey: 'moistureImprovement',
-      color: '#345865',
-      unit: '%',
-      deltaUnit: t('pp'),
-      description: t(
-        'Projected moisture adjustment toward the sample target of 55%. Improvement means moving toward the target, rather than always increasing moisture.',
       ),
     },
   ] as const;
@@ -296,6 +285,8 @@ export function FieldStrategyPage() {
             );
           })}
         </section>
+
+        <ForecastPanel />
 
         <Card title={t('Technical basis')} className="strategy-table-card">
           <Table

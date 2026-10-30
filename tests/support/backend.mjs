@@ -8,6 +8,30 @@ import { after } from 'node:test';
 
 // Exercise the actual HTTP boundary using a fresh, isolated demo repository per test file.
 const directory = fileURLToPath(new URL('../../../Field-Shift-NASA/backend', import.meta.url));
+// Reuse the contract stand-in for deterministic frontend HTTP tests.
+const provider = spawn(process.execPath, [`${directory}/postman/mocks/open-meteo/default.js`], {
+  env: { ...process.env, PORT: '0', WEATHER_TEST_LOG_PORT: '1' },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+const providerPort = await new Promise((resolve, reject) => {
+  const timer = setTimeout(() => {
+    provider.kill();
+    reject(new Error('Weather test provider startup timed out'));
+  }, 10000);
+  provider.once('error', reject);
+  provider.once('exit', (code) => {
+    clearTimeout(timer);
+    reject(new Error(`Weather test provider exited (${code})`));
+  });
+  provider.stdout.on('data', (data) => {
+    const match = String(data).match(/READY_UPSTREAM_PORT=(\d+)/);
+    if (match) {
+      clearTimeout(timer);
+      resolve(match[1]);
+    }
+  });
+});
+after(() => provider.kill());
 const virtualenv = `${directory}/.venv/bin/python`;
 const python = process.env.NASA_BACKEND_PYTHON ?? (existsSync(virtualenv) ? virtualenv : 'python3');
 const databaseDirectory = await mkdtemp(join(tmpdir(), 'nasa-api-test-'));
@@ -37,6 +61,8 @@ uvicorn.Server(uvicorn.Config('app.main:app', log_level='error')).run(sockets=[s
       JWT_SECRET: 'frontend-test-signing-key-with-at-least-32-bytes',
       JWT_ISSUER: 'frontend-test-fieldshift',
       COOKIE_SECURE: 'false',
+      WEATHER_FORECAST_URL: `http://127.0.0.1:${providerPort}/v1/forecast`,
+      WEATHER_ARCHIVE_URL: `http://127.0.0.1:${providerPort}/v1/archive`,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   },
@@ -99,6 +125,8 @@ const registration = await nativeFetch(`${baseUrl}/api/v1/auth/register`, {
     fullName: 'Frontend Test',
     password: 'Test-password-123',
     farmName: 'Test farm',
+    latitude: 50.4501,
+    longitude: 30.5234,
   }),
 });
 if (registration.status !== 201) {

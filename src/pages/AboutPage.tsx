@@ -10,7 +10,7 @@ export function AboutPage() {
     <PublicPageLayout
       title={t('A clearer plan for your fields.')}
       description={t(
-        'FrogFarmers helps farmers explore field conditions, compare crop rotations, and review a schedule of field work. This public prototype uses sample data.',
+        'Weather uses live model data for your saved location. Field records and agronomic recommendations remain illustrative.',
       )}
     >
       <section className="public-feature-grid" aria-label={t('What FrogFarmers does')}>

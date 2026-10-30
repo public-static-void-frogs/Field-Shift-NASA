@@ -1,230 +1,232 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import type { HistoryRange } from '../api/weather/weather.api.ts';
+import { WeatherConditionIcon } from '../features/weather/components/WeatherConditionIcon';
+import { useWeatherHistoryBounds } from '../features/weather/hooks/useWeatherHistoryBounds.ts';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import type { TableColumnsType } from 'antd';
-import {
-  Card,
-  ConfigProvider,
-  Descriptions,
-  Flex,
-  Segmented,
-  Select,
-  Space,
-  Statistic,
-  Table,
-  Tabs,
-  Tag,
-  Typography,
-} from 'antd';
+import { Card, DatePicker, Flex, Segmented, Space, Table } from 'antd';
+import { CalendarDays, History, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { farmQueries } from '../api/farm/farm.queries.ts';
 import { weatherQueries } from '../api/weather/weather.queries.ts';
+import { ForecastPanel } from '../features/weather/components/ForecastPanel';
 import { HistoryChart } from '../features/weather/components/HistoryChart';
-import { historyRanges, weatherMetrics } from '../features/weather/constants/weather.constants.ts';
+import { WeatherDayDetails } from '../features/weather/components/WeatherDayDetails';
+import { WeatherHistorySummary } from '../features/weather/components/WeatherHistorySummary';
+import { WeatherMetricTabs } from '../features/weather/components/WeatherMetricTabs';
+import { WeatherSource } from '../features/weather/components/WeatherSource';
+import { WeatherStatus } from '../features/weather/components/WeatherStatus';
+import { historyRanges } from '../features/weather/constants/weather.constants.ts';
 import { useWeatherSelection } from '../features/weather/hooks/useWeatherSelection.ts';
 import {
-  getWeatherChange,
-  getWeatherIcon,
-  getWeatherMetricConfig,
+  formatWeatherDate,
+  formatWeatherValue,
   selectWeatherReading,
+  windDirection,
 } from '../features/weather/utils/weatherPresentation.ts';
-import type { WeatherRecord } from '../types/weather/weather.types.ts';
-import { type WeatherMetric } from '../types/weather/weather.types.ts';
-import { positiveSign } from '../utils/format.ts';
+import type {
+  WeatherMetric,
+  WeatherRecord,
+  WeatherSeries,
+} from '../types/weather/weather.types.ts';
 
 export function HistoryPage() {
   const { t } = useTranslation();
+  const { data: preferences } = useSuspenseQuery(farmQueries.profile());
+  const [metric, setMetric] = useState<WeatherMetric>('temperature');
+
+  return (
+    <div className="environment-page">
+      <header className="environment-page-heading">
+        <div>
+          <h1>{t('Environment')}</h1>
+          <p>{t('Weather and growing conditions')}</p>
+        </div>
+        <span>
+          <MapPin size={15} />
+          {preferences.location || t('My farm')}
+        </span>
+      </header>
+      <WeatherMetricTabs metric={metric} onChange={setMetric} />
+      <ForecastPanel metric={metric} showNow />
+      <HistoricalWeather metric={metric} />
+    </div>
+  );
+}
+
+type HistoricalWeatherProps = { metric: WeatherMetric };
+
+function HistoricalWeather({ metric }: HistoricalWeatherProps) {
+  const { t } = useTranslation();
+  const { data: preferences } = useSuspenseQuery(farmQueries.profile());
+  const { range, dates, period, changeRange, changeDates, selectedKey, selectReading } =
+    useWeatherSelection();
+  const query = useQuery(weatherQueries.history(preferences, period));
+  const series = query.data;
+  const bounds = useWeatherHistoryBounds(preferences.timeZone);
+
+  return (
+    <section className="environment-past" aria-label={t('Past conditions')}>
+      <Card
+        className="weather-history-card"
+        title={
+          <span className="weather-section-title">
+            <History size={19} />
+            {t('Past conditions')}
+          </span>
+        }
+        extra={
+          <Flex gap={10} wrap align="center">
+            <Segmented<HistoryRange | 'custom'>
+              aria-label={t('Weather history time range')}
+              options={historyRanges.map((value) => ({ value, label: t(value) }))}
+              value={dates ? 'custom' : range}
+              onChange={(value) => {
+                if (value !== 'custom') {
+                  changeRange(value);
+                }
+              }}
+            />
+            <DatePicker.RangePicker
+              aria-label={t('Historical date range')}
+              value={dates}
+              onChange={changeDates}
+              maxDate={bounds.maxDate}
+              minDate={bounds.minDate}
+              disabledDate={(date, { from }) =>
+                Boolean(from && Math.abs(date.diff(from, 'day')) > 365)
+              }
+            />
+          </Flex>
+        }
+      >
+        {series && series.records.length > 0 && !query.isError ? (
+          <HistoryExplorer
+            series={series}
+            metric={metric}
+            selectedKey={selectedKey}
+            onSelect={selectReading}
+          />
+        ) : (
+          <WeatherStatus
+            hasLocation={preferences.latitude !== null && preferences.longitude !== null}
+            pending={query.isLoading}
+            error={query.error}
+            retry={() => void query.refetch()}
+          />
+        )}
+      </Card>
+    </section>
+  );
+}
+
+type HistoryExplorerProps = {
+  series: WeatherSeries;
+  metric: WeatherMetric;
+  selectedKey: number;
+  onSelect: (key: number) => void;
+};
+
+function HistoryExplorer({ series, metric, selectedKey, onSelect }: HistoryExplorerProps) {
+  const { records, units } = series;
+  const selected = selectWeatherReading(records, selectedKey);
+
+  return (
+    <>
+      <div className="weather-forecast-layout">
+        <div className="weather-forecast-main">
+          <WeatherHistorySummary records={records} metric={metric} units={units} />
+          <HistoryChart
+            records={records}
+            metric={metric}
+            selectedKey={selected.key}
+            onSelect={onSelect}
+            units={units}
+          />
+        </div>
+        <WeatherDayDetails
+          record={selected}
+          records={records}
+          metric={metric}
+          units={units}
+          soilDepth={series.soilDepth}
+          onSelect={onSelect}
+        />
+      </div>
+      <WeatherSource data={series} />
+      <DailyLog series={series} selectedKey={selected.key} onSelect={onSelect} />
+    </>
+  );
+}
+
+type DailyLogProps = {
+  series: WeatherSeries;
+  selectedKey: number;
+  onSelect: (key: number) => void;
+};
+
+function DailyLog({ series, selectedKey, onSelect }: DailyLogProps) {
+  const { t, i18n } = useTranslation();
+  const { records, units } = series;
   const columns: TableColumnsType<WeatherRecord> = [
     {
       title: t('Date'),
       dataIndex: 'date',
-      render: (value: string, record) => (
-        <Space>
-          {value}
-          {record.today && <Tag color="success">{t('Today')}</Tag>}
-        </Space>
-      ),
+      render: (value: string) => formatWeatherDate(value, i18n.resolvedLanguage),
     },
     {
       title: t('Conditions'),
       dataIndex: 'conditions',
       render: (value: string) => {
-        const Icon = getWeatherIcon(value);
-
         return (
           <Space>
-            <Icon size={20} className={value === 'Light rain' ? 'rain-icon' : 'sun-icon'} />
-            {value}
+            <WeatherConditionIcon conditions={value} size={20} />
+            {t(value)}
           </Space>
         );
       },
     },
     {
-      title: t('Temperature'),
+      title: t('High / low'),
       dataIndex: 'temperature',
-      render: (value: number, record) => `${value}° / ${record.low}°C`,
+      render: (value: number | null, record) =>
+        `${formatWeatherValue(value)} / ${formatWeatherValue(record.low, units.temperature)}`,
     },
     {
-      title: t('Rainfall'),
+      title: t('Precipitation'),
       dataIndex: 'rainfall',
-      render: (value: number) => t('{{value0}} mm', { value0: value.toFixed(1) }),
+      render: (value: number | null) => formatWeatherValue(value, units.rainfall),
     },
     {
       title: t('Humidity'),
       dataIndex: 'humidity',
-      render: (value: number) => `${value}%`,
+      render: (value: number | null) => formatWeatherValue(value, '%'),
     },
     {
       title: t('Wind'),
       dataIndex: 'wind',
-      render: (value: number) => t('{{value0}} km/h SW', { value0: value }),
+      render: (value: number | null, record) =>
+        `${formatWeatherValue(value, units.wind)} ${windDirection(record.windDirection, t)}`,
     },
   ];
 
-  const { range, changeRange, selectedKey, selectReading } = useWeatherSelection();
-  const [metric, setMetric] = useState<WeatherMetric>('temperature');
-  const { data: records } = useSuspenseQuery(weatherQueries.history(range));
-  const { data: preferences } = useSuspenseQuery(farmQueries.profile());
-  const selected = selectWeatherReading(records, selectedKey);
-  const config = getWeatherMetricConfig(metric, t);
-  const change = getWeatherChange(records, selected, metric);
-
   return (
-    <div className="environment-history">
-      <section className="environment-explorer" aria-label={t('Environment history explorer')}>
-        <Tabs
-          className="fields-view-tabs environment-tabs"
-          activeKey={metric}
-          onChange={(key) => setMetric(key as WeatherMetric)}
-          items={Object.entries(weatherMetrics).map(([key, value]) => ({
-            key,
-            label: t(value.title),
-          }))}
-        />
-        <Card
-          className="environment-timeline-card"
-          title={config.title}
-          extra={
-            <Segmented
-              aria-label={t('Weather history time range')}
-              options={historyRanges.map((value) => ({ value, label: t(value) }))}
-              value={range}
-              onChange={changeRange}
-            />
-          }
-        >
-          <div className="environment-timeline-layout">
-            <div className="environment-chart-panel">
-              <Typography.Text type="secondary" className="environment-chart-caption">
-                {config.description} · {config.unit}
-              </Typography.Text>
-              <HistoryChart
-                records={records}
-                metric={metric}
-                selectedKey={selected.key}
-                onSelect={selectReading}
-              />
-              <Typography.Text type="secondary" className="environment-chart-hint">
-                {t('Hover to preview · Click a point to inspect')}
-              </Typography.Text>
-            </div>
-            <aside
-              className="environment-point-panel"
-              aria-label={t('Selected weather reading')}
-              aria-live="polite"
-            >
-              <Flex justify="space-between" align="center" gap={8} wrap>
-                <Typography.Text strong>{t('Selected reading')}</Typography.Text>
-                {selected.key === 0 && <Tag>{t('Latest')}</Tag>}
-              </Flex>
-              <Select
-                className="full-width environment-date-select"
-                aria-label={t('Inspect weather date')}
-                value={selected.key}
-                onChange={selectReading}
-                options={records.map((record) => ({ value: record.key, label: record.date }))}
-              />
-              <Statistic
-                title={config.title}
-                value={selected[metric]}
-                precision={metric === 'rainfall' ? 1 : 0}
-                suffix={config.unit}
-                styles={{ content: { color: '#303b2c' } }}
-              />
-              <Typography.Paragraph type="secondary" className="environment-change">
-                {change === null
-                  ? t('No earlier reading available')
-                  : t('{{value0}}{{value1}} {{value2}} from previous day', {
-                      value0: positiveSign(change),
-                      value1: change,
-                      value2: config.unit,
-                    })}
-              </Typography.Paragraph>
-              <Tag>{selected.conditions}</Tag>
-              <Descriptions
-                column={1}
-                size="small"
-                className="environment-reading-details"
-                items={[
-                  {
-                    key: 'high',
-                    label: t('High / low'),
-                    children: t('{{value0}}° / {{value1}}°C', {
-                      value0: selected.temperature,
-                      value1: selected.low,
-                    }),
-                  },
-                  {
-                    key: 'rain',
-                    label: t('Rainfall'),
-                    children: t('{{value0}} mm', { value0: selected.rainfall.toFixed(1) }),
-                  },
-                  { key: 'moisture', label: t('Soil moisture'), children: `${selected.moisture}%` },
-                  { key: 'humidity', label: t('Humidity'), children: `${selected.humidity}%` },
-                  {
-                    key: 'wind',
-                    label: t('Wind'),
-                    children: t('{{value0}} km/h SW', { value0: selected.wind }),
-                  },
-                ]}
-              />
-            </aside>
-          </div>
-        </Card>
-      </section>
-      <Card
-        className="history-table"
-        title={t('Daily environment log')}
-        extra={<Tag>{preferences.farmName || t('My farm')}</Tag>}
-      >
-        <ConfigProvider
-          theme={{
-            components: {
-              Table: {
-                headerBg: '#ffffff',
-                headerColor: '#314529',
-                headerSplitColor: '#dfe5d5',
-                headerSortActiveBg: '#ffffff',
-                headerSortHoverBg: '#ffffff',
-                colorTextDescription: '#627653',
-              },
-            },
-          }}
-        >
-          <Table<WeatherRecord>
-            rowKey="key"
-            columns={columns}
-            dataSource={records}
-            scroll={{ x: 1000 }}
-            pagination={
-              records.length > 7 ? { pageSize: 10, size: 'small', showSizeChanger: false } : false
-            }
-            rowClassName={(record) =>
-              record.key === selected.key ? 'environment-selected-row' : 'clickable-row'
-            }
-            onRow={(record) => ({ onClick: () => selectReading(record.key) })}
-          />
-        </ConfigProvider>
-      </Card>
-    </div>
+    <section className="weather-daily-log" aria-label={t('Daily environment log')}>
+      <h3 className="weather-section-title">
+        <CalendarDays size={18} />
+        {t('Daily environment log')}
+      </h3>
+      <Table<WeatherRecord>
+        rowKey="date"
+        columns={columns}
+        dataSource={records}
+        scroll={{ x: 900 }}
+        pagination={{ pageSize: 10, size: 'small', showSizeChanger: false }}
+        rowClassName={(record) =>
+          record.key === selectedKey ? 'environment-selected-row' : 'clickable-row'
+        }
+        onRow={(record) => ({ onClick: () => onSelect(record.key) })}
+      />
+    </section>
   );
 }

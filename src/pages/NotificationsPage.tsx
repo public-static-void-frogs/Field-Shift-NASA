@@ -3,6 +3,7 @@ import { Alert, Card, Empty, Space } from 'antd';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notificationQueries } from '../api/notifications/notifications.queries.ts';
+import { WeatherAdvisories } from '../features/weather/components/WeatherAdvisories';
 import { PageHeading } from '../components/common/PageHeading';
 import { RouterButton } from '../components/common/RouterButton';
 
@@ -18,6 +19,7 @@ export function NotificationsPage() {
         eyebrow={t('NOTIFICATIONS')}
       />
       <Space orientation="vertical" size={20} className="full-width">
+        <WeatherAdvisories />
         {notifications.map((notification) => (
           <Card key={notification.id}>
             <Alert

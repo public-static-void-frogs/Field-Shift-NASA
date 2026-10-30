@@ -16,16 +16,16 @@ export const weatherMetrics: Record<WeatherMetric, WeatherMetricConfig> = {
     description: 'Daily high air temperature',
   },
   rainfall: {
-    title: 'Rainfall',
+    title: 'Precipitation',
     unit: 'mm',
     color: '#345865',
-    description: 'Daily accumulated rainfall',
+    description: 'Daily accumulated precipitation (rain and snow)',
   },
   moisture: {
     title: 'Soil moisture',
     unit: '%',
     color: '#476b3c',
-    description: 'Water content in the root zone',
+    description: 'Modelled surface soil water content',
   },
   humidity: {
     title: 'Humidity',
@@ -37,6 +37,6 @@ export const weatherMetrics: Record<WeatherMetric, WeatherMetricConfig> = {
     title: 'Wind speed',
     unit: 'km/h',
     color: '#656f82',
-    description: 'Average wind speed · SW',
+    description: 'Daily maximum wind speed',
   },
 };

@@ -311,3 +311,17 @@ Authentication and settings use the same API/query/mutation organization as exis
 resources. Successful login/registration/logout clears cached private resources.
 Frontend integration tests create temporary databases, run Alembic migrations, and
 register test users; their Node transport emulates a browser cookie jar.
+
+## Environment
+
+Weather comes from Open-Meteo through the backend using the map location, time zone,
+and units saved in Settings. Environment keeps the existing metric tabs and shows
+current weather, a selectable 14-day conditions calendar, forecast trends, past
+conditions, custom date ranges, and a visible daily environment log. Missing readings
+show a dash; weather errors remain within their panel. No sample weather is used.
+
+The backend shares cached current/forecast data, and React Query deduplicates readers
+across Overview, Environment, strategy, and notifications. Historical and forecast soil
+moisture use different model depths, displayed in day details. Crop health and rotation
+recommendations remain illustrative. See the backend's `docs/weather-integration.md`
+for API semantics, source licensing, and local Postman simulations.

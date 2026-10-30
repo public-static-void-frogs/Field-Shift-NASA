@@ -33,7 +33,7 @@ export function OverviewPage() {
         actions={
           <>
             <RouterButton icon={<CalendarDays size={18} />} to="/history">
-              {t('Environment history')}
+              {t('Environment')}
             </RouterButton>
             <RouterButton type="primary" icon={<Plus size={19} />} to="/map/add">
               {t('Add field')}

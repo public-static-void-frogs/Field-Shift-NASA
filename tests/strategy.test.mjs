@@ -55,21 +55,13 @@ test('field strategies have matching instructions, calendar proposals, and chron
       strategy.forecast.map((point) => point.date).sort(),
     );
     assert.equal(strategy.forecast[0].health, field.health);
-    assert.equal(strategy.forecast[0].moisture, field.moisture);
     assert.ok(strategy.comparison[0].projected >= field.health);
     assert.equal(strategy.forecast.at(-1).health, strategy.comparison[0].projected);
-    assert.equal(strategy.forecast.at(-1).moisture, strategy.comparison[1].projected);
     strategy.forecast.forEach((point) => {
       assert.equal(point.currentHealth, field.health);
-      assert.equal(point.currentMoisture, field.moisture);
       assert.deepEqual(point.healthImprovement, [field.health, point.health]);
-      assert.deepEqual(point.moistureImprovement, [
-        Math.min(field.moisture, point.moisture),
-        Math.max(field.moisture, point.moisture),
-      ]);
       assert.ok(point.range[0] <= point.health && point.health <= point.range[1]);
       assert.ok(point.health >= 0 && point.health <= 100);
-      assert.ok(point.moisture >= 0 && point.moisture <= 100);
     });
   }
 });

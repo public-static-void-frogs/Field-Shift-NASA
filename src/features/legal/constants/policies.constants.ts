@@ -12,7 +12,7 @@ export const privacySections: PolicySection[] = [
     id: 'demo-data',
     title: 'Data in the current demo',
     paragraphs: [
-      'Account names, email addresses, password hashes, and per-user settings are stored in the application database. Fields, weather, and recommendations remain illustrative demo data. Google is not connected.',
+      'Account details and settings are stored in the application database. Weather uses Open-Meteo; fields and agronomic recommendations remain illustrative demo data. Google is not connected.',
       'Registration and login send your credentials to the application API. Passwords are stored as Argon2 hashes. Field edits and planning decisions are shared demo state and reset when the API restarts.',
     ],
   },
@@ -37,6 +37,7 @@ export const privacySections: PolicySection[] = [
     id: 'sharing',
     title: 'Data sharing and service providers',
     paragraphs: [
+      'The backend sends your saved coordinates, time zone and unit preferences to Open-Meteo to retrieve weather. It does not send your account name, email or password.',
       'The current demo sends no Google user data to any third party. If you later connect Google Calendar, exported field-plan information will be sent to Google to provide the calendar feature you request.',
       'Vercel delivers this website. Map imagery is requested from Esri, which receives technical connection information and the displayed map area. During registration, your browser asks permission to use your position to initialize the location map. You can decline and select a point manually. Selected coordinates are saved with your account settings when you create the account.',
     ],
@@ -56,7 +57,7 @@ export const termsSections: PolicySection[] = [
     id: 'service',
     title: 'About this service',
     paragraphs: [
-      'FrogFarmers is a public demonstration of field management, crop-rotation exploration, and action planning. Its data and predictions are illustrative. Google sign-in and Calendar export are planned features and are not available in the current prototype.',
+      'FrogFarmers combines live weather model data with illustrative field management and crop-rotation planning. Google sign-in and Calendar export are not available in the current prototype.',
     ],
   },
   {
@@ -70,7 +71,7 @@ export const termsSections: PolicySection[] = [
     id: 'decisions',
     title: 'Field decisions and limitations',
     paragraphs: [
-      'The app is provided for demonstration and exploration. Its sample forecasts and recommendations are not professional agronomic advice or a guarantee of field conditions, yields, or outcomes. Verify decisions using your own observations and qualified advice.',
+      'Weather forecasts are model estimates and may differ from local conditions. Agronomic recommendations remain illustrative and are not professional advice or a guarantee of yields. Verify decisions using local observations and qualified advice.',
     ],
   },
   {

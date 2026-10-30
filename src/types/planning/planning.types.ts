@@ -49,11 +49,8 @@ export interface StrategyForecast {
   stage: string;
   progress: number;
   health: number;
-  moisture: number;
   currentHealth: number;
-  currentMoisture: number;
   healthImprovement: number[];
-  moistureImprovement: number[];
   range: number[];
 }
 export interface FieldStrategy {

@@ -4,7 +4,7 @@ import {
   Bell,
   CalendarDays,
   CircleHelp,
-  History,
+  CloudSun,
   LayoutDashboard,
   Map,
   PanelLeftClose,
@@ -57,8 +57,8 @@ export function AppLayout() {
     },
     {
       key: '/history',
-      label: <NavLink to="/history">{t('Environment history')}</NavLink>,
-      icon: <History size={21} />,
+      label: <NavLink to="/history">{t('Environment')}</NavLink>,
+      icon: <CloudSun size={21} />,
     },
   ];
 
