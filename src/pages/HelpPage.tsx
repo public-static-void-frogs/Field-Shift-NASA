@@ -27,14 +27,14 @@ export function HelpPage() {
                   key: 'fields',
                   label: t('How do I open a field?'),
                   children: t(
-                    'Select a field on the map or click its name in the fields table. Its page shows the field boundary, crop and soil properties, recommendations, and a rotation strategy.',
+                    'Select a field point on the map or click its name in the fields table. Its page shows the field location, crop and soil properties, recommendations, and a rotation strategy.',
                   ),
                 },
                 {
                   key: 'add',
                   label: t('How do I add a field?'),
                   children: t(
-                    'Choose Add field, then select an available parcel with a dashed outline on the map. Enter a field name and choose a crop to add it to your farm.',
+                    'Choose Add field, zoom in to a field point on the map, then select Add to my fields in its preview.',
                   ),
                 },
                 {

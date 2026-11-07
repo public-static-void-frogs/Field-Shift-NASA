@@ -4,7 +4,7 @@ import { useMap, useMapEvents } from 'react-leaflet';
 import { mapQueries } from '../../../api/maps/maps.queries.ts';
 import { normalizeViewport } from '../utils/catalogViewport.ts';
 
-export function useCatalogViewport(enabled = true) {
+export function useCatalogViewport() {
   const map = useMap();
   const readViewport = () => {
     const bounds = map.getBounds();
@@ -39,5 +39,5 @@ export function useCatalogViewport(enabled = true) {
     observer.observe(map.getContainer());
     return () => observer.disconnect();
   }, [map]);
-  return useQuery({ ...mapQueries.geojson(viewport), enabled });
+  return useQuery(mapQueries.geojson(viewport));
 }

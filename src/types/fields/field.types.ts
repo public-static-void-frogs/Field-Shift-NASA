@@ -1,4 +1,4 @@
-import type { Polygon, MultiPolygon } from 'geojson';
+import type { Point } from 'geojson';
 import type { FieldPropertyData } from './api.types.ts';
 
 export type FieldStatus = 'Healthy' | 'Needs attention' | 'Critical';
@@ -6,7 +6,7 @@ export type FieldStatus = 'Healthy' | 'Needs attention' | 'Critical';
 export interface Field {
   id: string;
   parcelId: number | null;
-  geometry: Polygon | MultiPolygon;
+  geometry: Point;
   properties: FieldPropertyData | null;
   name: string;
   crop: string | null;
@@ -17,7 +17,7 @@ export interface Field {
   status: FieldStatus | null;
   planted: string | null;
   sourceId: string | null;
-  boundaryKind: 'user_geometry' | 'estimated_bounds';
+  locationKind: 'user_point' | 'interior_point';
   sourceYear: number | null;
   county: string | null;
   stateFips: string | null;

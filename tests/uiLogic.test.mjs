@@ -140,8 +140,8 @@ test('field presentation uses the original nitrogen and map moisture thresholds'
   assert.equal(parcelStyle(fields[0], 'Soil moisture').color, '#9bcdd9');
   assert.equal(parcelStyle(fields[2], 'Soil moisture').color, '#61b4d4');
   assert.equal(parcelStyle(fields[1], 'Crop health').color, '#e7aa66');
-  assert.equal(parcelStyle(fields[1], 'Field boundaries').fillOpacity, 0.02);
-  assert.equal(parcelStyle(undefined, 'Crop health').dashArray, '6 5');
+  assert.equal(parcelStyle(fields[1], 'Field locations').fillOpacity, 0.8);
+  assert.equal(parcelStyle(undefined, 'Crop health').fillOpacity, 0.65);
 });
 
 const events = [

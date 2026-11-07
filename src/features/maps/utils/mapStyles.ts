@@ -8,9 +8,9 @@ export const mapLegends = {
     { color: '#9bcdd9', label: '40–59%' },
     { color: '#dbe5b2', label: 'Below 40%' },
   ],
-  'Field boundaries': [
-    { color: '#f1ebcf', label: 'Field boundaries' },
-    { color: '#f1ebcf', label: 'Dashed: available' },
+  'Field locations': [
+    { color: '#f1ebcf', label: 'Field locations' },
+    { color: '#f1ebcf', label: 'Available field' },
   ],
   'Crop health': [
     { color: '#82a66a', label: 'Healthy' },
@@ -18,12 +18,12 @@ export const mapLegends = {
     { color: '#d59a62', label: 'Critical' },
   ],
 };
-export type MapLayer = 'Crop health' | 'Soil moisture' | 'Field boundaries';
+export type MapLayer = 'Crop health' | 'Soil moisture' | 'Field locations';
 
 function getParcelColor(field: Field | undefined, layer: MapLayer) {
   if (
     !field ||
-    layer === 'Field boundaries' ||
+    layer === 'Field locations' ||
     (layer === 'Soil moisture' && field.moisture === null) ||
     (layer === 'Crop health' && field.status === null)
   ) {
@@ -48,16 +48,15 @@ function getParcelColor(field: Field | undefined, layer: MapLayer) {
 }
 export function parcelStyle(field: Field | undefined, layer: MapLayer): PathOptions {
   const color = getParcelColor(field, layer);
-  let fillOpacity = field ? 0.2 : 0.06;
-  if (layer === 'Field boundaries') {
-    fillOpacity = 0.02;
+  let fillOpacity = field ? 0.9 : 0.65;
+  if (layer === 'Field locations') {
+    fillOpacity = 0.8;
   }
   return {
     color,
     fillColor: color,
     weight: field ? 2.5 : 1.5,
     fillOpacity,
-    dashArray: field ? undefined : '6 5',
   };
 }
 export function getParcelLabel(

@@ -17,7 +17,7 @@ export function AboutPage() {
         <Feature
           title={t('Understand your fields')}
           description={t(
-            'Explore field boundaries, crop health, soil properties, moisture, and environmental history in one place.',
+            'Explore field locations, crop health, soil properties, moisture, and environmental history in one place.',
           )}
         />
         <Feature

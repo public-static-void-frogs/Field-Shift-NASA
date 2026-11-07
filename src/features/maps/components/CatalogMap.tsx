@@ -68,7 +68,7 @@ export function CatalogMap() {
             maxZoom={19}
             noWrap
           />
-          <CatalogViewport onPick={onPick} ready={summary.data.status === 'ready'} />
+          <CatalogViewport onPick={onPick} />
           <ScaleControl position="bottomright" imperial={false} />
         </MapContainer>
         {activeId && (
@@ -87,11 +87,10 @@ export function CatalogMap() {
 
 type CatalogViewportProps = {
   onPick: (id: string) => void;
-  ready: boolean;
 };
 
-function CatalogViewport({ onPick, ready }: CatalogViewportProps) {
-  const query = useCatalogViewport(ready);
+function CatalogViewport({ onPick }: CatalogViewportProps) {
+  const query = useCatalogViewport();
   useMapPosition();
   const { t } = useTranslation();
   useCatalogLayers(query.data, onPick);
@@ -178,7 +177,7 @@ function CatalogSelection({ id, onClose }: CatalogSelectionProps) {
           </dl>
           <p className="catalog-selection-note">
             {t(
-              'These rectangles are estimated from source centroids and area. Crop and soil measurements have not been inferred.',
+              'Each point represents a field location from the supplied source. Crop and soil measurements have not been inferred.',
             )}
           </p>
           <Button

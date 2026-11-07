@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, MultiPolygon, Point, Polygon } from 'geojson';
+import type { Feature, FeatureCollection, Point } from 'geojson';
 
 export interface FieldMapProperties {
   fieldId?: string | null;
@@ -7,7 +7,7 @@ export interface FieldMapProperties {
   name?: string;
 }
 
-export type FieldGeoJson = FeatureCollection<Polygon | MultiPolygon, FieldMapProperties | null>;
+export type FieldGeoJson = FeatureCollection<Point, FieldMapProperties | null>;
 export type MapBounds = [number, number, number, number];
 
 export interface CatalogMapProperties extends FieldMapProperties {
@@ -17,10 +17,10 @@ export interface CatalogMapProperties extends FieldMapProperties {
   bounds?: MapBounds;
   sourceId?: string;
   crop?: string | null;
-  boundaryKind?: 'user_geometry' | 'estimated_bounds';
+  locationKind?: 'user_point' | 'interior_point';
 }
 
-export type CatalogFeature = Feature<Polygon | MultiPolygon | Point, CatalogMapProperties>;
+export type CatalogFeature = Feature<Point, CatalogMapProperties>;
 
 export interface CatalogMapView {
   type: 'FeatureCollection';
@@ -39,7 +39,7 @@ export interface MapSummary {
   defaultCenter: [number, number];
   defaultZoom: number;
   source: string;
-  boundaryKind: string;
+  locationKind: string;
   importedAt: string | null;
   status: string;
 }

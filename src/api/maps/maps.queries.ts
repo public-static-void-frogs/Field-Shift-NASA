@@ -12,7 +12,6 @@ export const mapQueries = {
       queryKey: mapQueryKeys.summary(),
       queryFn: ({ signal }) => mapsApi.getSummary(signal),
       staleTime: 300_000,
-      refetchInterval: (query) => (query.state.data?.status === 'importing' ? 3000 : false),
     }),
   geojson: (viewport: MapViewportRequest) =>
     queryOptions({

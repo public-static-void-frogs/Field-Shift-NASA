@@ -18,66 +18,41 @@ const feature = (geometry, properties = null, id) => ({
 });
 const collection = (...features) => ({ type: 'FeatureCollection', features });
 
-test('viewport reads return bounded polygons for explicit test fields', () => {
+test('viewport reads return bounded points for explicit test fields', () => {
   assert.equal(fieldGeoJson.features.length, 2);
   assert.equal(fieldGeoJson.mode, 'fields');
   for (const feature of fieldGeoJson.features) {
     assert.match(feature.properties.catalogFieldId, /^[0-9a-f-]{36}$/);
-    assert.equal(feature.geometry.type, 'Polygon');
-    const [ring] = feature.geometry.coordinates;
-    assert.deepEqual(ring[0], ring.at(-1));
+    assert.equal(feature.geometry.type, 'Point');
+    assert.deepEqual(feature.geometry.coordinates, [-93.745, 42.045]);
   }
 });
 
 test('GeoJSON longitude/latitude coordinates become latitude/longitude map bounds', () => {
   assert.deepEqual(getGeoJsonBounds(fieldGeoJson), [
-    [42.043, -93.748],
-    [42.047, -93.742],
+    [42.045, -93.745],
+    [42.045, -93.745],
   ]);
 });
 
-test('replacement polygon and multipolygon collections include every polygon in their bounds', () => {
-  const polygon = feature({
-    type: 'Polygon',
-    coordinates: [
-      [
-        [30, 50],
-        [31, 50],
-        [31, 51],
-        [30, 50],
-      ],
-    ],
-  });
-  const multi = feature({
-    type: 'MultiPolygon',
-    coordinates: [
-      [
-        [
-          [32, 49],
-          [33, 49],
-          [33, 50],
-          [32, 49],
-        ],
-      ],
-      [
-        [
-          [34, 48],
-          [35, 48],
-          [35, 49],
-          [34, 48],
-        ],
-      ],
-    ],
-  });
-  assert.deepEqual(getGeoJsonBounds(collection(polygon, multi)), [
+test('point collections include every field location in their bounds', () => {
+  const points = [
+    [30, 50],
+    [35, 48],
+    [33, 51],
+  ].map((coordinates) => feature({ type: 'Point', coordinates }));
+  assert.deepEqual(getGeoJsonBounds(collection(...points)), [
     [48, 30],
     [51, 35],
   ]);
 });
 
-test('empty geometry collections do not produce invalid fit bounds', () => {
+test('empty and non-finite point collections do not produce invalid fit bounds', () => {
   assert.equal(getGeoJsonBounds(collection()), null);
-  assert.equal(getGeoJsonBounds(collection(feature({ type: 'Polygon', coordinates: [] }))), null);
+  assert.equal(
+    getGeoJsonBounds(collection(feature({ type: 'Point', coordinates: [NaN, 0] }))),
+    null,
+  );
 });
 
 test('maps distinguish GUID field references from numeric parcel identifiers', () => {

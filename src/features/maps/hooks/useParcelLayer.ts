@@ -1,4 +1,4 @@
-import { geoJSON, Path } from 'leaflet';
+import { circleMarker, geoJSON, Path } from 'leaflet';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMap } from 'react-leaflet';
@@ -29,12 +29,15 @@ export function useParcelLayer({
   const map = useMap();
   useEffect(() => {
     const parcels = geoJSON(geojson, {
-      style: (feature) =>
-        parcelStyle(
-          fields.find((field) => field.id === (feature ? getFeatureFieldId(feature) : undefined)),
-          layer,
-        ),
-      onEachFeature: (feature, polygon) => {
+      pointToLayer: (feature, latlng) =>
+        circleMarker(latlng, {
+          ...parcelStyle(
+            fields.find((field) => field.id === getFeatureFieldId(feature)),
+            layer,
+          ),
+          radius: 8,
+        }),
+      onEachFeature: (feature, point) => {
         const fieldId = getFeatureFieldId(feature);
         const id = getFeatureParcelId(feature);
         const field = fields.find((item) => item.id === fieldId);
@@ -47,19 +50,19 @@ export function useParcelLayer({
           }
         };
         if (field || id) {
-          polygon.on('click', activate);
+          point.on('click', activate);
         }
-        if (polygon instanceof Path) {
+        if (point instanceof Path) {
           const style = parcelStyle(field, layer);
-          polygon.on({
+          point.on({
             mouseover: () =>
-              polygon.setStyle({
+              point.setStyle({
                 weight: 4,
-                fillOpacity: layer === 'Field boundaries' ? 0.08 : 0.35,
+                fillOpacity: 1,
               }),
-            mouseout: () => polygon.setStyle(style),
+            mouseout: () => point.setStyle(style),
             add: () => {
-              const element = polygon.getElement();
+              const element = point.getElement();
               if (!element) {
                 return;
               }
@@ -90,14 +93,14 @@ export function useParcelLayer({
           if (field) {
             const detail = document.createElement('span');
             detail.textContent = t('{{value0}} ha · {{value1}}', {
-              value0: field.area,
-              value1: field.crop,
+              value0: field.area.toFixed(2),
+              value1: field.crop || t('Crop not supplied'),
             });
             content.append(detail);
           }
-          polygon.bindTooltip(content, {
+          point.bindTooltip(content, {
             permanent: true,
-            direction: 'center',
+            direction: 'top',
             className: 'field-map-label',
             opacity: 1,
           });

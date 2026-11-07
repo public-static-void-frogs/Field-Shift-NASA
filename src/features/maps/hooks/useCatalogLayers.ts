@@ -1,4 +1,4 @@
-import { canvas, divIcon, geoJSON, layerGroup, marker } from 'leaflet';
+import { canvas, circleMarker, divIcon, geoJSON, layerGroup, marker } from 'leaflet';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMapEvents } from 'react-leaflet';
@@ -48,16 +48,18 @@ export function useCatalogLayers(data: CatalogMapView | undefined, onPick: (id: 
       item.addTo(layers);
     }
     for (const feature of data.features) {
-      if (feature.geometry.type !== 'Point') {
+      if (feature.properties.kind === 'field') {
         const selected = Boolean(feature.properties.fieldId);
-        const polygon = geoJSON(feature, {
-          style: {
-            renderer,
-            color: selected ? '#bce783' : '#fff5c6',
-            weight: selected ? 2.5 : 1.2,
-            fillColor: selected ? '#8dba5b' : '#dfdb9d',
-            fillOpacity: selected ? 0.25 : 0.06,
-          },
+        const point = geoJSON(feature, {
+          pointToLayer: (_, latlng) =>
+            circleMarker(latlng, {
+              renderer,
+              radius: selected ? 7 : 5,
+              color: selected ? '#bce783' : '#fff5c6',
+              weight: selected ? 2.5 : 1.2,
+              fillColor: selected ? '#8dba5b' : '#dfdb9d',
+              fillOpacity: selected ? 0.9 : 0.7,
+            }),
           onEachFeature: (_, layer) => {
             layer.on('click', () => onPick(String(feature.id)));
             const tooltip = document.createElement('span');
@@ -65,14 +67,15 @@ export function useCatalogLayers(data: CatalogMapView | undefined, onPick: (id: 
             layer.bindTooltip(tooltip, { sticky: true });
           },
         });
-        polygon.addTo(layers);
+        point.addTo(layers);
       }
     }
     const frame = requestAnimationFrame(() => {
       const container = map.getContainer();
       container.dataset.mapMode = data.mode;
       container.dataset.mapFeatureCount = String(
-        groups.length + data.features.filter((feature) => feature.geometry.type !== 'Point').length,
+        groups.length +
+          data.features.filter((feature) => feature.properties.kind === 'field').length,
       );
       container.dataset.mapSourceFeatureCount = String(data.features.length);
       container.dataset.mapLayerUpdateMs = (performance.now() - started).toFixed(2);

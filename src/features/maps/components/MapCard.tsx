@@ -40,7 +40,7 @@ export function MapCard({ expanded = false, adding = false }: MapCardProps) {
         geojson={fieldGeoJson}
         onSelect={(field) => navigate(`/fields/${field.id}`)}
         adding={adding}
-        boundaryOnly
+        locationOnly
         onAdd={() => navigate('/map/add')}
         expanded={expanded}
       />

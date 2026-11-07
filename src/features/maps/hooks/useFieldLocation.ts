@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { fieldQueries } from '../../../api/fields/fields.queries.ts';
 import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
 
-export function useFieldBoundary(fieldId: string): FieldGeoJson {
+export function useFieldLocation(fieldId: string): FieldGeoJson {
   const { data: field } = useSuspenseQuery(fieldQueries.byId(fieldId));
   return {
     type: 'FeatureCollection',

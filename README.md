@@ -112,7 +112,7 @@ background colors in the shared theme for readable contrast.
 
 - **Overview:** farm totals, selectable field map, crop health, weather outlook, and field recommendations.
 - **Field map:** pan, zoom, recenter, switch layers, select a field, or add an available parcel.
-- **My fields:** search and filter fields by crop or health status. Each field page starts with a real satellite map focused on that field’s GeoJSON boundary. Below it are the rotation plan, an AI-style explanation with a blue-purple gradient border, crop/soil/water properties, and searchable land history. Field management and removal controls are at the bottom. The detail map has no heatmap or metric overlay controls.
+- **My fields:** search and filter fields by crop or health status. Each field page starts with a real satellite map focused on that field’s GeoJSON point. Below it are the rotation plan, an AI-style explanation with a blue-purple gradient border, crop/soil/water properties, and searchable land history. Field management and removal controls are at the bottom. The detail map has no heatmap or metric overlay controls.
 - **Calendar:** an Ant Design month/year calendar with field and action filters, a compact selected-day agenda, and a searchable table. Primary action buttons open dedicated detail pages with scheduling, rationale, and current field conditions. Date selection preserves the page scroll position.
 - **Environment history:** a selectable 14-day forecast, trend charts, and 7-, 30-, or 90-day weather logs.
 
@@ -319,7 +319,7 @@ recommendations remain illustrative. See the backend's `docs/weather-integration
 for API semantics, source licensing, and local Postman simulations.
 
 Environment crop assessments are scoped to the selected field. The API uses the field's
-geometry center and farm time zone, its crop and soil profile, and the requested weather
+point coordinates and farm time zone, its crop and soil profile, and the requested weather
 window. Each daily assessment includes the bounds used for its scores and alerts.
 Charts interpolate those daily limits into a continuous gradient and changing critical
 curves; series bounds are reference metadata. Charts show backend-provided good/caution/high-risk zones, labelled daily values,

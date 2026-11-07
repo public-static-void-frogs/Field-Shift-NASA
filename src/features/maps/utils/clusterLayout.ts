@@ -33,7 +33,7 @@ export function layoutMapClusters(
   const cellSize = Math.max(160, Math.sqrt((viewport.width * viewport.height) / 40));
   const cells = new Map<string, ClusterMarker>();
   for (const feature of features) {
-    if (feature.geometry.type !== 'Point' || !feature.properties.bounds) {
+    if (feature.properties.kind !== 'cluster' || !feature.properties.bounds) {
       continue;
     }
     const [longitude, latitude] = feature.geometry.coordinates;

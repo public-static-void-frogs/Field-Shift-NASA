@@ -15,7 +15,7 @@ import { FieldStatus } from '../features/fields/components/FieldStatus';
 import { LandHistory } from '../features/fields/components/LandHistory';
 import { useFieldRemoval } from '../features/fields/hooks/useFieldRemoval.ts';
 import { FieldMap } from '../features/maps/components/FieldMap';
-import { useFieldBoundary } from '../features/maps/hooks/useFieldBoundary.ts';
+import { useFieldLocation } from '../features/maps/hooks/useFieldLocation.ts';
 
 export function FieldDetailsPage() {
   const { t } = useTranslation();
@@ -24,7 +24,7 @@ export function FieldDetailsPage() {
   const [{ data: field }, { data: propertyData }, { data: preferences }] = useSuspenseQueries({
     queries: [fieldQueries.byId(fieldId), fieldQueries.properties(fieldId), farmQueries.profile()],
   });
-  const geojson = useFieldBoundary(fieldId);
+  const geojson = useFieldLocation(fieldId);
   const { confirmRemove, setConfirmRemove, isRemovingField, handleRemove } =
     useFieldRemoval(fieldId);
   if (!field) {
@@ -40,7 +40,7 @@ export function FieldDetailsPage() {
         title={field.name}
         description={t('{{value0}} · {{value1}} hectares · {{value2}}', {
           value0: field.crop || t('Crop not supplied'),
-          value1: field.area,
+          value1: field.area.toFixed(2),
           value2: propertyData?.soil.soilType || t('Soil not supplied'),
         })}
         eyebrow={t('{{value0}} · FIELD {{value1}}', {
@@ -69,7 +69,7 @@ export function FieldDetailsPage() {
         <FieldMap
           fields={[field]}
           geojson={geojson}
-          boundaryOnly
+          locationOnly
           adding={false}
           onSelect={(selected) => navigate(`/fields/${selected.id}`)}
           onAdd={() => navigate('/map/add')}

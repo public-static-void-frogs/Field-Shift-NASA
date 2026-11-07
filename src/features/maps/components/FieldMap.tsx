@@ -19,14 +19,14 @@ import './FieldMap.css';
 
 type FieldMapProps = {
   fields: Field[];
-  /** WGS84 GeoJSON polygons; properties.fieldId (or feature.id) links to fields. */
+  /** WGS84 GeoJSON points; properties.fieldId (or feature.id) links to fields. */
   geojson: FieldGeoJson;
   onSelect: (field: Field) => void;
   adding: boolean;
   onAdd: (id: number) => void;
   expanded?: boolean;
-  /** Plain satellite view with field outlines, without metric layers or legend. */
-  boundaryOnly?: boolean;
+  /** Plain satellite view with field points, without metric layers or legend. */
+  locationOnly?: boolean;
 };
 
 export function FieldMap({
@@ -36,10 +36,10 @@ export function FieldMap({
   adding,
   onAdd,
   expanded = false,
-  boundaryOnly = false,
+  locationOnly = false,
 }: FieldMapProps) {
   const { t } = useTranslation();
-  const { map, setLayer, layer, recenter } = useFieldMap(geojson, boundaryOnly);
+  const { map, setLayer, layer, recenter } = useFieldMap(geojson, locationOnly);
 
   const { data: preferences } = useSuspenseQuery(farmQueries.profile());
   const legend = mapLegends[layer].map((item) => ({ ...item, label: t(item.label) }));
@@ -80,14 +80,14 @@ export function FieldMap({
         <span>·</span>
         {preferences.locationLabel}
       </div>
-      {!boundaryOnly && (
+      {!locationOnly && (
         <div className="map-layer">
           <Select
             aria-label={t('Map layer')}
             value={layer}
             onChange={setLayer}
             prefix={<Layers size={14} />}
-            options={['Crop health', 'Soil moisture', 'Field boundaries'].map((value) => ({
+            options={['Crop health', 'Soil moisture', 'Field locations'].map((value) => ({
               value,
               label: t(value),
             }))}
@@ -111,10 +111,10 @@ export function FieldMap({
           </Button>
         </Tooltip>
       </div>
-      {boundaryOnly && fields.some((field) => field.boundaryKind === 'estimated_bounds') && (
-        <div className="map-boundary-note">{t('Estimated bounds · not surveyed boundaries')}</div>
+      {locationOnly && fields.some((field) => field.locationKind === 'interior_point') && (
+        <div className="map-location-note">{t('Field location point')}</div>
       )}
-      {!boundaryOnly && (
+      {!locationOnly && (
         <div className="map-legend">
           {legend.map((item) => (
             <span key={item.label}>
@@ -127,7 +127,7 @@ export function FieldMap({
       {adding && (
         <div className="add-map-prompt">
           <Plus size={15} />
-          {t('Select an outlined parcel to add it to your farm')}
+          {t('Select a field point to add it to your farm')}
         </div>
       )}
     </div>

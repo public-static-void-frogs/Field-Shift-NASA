@@ -31,7 +31,7 @@ export function AddFieldPage() {
       </Typography.Paragraph>
       <Typography.Paragraph>
         {t(
-          'These rectangles are estimated from source centroids and area. Crop and soil measurements have not been inferred.',
+          'Each point represents a field location from the supplied source. Crop and soil measurements have not been inferred.',
         )}
       </Typography.Paragraph>
       <Space wrap>
