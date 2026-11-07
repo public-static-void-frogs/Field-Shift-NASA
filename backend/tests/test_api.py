@@ -1,21 +1,26 @@
-import json
-import shutil
-import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 from uuid import UUID, uuid4
+from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI
+from alembic import command
+from alembic.autogenerate import compare_metadata
+from alembic.config import Config
+from alembic.migration import MigrationContext
 from fastapi.testclient import TestClient
-from support import isolated_app, register
-from uvicorn.importer import import_from_string
+from sqlalchemy import delete, func, select
+from sqlalchemy.exc import IntegrityError
+from support import create_field, field_input, isolated_app, register
 
-from app.repositories.demo import REFERENCES, DemoRepository
-from app.services.planning_builder import planting_date
+from app.core.database import Base, database_engine
+from app.main import create_app
+from app.repositories.fields import FieldRecord, UserField
+from app.repositories.users import User
 
 BASE = "/api/v1"
-DATA = Path(__file__).parents[1] / "app/data"
 
 
 class ApiTests(unittest.TestCase):
@@ -23,269 +28,254 @@ class ApiTests(unittest.TestCase):
         self.directory, self.app = isolated_app()
         self.addCleanup(self.directory.cleanup)
         self.addCleanup(self.app.state.engine.dispose)
-        self.store = self.app.state.repository
         self.client = TestClient(self.app)
         self.addCleanup(self.client.close)
-        self.assertEqual(register(self.client).status_code, 201)
-        self.fields = self.get("/fields")
-        self.first, self.second = (row["id"] for row in self.fields[:2])
-        self.missing = str(uuid4())
+        self.user_id = register(self.client).json()["id"]
+        self.other = TestClient(self.app)
+        self.addCleanup(self.other.close)
+        self.other_id = register(self.other, "other@example.com").json()["id"]
 
-    def get(self, path):
-        response = self.client.get(BASE + path)
+    def get(self, path, client=None):
+        if path == "/maps/geojson":
+            path += "?bbox=-93.76,42.03,-93.72,42.06&zoom=15"
+        response = (client or self.client).get(BASE + path)
         self.assertEqual(response.status_code, 200, response.text)
         return response.json()
 
-    def create(self, parcel=6, crop="Corn"):
-        response = self.client.post(
-            BASE + "/fields", json=dict(parcelId=parcel, name='New field "🌾"', crop=crop)
-        )
-        self.assertEqual(response.status_code, 201, response.text)
-        return response.json()
-
-    def test_compatibility_entry_point_exports_asgi_app(self):
-        self.assertIsInstance(import_from_string("main:app"), FastAPI)
-
-    def test_all_collections_are_record_arrays_with_unique_keys_and_valid_references(self):
-        for path in DATA.glob("*.json"):
-            records = json.loads(path.read_text())
-            self.assertIsInstance(records, list, path.name)
-            self.assertEqual(len(records), len({row["id"] for row in records}), path.name)
-        self.store.validate()
-        for row in self.store.all("fields"):
-            self.assertEqual(str(UUID(row["id"])), row["id"])
-            self.assertNotIn("crop", row)
-            self.assertNotIn("history", row)
-            self.assertIn("coordinates", row["geometry"])
-            self.assertIn("soilProfileId", row["properties"])
-        for row in self.store.all("planned_events"):
-            self.assertNotIn("fieldName", row)
-            self.assertIn("fieldId", row)
-            self.assertEqual(str(UUID(row["id"])), row["id"])
-
-    def test_all_api_resources_join_related_records(self):
-        for path in [
+    def test_no_mock_data_is_exposed_or_loaded(self):
+        self.assertFalse(hasattr(self.app.state, "repository"))
+        for route in [
             "/fields",
-            "/crops",
-            "/parcels/6",
-            "/farm/profile",
-            "/maps/geojson",
+            "/fields/catalog",
+            "/notifications",
+            "/planning/events",
             "/help/team",
             "/help/sources",
-            "/notifications",
-            "/overview/charts",
-            "/planning/context",
-            "/planning/events",
-            "/planning/responses",
         ]:
-            self.get(path)
-        for field in self.fields:
-            fid = field["id"]
-            for resource in [
-                "",
-                "/properties",
-                "/history",
-                "/recommendation",
-                "/rotation",
-                "/strategy",
-                "/events",
-            ]:
-                self.get(f"/fields/{fid}{resource}")
-            self.assertEqual(field["properties"], self.get(f"/fields/{fid}/properties"))
-            self.assertTrue(
-                all(row["fieldId"] == fid for row in self.get(f"/fields/{fid}/history")["events"])
-            )
-            strategy = self.get(f"/fields/{fid}/strategy")
-            self.assertTrue(all(row["fieldId"] == fid for row in strategy["events"]))
-            self.assertEqual(strategy["plan"]["currentCrop"], field["crop"])
+            self.assertEqual(self.get(route), [])
+        self.assertEqual(self.get("/planning/responses"), {})
+        self.assertEqual(self.get("/maps/geojson")["features"], [])
+        self.assertEqual(self.get("/overview/charts"), dict(trends=[], cropAreas=[]))
+        self.assertEqual(
+            self.get("/planning/context")["today"],
+            datetime.now(ZoneInfo("Europe/Kyiv")).date().isoformat(),
+        )
+        self.assertEqual(self.client.get(BASE + "/parcels/6").status_code, 404)
 
-    def test_joins_use_foreign_keys_not_collection_order_or_numeric_id_assumptions(self):
-        with tempfile.TemporaryDirectory() as temp:
-            directory = Path(temp)
-            for path in DATA.glob("*.json"):
-                shutil.copy(path, directory / path.name)
-            for path in directory.glob("*.json"):
-                records = json.loads(path.read_text())
-                path.write_text(json.dumps(list(reversed(records))))
-            store = DemoRepository(directory)
-            field = store.require_field(self.first)
-            self.assertEqual(field["crop"], self.fields[0]["crop"])
-            self.assertEqual(
-                {key: field["properties"][key] for key in self.fields[0]["properties"]},
-                self.fields[0]["properties"],
-            )
-            records = json.loads((directory / "crops.json").read_text())
-            for row in records:
-                if row["id"] == field["cropId"]:
-                    row["name"] = "Updated catalog crop"
-            (directory / "crops.json").write_text(json.dumps(records))
-            self.assertEqual(
-                DemoRepository(directory).require_field(self.first)["crop"], "Updated catalog crop"
-            )
+    def test_manual_creation_persists_only_supplied_data_and_selects_for_creator(self):
+        field = create_field(self.client, properties=None, name="  New field 🌾  ")
+        self.assertEqual(UUID(field["id"]).version, 4)
+        self.assertEqual(field["name"], "New field 🌾")
+        for key in (
+            "parcelId",
+            "properties",
+            "planted",
+            "health",
+            "moisture",
+            "nitrogen",
+            "status",
+        ):
+            self.assertIsNone(field[key], key)
+        self.assertEqual(self.get("/fields"), [field])
+        self.assertEqual(self.get("/fields/catalog"), [field])
+        self.assertEqual(self.get("/fields", self.other), [])
+        self.assertEqual(self.get("/fields/catalog", self.other), [field])
+        with self.app.state.sessions() as session:
+            self.assertEqual(session.scalar(select(func.count()).select_from(FieldRecord)), 1)
+            self.assertIsNotNone(session.get(UserField, (self.user_id, field["id"])))
+        for route in ("", "/properties", "/history", "/recommendation", "/strategy", "/events"):
+            self.assertEqual(self.other.get(f"{BASE}/fields/{field['id']}{route}").status_code, 404)
 
-    def test_invalid_references_are_rejected_when_loading_collections(self):
-        with tempfile.TemporaryDirectory() as temp:
-            directory = Path(temp)
-            for path in DATA.glob("*.json"):
-                shutil.copy(path, directory / path.name)
-            rows = json.loads((directory / "history_events.json").read_text())
-            rows[0]["fieldId"] = self.missing
-            (directory / "history_events.json").write_text(json.dumps(rows))
-            with self.assertRaisesRegex(ValueError, "Invalid reference history_events.fieldId"):
-                DemoRepository(directory)
+    def test_shared_selection_is_idempotent_and_removal_preserves_catalog_and_other_users(self):
+        field = create_field(self.client, parcelId=1001)
+        fid = field["id"]
+        for _ in range(2):
+            response = self.other.put(f"{BASE}/fields/{fid}/selection")
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertEqual(response.json(), field)
+        self.assertEqual(self.get("/fields", self.other), [field])
+        with self.app.state.sessions() as session:
+            self.assertEqual(session.scalar(select(func.count()).select_from(UserField)), 2)
+        self.assertEqual(self.client.delete(f"{BASE}/fields/{fid}").json(), fid)
+        self.assertEqual(self.client.delete(f"{BASE}/fields/{fid}").status_code, 404)
+        self.assertEqual(self.get("/fields"), [])
+        self.assertEqual(self.get("/fields", self.other), [field])
+        self.assertEqual(self.get("/fields/catalog"), [field])
+        self.other.delete(f"{BASE}/fields/{fid}")
+        self.assertEqual(self.get("/fields/catalog"), [field])
+        self.assertEqual(self.client.put(f"{BASE}/fields/{fid}/selection").json(), field)
 
-    def test_guid_validation_and_missing_resources(self):
-        for invalid in ["1", "not-a-guid"]:
-            self.assertEqual(self.client.get(f"{BASE}/fields/{invalid}").status_code, 422)
-        for suffix in ["", "/history", "/strategy", "/events"]:
-            self.assertEqual(
-                self.client.get(f"{BASE}/fields/{self.missing}{suffix}").status_code, 404
-            )
-        for payload in [
-            dict(parcelId=6, name=" ", crop="Corn"),
-            dict(parcelId=6, name="x" * 61, crop="Corn"),
-            dict(parcelId=6, name="Test", crop="Unknown"),
-            dict(parcelId=True, name="Test", crop="Corn"),
-        ]:
-            self.assertEqual(self.client.post(BASE + "/fields", json=payload).status_code, 422)
-        for route in [
-            "/weather/history?days=8",
-            "/overview/charts?days=0",
-            "/overview/charts?metric=bogus",
-        ]:
-            self.assertEqual(self.client.get(BASE + route).status_code, 422)
+    def test_field_properties_and_unavailable_related_resources(self):
+        field = create_field(
+            self.client,
+            planted="2026-04-01",
+            health=70,
+            moisture=50,
+            nitrogen=30,
+            status="Needs attention",
+        )
+        fid = field["id"]
+        self.assertEqual(self.get(f"/fields/{fid}/properties"), field["properties"])
+        self.assertEqual(self.get(f"/fields/{fid}/history"), dict(events=[], seasons=[]))
+        self.assertEqual(self.get(f"/fields/{fid}/events"), [])
+        for resource in ("recommendation", "strategy", "rotation"):
+            self.assertEqual(self.client.get(f"{BASE}/fields/{fid}/{resource}").status_code, 404)
         self.assertEqual(
             self.client.put(
-                f"{BASE}/fields/{self.first}/strategy/response", json={"status": "completed"}
+                f"{BASE}/fields/{fid}/strategy/response", json={"status": "accepted"}
             ).status_code,
-            422,
+            404,
         )
+        self.assertEqual(self.get("/notifications"), [])
+        self.assertEqual(self.get("/overview/charts")["trends"], [])
 
-    def test_create_respond_delete_and_recreate_use_distinct_guids_and_cascade_relations(self):
-        created = self.create()
-        fid = created["id"]
-        self.assertEqual(UUID(fid).version, 4)
-        self.assertEqual(created["parcelId"], 6)
-        self.assertEqual(
-            self.client.post(
-                BASE + "/fields", json=dict(parcelId=6, name="Duplicate", crop="Corn")
-            ).status_code,
-            409,
-        )
-        self.store.validate()
-        events = self.get(f"/fields/{fid}/events")
-        self.assertTrue(events)
-        self.assertNotIn(f"field-{fid}", self.get("/overview/charts")["trends"][0])
-        self.assertIn(f"field-{fid}", self.get("/overview/charts")["trends"][-1])
-        for status in ["accepted", "declined", "proposed"]:
-            response = self.client.put(
-                f"{BASE}/fields/{fid}/strategy/response", json={"status": status}
-            )
-            self.assertEqual(response.status_code, 200)
-            decisions = response.json()
-            self.assertEqual(decisions, self.get("/planning/responses"))
-            for event in events:
-                if status == "proposed":
-                    self.assertNotIn(event["id"], decisions)
-                else:
-                    self.assertEqual(
-                        json.loads(decisions[event["id"]]["fingerprint"]),
-                        [
-                            event[k]
-                            for k in ("id", "fieldId", "date", "title", "description", "duration")
-                        ],
+    def test_maps_and_overview_use_only_callers_selections(self):
+        field = create_field(self.client, parcelId=1001)
+        fid = field["id"]
+        own = self.get("/maps/geojson")["features"][0]
+        other = self.get("/maps/geojson", self.other)["features"][0]
+        self.assertEqual(own["geometry"], field["geometry"])
+        self.assertEqual(own["properties"]["fieldId"], fid)
+        self.assertEqual(other["properties"]["catalogFieldId"], fid)
+        self.assertIsNone(other["properties"].get("fieldId"))
+        self.assertEqual(self.get("/parcels/1001")["area"], field["area"])
+        self.assertEqual(self.get("/overview/charts")["cropAreas"][0]["area"], field["area"])
+        self.assertEqual(self.get("/overview/charts", self.other)["cropAreas"], [])
+        self.client.delete(f"{BASE}/fields/{fid}")
+        self.assertIsNone(self.get("/maps/geojson")["features"][0]["properties"].get("fieldId"))
+        self.assertEqual(self.get("/overview/charts")["cropAreas"], [])
+
+    def test_restart_preserves_catalog_and_selections(self):
+        field = create_field(self.client)
+        second = create_app(self.app.state.config)
+        self.addCleanup(second.state.engine.dispose)
+        with TestClient(second) as client:
+            client.cookies.update(self.client.cookies)
+            self.assertEqual(self.get("/fields", client), [field])
+            self.assertEqual(self.get("/fields/catalog", client), [field])
+            client.delete(f"{BASE}/fields/{field['id']}")
+        self.assertEqual(self.get("/fields"), [])
+        self.assertEqual(self.get("/fields/catalog"), [field])
+
+    def test_duplicate_parcel_is_atomic_across_users_and_processes(self):
+        second = create_app(self.app.state.config)
+        self.addCleanup(second.state.engine.dispose)
+        with TestClient(second) as other_process:
+            other_process.cookies.update(self.other.cookies)
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(
+                    pool.map(
+                        lambda client: client.post(
+                            BASE + "/fields", json=field_input(parcelId=9123)
+                        ),
+                        (self.client, other_process),
                     )
-        self.client.put(f"{BASE}/fields/{fid}/strategy/response", json={"status": "accepted"})
-        self.assertTrue(
-            all(
-                row["eventId"] in {e["id"] for e in events}
-                for row in self.store.all("event_responses")
-            )
-        )
-        self.assertEqual(self.client.delete(f"{BASE}/fields/{fid}").json(), fid)
-        self.store.validate()
-        for table, refs in REFERENCES.items():
-            if refs.get("fieldId") == "fields":
-                self.assertFalse(self.store.related(table, "fieldId", fid), table)
-        self.assertFalse(self.store.all("event_responses"))
-        self.assertNotIn(f"field-{fid}", self.get("/overview/charts")["trends"][-1])
-        recreated = self.create()
-        self.assertNotEqual(recreated["id"], fid)
-        self.assertEqual(self.get("/planning/responses"), {})
-
-    def test_maps_join_current_field_to_parcel_and_update_after_create_and_delete(self):
-        def parcel():
-            return next(
-                row
-                for row in self.get("/maps/geojson")["features"]
-                if row["properties"]["parcelId"] == 6
-            )
-
-        self.assertIsNone(parcel()["properties"]["fieldId"])
-        created = self.create()
-        self.assertEqual(parcel()["properties"]["fieldId"], created["id"])
-        self.assertEqual(parcel()["geometry"], created["geometry"])
-        self.client.delete(f"{BASE}/fields/{created['id']}")
-        self.assertIsNone(parcel()["properties"]["fieldId"])
-
-    def test_every_crop_can_be_created_and_has_joinable_planning_records(self):
-        for crop in ["Corn", "Soybeans", "Winter wheat"]:
-            field = self.create(crop=crop)
-            fid = field["id"]
-            self.store.validate()
-            strategy = self.get(f"/fields/{fid}/strategy")
-            self.assertEqual(strategy["plan"]["currentCrop"], crop)
-            self.assertTrue(strategy["steps"])
-            self.assertTrue(self.get(f"/fields/{fid}/history")["events"])
-            self.client.delete(f"{BASE}/fields/{fid}")
-
-    def test_atomic_duplicate_create_and_isolated_field_decisions(self):
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            statuses = list(
-                pool.map(
-                    lambda _: (
-                        self.client.post(
-                            BASE + "/fields",
-                            json=dict(parcelId=6, name="Concurrent", crop="Soybeans"),
-                        ).status_code
-                    ),
-                    range(2),
                 )
-            )
-        self.assertEqual(sorted(statuses), [201, 409])
-        self.client.put(
-            f"{BASE}/fields/{self.first}/strategy/response", json={"status": "accepted"}
-        )
-        baseline = self.get("/planning/responses")
-        self.client.put(
-            f"{BASE}/fields/{self.second}/strategy/response", json={"status": "declined"}
-        )
-        self.client.delete(f"{BASE}/fields/{self.second}")
-        self.assertEqual(self.get("/planning/responses"), baseline)
-        self.assertFalse(
-            any(row.get("fieldId") == self.second for row in self.get("/notifications"))
-        )
-        self.store.validate()
+            self.assertEqual(sorted(response.status_code for response in results), [201, 409])
+        with self.app.state.sessions() as session:
+            self.assertEqual(session.scalar(select(func.count()).select_from(FieldRecord)), 1)
+            self.assertEqual(session.scalar(select(func.count()).select_from(UserField)), 1)
+        # An omitted parcel ID does not prevent multiple manual fields.
+        create_field(self.client)
+        create_field(self.client)
+        self.assertEqual(len(self.get("/fields/catalog")), 3)
 
-    def test_cors_and_guid_openapi_contract(self):
-        response = self.client.options(
-            BASE + "/fields",
-            headers={
-                "Origin": "http://localhost:5173",
-                "Access-Control-Request-Method": "POST",
-                "Access-Control-Request-Headers": "content-type",
-            },
+    def test_concurrent_selection_cannot_duplicate_relation(self):
+        fid = create_field(self.client)["id"]
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            responses = list(
+                pool.map(lambda _: self.other.put(f"{BASE}/fields/{fid}/selection"), range(2))
+            )
+        self.assertEqual([r.status_code for r in responses], [200, 200])
+        self.assertEqual(len(self.get("/fields", self.other)), 1)
+
+    def test_foreign_keys_and_deletion_cascade(self):
+        fid = create_field(self.client)["id"]
+        self.other.put(f"{BASE}/fields/{fid}/selection")
+        with self.app.state.sessions() as session:
+            session.add(UserField(user_id=self.user_id, field_id=str(uuid4())))
+            with self.assertRaises(IntegrityError):
+                session.commit()
+            session.rollback()
+            session.execute(delete(User).where(User.id == self.user_id))
+            session.commit()
+            self.assertIsNone(session.get(UserField, (self.user_id, fid)))
+            self.assertIsNotNone(session.get(FieldRecord, fid))
+            self.assertIsNotNone(session.get(UserField, (self.other_id, fid)))
+            session.execute(delete(FieldRecord).where(FieldRecord.id == fid))
+            session.commit()
+            self.assertIsNone(session.get(UserField, (self.other_id, fid)))
+
+    def test_invalid_input_unknown_fields_and_missing_soil(self):
+        for values in [
+            dict(name=" "),
+            dict(name="x" * 61),
+            dict(crop="Unknown"),
+            dict(parcelId=True),
+            dict(parcelId=0),
+            dict(area=0),
+            dict(area=-1),
+            dict(health=101),
+            dict(moisture=-1),
+            dict(planted="not-a-date"),
+            dict(geometry={"type": "Polygon", "coordinates": []}),
+            dict(geometry={"type": "MultiPolygon", "coordinates": []}),
+            dict(geometry={"type": "Polygon", "coordinates": [[[200, 0]] * 4]}),
+            dict(userId=self.other_id),
+        ]:
+            response = self.client.post(BASE + "/fields", json=field_input(**values))
+            self.assertEqual(response.status_code, 422, response.text)
+        for fid, status in [("nope", 422), (str(uuid4()), 404)]:
+            self.assertEqual(self.client.get(f"{BASE}/fields/{fid}").status_code, status)
+            self.assertEqual(self.client.put(f"{BASE}/fields/{fid}/selection").status_code, status)
+        field = create_field(self.client, properties={"soil": {"soilType": "Loam"}})
+        # Missing soil is rejected before making any weather request.
+        self.assertEqual(
+            self.client.get(f"{BASE}/weather/forecast?field_id={field['id']}").status_code, 422
         )
-        self.assertEqual(response.status_code, 200)
-        spec = self.client.get("/openapi.json").json()
+
+    def test_authentication_and_openapi_contract(self):
+        with TestClient(self.app) as anonymous:
+            for path in ("/fields", "/fields/catalog", "/maps/geojson"):
+                self.assertEqual(anonymous.get(BASE + path).status_code, 401)
+            fid = str(uuid4())
+            self.assertEqual(anonymous.put(f"{BASE}/fields/{fid}/selection").status_code, 401)
+        spec = self.get_openapi()
+        self.assertIn(BASE + "/fields/catalog", spec["paths"])
+        self.assertIn(BASE + "/fields/{field_id}/selection", spec["paths"])
         self.assertEqual(
             spec["components"]["schemas"]["Field"]["properties"]["id"]["format"], "uuid"
         )
-        parameter = spec["paths"]["/api/v1/fields/{field_id}"]["get"]["parameters"][0]
-        self.assertEqual(parameter["schema"]["format"], "uuid")
 
-    def test_planting_windows_use_crop_catalog_reference_data(self):
-        crops = self.store.all("crops")
-        self.assertEqual(planting_date("Soybeans", 6.5, 64, crops)["date"], "2027-04-22")
-        self.assertEqual(planting_date("Soybeans", 5.6, 32, crops)["date"], "2027-05-02")
-        self.assertEqual(planting_date("Winter wheat", 6.8, 58, crops)["date"], "2026-09-25")
+    def get_openapi(self):
+        return self.client.get("/openapi.json").json()
+
+    def test_alembic_upgrade_preserves_accounts_and_matches_models(self):
+        url = f"sqlite:///{Path(self.directory.name) / 'migration.db'}"
+        config = Config(str(Path(__file__).parents[1] / "alembic.ini"))
+        with patch.dict("os.environ", {"DATABASE_URL": url}):
+            command.upgrade(config, "0002_location_coordinates")
+            legacy = create_app(
+                type(self.app.state.config)(
+                    database_url=url,
+                    jwt_secret=self.app.state.config.jwt_secret,
+                    jwt_issuer=self.app.state.config.jwt_issuer,
+                )
+            )
+            with TestClient(legacy) as client:
+                self.assertEqual(register(client).status_code, 201)
+            command.upgrade(config, "head")
+            engine = database_engine(url)
+            try:
+                with engine.connect() as connection:
+                    self.assertEqual(
+                        compare_metadata(MigrationContext.configure(connection), Base.metadata), []
+                    )
+                    self.assertEqual(connection.scalar(select(func.count()).select_from(User)), 1)
+                    self.assertEqual(
+                        connection.scalar(select(func.count()).select_from(FieldRecord)), 0
+                    )
+                command.downgrade(config, "0002_location_coordinates")
+                command.upgrade(config, "head")
+            finally:
+                engine.dispose()

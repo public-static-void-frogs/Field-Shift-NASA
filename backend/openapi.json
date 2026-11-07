@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Field Shift NASA API",
-    "description": "Authenticated farm API with live Open-Meteo weather from saved account coordinates. Accounts and preferences persist in SQL; agronomic demo data remains process-local.",
+    "description": "Authenticated farm API with SQL-backed accounts, shared fields, per-user field selections and live Open-Meteo weather. No demo field data is seeded.",
     "version": "1.0.0"
   },
   "paths": {
@@ -287,6 +287,7 @@
           "fields"
         ],
         "summary": "Create Field",
+        "description": "Create a shared catalog field and select it for the caller atomically.",
         "operationId": "create_field_api_v1_fields_post",
         "requestBody": {
           "content": {
@@ -309,11 +310,8 @@
               }
             }
           },
-          "404": {
-            "description": "Parcel not found"
-          },
           "409": {
-            "description": "Parcel is unavailable"
+            "description": "Parcel ID already exists in the catalog"
           },
           "422": {
             "description": "Validation Error",
@@ -331,6 +329,169 @@
             "APIKeyCookie": []
           }
         ]
+      }
+    },
+    "/api/v1/fields/catalog": {
+      "get": {
+        "tags": [
+          "fields"
+        ],
+        "summary": "Catalog",
+        "description": "Browse shared fields available for selection by the signed-in user.",
+        "operationId": "catalog_api_v1_fields_catalog_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Field"
+                  },
+                  "title": "Response Catalog Api V1 Fields Catalog Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fields/catalog/{field_id}": {
+      "get": {
+        "tags": [
+          "fields"
+        ],
+        "summary": "Catalog Field",
+        "operationId": "catalog_field_api_v1_fields_catalog__field_id__get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Field Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Field"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fields/{field_id}/selection": {
+      "put": {
+        "tags": [
+          "fields"
+        ],
+        "summary": "Select Field",
+        "description": "Select a catalog field for the caller; repeated selections are idempotent.",
+        "operationId": "select_field_api_v1_fields__field_id__selection_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Field Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Field"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/crops": {
@@ -463,6 +624,7 @@
           "fields"
         ],
         "summary": "Delete Field",
+        "description": "Remove the caller's selection while preserving the shared catalog field.",
         "operationId": "delete_field_api_v1_fields__field_id__delete",
         "security": [
           {
@@ -1005,7 +1167,7 @@
           "weather"
         ],
         "summary": "Weather History",
-        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0\u20137 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and returns estimated crop limits and daily risk assessments; climate context uses this requested history window.",
+        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0\u20137 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and the caller's time zone and returns estimated crop limits and daily risk assessments; climate context uses this requested history window.",
         "operationId": "weather_history_api_v1_weather_history_get",
         "security": [
           {
@@ -1027,10 +1189,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location.",
+              "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
               "title": "Field Id"
             },
-            "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location."
+            "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location."
           },
           {
             "name": "days",
@@ -1130,10 +1292,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location.",
+              "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
               "title": "Field Id"
             },
-            "description": "Assess this field's crop and soil using weather at its geometry center and farm time zone. Omit for unassessed weather at the saved account location."
+            "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location."
           }
         ],
         "responses": {
@@ -1156,20 +1318,21 @@
         }
       }
     },
-    "/api/v1/maps/geojson": {
+    "/api/v1/maps/summary": {
       "get": {
         "tags": [
           "maps"
         ],
-        "summary": "Geojson",
-        "operationId": "geojson_api_v1_maps_geojson_get",
+        "summary": "Map Summary",
+        "description": "Catalog extent and default view without downloading the catalog.",
+        "operationId": "map_summary_api_v1_maps_summary_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FieldGeoJson"
+                  "$ref": "#/components/schemas/MapSummary"
                 }
               }
             }
@@ -1180,6 +1343,67 @@
             "APIKeyCookie": []
           }
         ]
+      }
+    },
+    "/api/v1/maps/geojson": {
+      "get": {
+        "tags": [
+          "maps"
+        ],
+        "summary": "Geojson",
+        "description": "Return at most 600 visible features. Wide/dense views use preaggregated count groups; close views use indexed extent intersection. Source rectangles are estimates, not surveyed boundaries.",
+        "operationId": "geojson_api_v1_maps_geojson_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bbox",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "west,south,east,north in WGS84; antimeridian views must be split",
+              "title": "Bbox"
+            },
+            "description": "west,south,east,north in WGS84; antimeridian views must be split"
+          },
+          {
+            "name": "zoom",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 20,
+              "minimum": 0,
+              "title": "Zoom"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MapView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/help/team": {
@@ -1431,8 +1655,15 @@
       "CreateField": {
         "properties": {
           "parcelId": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Parcelid"
           },
           "name": {
@@ -1449,14 +1680,114 @@
               "Soybeans"
             ],
             "title": "Crop"
+          },
+          "area": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Area"
+          },
+          "geometry": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PolygonGeometry"
+              },
+              {
+                "$ref": "#/components/schemas/MultiPolygonGeometry"
+              }
+            ],
+            "title": "Geometry",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
+                "Polygon": "#/components/schemas/PolygonGeometry"
+              }
+            }
+          },
+          "planted": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planted"
+          },
+          "properties": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PropertyData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "health": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Health"
+          },
+          "moisture": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moisture"
+          },
+          "nitrogen": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nitrogen"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Healthy",
+                  "Needs attention",
+                  "Critical"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "parcelId",
           "name",
-          "crop"
+          "crop",
+          "area",
+          "geometry"
         ],
         "title": "CreateField"
       },
@@ -2398,24 +2729,39 @@
       },
       "Field": {
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
           "parcelId": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Parcelid"
           },
-          "farmId": {
+          "name": {
             "type": "string",
-            "format": "uuid",
-            "title": "Farmid"
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name"
           },
-          "cropId": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Cropid"
+          "crop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop"
+          },
+          "area": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Area"
           },
           "geometry": {
             "oneOf": [
@@ -2435,92 +2781,162 @@
               }
             }
           },
-          "properties": {
-            "$ref": "#/components/schemas/PropertyData"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "crop": {
-            "type": "string",
-            "enum": [
-              "Winter wheat",
-              "Corn",
-              "Soybeans"
+          "planted": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "title": "Crop"
+            "title": "Planted"
           },
-          "area": {
-            "type": "number",
-            "title": "Area"
+          "properties": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PropertyData"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "health": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Health"
           },
           "moisture": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Moisture"
           },
           "nitrogen": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Nitrogen"
           },
           "status": {
-            "type": "string",
-            "enum": [
-              "Healthy",
-              "Needs attention",
-              "Critical"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Healthy",
+                  "Needs attention",
+                  "Critical"
+                ]
+              },
+              {
+                "type": "null"
+              }
             ],
             "title": "Status"
           },
-          "planted": {
+          "id": {
             "type": "string",
-            "title": "Planted"
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sourceId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceid"
+          },
+          "boundaryKind": {
+            "type": "string",
+            "enum": [
+              "user_geometry",
+              "estimated_bounds"
+            ],
+            "title": "Boundarykind",
+            "default": "user_geometry"
+          },
+          "sourceYear": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceyear"
+          },
+          "county": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "County"
+          },
+          "stateFips": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statefips"
+          },
+          "countyFips": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Countyfips"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
-          "id",
-          "parcelId",
-          "farmId",
-          "cropId",
-          "geometry",
-          "properties",
           "name",
           "crop",
           "area",
-          "health",
-          "moisture",
-          "nitrogen",
-          "status",
-          "planted"
+          "geometry",
+          "id"
         ],
         "title": "Field"
-      },
-      "FieldGeoJson": {
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "FeatureCollection",
-            "title": "Type"
-          },
-          "features": {
-            "items": {
-              "$ref": "#/components/schemas/MapFeature"
-            },
-            "type": "array",
-            "title": "Features"
-          }
-        },
-        "type": "object",
-        "required": [
-          "type",
-          "features"
-        ],
-        "title": "FieldGeoJson"
       },
       "FieldHistory": {
         "properties": {
@@ -2549,129 +2965,272 @@
       "FieldProperties": {
         "properties": {
           "soilType": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Soiltype"
           },
           "soilPh": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Soilph"
           },
           "phosphorus": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Phosphorus"
           },
           "potassium": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Potassium"
           },
           "organicMatter": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Organicmatter"
           },
           "soilTemperature": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Soiltemperature"
           },
           "conductivity": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Conductivity"
           },
           "cationExchange": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Cationexchange"
           },
           "bulkDensity": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Bulkdensity"
           },
           "rootingDepth": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Rootingdepth"
           },
           "variety": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Variety"
           },
           "emergence": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Emergence"
           },
           "plantDensity": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plantdensity"
           },
           "vegetationIndex": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Vegetationindex"
           },
           "yieldTarget": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Yieldtarget"
           },
           "harvestWindow": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Harvestwindow"
           },
           "elevation": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Elevation"
           },
           "slope": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Slope"
           },
           "drainage": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Drainage"
           },
           "irrigation": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Irrigation"
           },
           "lastIrrigation": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Lastirrigation"
           },
           "waterApplied": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Waterapplied"
           },
           "rainfall": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Rainfall"
           },
           "waterCapacity": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Watercapacity"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "soilType",
-          "soilPh",
-          "phosphorus",
-          "potassium",
-          "organicMatter",
-          "soilTemperature",
-          "conductivity",
-          "cationExchange",
-          "bulkDensity",
-          "rootingDepth",
-          "variety",
-          "emergence",
-          "plantDensity",
-          "vegetationIndex",
-          "yieldTarget",
-          "harvestWindow",
-          "elevation",
-          "slope",
-          "drainage",
-          "irrigation",
-          "lastIrrigation",
-          "waterApplied",
-          "rainfall",
-          "waterCapacity"
-        ],
         "title": "FieldProperties"
       },
       "FieldStrategy": {
@@ -2896,78 +3455,132 @@
         ],
         "title": "LoginInput"
       },
-      "MapFeature": {
+      "MapSummary": {
         "properties": {
-          "type": {
-            "type": "string",
-            "const": "Feature",
-            "title": "Type"
-          },
-          "id": {
+          "total": {
             "type": "integer",
-            "title": "Id"
+            "title": "Total"
           },
-          "properties": {
-            "$ref": "#/components/schemas/MapProperties"
-          },
-          "geometry": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PolygonGeometry"
-              },
-              {
-                "$ref": "#/components/schemas/MultiPolygonGeometry"
-              }
-            ],
-            "title": "Geometry",
-            "discriminator": {
-              "propertyName": "type",
-              "mapping": {
-                "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
-                "Polygon": "#/components/schemas/PolygonGeometry"
-              }
-            }
-          }
-        },
-        "type": "object",
-        "required": [
-          "type",
-          "id",
-          "properties",
-          "geometry"
-        ],
-        "title": "MapFeature"
-      },
-      "MapProperties": {
-        "properties": {
-          "fieldId": {
+          "bounds": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "uuid"
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Fieldid"
+            "title": "Bounds"
           },
-          "parcelId": {
+          "defaultCenter": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Defaultcenter"
+          },
+          "defaultZoom": {
             "type": "integer",
-            "title": "Parcelid"
+            "title": "Defaultzoom"
           },
-          "name": {
+          "source": {
             "type": "string",
-            "title": "Name"
+            "title": "Source"
+          },
+          "boundaryKind": {
+            "type": "string",
+            "title": "Boundarykind"
+          },
+          "importedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importedat"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "ready"
           }
         },
         "type": "object",
         "required": [
-          "fieldId",
-          "parcelId",
-          "name"
+          "total",
+          "bounds",
+          "defaultCenter",
+          "defaultZoom",
+          "source",
+          "boundaryKind",
+          "importedAt"
         ],
-        "title": "MapProperties"
+        "title": "MapSummary"
+      },
+      "MapView": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "FeatureCollection",
+            "title": "Type"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "clusters",
+              "fields"
+            ],
+            "title": "Mode"
+          },
+          "bounds": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Bounds"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/ViewFeature"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "approximate": {
+            "type": "boolean",
+            "title": "Approximate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "mode",
+          "bounds",
+          "total",
+          "features",
+          "limit",
+          "source",
+          "approximate"
+        ],
+        "title": "MapView"
       },
       "MultiPolygonGeometry": {
         "properties": {
@@ -3130,7 +3743,14 @@
             "title": "Area"
           },
           "soilType": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Soiltype"
           }
         },
@@ -3139,8 +3759,7 @@
           "id",
           "name",
           "crop",
-          "area",
-          "soilType"
+          "area"
         ],
         "title": "Parcel"
       },
@@ -3217,6 +3836,35 @@
         ],
         "title": "PlanningContext"
       },
+      "PointGeometry": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Point",
+            "title": "Type"
+          },
+          "coordinates": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Coordinates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "PointGeometry"
+      },
       "PolygonGeometry": {
         "properties": {
           "type": {
@@ -3261,31 +3909,52 @@
             "$ref": "#/components/schemas/FieldProperties"
           },
           "growthStage": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Growthstage"
           },
           "lastSample": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Lastsample"
           },
           "cultivationPractice": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Cultivationpractice"
           },
           "tenure": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Tenure"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "soil",
-          "crop",
-          "growthStage",
-          "lastSample",
-          "cultivationPractice",
-          "tenure"
-        ],
         "title": "PropertyData"
       },
       "PublicUser": {
@@ -3729,6 +4398,181 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ViewFeature": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Feature",
+            "title": "Type"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "geometry": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/PolygonGeometry"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MultiPolygonGeometry"
+                  }
+                ],
+                "discriminator": {
+                  "propertyName": "type",
+                  "mapping": {
+                    "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
+                    "Polygon": "#/components/schemas/PolygonGeometry"
+                  }
+                }
+              },
+              {
+                "$ref": "#/components/schemas/PointGeometry"
+              }
+            ],
+            "title": "Geometry"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/ViewProperties"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "id",
+          "geometry",
+          "properties"
+        ],
+        "title": "ViewFeature"
+      },
+      "ViewProperties": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "cluster",
+              "field"
+            ],
+            "title": "Kind"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          },
+          "area": {
+            "type": "number",
+            "title": "Area"
+          },
+          "bounds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bounds"
+          },
+          "catalogFieldId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalogfieldid"
+          },
+          "fieldId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fieldid"
+          },
+          "sourceId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceid"
+          },
+          "parcelId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parcelid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "crop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop"
+          },
+          "boundaryKind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundarykind"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "area"
+        ],
+        "title": "ViewProperties"
       },
       "WeatherRecord": {
         "properties": {

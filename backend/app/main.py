@@ -8,7 +8,6 @@ from app.api import auth, fields, planning, resources
 from app.core.config import Settings
 from app.core.database import database_engine, session_factory
 from app.core.errors import ResourceConflict, ResourceNotFound
-from app.repositories.demo import DemoRepository
 from app.services.crop_conditions import HeuristicCropConditionModel
 from app.services.weather import WeatherService
 
@@ -30,9 +29,8 @@ def create_app(config: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
         title="Field Shift NASA API",
         version="1.0.0",
-        description="Authenticated farm API with live Open-Meteo weather from saved account coordinates. Accounts and preferences persist in SQL; agronomic demo data remains process-local.",
+        description="Authenticated farm API with SQL-backed accounts, shared fields, per-user field selections and live Open-Meteo weather. No demo field data is seeded.",
     )
-    app.state.repository = DemoRepository()
     app.state.config = config
     app.state.engine = engine
     app.state.sessions = session_factory(engine)

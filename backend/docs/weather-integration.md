@@ -3,8 +3,8 @@
 The backend fetches Open-Meteo model data using the signed-in account's saved
 latitude, longitude, time zone, and metric/imperial preferences for unscoped requests.
 An explicit `field_id` on forecast/history instead selects that field's geometry bounding-box
-center and its farm time zone, retaining the account's unit preference. Weather remains
-live provider data; the selected demo field's crop and soil are illustrative inputs.
+center and the caller's saved time zone, retaining the account's unit preference. Weather remains
+live provider data; crop and soil inputs come from the selected database field.
 Accounts without coordinates receive 422; the UI links to Settings to select a point.
 
 ## API contract
@@ -70,8 +70,10 @@ Open-Meteo attribution and upstream data licensing.
 
 `GET /weather/forecast?field_id=<UUID>` and `GET /weather/history?...&field_id=<UUID>`
 return the same weather envelope with additional crop assessments. The authenticated
-field must exist: malformed UUIDs return 422, missing fields return 404, and both are
-checked before contacting the provider. The field's location can supply coordinates
+field must be selected by the caller: malformed UUIDs return 422, missing fields return 404, and both are
+checked before contacting the provider. Required soil inputs (soilType, soilPh,
+organicMatter, waterCapacity and drainage) must be supplied; missing values return
+422 before any provider request. The field's location can supply coordinates
 even if account coordinates are unset. Omitting `field_id` preserves saved-location
 behavior, with `cropAssessment: null` in the series and daily records. Current weather
 remains unscoped. No field is implicitly chosen by the server.

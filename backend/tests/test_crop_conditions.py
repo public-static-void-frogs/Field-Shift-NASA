@@ -5,11 +5,10 @@ from uuid import uuid4
 
 import httpx
 from fastapi.testclient import TestClient
-from support import isolated_app, register
+from support import create_field, field_input, isolated_app, register
 from weather_fixture import provider_payload
 
 from app.core.config import Settings
-from app.repositories.demo import DemoRepository
 from app.schemas.weather import WeatherSeries
 from app.services.crop_conditions import HeuristicCropConditionModel, assessment_context
 from app.services.weather import WeatherService
@@ -17,8 +16,7 @@ from app.services.weather import WeatherService
 
 class CropConditionsTests(unittest.TestCase):
     def setUp(self):
-        self.store = DemoRepository()
-        self.field = self.store.fields()[0]
+        self.field = dict(field_input(), id=str(uuid4()))
         self.preferences = SimpleNamespace(
             latitude=50.45,
             longitude=30.52,
@@ -253,12 +251,12 @@ class CropConditionsTests(unittest.TestCase):
             self.assertEqual(
                 client.put("/api/v1/users/me/settings", json=settings).status_code, 200
             )
-            fid = self.field["id"]
+            fid = create_field(client)["id"]
             response = client.get(f"/api/v1/weather/forecast?field_id={fid}")
             self.assertEqual(response.status_code, 200, response.text)
             result = response.json()
             self.assertEqual(result["cropAssessment"]["context"]["fieldId"], fid)
-            self.assertEqual(result["timeZone"], "America/Chicago")
+            self.assertEqual(result["timeZone"], "Europe/Kyiv")
             self.assertNotEqual(result["latitude"], 50.45)
             self.assertEqual(client.get("/api/v1/weather/forecast?field_id=nope").status_code, 422)
             self.assertEqual(

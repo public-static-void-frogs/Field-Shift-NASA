@@ -1,15 +1,16 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, Path, Request
+from fastapi import Depends, Path
 
-from app.repositories.demo import DemoRepository
-
-
-def repository(request: Request) -> DemoRepository:
-    return request.app.state.repository
+from app.api.auth import CurrentUser, Database
+from app.repositories.fields import FieldRepository
 
 
-Store = Annotated[DemoRepository, Depends(repository)]
+def repository(database: Database, user: CurrentUser) -> FieldRepository:
+    return FieldRepository(database, user.id)
+
+
+Store = Annotated[FieldRepository, Depends(repository)]
 FieldId = UUID
 ParcelId = Annotated[int, Path(gt=0)]

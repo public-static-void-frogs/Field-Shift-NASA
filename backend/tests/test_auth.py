@@ -142,7 +142,7 @@ class AuthTests(unittest.TestCase):
             ).status_code,
             422,
         )
-        # Domain fixtures are still shared and unchanged by user settings.
+        # New accounts have no preselected fields.
         self.assertEqual(
             self.client.get(BASE + "/fields").json(), other.get(BASE + "/fields").json()
         )

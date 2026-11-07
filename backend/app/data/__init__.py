@@ -1,1 +1,1 @@
-"""Normalized JSON collections loaded by DemoRepository; see README.md for relationships."""
+"""No production fixture data is loaded; domain records persist in SQL."""

@@ -3,8 +3,6 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.schemas.geometry import Geometry
-
 
 class FarmProfile(BaseModel):
     availableSeasons: list[str]
@@ -58,21 +56,3 @@ class CropArea(BaseModel):
 class Overview(BaseModel):
     trends: list[dict[str, str | int]]
     cropAreas: list[CropArea]
-
-
-class MapProperties(BaseModel):
-    fieldId: UUID | None
-    parcelId: int
-    name: str
-
-
-class MapFeature(BaseModel):
-    type: Literal["Feature"]
-    id: int
-    properties: MapProperties
-    geometry: Geometry
-
-
-class FieldGeoJson(BaseModel):
-    type: Literal["FeatureCollection"]
-    features: list[MapFeature]

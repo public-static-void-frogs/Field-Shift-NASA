@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.auth import CurrentUser
 from app.api.dependencies import FieldId, Store
 from app.schemas.planning import (
     EventResponse,
@@ -15,8 +16,8 @@ router = APIRouter(tags=["planning"])
 
 
 @router.get("/planning/context", response_model=PlanningContext)
-def context(store: Store):
-    return service.context(store)
+def context(user: CurrentUser):
+    return service.context(user)
 
 
 @router.get("/planning/events", response_model=list[PlannedEvent])
@@ -26,7 +27,7 @@ def events(store: Store):
 
 @router.get("/planning/responses", response_model=dict[str, EventResponse])
 def responses(store: Store):
-    return store.responses()
+    return {}
 
 
 @router.get("/fields/{field_id}/events", response_model=list[PlannedEvent])
@@ -46,5 +47,4 @@ def strategy(field_id: FieldId, store: Store):
 
 @router.put("/fields/{field_id}/strategy/response", response_model=dict[str, EventResponse])
 def respond(field_id: FieldId, input: StrategyResponse, store: Store):
-    events = service.field_events(store, field_id)
-    return store.respond(field_id, events, input.status)
+    service.strategy(store, field_id)

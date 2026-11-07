@@ -1,7 +1,7 @@
 """Illustrative crop suitability estimator. Replace CropConditionModel, not the HTTP contract.
 
 This is deliberately not a trained model or calibrated agronomic advice. Climate inputs
-are the requested weather window; demo soil data and shallow model moisture are proxies.
+are the requested weather window; user-supplied soil data and shallow model moisture are proxies.
 All calculations use SI units internally and convert the complete result at the boundary.
 """
 
@@ -9,6 +9,8 @@ from copy import deepcopy
 from statistics import mean
 from types import SimpleNamespace
 from typing import Protocol
+
+from fastapi import HTTPException
 
 from app.schemas.crop_conditions import CropAssessmentContext, CropMetricBounds
 
@@ -26,7 +28,13 @@ class CropConditionModel(Protocol):
     def predict(self, series: dict, context: CropAssessmentContext) -> dict: ...
 
 
-def field_location(preferences, field, farm):
+def field_location(preferences, field):
+    soil = (field.get("properties") or {}).get("soil", {})
+    required = ("soilType", "soilPh", "organicMatter", "waterCapacity", "drainage")
+    if any(soil.get(key) is None for key in required):
+        raise HTTPException(
+            status_code=422, detail="Field soil data is required for crop assessment"
+        )
     geometry = field["geometry"]
     polygons = geometry["coordinates"]
     if geometry["type"] == "Polygon":
@@ -35,7 +43,7 @@ def field_location(preferences, field, farm):
     return SimpleNamespace(
         latitude=(min(p[1] for p in points) + max(p[1] for p in points)) / 2,
         longitude=(min(p[0] for p in points) + max(p[0] for p in points)) / 2,
-        time_zone=farm["timeZone"],
+        time_zone=preferences.time_zone,
         units=preferences.units,
         location=field["name"],
     )
@@ -174,7 +182,7 @@ def _condition_priors(series, context):
     temperature[3] += adaptation - 1.2 * humid_air - 1.5 * dry_soil - 0.5 * dry_air
     temperature[4] += buffering - 2 * humid_air - 2.5 * dry_soil - 0.8 * dry_air - ph_stress
 
-    # Warm/wet combinations narrow the humidity range, especially for the demo
+    # Warm/wet combinations narrow the humidity range, especially for supported
     # crops with greater illustrative sensitivity to damp conditions.
     damp_sensitivity = {"Winter wheat": 1.0, "Corn": 0.7, "Soybeans": 0.9}[context.crop]
     damp_pressure = damp_sensitivity * (wet_soil + 0.5 * sustained_rain)

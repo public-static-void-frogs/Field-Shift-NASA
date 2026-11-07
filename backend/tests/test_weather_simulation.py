@@ -5,7 +5,7 @@ import unittest
 
 import httpx
 from fastapi.testclient import TestClient
-from support import isolated_app, register
+from support import create_field, isolated_app, register
 
 from app.services.weather import WeatherService
 
@@ -31,6 +31,7 @@ class WeatherSimulationTests(unittest.TestCase):
         self.assertEqual(
             register(self.client, latitude=50.4501, longitude=30.5234).status_code, 201
         )
+        self.field = create_field(self.client)
 
     def test_current_forecast_history_and_shared_cache_over_http(self):
         current = self.client.get("/api/v1/weather/current")
@@ -61,7 +62,7 @@ class WeatherSimulationTests(unittest.TestCase):
         self.assertIsNone(response.json()["records"][0]["rainfall"])
 
     def test_field_crop_assessment_and_missing_inputs_over_http(self):
-        field = self.app.state.repository.fields()[0]
+        field = self.field
         response = self.client.get(f"/api/v1/weather/forecast?field_id={field['id']}")
         self.assertEqual(response.status_code, 200, response.text)
         body = response.json()
@@ -87,7 +88,7 @@ class WeatherSimulationTests(unittest.TestCase):
         self.assertFalse(any(alert["metric"] == "moisture" for alert in day["alerts"]))
 
     def test_humidity_changes_heat_limits_through_the_authenticated_route(self):
-        field_id = self.app.state.repository.fields()[0]["id"]
+        field_id = self.field["id"]
         outcomes = []
         for mode in ("warm_normal", "warm_humid"):
             httpx.get(SIMULATION + "/__control", params={"mode": mode})
@@ -114,7 +115,7 @@ class WeatherSimulationTests(unittest.TestCase):
 
     def test_one_response_has_daily_zones_and_matching_alerts_over_http(self):
         httpx.get(SIMULATION + "/__control", params={"mode": "humidity_wave"})
-        field_id = self.app.state.repository.fields()[0]["id"]
+        field_id = self.field["id"]
         for path in (
             f"/api/v1/weather/forecast?field_id={field_id}",
             f"/api/v1/weather/history?days=7&field_id={field_id}",

@@ -1,8 +1,9 @@
 # Field Shift NASA backend
 
-FastAPI demo API for `../../nasa-fields-demo-app`. Python 3.10+ is required.
-Accounts and per-user settings persist in PostgreSQL. All other demo/domain data remains hardcoded.
-See [authentication and setup](docs/authentication.md) for the cookie contract and configuration.
+FastAPI API for `../../nasa-fields-demo-app`, requiring Python 3.10+.
+Accounts, settings, fields and user field selections persist in PostgreSQL through
+SQLAlchemy. Production demo fixtures and generated agronomic data have been removed.
+Weather uses live Open-Meteo model data.
 
 ## Run locally
 
@@ -11,98 +12,69 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 cp .env.example .env
-# Set JWT_SECRET in .env to a generated secret of at least 32 bytes.
+# Configure DATABASE_URL, JWT_ISSUER and a JWT_SECRET of at least 32 bytes.
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 alembic upgrade head
 python main.py
 ```
 
-The server listens on `http://127.0.0.1:8000`. Start the frontend separately with
-`npm run dev`. Set the frontend `.env` variable `VITE_API_BASE_URL` to the full API
-prefix (`http://localhost:8000/api/v1` locally). Requests go directly to this URL;
-there is no Vite API proxy. Open Vite at `http://localhost:5173` to keep cookie sites consistent. For separate hosting, set it to the deployed prefix,
-e.g. `https://api.example.com/api/v1`, before building the frontend.
+The server listens on `http://localhost:8000`. Start the frontend separately with
+`npm run dev`, open `http://localhost:5173`, and set `VITE_API_BASE_URL` to
+`http://localhost:8000/api/v1`. Use the same hostname for the frontend and backend
+so session cookies work. Configure `CORS_ORIGINS` for deployed clients.
 
-`CORS_ORIGINS` accepts a comma-separated list of frontend origins. Its default is
-`http://localhost:5173,http://127.0.0.1:5173`. Set it explicitly for deployed clients.
+## Fields and selections
 
-## Organization
+`fields` contains the shared catalog. `user_fields` links users to fields with a
+composite primary key and cascading foreign keys. New accounts have no selections.
+One catalog entry can be selected by multiple accounts. Data survives restarts
+and is shared between API workers.
 
-```text
-app/
-  main.py          App factory, middleware, router registration
-  api/             HTTP routes and injected repository dependency
-  core/            Environment configuration
-  schemas/         Pydantic request validation and response contracts
-  repositories/    Process-local field and strategy-decision storage
-  services/        Field history, recommendations, planning, analytics, notifications
-  data/            Normalized JSON collections with primary and foreign keys
-main.py            Compatibility entry point
-openapi.json       Generated API contract (source of truth: routes and Pydantic models)
-tests/             API lifecycle, validation, concurrency, CORS, and planning checks
-```
+| Request (relative to `/api/v1`) | Purpose |
+| --- | --- |
+| `GET /fields/catalog` | Browse shared catalog entries |
+| `GET /fields` | List the current user's selected fields |
+| `POST /fields` | Create a field and select it atomically |
+| `PUT /fields/{id}/selection` | Select an existing field idempotently |
+| `GET /fields/{id}` | Read a selected field |
+| `DELETE /fields/{id}` | Remove the caller's selection, preserving the catalog |
 
-Routes delegate to services and the repository; they contain no fixture generators.
-JSON collection arrays are loaded into private indexed tables per repository. Foreign keys
-and unique primary keys are validated at startup; joins use IDs, never array order. Repository mutations are
-protected by a lock, and callers receive detached values. Use `create_app()` to get
-an isolated repository in tests. SQLAlchemy stores accounts and settings separately; the demo repository remains responsible for all other resources.
+`GET /fields/catalog` is paginated (default 100, maximum 500); use the viewport map
+API to explore the source dataset.
 
-## API contract
+Manual creation requires name, crop, area in hectares, and Polygon/MultiPolygon
+GeoJSON geometry. Parcel ID and measurements are optional. Missing measurements
+return null. The catalog starts empty; migrations do not import fixtures.
+See [persistent fields](docs/field-storage.md) for payloads, constraints, selection
+semantics and client compatibility changes. The former parcel-only creation flow
+must supply area/geometry or use the selection endpoint.
 
-Interactive docs: [Swagger UI](http://127.0.0.1:8000/docs).
-Live schema: [OpenAPI](http://127.0.0.1:8000/openapi.json).
-All resource routes use `/api/v1`. The existing `GET /` health response is preserved.
+The [real-source map prototype](docs/field-map-prototype.md) imports the supplied
+CSB archive and serves viewport-limited polygons or preaggregated groups.
 
-| Method      | Path                                                           | Purpose                                       |
-| ----------- | -------------------------------------------------------------- | --------------------------------------------- |
-| GET, POST   | `/fields`                                                      | List or create fields                         |
-| GET, DELETE | `/fields/{id}`                                                 | Fetch or remove a field                       |
-| GET         | `/fields/{id}/properties`, `/history`, `/recommendation`       | Field detail resources                        |
-| GET         | `/fields/{id}/events`, `/rotation`, `/strategy`                | Field planning resources                      |
-| PUT         | `/fields/{id}/strategy/response`                               | Accept, decline, or reset the entire strategy |
-| GET         | `/crops`, `/parcels/{id}`                                      | Crop choices and parcel details               |
-| GET         | `/planning/context`, `/planning/events`, `/planning/responses` | Shared planning resources                     |
-| GET         | `/overview/charts?days=30&metric=health`                       | Trends and crop areas                         |
-| GET         | `/weather/current`, `/weather/forecast`, `/weather/history?days=30`                 | Live weather, historical estimates and forecasts           |
-| GET         | `/farm/profile`, `/maps/geojson`, `/notifications`             | Farm, boundaries, notifications               |
-| GET         | `/help/team`, `/help/sources`                                  | Help content                                  |
+Maps expose catalog boundaries and mark the caller's selections. Overview
+crop areas use only selected fields. History, schedules, notifications and chart
+observations are empty until real data is available. Unavailable properties,
+recommendations and strategies return 404. The planning date follows the caller's
+saved time zone. Crop weather assessments require supplied soil inputs.
 
-Fields have UUID identifiers, e.g. `3bf6d7e9-8f34-59dc-abf9-5a02df771653`.
-`GET /fields/{guid}` includes `parcelId`, `farmId`, `cropId`, `geometry`, and joined
-`properties`. History and seasons include `fieldId`; planned events have UUID IDs.
-Malformed UUIDs return `422`; valid but unknown UUIDs return `404`.
-Numeric field URLs from the former demo are no longer supported.
+## API contract and organization
 
-The [core and dataset contract report](docs/core-and-source-data-contract.md) describes
-the desired agronomic outputs, required source-data structure, and integration boundaries.
+Interactive docs: [Swagger UI](http://localhost:8000/docs).
+Live contract: [OpenAPI](http://localhost:8000/openapi.json).
+All resource routes use `/api/v1` and require authentication.
+`GET /` remains the public health endpoint.
 
-The [collection model](app/data/README.md) documents each entity, foreign key, join,
-and cascade. It includes the distinction between a field and its numeric parcel.
+- `app/api/`: routes and request-scoped database/user dependencies.
+- `app/repositories/`: SQLAlchemy models and database reads/writes.
+- `app/schemas/`: validated request and response contracts.
+- `app/services/`: resource projections, weather and crop assessments.
+- `migrations/`: Alembic schema migrations; run `alembic upgrade head` on deployment.
+- `tests/`: API, persistence, isolation, migrations and weather checks.
+- `openapi.json`: generated from routes and Pydantic models.
 
-Create a field with `{"parcelId":6,"name":"West Orchard","crop":"Soybeans"}`.
-Names are trimmed and must contain 1–60 characters. Only the six demo parcels and
-three supported crops are accepted. Success returns `201`; an occupied parcel
-returns `409`. Missing fields/parcels return `404`. Invalid input returns `422`.
-Errors use FastAPI's `{"detail": ...}` shape.
-
-Respond to a strategy with `{"status":"accepted"}`, `{"status":"declined"}`, or
-`{"status":"proposed"}`. The response contains all saved decisions, including
-fingerprints compatible with the frontend calendar. Deleting a field cascades through its related records and event decisions. Maps,
-schedules, analytics, and notifications reflect the remaining field associations.
-Recreating a field on the same parcel assigns a fresh UUID.
-
-Weather history accepts 7, 30, or 90 days. Chart ranges accept 1–365 days and
-`health` or `moisture`. Defaults are 30 days and health.
-
-## Demo storage limitations
-
-JWT cookie authentication and database-backed accounts/settings are implemented. No external data feed is connected. Seed data,
-boundaries and agronomic projections remain illustrative. Weather uses live Open-Meteo model data for saved account coordinates. The planning
-clock stays fixed at May 24, 2026. Changes survive frontend refreshes, are shared
-by clients of the same process, and reset when it restarts. Run one worker for
-this demo; multiple workers would have independent in-memory state. Browser-local
-strategy decisions from the former frontend implementation are not imported.
+See [authentication](docs/authentication.md), [weather integration](docs/weather-integration.md)
+and the [source-data integration contract](docs/core-and-source-data-contract.md).
 
 ## Verification
 
@@ -111,18 +83,15 @@ python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ruff check app tests migrations main.py
 ruff format --check app tests migrations main.py
+alembic check
 ```
 
-The frontend's `npm test` also starts isolated backend processes to exercise fetch,
-query caching, mutation invalidation, strategy fingerprints, and maps over HTTP.
-Run both suites after API changes.
+Tests use temporary SQLite databases and explicit test-only field inputs. Opt-in
+weather simulation checks use the existing local Postman simulation described in
+the weather integration guide; they never require live weather.
 
-Regenerate the checked-in contract from this directory after changing routes or schemas:
+Regenerate the checked-in contract after changing routes or schemas:
 
 ```sh
 python -c 'import json; from pathlib import Path; from app.main import app; Path("openapi.json").write_text(json.dumps(app.openapi(), indent=2) + "\n")'
 ```
-
-## Weather
-
-See [Weather integration](docs/weather-integration.md) for source semantics, dates, units, caching, configuration, licensing, and local failure simulations. No weather API key is required for the default noncommercial Open-Meteo endpoint.

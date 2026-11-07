@@ -1,8 +1,9 @@
 # Accounts, settings, and cookie authentication
 
-Accounts and settings use PostgreSQL. Farm, field, weather, maps, recommendations,
-and planning data still use the existing shared, process-local demo repository.
-Registration does not create or assign a private farm or field dataset.
+Accounts, settings, the shared field catalog and per-user field selections use
+PostgreSQL. Registration starts with no selected fields. Users can create catalog
+fields or select existing entries; see [persistent fields](field-storage.md).
+Weather comes from Open-Meteo, and no demo domain fixtures are loaded.
 
 ## Local setup
 
@@ -21,7 +22,7 @@ The database must already exist. `DATABASE_URL`, `JWT_SECRET`, and `JWT_ISSUER`
 are loaded from environment variables (or the local `.env`); database credentials
 and the JWT issuer are not embedded in application code. The initial migration creates `users`,
 `user_settings`, and Alembic's version table. It does not import demo users or
-change fixture data. Run `alembic upgrade head` after pulling new migrations;
+seed fields. Migration 0003 adds `fields` and `user_fields`. Run `alembic upgrade head` after pulling new migrations;
 `alembic check` checks the models against the migrated schema.
 
 Open the frontend at `http://localhost:5173` and set its `VITE_API_BASE_URL` to
@@ -47,7 +48,7 @@ is used. Account responses contain only `id`, `fullName`, and `email`.
 | PUT | `/auth/me` | Replace fullName and email; reject duplicate email with 409 |
 | GET | `/users/me/settings` | Current user's settings |
 | PUT | `/users/me/settings` | Replace current user's settings and reissue the cookie |
-| GET | `/farm/profile` | Current account and saved settings, plus demo availableSeasons |
+| GET | `/farm/profile` | Current account and saved settings, plus the saved season as availableSeasons |
 
 Registration body:
 

@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Literal
 from uuid import UUID
 
@@ -10,27 +11,29 @@ Crop = Literal["Winter wheat", "Corn", "Soybeans"]
 
 
 class CreateField(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    parcelId: int = Value(gt=0, strict=True)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, allow_inf_nan=False)
+    parcelId: int | None = Value(default=None, gt=0, strict=True)
     name: str = Value(min_length=1, max_length=60)
     crop: Crop
-
-
-class Field(BaseModel):
-    id: UUID
-    parcelId: int
-    farmId: UUID
-    cropId: UUID
+    area: float = Value(gt=0)
     geometry: Geometry
-    properties: "PropertyData"
-    name: str
-    crop: Crop
-    area: float
-    health: int
-    moisture: int
-    nitrogen: int
-    status: Literal["Healthy", "Needs attention", "Critical"]
-    planted: str
+    planted: date | None = None
+    properties: "PropertyData | None" = None
+    health: int | None = Value(default=None, ge=0, le=100, strict=True)
+    moisture: int | None = Value(default=None, ge=0, le=100, strict=True)
+    nitrogen: int | None = Value(default=None, ge=0, strict=True)
+    status: Literal["Healthy", "Needs attention", "Critical"] | None = None
+
+
+class Field(CreateField):
+    id: UUID
+    crop: str | None
+    sourceId: str | None = None
+    boundaryKind: Literal["user_geometry", "estimated_bounds"] = "user_geometry"
+    sourceYear: int | None = None
+    county: str | None = None
+    stateFips: str | None = None
+    countyFips: str | None = None
 
 
 class Parcel(BaseModel):
@@ -38,7 +41,7 @@ class Parcel(BaseModel):
     name: str
     crop: Crop
     area: float
-    soilType: str
+    soilType: str | None = None
 
 
 class CropOption(BaseModel):
@@ -47,39 +50,43 @@ class CropOption(BaseModel):
 
 
 class FieldProperties(BaseModel):
-    soilType: str
-    soilPh: float
-    phosphorus: float
-    potassium: float
-    organicMatter: float
-    soilTemperature: float
-    conductivity: float
-    cationExchange: float
-    bulkDensity: float
-    rootingDepth: float
-    variety: str
-    emergence: float
-    plantDensity: float
-    vegetationIndex: float
-    yieldTarget: float
-    harvestWindow: str
-    elevation: float
-    slope: float
-    drainage: str
-    irrigation: str
-    lastIrrigation: str
-    waterApplied: float
-    rainfall: float
-    waterCapacity: float
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+
+    soilType: str | None = None
+    soilPh: float | None = None
+    phosphorus: float | None = None
+    potassium: float | None = None
+    organicMatter: float | None = None
+    soilTemperature: float | None = None
+    conductivity: float | None = None
+    cationExchange: float | None = None
+    bulkDensity: float | None = None
+    rootingDepth: float | None = None
+    variety: str | None = None
+    emergence: float | None = None
+    plantDensity: float | None = None
+    vegetationIndex: float | None = None
+    yieldTarget: float | None = None
+    harvestWindow: str | None = None
+    elevation: float | None = None
+    slope: float | None = None
+    drainage: str | None = None
+    irrigation: str | None = None
+    lastIrrigation: str | None = None
+    waterApplied: float | None = None
+    rainfall: float | None = None
+    waterCapacity: float | None = None
 
 
 class PropertyData(BaseModel):
-    soil: FieldProperties
-    crop: FieldProperties
-    growthStage: str
-    lastSample: str
-    cultivationPractice: str
-    tenure: str
+    model_config = ConfigDict(extra="forbid")
+
+    soil: FieldProperties = Value(default_factory=FieldProperties)
+    crop: FieldProperties = Value(default_factory=FieldProperties)
+    growthStage: str | None = None
+    lastSample: str | None = None
+    cultivationPractice: str | None = None
+    tenure: str | None = None
 
 
 class LandEvent(BaseModel):
@@ -116,4 +123,5 @@ class Recommendation(BaseModel):
     nextStep: str
 
 
+CreateField.model_rebuild()
 Field.model_rebuild()

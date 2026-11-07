@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from app.api.dependencies import FieldId, ParcelId, Store
 from app.schemas.fields import (
@@ -22,22 +22,43 @@ def list_fields(store: Store):
     return store.fields()
 
 
+@router.get("/fields/catalog", response_model=list[Field])
+def catalog(
+    store: Store,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+):
+    """Browse shared fields available for selection by the signed-in user."""
+    return store.catalog(offset, limit)
+
+
+@router.get("/fields/catalog/{field_id}", response_model=Field)
+def catalog_field(field_id: FieldId, store: Store):
+    return store.catalog_field(field_id)
+
+
 @router.post(
     "/fields",
     response_model=Field,
     status_code=201,
     responses={
-        404: {"description": "Parcel not found"},
-        409: {"description": "Parcel is unavailable"},
+        409: {"description": "Parcel ID already exists in the catalog"},
     },
 )
 def create_field(input: CreateField, store: Store):
-    return store.create(input.parcelId, input.name, input.crop)
+    """Create a shared catalog field and select it for the caller atomically."""
+    return store.create(input)
+
+
+@router.put("/fields/{field_id}/selection", response_model=Field)
+def select_field(field_id: FieldId, store: Store):
+    """Select a catalog field for the caller; repeated selections are idempotent."""
+    return store.select(field_id)
 
 
 @router.get("/crops", response_model=list[CropOption])
-def crops(store: Store):
-    return [dict(value=row["name"], label=row["name"]) for row in store.all("crops")]
+def crops():
+    return [dict(value=name, label=name) for name in ("Winter wheat", "Corn", "Soybeans")]
 
 
 @router.get("/parcels/{parcel_id}", response_model=Parcel)
@@ -52,6 +73,7 @@ def field(field_id: FieldId, store: Store):
 
 @router.delete("/fields/{field_id}", response_model=UUID)
 def delete_field(field_id: FieldId, store: Store):
+    """Remove the caller's selection while preserving the shared catalog field."""
     return store.remove(field_id)
 
 
