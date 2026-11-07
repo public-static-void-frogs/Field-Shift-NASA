@@ -1,12 +1,26 @@
-import { canvas, circleMarker, divIcon, geoJSON, layerGroup, marker } from 'leaflet';
-import { useEffect, useState } from 'react';
+import {
+  canvas,
+  circleMarker,
+  divIcon,
+  geoJSON,
+  layerGroup,
+  marker,
+  type CircleMarker,
+} from 'leaflet';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMapEvents } from 'react-leaflet';
 import type { CatalogMapView } from '../../../types/maps/map.types.ts';
 import { clusterMarkerSize, layoutMapClusters } from '../utils/clusterLayout.ts';
 import { clusterView } from '../utils/catalogViewport.ts';
+import { catalogPointStyle } from '../utils/catalogPointStyle.ts';
 
-export function useCatalogLayers(data: CatalogMapView | undefined, onPick: (id: string) => void) {
+export function useCatalogLayers(
+  data: CatalogMapView | undefined,
+  onPick: (id: string) => void,
+  selectedIds: ReadonlySet<string>,
+) {
+  const points = useRef(new Map<string, { marker: CircleMarker; inFarm: boolean }>());
   const [revision, setRevision] = useState(0);
   const refreshLayout = () => setRevision((value) => value + 1);
   const map = useMapEvents({ moveend: refreshLayout, resize: refreshLayout });
@@ -15,6 +29,7 @@ export function useCatalogLayers(data: CatalogMapView | undefined, onPick: (id: 
     if (!data) {
       return;
     }
+    const pointMarkers = points.current;
     const started = performance.now();
     const layers = layerGroup().addTo(map);
     const renderer = canvas({ padding: 0.2 });
@@ -49,17 +64,13 @@ export function useCatalogLayers(data: CatalogMapView | undefined, onPick: (id: 
     }
     for (const feature of data.features) {
       if (feature.properties.kind === 'field') {
-        const selected = Boolean(feature.properties.fieldId);
+        const inFarm = Boolean(feature.properties.fieldId);
         const point = geoJSON(feature, {
-          pointToLayer: (_, latlng) =>
-            circleMarker(latlng, {
-              renderer,
-              radius: selected ? 7 : 5,
-              color: selected ? '#bce783' : '#fff5c6',
-              weight: selected ? 2.5 : 1.2,
-              fillColor: selected ? '#8dba5b' : '#dfdb9d',
-              fillOpacity: selected ? 0.9 : 0.7,
-            }),
+          pointToLayer: (_, latlng) => {
+            const marker = circleMarker(latlng, { renderer, ...catalogPointStyle(inFarm, false) });
+            pointMarkers.set(String(feature.id), { marker, inFarm });
+            return marker;
+          },
           onEachFeature: (_, layer) => {
             layer.on('click', () => onPick(String(feature.id)));
             const tooltip = document.createElement('span');
@@ -82,8 +93,16 @@ export function useCatalogLayers(data: CatalogMapView | undefined, onPick: (id: 
     });
     return () => {
       cancelAnimationFrame(frame);
+      pointMarkers.clear();
       layers.remove();
       renderer.remove();
     };
   }, [map, data, onPick, t, revision]);
+  useEffect(() => {
+    for (const [id, point] of points.current) {
+      const style = catalogPointStyle(point.inFarm, selectedIds.has(id));
+      point.marker.setStyle(style);
+      point.marker.setRadius(style.radius ?? 5);
+    }
+  }, [data, selectedIds, t, revision]);
 }

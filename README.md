@@ -160,9 +160,12 @@ reserves space for the scale, and adapts to phone widths. Clicking a group zooms
 into its combined extent. Close views render individual fields using Canvas.
 
 The catalog never automatically fits the map after a viewport response. URL
-parameters retain the explored center and zoom. Field previews offer selection
-and removal; selections use the shared catalog UUID. Mini-maps read only selected
-field geometries. No production sample parcel collection is generated.
+parameters retain the explored center and zoom. Clicking points toggles a local
+multi-selection; the lasso adds enclosed visible points, and Clear selection resets
+it. Selections use catalog UUIDs and survive panning but clear when leaving or
+refreshing the map. This draft does not change saved fields or call mutation APIs.
+Mini-maps read only saved field geometries. No production sample parcel collection
+is generated. See [map selection](docs/map-selection.md) for interaction details.
 
 ```sh
 npm run test:maps
@@ -336,8 +339,9 @@ behavior and return no crop assessment.
 
 `/map` uses viewport-based API loading, with groups at wide zooms and a maximum of
 600 map features per response. It reads the imported USDA NASS CSB catalog. The
-supplied rectangles are estimates, and the UI labels them as such. Click a group
-to zoom in, then select a field to preview its source data and add it to My fields.
+supplied interior points represent field locations. Click a group to zoom in,
+then click points or draw a lasso to build a temporary selection. Clusters cannot
+be selected as individual fields, and selection performs no database actions.
 
 See [source import and map verification](../Field-Shift-NASA/backend/docs/field-map-prototype.md)
 for the database migration, full-archive importer and performance benchmark. The

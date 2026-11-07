@@ -27,14 +27,14 @@ export function HelpPage() {
                   key: 'fields',
                   label: t('How do I open a field?'),
                   children: t(
-                    'Select a field point on the map or click its name in the fields table. Its page shows the field location, crop and soil properties, recommendations, and a rotation strategy.',
+                    'Open My fields and click a field name to see its location, crop and soil properties, recommendations, and rotation strategy.',
                   ),
                 },
                 {
                   key: 'add',
-                  label: t('How do I add a field?'),
+                  label: t('How do I select fields on the map?'),
                   children: t(
-                    'Choose Add field, zoom in to a field point on the map, then select Add to my fields in its preview.',
+                    'Click field points to select or unselect them. Use Lasso select to draw around several visible points. This temporary selection does not change My fields.',
                   ),
                 },
                 {
