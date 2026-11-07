@@ -54,9 +54,9 @@ function DetectedRegion({ renderer, field, number, selected, onToggle }: Detecte
         )}
         pathOptions={{
           renderer,
-          color: selected ? detectedCropColors[field.crop] : '#8c9682',
+          color: selected ? (detectedCropColors[field.crop] ?? '#80b377') : '#8c9682',
           weight: selected ? 2 : 1,
-          fillColor: detectedCropColors[field.crop],
+          fillColor: detectedCropColors[field.crop] ?? '#80b377',
           fillOpacity: selected ? 0.18 : 0.025,
           dashArray: selected ? undefined : '5 5',
           className: 'map-detected-boundary map-section-interactive',
@@ -78,7 +78,7 @@ function DetectedRegion({ renderer, field, number, selected, onToggle }: Detecte
           aria-pressed={selected}
           {...clickHandlers}
         >
-          <span aria-hidden="true">{detectedCropIcons[field.crop]}</span>
+          <span aria-hidden="true">{detectedCropIcons[field.crop] ?? '🌱'}</span>
         </button>,
         element,
       )}

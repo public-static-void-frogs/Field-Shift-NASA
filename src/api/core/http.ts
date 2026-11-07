@@ -1,4 +1,4 @@
-type RequestOptions = RequestInit & { allowMissing?: boolean };
+type RequestOptions = RequestInit & { allowMissing?: boolean; timeoutMs?: number };
 
 export class ApiError extends Error {
   readonly status: number;
@@ -27,10 +27,10 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   if (!baseUrl || !/^https?:\/\//.test(baseUrl)) {
     throw new Error('VITE_API_BASE_URL must contain the full HTTP API URL.');
   }
-  const { allowMissing, ...init } = options;
+  const { allowMissing, timeoutMs = 10_000, ...init } = options;
   const signal = AbortSignal.any([
     ...(init.signal ? [init.signal] : []),
-    AbortSignal.timeout(10_000),
+    AbortSignal.timeout(timeoutMs),
   ]);
   const headers = new Headers(init.headers);
   if (init.body && !headers.has('Content-Type')) {

@@ -165,10 +165,12 @@ lasso buttons switch between moving the map and selecting fields. In select mode
 clicking points toggles a local selection and drawing a lasso creates a green
 section with a centered Add button. Add fits the zone and opens a preview panel;
 Cancel section removes it and restores its points. Selected points are hidden. Selections use catalog UUIDs and survive panning but clear when leaving or
-refreshing the map. This draft does not change saved fields or call mutation APIs.
-Analyze captures map imagery and calls the backend mock. While pending the zone
+refreshing the map. This draft does not change saved fields.
+Analyze captures map imagery and calls the real SAM2/TempCNN backend. While pending the zone
 pulses; results replace it with selectable crop icons and field boundaries.
-Add fields remains a UI-only control. Precise parameters await the real model. Mini-maps read only saved field geometries. No production sample parcel collection
+Add fields remains a UI-only control. TempCNN inputs are explicitly synthetic until
+the separate time-series source arrives; model classes retain numeric labels until
+the training crop-name mapping is supplied. Mini-maps read only saved field geometries. No production sample parcel collection
 is generated. See [map selection](docs/map-selection.md) for interaction details.
 
 ```sh

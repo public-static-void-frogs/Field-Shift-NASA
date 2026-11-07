@@ -4,8 +4,12 @@ export const satelliteTiles = {
     'Imagery &copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, and the GIS User Community',
 };
 
-export const detectedCropIcons = { 'Winter wheat': '🌾', Corn: '🌽', Soybeans: '🫘' };
-export const detectedCropColors = {
+export const detectedCropIcons: Record<string, string> = {
+  'Winter wheat': '🌾',
+  Corn: '🌽',
+  Soybeans: '🫘',
+};
+export const detectedCropColors: Record<string, string> = {
   'Winter wheat': '#dcc67d',
   Corn: '#e8bd55',
   Soybeans: '#9fca7a',

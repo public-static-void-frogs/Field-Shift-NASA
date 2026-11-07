@@ -52,7 +52,12 @@ export interface LocationPoint {
 export interface DetectedField {
   id: string;
   pointId: string;
-  crop: 'Winter wheat' | 'Corn' | 'Soybeans';
+  crop: string;
+  classIndex: number;
+  cropConfidence: number;
+  cropProbabilities: number[];
+  segmentationConfidence: number;
+  touchesImageEdge: boolean;
   center: [number, number];
   geometry: Polygon;
   areaHa: number;

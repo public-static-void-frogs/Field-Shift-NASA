@@ -11,9 +11,11 @@ image bounds and the image's Web Mercator projection. Capture failures show a
 retryable error rather than substituting an empty image.
 
 The green zone pulses while capture and the request run, and Analyze displays a
-loading spinner. The backend mock delays briefly, then generates random crop
-labels and rough square polygons around each point. It does not infer crops or
-boundaries from the image. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
+loading spinner. The backend runs SAM2 on the actual image and point prompts, then runs the trained
+TempCNN on explicitly synthetic 16-step, 3-channel sequences. Boundaries and crop
+class predictions are real model outputs. The missing training label mapping means
+classes currently display as Class 0–3 with neutral plant icons. The response
+records synthetic-input provenance; it does not invent crop-name mappings. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
 
 On completion the lasso disappears. Geographic field boundaries and crop icons
 replace it. Click a boundary or crop icon to include/exclude a result. Dragging and zooming
@@ -30,6 +32,8 @@ panel is closed or canceled. All section state clears when leaving/reloading the
 map. Raw selection remains bounded by the existing viewport response budget.
 
 The preview area is an inexpensive approximation of the drawn outline. After
-analysis, displayed areas come from the mock results. Precise figures are left
-to the future backend model. No additional tests were run for this UI iteration,
-as requested.
+analysis, displayed areas are geodesic estimates of the actual mask polygons. Masks
+may be clipped by the captured image. Analysis requests allow up to five minutes;
+other API calls keep their normal timeout. The backend caches models and encodes
+the image once per request. Client cancellation stops backend work between model
+batches; an active native operation finishes first.
