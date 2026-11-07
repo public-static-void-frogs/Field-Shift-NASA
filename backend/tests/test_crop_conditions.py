@@ -257,7 +257,8 @@ class CropConditionsTests(unittest.TestCase):
             result = response.json()
             self.assertEqual(result["cropAssessment"]["context"]["fieldId"], fid)
             self.assertEqual(result["timeZone"], "Europe/Kyiv")
-            self.assertNotEqual(result["latitude"], 50.45)
+            self.assertEqual(result["latitude"], 42.045)
+            self.assertEqual(result["longitude"], -93.745)
             self.assertEqual(client.get("/api/v1/weather/forecast?field_id=nope").status_code, 422)
             self.assertEqual(
                 client.get(f"/api/v1/weather/forecast?field_id={uuid4()}").status_code, 404

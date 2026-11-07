@@ -11,7 +11,7 @@ from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.migration import MigrationContext
 from fastapi.testclient import TestClient
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.exc import IntegrityError
 from support import create_field, field_input, isolated_app, register
 
@@ -218,7 +218,11 @@ class ApiTests(unittest.TestCase):
             dict(health=101),
             dict(moisture=-1),
             dict(planted="not-a-date"),
-            dict(geometry={"type": "Polygon", "coordinates": []}),
+            dict(geometry={"type": "Point", "coordinates": []}),
+            dict(geometry={"type": "Point", "coordinates": [181, 0]}),
+            dict(geometry={"type": "Point", "coordinates": [0, -91]}),
+            dict(geometry={"type": "Point", "coordinates": [1, 2, 3]}),
+            dict(geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]}),
             dict(geometry={"type": "MultiPolygon", "coordinates": []}),
             dict(geometry={"type": "Polygon", "coordinates": [[[200, 0]] * 4]}),
             dict(userId=self.other_id),
@@ -264,6 +268,26 @@ class ApiTests(unittest.TestCase):
             )
             with TestClient(legacy) as client:
                 self.assertEqual(register(client).status_code, 201)
+            command.upgrade(config, "0004_spatial_field_catalog")
+            previous_id = str(uuid4())
+            previous = database_engine(url)
+            with previous.begin() as connection:
+                user_id = connection.scalar(text("SELECT id FROM users"))
+                connection.execute(
+                    text(
+                        "INSERT INTO fields (id, name, crop, area, attributes, created_at, boundary_kind) "
+                        "VALUES (:id, 'Old rectangle', 'Corn', 1, '{}', CURRENT_TIMESTAMP, 'estimated_bounds')"
+                    ),
+                    {"id": previous_id},
+                )
+                connection.execute(
+                    text(
+                        "INSERT INTO user_fields (user_id, field_id, selected_at) "
+                        "VALUES (:uid, :fid, CURRENT_TIMESTAMP)"
+                    ),
+                    {"uid": user_id, "fid": previous_id},
+                )
+            previous.dispose()
             command.upgrade(config, "head")
             engine = database_engine(url)
             try:
@@ -275,7 +299,12 @@ class ApiTests(unittest.TestCase):
                     self.assertEqual(
                         connection.scalar(select(func.count()).select_from(FieldRecord)), 0
                     )
-                command.downgrade(config, "0002_location_coordinates")
+                    self.assertEqual(
+                        connection.scalar(text("SELECT field_id FROM pending_field_selections")),
+                        previous_id,
+                    )
+                with self.assertRaisesRegex(RuntimeError, "cannot be restored"):
+                    command.downgrade(config, "0002_location_coordinates")
                 command.upgrade(config, "head")
             finally:
                 engine.dispose()

@@ -35,14 +35,10 @@ def field_location(preferences, field):
         raise HTTPException(
             status_code=422, detail="Field soil data is required for crop assessment"
         )
-    geometry = field["geometry"]
-    polygons = geometry["coordinates"]
-    if geometry["type"] == "Polygon":
-        polygons = [polygons]
-    points = [point for polygon in polygons for point in polygon[0]]
+    longitude, latitude = field["geometry"]["coordinates"]
     return SimpleNamespace(
-        latitude=(min(p[1] for p in points) + max(p[1] for p in points)) / 2,
-        longitude=(min(p[0] for p in points) + max(p[0] for p in points)) / 2,
+        latitude=latitude,
+        longitude=longitude,
         time_zone=preferences.time_zone,
         units=preferences.units,
         location=field["name"],

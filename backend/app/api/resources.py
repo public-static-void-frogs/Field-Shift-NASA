@@ -49,7 +49,7 @@ def weather_history(
     store: Store,
     field_id: UUID | None = Query(
         default=None,
-        description="Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
+        description="Assess this field's crop and soil using weather at its field point and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
     ),
     days: Literal["7", "30", "90"] = "30",
     start_date: date | None = None,
@@ -81,7 +81,7 @@ def weather_forecast(
     store: Store,
     field_id: UUID | None = Query(
         default=None,
-        description="Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
+        description="Assess this field's crop and soil using weather at its field point and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
     ),
 ):
     field = store.require_field(field_id) if field_id else None
@@ -110,7 +110,7 @@ def geojson(
     ),
     zoom: float = Query(ge=0, le=20),
 ):
-    """Return at most 600 visible features. Wide/dense views use preaggregated count groups; close views use indexed extent intersection. Source rectangles are estimates, not surveyed boundaries."""
+    """Return at most 600 visible features. Wide/dense views use preaggregated count groups; close views use indexed point containment. Field features represent source interior points."""
     import math
 
     try:

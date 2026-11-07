@@ -35,7 +35,18 @@ def upgrade():
         ],
     )
     connection = op.get_bind()
-    from app.services.maps import geometry_bounds
+
+    def geometry_bounds(geometry):
+        polygons = geometry["coordinates"]
+        if geometry["type"] == "Polygon":
+            polygons = [polygons]
+        points = [p for polygon in polygons for ring in polygon for p in ring]
+        return (
+            min(p[0] for p in points),
+            min(p[1] for p in points),
+            max(p[0] for p in points),
+            max(p[1] for p in points),
+        )
 
     for row in connection.execute(sa.select(fields.c.id, fields.c.geometry)).mappings():
         west, south, east, north = geometry_bounds(row["geometry"])
@@ -72,9 +83,18 @@ def upgrade():
         sa.Column("id", sa.String(40), primary_key=True),
         sa.Column("metadata", sa.JSON(), nullable=False),
     )
-    from app.services.maps import rebuild_cells
-
-    rebuild_cells(connection)
+    # Keep this historical polygon backfill independent of the current point model.
+    for level in (4, 6, 8, 10, 12):
+        connection.execute(
+            sa.text("""
+            INSERT INTO field_map_cells (level, x, y, count, area, min_lon, min_lat, max_lon, max_lat)
+            SELECT :level, CAST(floor((centroid_lon + 180) / 360 * :size) AS INTEGER),
+                   CAST(floor((centroid_lat + 90) / 180 * :size) AS INTEGER),
+                   count(*), sum(area), min(min_lon), min(min_lat), max(max_lon), max(max_lat)
+            FROM fields WHERE centroid_lon IS NOT NULL GROUP BY 2, 3
+        """),
+            dict(level=level, size=1 << level),
+        )
 
 
 def downgrade():

@@ -6,11 +6,6 @@ from pydantic import BaseModel
 from app.schemas.geometry import Geometry
 
 
-class PointGeometry(BaseModel):
-    type: Literal["Point"]
-    coordinates: tuple[float, float]
-
-
 class ViewProperties(BaseModel):
     kind: Literal["cluster", "field"]
     count: int | None = None
@@ -22,13 +17,13 @@ class ViewProperties(BaseModel):
     parcelId: int | None = None
     name: str | None = None
     crop: str | None = None
-    boundaryKind: str | None = None
+    locationKind: str | None = None
 
 
 class ViewFeature(BaseModel):
     type: Literal["Feature"]
     id: str
-    geometry: Geometry | PointGeometry
+    geometry: Geometry
     properties: ViewProperties
 
 
@@ -49,6 +44,6 @@ class MapSummary(BaseModel):
     defaultCenter: list[float]
     defaultZoom: int
     source: str
-    boundaryKind: str
+    locationKind: str
     importedAt: str | None
     status: str = "ready"

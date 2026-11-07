@@ -69,6 +69,10 @@ def benchmark(base_url, output, samples):
                     elapsed = (time.perf_counter() - start) * 1000
                     response.raise_for_status()
                     data = response.json()
+                    if any(feature["geometry"]["type"] != "Point" for feature in data["features"]):
+                        raise AssertionError("Map returned non-point geometry")
+                    if data["mode"] == "fields" and data["total"] != len(data["features"]):
+                        raise AssertionError("Exact point view has inconsistent count")
                     if len(data["features"]) > 600:
                         raise AssertionError("Unbounded map response")
                     times.append(elapsed)
@@ -102,17 +106,23 @@ def benchmark(base_url, output, samples):
                         )
                     ).mappings()
                 ]
+                if any(
+                    row["fields"] != report["catalog"]["total"] for row in report["overviewCounts"]
+                ):
+                    raise AssertionError("Aggregate levels do not match the full catalog")
                 explain = connection.scalar(
                     text(
-                        "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT id, min_lon, min_lat, max_lon, max_lat FROM fields WHERE "
-                        "box(point(min_lon,min_lat),point(max_lon,max_lat)) && box(point(-93.90,42.02),point(-93.85,42.055)) LIMIT 601"
+                        "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT id, longitude, latitude FROM fields WHERE "
+                        "point(longitude,latitude) <@ box(point(-93.90,42.02),point(-93.85,42.055)) LIMIT 601"
                     )
                 )
                 report["spatialQueryPlan"] = explain
+                if "ix_fields_spatial" not in json.dumps(explain):
+                    raise AssertionError("Point viewport did not use the spatial index")
                 report["fieldStorageBytes"] = connection.scalar(
                     text("SELECT pg_total_relation_size('fields')")
                 )
-            if report["databaseRows"] != 15973095:
+            if report["databaseRows"] != report["catalog"]["total"]:
                 raise AssertionError(f"Full archive not verified: {report['databaseRows']} rows")
             output.write_text(json.dumps(report, indent=2, default=str) + "\n")
             print(f"Report saved to {output}", flush=True)

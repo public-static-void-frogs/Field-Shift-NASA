@@ -24,38 +24,34 @@ from app.schemas.fields import CreateField
 
 class FieldRecord(Base):
     __tablename__ = "fields"
-    __table_args__ = (CheckConstraint("area > 0", name="positive_field_area"),)
+    __table_args__ = (
+        CheckConstraint("area > 0", name="positive_field_area"),
+        CheckConstraint("longitude >= -180 AND longitude <= 180", name="valid_field_longitude"),
+        CheckConstraint("latitude >= -90 AND latitude <= 90", name="valid_field_latitude"),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     parcel_id: Mapped[int | None] = mapped_column(unique=True)
     name: Mapped[str] = mapped_column(String(60))
     crop: Mapped[str | None] = mapped_column(String(30))
     area: Mapped[float] = mapped_column(Float)
-    geometry: Mapped[dict | None] = mapped_column(JSON(none_as_null=True))
+    longitude: Mapped[float] = mapped_column(Float)
+    latitude: Mapped[float] = mapped_column(Float)
     # Optional supplied attributes are kept together; absent measurements stay absent.
     attributes: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     source_id: Mapped[str | None] = mapped_column(String(32), unique=True)
-    boundary_kind: Mapped[str] = mapped_column(String(24), default="user_geometry")
+    location_kind: Mapped[str] = mapped_column(String(24), default="user_point")
     state_fips: Mapped[str | None] = mapped_column(String(2))
     county_fips: Mapped[str | None] = mapped_column(String(3))
     county: Mapped[str | None] = mapped_column(String(80))
-    min_lon: Mapped[float | None] = mapped_column(Float)
-    min_lat: Mapped[float | None] = mapped_column(Float)
-    max_lon: Mapped[float | None] = mapped_column(Float)
-    max_lat: Mapped[float | None] = mapped_column(Float)
-    centroid_lon: Mapped[float | None] = mapped_column(Float)
-    centroid_lat: Mapped[float | None] = mapped_column(Float)
 
 
 Index(
     "ix_fields_spatial",
-    func.box(
-        func.point(FieldRecord.min_lon, FieldRecord.min_lat),
-        func.point(FieldRecord.max_lon, FieldRecord.max_lat),
-    ),
+    func.point(FieldRecord.longitude, FieldRecord.latitude),
     postgresql_using="gist",
 ).ddl_if(dialect="postgresql")
 
@@ -74,9 +70,18 @@ class UserField(Base):
     )
 
 
-def field_view(row: FieldRecord):
-    from app.services.maps import rectangle
+class PendingFieldSelection(Base):
+    """Selection recovery across a catalog replacement; restored after matching points load."""
 
+    __tablename__ = "pending_field_selections"
+    user_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    field_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    selected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+def field_view(row: FieldRecord):
     attributes = {
         "properties": None,
         "planted": None,
@@ -93,9 +98,9 @@ def field_view(row: FieldRecord):
         name=row.name,
         crop=row.crop,
         area=row.area,
-        geometry=row.geometry or rectangle((row.min_lon, row.min_lat, row.max_lon, row.max_lat)),
+        geometry=dict(type="Point", coordinates=[row.longitude, row.latitude]),
         sourceId=row.source_id,
-        boundaryKind=row.boundary_kind,
+        locationKind=row.location_kind,
         sourceYear=2025 if row.source_id else None,
         county=row.county,
         stateFips=row.state_fips,
@@ -109,6 +114,9 @@ class FieldRepository:
         self.user_id = user_id
 
     def catalog(self, offset=0, limit=100):
+        from app.services.maps import require_ready
+
+        require_ready(self.session)
         return [
             field_view(row)
             for row in self.session.scalars(
@@ -117,6 +125,9 @@ class FieldRepository:
         ]
 
     def catalog_field(self, field_id):
+        from app.services.maps import require_ready
+
+        require_ready(self.session)
         row = self.session.get(FieldRecord, str(field_id))
         if row is None:
             raise ResourceNotFound("Field not found")
@@ -146,23 +157,19 @@ class FieldRepository:
         )
 
     def create(self, payload: CreateField):
-        from app.services.maps import geometry_bounds, update_cells
+        from app.services.maps import require_ready, update_cells
 
+        require_ready(self.session)
         data = payload.model_dump(mode="json")
-        bounds = geometry_bounds(data["geometry"])
+        longitude, latitude = data.pop("geometry")["coordinates"]
         row = FieldRecord(
             parcel_id=data.pop("parcelId"),
             name=data.pop("name"),
             crop=data.pop("crop"),
             area=data.pop("area"),
-            geometry=data.pop("geometry"),
             attributes=data,
-            min_lon=bounds[0],
-            min_lat=bounds[1],
-            max_lon=bounds[2],
-            max_lat=bounds[3],
-            centroid_lon=(bounds[0] + bounds[2]) / 2,
-            centroid_lat=(bounds[1] + bounds[3]) / 2,
+            longitude=longitude,
+            latitude=latitude,
         )
         self.session.add(row)
         try:
@@ -176,6 +183,9 @@ class FieldRepository:
         return field_view(row)
 
     def select(self, field_id):
+        from app.services.maps import require_ready
+
+        require_ready(self.session)
         fid = str(field_id)
         row = self.session.get(FieldRecord, fid)
         if row is None:

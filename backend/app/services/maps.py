@@ -10,27 +10,6 @@ LEVELS = (4, 6, 8, 10, 12)
 MAX_FEATURES = 600
 
 
-def rectangle(bounds):
-    west, south, east, north = bounds
-    return dict(
-        type="Polygon",
-        coordinates=[[[west, south], [east, south], [east, north], [west, north], [west, south]]],
-    )
-
-
-def geometry_bounds(geometry):
-    polygons = geometry["coordinates"]
-    if geometry["type"] == "Polygon":
-        polygons = [polygons]
-    points = [point for polygon in polygons for ring in polygon for point in ring]
-    return (
-        min(p[0] for p in points),
-        min(p[1] for p in points),
-        max(p[0] for p in points),
-        max(p[1] for p in points),
-    )
-
-
 def cell_key(longitude, latitude, level):
     size = 1 << level
     return min(size - 1, math.floor((longitude + 180) / 360 * size)), min(
@@ -57,17 +36,17 @@ def update_cells(session, field):
     least = func.least if dialect == "postgresql" else func.min
     greatest = func.greatest if dialect == "postgresql" else func.max
     for level in LEVELS:
-        x, y = cell_key(field.centroid_lon, field.centroid_lat, level)
+        x, y = cell_key(field.longitude, field.latitude, level)
         statement = insert(MapCell).values(
             level=level,
             x=x,
             y=y,
             count=1,
             area=field.area,
-            min_lon=field.min_lon,
-            min_lat=field.min_lat,
-            max_lon=field.max_lon,
-            max_lat=field.max_lat,
+            min_lon=field.longitude,
+            min_lat=field.latitude,
+            max_lon=field.longitude,
+            max_lat=field.latitude,
         )
         session.execute(
             statement.on_conflict_do_update(
@@ -75,31 +54,50 @@ def update_cells(session, field):
                 set_={
                     "count": MapCell.count + 1,
                     "area": MapCell.area + field.area,
-                    "min_lon": least(MapCell.min_lon, field.min_lon),
-                    "min_lat": least(MapCell.min_lat, field.min_lat),
-                    "max_lon": greatest(MapCell.max_lon, field.max_lon),
-                    "max_lat": greatest(MapCell.max_lat, field.max_lat),
+                    "min_lon": least(MapCell.min_lon, field.longitude),
+                    "min_lat": least(MapCell.min_lat, field.latitude),
+                    "max_lon": greatest(MapCell.max_lon, field.longitude),
+                    "max_lat": greatest(MapCell.max_lat, field.latitude),
                 },
             )
         )
+
+    # Keep the constant-time summary correct after manual additions as well.
+    dataset = session.scalar(
+        select(MapDataset)
+        .where(MapDataset.id == "csb-2025")
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    if dataset:
+        metadata = dict(dataset.metadata_)
+        bounds = metadata["bounds"]
+        metadata["total"] += 1
+        metadata["bounds"] = [
+            min(bounds[0], field.longitude),
+            min(bounds[1], field.latitude),
+            max(bounds[2], field.longitude),
+            max(bounds[3], field.latitude),
+        ]
+        dataset.metadata_ = metadata
 
 
 def rebuild_cells(connection):
     if connection.dialect.name == "postgresql":
         connection.execute(text("LOCK TABLE field_map_cells IN EXCLUSIVE MODE"))
     connection.execute(delete(MapCell))
+    clamp = "least" if connection.dialect.name == "postgresql" else "min"
     for level in LEVELS:
         size = 1 << level
         connection.execute(
-            text("""
+            text(f"""
             INSERT INTO field_map_cells (level, x, y, count, area, min_lon, min_lat, max_lon, max_lat)
-            SELECT :level, CAST(floor((centroid_lon + 180) / 360 * :size) AS INTEGER),
-                   CAST(floor((centroid_lat + 90) / 180 * :size) AS INTEGER),
-                   count(*), sum(area), min(min_lon), min(min_lat), max(max_lon), max(max_lat)
-            FROM fields WHERE centroid_lon IS NOT NULL
-            GROUP BY 2, 3
-        """),
-            dict(level=level, size=size),
+            SELECT :level, {clamp}(:edge, CAST(floor((longitude + 180) / 360 * :size) AS INTEGER)),
+                   {clamp}(:edge, CAST(floor((latitude + 90) / 180 * :size) AS INTEGER)),
+                   count(*), sum(area), min(longitude), min(latitude), max(longitude), max(latitude)
+            FROM fields GROUP BY 2, 3
+            """),
+            dict(level=level, size=size, edge=size - 1),
         )
 
 
@@ -112,10 +110,10 @@ def summary(session):
     row = session.execute(
         select(
             func.count(),
-            func.min(FieldRecord.min_lon),
-            func.min(FieldRecord.min_lat),
-            func.max(FieldRecord.max_lon),
-            func.max(FieldRecord.max_lat),
+            func.min(FieldRecord.longitude),
+            func.min(FieldRecord.latitude),
+            func.max(FieldRecord.longitude),
+            func.max(FieldRecord.latitude),
         )
     ).one()
     bounds = list(row[1:]) if row[0] else None
@@ -128,7 +126,7 @@ def summary(session):
         defaultCenter=center,
         defaultZoom=13,
         source="User supplied",
-        boundaryKind="user_geometry",
+        locationKind="user_point",
         importedAt=None,
     )
 
@@ -139,10 +137,9 @@ def spatial_filter(session, bounds):
     west, south, east, north = bounds
     if session.bind.dialect.name == "postgresql":
         return text(
-            "box(point(min_lon, min_lat), point(max_lon, max_lat)) && "
-            "box(point(:west, :south), point(:east, :north))"
+            "point(longitude, latitude) <@ box(point(:west, :south), point(:east, :north))"
         ).bindparams(west=west, south=south, east=east, north=north)
-    return (F.min_lon <= east) & (F.max_lon >= west) & (F.min_lat <= north) & (F.max_lat >= south)
+    return F.longitude.between(west, east) & F.latitude.between(south, north)
 
 
 def cluster_feature(row, viewport_bounds):
@@ -188,11 +185,24 @@ def overview(session, bounds, zoom):
     )
 
 
+def require_ready(session):
+    dataset = session.get(MapDataset, "csb-2025")
+    if dataset and dataset.metadata_.get("status") != "ready":
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=503,
+            detail="Field point catalog is being imported",
+            headers={"Retry-After": "30"},
+        )
+
+
 def viewport(store, bounds, zoom):
     from app.repositories.fields import FieldRecord as F
     from app.repositories.fields import UserField
 
     session = store.session
+    require_ready(session)
     # Even a forged zoom cannot force a country-wide field scan.
     if zoom < 11 or bounds[2] - bounds[0] > 3 or bounds[3] - bounds[1] > 3:
         return overview(session, bounds, zoom)
@@ -203,12 +213,9 @@ def viewport(store, bounds, zoom):
         F.crop,
         F.area,
         F.source_id,
-        F.boundary_kind,
-        F.geometry,
-        F.min_lon,
-        F.min_lat,
-        F.max_lon,
-        F.max_lat,
+        F.location_kind,
+        F.longitude,
+        F.latitude,
     ]
     rows = session.execute(
         select(*columns).where(spatial_filter(session, bounds)).limit(MAX_FEATURES + 1)
@@ -233,8 +240,7 @@ def viewport(store, bounds, zoom):
             dict(
                 type="Feature",
                 id=row.id,
-                geometry=row.geometry
-                or rectangle((row.min_lon, row.min_lat, row.max_lon, row.max_lat)),
+                geometry=dict(type="Point", coordinates=[row.longitude, row.latitude]),
                 properties=dict(
                     kind="field",
                     parcelId=row.parcel_id,
@@ -244,7 +250,7 @@ def viewport(store, bounds, zoom):
                     name=row.name,
                     area=row.area,
                     crop=row.crop,
-                    boundaryKind=row.boundary_kind,
+                    locationKind=row.location_kind,
                 ),
             )
         )
@@ -256,5 +262,5 @@ def viewport(store, bounds, zoom):
         features=features,
         limit=MAX_FEATURES,
         source="USDA NASS CSB 2025",
-        approximate=True,
+        approximate=False,
     )

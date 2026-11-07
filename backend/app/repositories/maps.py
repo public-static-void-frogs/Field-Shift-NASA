@@ -1,4 +1,4 @@
-"""Small spatial overview tables; catalog polygons are never loaded for an overview."""
+"""Small spatial overview tables; individual fields are never loaded for an overview."""
 
 from sqlalchemy import JSON, Float, String
 from sqlalchemy.orm import Mapped, mapped_column

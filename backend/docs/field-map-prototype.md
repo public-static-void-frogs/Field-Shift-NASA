@@ -1,127 +1,79 @@
-# Real-source field map prototype
+# Field point catalog and map
 
-The source is the supplied `csb_bounds.zip` archive: 64 Parquet partitions containing
-15,973,095 USDA NASS Crop Sequence Boundaries identities from the 2018–2025 edition.
-The accompanying [source notes](../../research/data_sources/fields/NASS_CSB_with_bounds.md)
-explain that these are **estimated rectangles derived from centroids and area**.
-They are not surveyed or original polygon boundaries. The map labels that distinction.
+The supplied `interior_by_county-20261107T124704Z-1-001.zip` has 3,087 county
+GeoJSON gzip partitions and an index.csv manifest totaling 15,973,095 points.
+Source geometry represents an interior field location; it is used directly.
+A separate source centroid remains metadata, not the map position. Source
+properties, CSB identity, county and leading-zero FIPS codes are retained. Area
+is converted from acres to hectares. Crop and soil measurements are not inferred.
 
-## Reproduce the import
+## Import
 
-From `backend/`, with the existing local PostgreSQL database configured:
+From backend/:
 
 ```sh
-python -m pip install -r requirements-import.txt
 alembic upgrade head
-python scripts/import_csb_bounds.py /path/to/csb_bounds.zip
-python main.py
+python scripts/import_field_points.py /path/to/interior_by_county-20261107T124704Z-1-001.zip
 ```
 
-The importer reads Parquet batches of 8,192 rows directly from each ZIP member.
-It uses PostgreSQL COPY and commits one partition at a time, saving the completed
-partition names and archive SHA-256 in `map_datasets`. Rerunning the same archive
-resumes after the last committed partition; a completed archive is not duplicated.
-A different archive checksum requires an explicit new-source/edition workflow.
+Migration 0005 removes the old polygon structure and catalog entries. It preserves
+accounts/settings and saves selections for restoration by stable source UUID.
+It cannot restore deleted polygons on downgrade. The importer requires PostgreSQL
+and an empty point catalog or the exact same registered archive SHA-256.
 
-Each source record goes into `fields`, with a deterministic UUID derived from its
-edition and CSBID, unique `source_id`, original FIPS strings/county, source centroid,
-area converted precisely from acres to hectares, and estimated extent. Original
-latitude/longitude values are retained. Rectangles are generated only for the small
-requested map view or an individual field; millions of redundant GeoJSON arrays
-are not stored or sent to the browser. Source crop, soil, dates and health stay
-unknown. No user selection is created by ingestion.
+The importer checks the manifest against all county members before loading,
+validates feature counts, point geometry, numeric ranges, identity and county
+metadata, then COPYs one decompressed county at a time. It does not extract files
+or execute source content. A county and its checkpoint commit together; rerunning
+the same command resumes without duplicates. An advisory lock prevents concurrent
+importers. Primary/source/parcel indexes and dependent foreign keys are deferred during COPY,
+with their exact definitions saved transactionally in the checkpoint. They are
+rebuilt and validated before the catalog becomes ready. This avoids random UUID
+index maintenance on each of sixteen million inserts.
 
-The importer builds a native PostgreSQL GiST index over
-`box(point(min_lon,min_lat),point(max_lon,max_lat))`; PostGIS is not required.
-It also builds count/area/extent cells at grid levels 4, 6, 8, 10 and 12. Each level
-accounts for the complete imported catalog. User-created fields update those
-cells atomically in the same transaction as creation.
+After loading, the importer verifies the exact manifest count, builds the point
+GiST index, rebuilds all aggregate levels, restores matching saved selections,
+marks the dataset ready and ANALYZEs both tables. While importing, map viewport
+reads, catalog browsing, selections and manual field creation return 503 with Retry-After, preventing partial
+aggregates and concurrent additions. The summary exposes import status.
 
-Migration 0004 backfills extents for any existing user polygons. Downgrading to
-the former non-null-polygon schema removes imported estimates, since the former
-schema cannot represent them. Account settings and manually supplied polygons
-are preserved by the upgrade.
+## Indexed, bounded queries
 
-## Map API
+`fields` stores required longitude/latitude, not polygon JSON or field extents.
+The PostgreSQL GiST expression index is `point(longitude, latitude)`. Close-view
+queries use indexed point containment in the requested box and fetch at most
+601 rows. At most 600 field points are returned; a dense result switches to
+preaggregated clusters without silently truncating fields.
 
-All routes require the existing session cookie.
+Wide views (over three degrees in either direction) and zooms below 11 read only
+`field_map_cells` at levels 4, 6, 8, 10 and 12. Each level preserves field count,
+combined hectares and bounds of the represented points. Dense overviews back off
+to coarser cells to stay within 600 features. Edge cells include points outside
+the exact viewport, so cluster totals are marked approximate. Close-view point
+results are exact. A forged high zoom cannot force a nationwide field scan.
+New manual fields update all five levels in the same transaction as creation.
 
-- `GET /api/v1/maps/summary`: count, source, import status, extent and initial view.
-- `GET /api/v1/maps/geojson?bbox=west,south,east,north&zoom=14`: at most 600 features.
-- `GET /api/v1/fields/catalog?limit=100&offset=0`: bounded catalog browsing, maximum 500.
-- `GET /api/v1/fields/catalog/{uuid}`: one field, without selecting it.
-- `PUT /api/v1/fields/{uuid}/selection`: select an existing field idempotently.
-- `DELETE /api/v1/fields/{uuid}`: remove the caller's selection, preserving the catalog.
+Both cluster and field geometry are now Point. Clients distinguish them with
+`properties.kind` (`cluster` or `field`), never geometry type. Field properties
+include catalogFieldId and only the caller's private fieldId selection marker.
 
-Bounds and zoom are required. Invalid/reversed/non-finite extents return 422.
-Cross-antimeridian views must be split; the prototype constrains the map to the
-single world extent. There is no route that downloads the full source catalog.
-The selected `/fields` list remains account-scoped.
+## UI and verification
 
-At zooms below 11, or for a very wide requested extent, the endpoint selects
-preaggregated cells. Close views query the spatial index with a hard 601-row probe.
-If that probe exceeds the 600-feature rendering budget, the endpoint returns
-complete groups at a coarser scale instead of truncating individual fields.
-A high zoom paired with country-wide bounds still takes the overview path.
-Cluster counts describe whole geographic cells intersecting the view, so they
-can include fields just beyond its edges. They are not exact viewport totals.
+The catalog uses canvas circle markers for field points and labeled count badges
+for clusters. Selecting a point opens the existing source preview and selection
+controls. Selected fields use a different color and radius. Overview badges
+retain the existing pixel layout and merge counts/areas/bounds without overlaps.
+Requests remain debounced and cancellable through React Query. Individual field
+maps fit the point at a capped zoom, keep accessible SVG interaction, and use
+point terminology in English and Ukrainian.
 
-Individual features include `catalogFieldId`; `fieldId` is present only for the
-caller's selections. Cluster features contain a count, combined area and bounds
-for zooming. No identity, preferences or choices from other accounts are returned.
-
-## Frontend behavior
-
-Start `../../nasa-fields-demo-app` with its normal `npm run dev`, then open `/map`.
-The initial view focuses on Iowa. Click a count group to advance two zoom levels,
-or navigate with dragging, the mouse wheel, touch gestures and the keyboard.
-The scale is the only persistent map control. Close-up
-rectangles open a source preview with area, county, CSBID and selection controls.
-Selections appear in My fields and can be removed without deleting source data.
-
-Requests follow `moveend`, debounced by 180 ms, and include rounded viewport bounds
-and zoom in their React Query keys. Superseded reads receive cancellation signals.
-Fresh views are reused for 60 seconds and unused map queries are collected after
-2 minutes. Previous layers remain visible while the next area loads. Data arrival never refits the viewport. The current center and zoom are preserved
-in URL query parameters, so refresh and browser Back restore the explored area. ResizeObserver keeps the
-map aligned when the sidebar or available width changes.
-
-Field rectangles use Leaflet Canvas. Only bounded groups use DOM markers.
-The client consolidates nearby groups in world-anchored screen bins and merges
-collisions until marker centers are at least 96 CSS pixels apart. Compact
-40-pixel markers have no halos. Counts, area and source bounds are combined,
-with space reserved for the scale and imagery attribution. Layout recalculates
-on navigation and resizing, including while a replacement response is loading. Labels
-are hover tooltips rather than thousands of permanent overlays. Group markers
-are keyboard accessible. Heading, browse-list, bounds disclaimer and viewport-count
-overlays are omitted; source quality remains available in the field preview.
-Map errors provide retry controls. Desktop and phone layouts
-use the same bounded API. English and Ukrainian strings are included.
-
-Imported fields render explicit missing-data states in My fields and field details.
-The detail mini-map reads the selected field directly, not a global map download.
-Unavailable measurements do not become zero or an invented healthy status.
-
-## Verification
+Run the real local HTTP benchmark after import:
 
 ```sh
-python -m unittest discover -s tests -v
-ruff check app tests migrations scripts main.py
-ruff format --check app tests migrations scripts main.py
-alembic check
-python scripts/benchmark_map.py --base-url http://localhost:8000 --output docs/map-performance.json
+python scripts/benchmark_map.py --output docs/point-map-performance.json
 ```
 
-The benchmark makes real local HTTP requests against PostgreSQL, with 30 samples
-each for national, state, county, farm, source-example and outside-coverage views.
-It records response size, feature count, p50/p95/max latency, actual imported row
-count, cell totals and an EXPLAIN ANALYZE spatial plan. Its temporary account is
-removed after the run. The saved [performance report](map-performance.json) contains
-measured evidence; it should be regenerated after changing data, indexes or query behavior.
-
-Backend regression tests cover extent validation, intersection filtering, selection
-privacy, source identity/quality, manual creation updates, grouping without lost
-counts, hard response budgets, catalog pagination, migration and restart behavior.
-Frontend HTTP tests cover parameterized caches, deduplication, cancellation,
-previous-view retention and selection/removal invalidation. Browser observations
-and screenshots are recorded separately in [browser verification](map-browser-qa.md).
+It creates/removes a temporary account, measures national/state/county/farm and
+empty views, checks the rendering cap, captures the point index EXPLAIN plan,
+and records database row and aggregate counts. Older map-performance reports
+refer to the retired rectangle catalog and do not establish point performance.

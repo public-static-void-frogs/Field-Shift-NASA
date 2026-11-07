@@ -42,7 +42,7 @@ and is shared between API workers.
 `GET /fields/catalog` is paginated (default 100, maximum 500); use the viewport map
 API to explore the source dataset.
 
-Manual creation requires name, crop, area in hectares, and Polygon/MultiPolygon
+Manual creation requires name, crop, area in hectares, and Point
 GeoJSON geometry. Parcel ID and measurements are optional. Missing measurements
 return null. The catalog starts empty; migrations do not import fixtures.
 See [persistent fields](docs/field-storage.md) for payloads, constraints, selection
@@ -50,9 +50,9 @@ semantics and client compatibility changes. The former parcel-only creation flow
 must supply area/geometry or use the selection endpoint.
 
 The [real-source map prototype](docs/field-map-prototype.md) imports the supplied
-CSB archive and serves viewport-limited polygons or preaggregated groups.
+county point archive and serves viewport-limited points or preaggregated groups.
 
-Maps expose catalog boundaries and mark the caller's selections. Overview
+Maps expose catalog field points and mark the caller's selections. Overview
 crop areas use only selected fields. History, schedules, notifications and chart
 observations are empty until real data is available. Unavailable properties,
 recommendations and strategies return 404. The planning date follows the caller's

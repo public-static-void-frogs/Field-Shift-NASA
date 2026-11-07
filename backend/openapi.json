@@ -1189,10 +1189,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
+              "description": "Assess this field's crop and soil using weather at its field point and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
               "title": "Field Id"
             },
-            "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location."
+            "description": "Assess this field's crop and soil using weather at its field point and the caller's saved time zone. Omit for unassessed weather at the saved account location."
           },
           {
             "name": "days",
@@ -1292,10 +1292,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
+              "description": "Assess this field's crop and soil using weather at its field point and the caller's saved time zone. Omit for unassessed weather at the saved account location.",
               "title": "Field Id"
             },
-            "description": "Assess this field's crop and soil using weather at its geometry center and the caller's saved time zone. Omit for unassessed weather at the saved account location."
+            "description": "Assess this field's crop and soil using weather at its field point and the caller's saved time zone. Omit for unassessed weather at the saved account location."
           }
         ],
         "responses": {
@@ -1351,7 +1351,7 @@
           "maps"
         ],
         "summary": "Geojson",
-        "description": "Return at most 600 visible features. Wide/dense views use preaggregated count groups; close views use indexed extent intersection. Source rectangles are estimates, not surveyed boundaries.",
+        "description": "Return at most 600 visible features. Wide/dense views use preaggregated count groups; close views use indexed point containment. Field features represent source interior points.",
         "operationId": "geojson_api_v1_maps_geojson_get",
         "security": [
           {
@@ -1687,22 +1687,7 @@
             "title": "Area"
           },
           "geometry": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PolygonGeometry"
-              },
-              {
-                "$ref": "#/components/schemas/MultiPolygonGeometry"
-              }
-            ],
-            "title": "Geometry",
-            "discriminator": {
-              "propertyName": "type",
-              "mapping": {
-                "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
-                "Polygon": "#/components/schemas/PolygonGeometry"
-              }
-            }
+            "$ref": "#/components/schemas/PointGeometry"
           },
           "planted": {
             "anyOf": [
@@ -2764,22 +2749,7 @@
             "title": "Area"
           },
           "geometry": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PolygonGeometry"
-              },
-              {
-                "$ref": "#/components/schemas/MultiPolygonGeometry"
-              }
-            ],
-            "title": "Geometry",
-            "discriminator": {
-              "propertyName": "type",
-              "mapping": {
-                "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
-                "Polygon": "#/components/schemas/PolygonGeometry"
-              }
-            }
+            "$ref": "#/components/schemas/PointGeometry"
           },
           "planted": {
             "anyOf": [
@@ -2862,6 +2832,18 @@
             "format": "uuid",
             "title": "Id"
           },
+          "sourceProperties": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceproperties"
+          },
           "sourceId": {
             "anyOf": [
               {
@@ -2873,14 +2855,14 @@
             ],
             "title": "Sourceid"
           },
-          "boundaryKind": {
+          "locationKind": {
             "type": "string",
             "enum": [
-              "user_geometry",
-              "estimated_bounds"
+              "user_point",
+              "interior_point"
             ],
-            "title": "Boundarykind",
-            "default": "user_geometry"
+            "title": "Locationkind",
+            "default": "user_point"
           },
           "sourceYear": {
             "anyOf": [
@@ -3490,9 +3472,9 @@
             "type": "string",
             "title": "Source"
           },
-          "boundaryKind": {
+          "locationKind": {
             "type": "string",
-            "title": "Boundarykind"
+            "title": "Locationkind"
           },
           "importedAt": {
             "anyOf": [
@@ -3518,7 +3500,7 @@
           "defaultCenter",
           "defaultZoom",
           "source",
-          "boundaryKind",
+          "locationKind",
           "importedAt"
         ],
         "title": "MapSummary"
@@ -3581,44 +3563,6 @@
           "approximate"
         ],
         "title": "MapView"
-      },
-      "MultiPolygonGeometry": {
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "MultiPolygon",
-            "title": "Type"
-          },
-          "coordinates": {
-            "items": {
-              "items": {
-                "items": {
-                  "prefixItems": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "number"
-                    }
-                  ],
-                  "type": "array",
-                  "maxItems": 2,
-                  "minItems": 2
-                },
-                "type": "array"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "title": "Coordinates"
-          }
-        },
-        "type": "object",
-        "required": [
-          "type",
-          "coordinates"
-        ],
-        "title": "MultiPolygonGeometry"
       },
       "Notification": {
         "properties": {
@@ -3858,47 +3802,13 @@
             "title": "Coordinates"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "type",
           "coordinates"
         ],
         "title": "PointGeometry"
-      },
-      "PolygonGeometry": {
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "Polygon",
-            "title": "Type"
-          },
-          "coordinates": {
-            "items": {
-              "items": {
-                "prefixItems": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ],
-                "type": "array",
-                "maxItems": 2,
-                "minItems": 2
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "title": "Coordinates"
-          }
-        },
-        "type": "object",
-        "required": [
-          "type",
-          "coordinates"
-        ],
-        "title": "PolygonGeometry"
       },
       "PropertyData": {
         "properties": {
@@ -4411,29 +4321,7 @@
             "title": "Id"
           },
           "geometry": {
-            "anyOf": [
-              {
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/PolygonGeometry"
-                  },
-                  {
-                    "$ref": "#/components/schemas/MultiPolygonGeometry"
-                  }
-                ],
-                "discriminator": {
-                  "propertyName": "type",
-                  "mapping": {
-                    "MultiPolygon": "#/components/schemas/MultiPolygonGeometry",
-                    "Polygon": "#/components/schemas/PolygonGeometry"
-                  }
-                }
-              },
-              {
-                "$ref": "#/components/schemas/PointGeometry"
-              }
-            ],
-            "title": "Geometry"
+            "$ref": "#/components/schemas/PointGeometry"
           },
           "properties": {
             "$ref": "#/components/schemas/ViewProperties"
@@ -4555,7 +4443,7 @@
             ],
             "title": "Crop"
           },
-          "boundaryKind": {
+          "locationKind": {
             "anyOf": [
               {
                 "type": "string"
@@ -4564,7 +4452,7 @@
                 "type": "null"
               }
             ],
-            "title": "Boundarykind"
+            "title": "Locationkind"
           }
         },
         "type": "object",

@@ -28,8 +28,9 @@ class CreateField(BaseModel):
 class Field(CreateField):
     id: UUID
     crop: str | None
+    sourceProperties: dict | None = None
     sourceId: str | None = None
-    boundaryKind: Literal["user_geometry", "estimated_bounds"] = "user_geometry"
+    locationKind: Literal["user_point", "interior_point"] = "user_point"
     sourceYear: int | None = None
     county: str | None = None
     stateFips: str | None = None
