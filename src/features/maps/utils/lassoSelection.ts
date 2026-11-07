@@ -42,12 +42,16 @@ function hasLassoArea(points: readonly ScreenPoint[]): boolean {
   return area >= 16;
 }
 
+export function isValidLasso(points: readonly ScreenPoint[]): boolean {
+  return points.length >= 3 && hasLassoArea(points);
+}
+
 export function getLassoFieldIds(
   features: CatalogFeature[],
   polygon: readonly ScreenPoint[],
   project: (longitude: number, latitude: number) => ScreenPoint,
 ): string[] {
-  if (polygon.length < 3 || !hasLassoArea(polygon)) {
+  if (!isValidLasso(polygon)) {
     return [];
   }
   const west = Math.min(...polygon.map(([x]) => x));

@@ -4,6 +4,7 @@ import {
   addFieldSelection,
   getLassoFieldIds,
   isPointInLasso,
+  isValidLasso,
   toggleFieldSelection,
 } from '../src/features/maps/utils/lassoSelection.ts';
 import { catalogPointStyle } from '../src/features/maps/utils/catalogPointStyle.ts';
@@ -141,4 +142,34 @@ test('draft selection overrides farm membership styling and clearing restores it
     catalogPointStyle(true, false).fillColor,
     catalogPointStyle(false, false).fillColor,
   );
+});
+
+test('only completed area gestures can be retained as outlines, including empty selection areas', () => {
+  assert.equal(isValidLasso(square), true);
+  assert.equal(
+    isValidLasso([
+      [0, 0],
+      [20, 20],
+      [0, 20],
+      [20, 0],
+    ]),
+    true,
+  );
+  assert.deepEqual(getLassoFieldIds([], square, project), []);
+  for (const points of [
+    [],
+    [[1, 1]],
+    [
+      [0, 0],
+      [10, 10],
+      [20, 20],
+    ],
+    [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+    ],
+  ]) {
+    assert.equal(isValidLasso(points), false);
+  }
 });

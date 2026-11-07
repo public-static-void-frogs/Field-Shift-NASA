@@ -1,15 +1,15 @@
-import { Button } from 'antd';
-import { DomEvent } from 'leaflet';
-import { useEffect, useRef } from 'react';
-import { LassoSelect, X } from 'lucide-react';
+import { Button, Tooltip } from 'antd';
+import { useRef } from 'react';
+import { Hand, LassoSelect } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useMapControlEvents } from '../hooks/useMapControlEvents.ts';
 
 type MapSelectionControlsProps = {
   count: number;
   lassoActive: boolean;
   canLasso: boolean;
   onLasso: () => void;
-  onClear: () => void;
+  onMove: () => void;
 };
 
 export function MapSelectionControls({
@@ -17,48 +17,41 @@ export function MapSelectionControls({
   lassoActive,
   canLasso,
   onLasso,
-  onClear,
+  onMove,
 }: MapSelectionControlsProps) {
   const { t } = useTranslation();
   const control = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const element = control.current;
-    if (!element) {
-      return;
-    }
-    DomEvent.disableClickPropagation(element);
-    DomEvent.disableScrollPropagation(element);
-    return () => {
-      DomEvent.off(element);
-    };
-  }, []);
-  let hint = t('Lasso adds visible field points. Click a point to select or unselect it.');
-  if (!canLasso) {
-    hint = t('Zoom in until individual field points are visible to use the lasso.');
-  } else if (lassoActive) {
-    hint = t('Drag a loop around field points. Press Escape to leave the lasso tool.');
-  }
+  useMapControlEvents(control);
+  const selectTitle = canLasso
+    ? t('Select fields')
+    : t('Zoom in until individual field points are visible to use the lasso.');
 
   return (
-    <section ref={control} className="map-selection-controls" aria-label={t('Field selection')}>
-      <div className="map-selection-toolbar" role="group" aria-label={t('Selection tools')}>
+    <section ref={control} className="map-selection-controls" aria-label={t('Selection tools')}>
+      <Tooltip title={t('Move map')}>
         <Button
-          icon={<LassoSelect size={16} />}
-          type={lassoActive ? 'primary' : 'default'}
-          aria-pressed={lassoActive}
-          disabled={!canLasso}
-          onClick={onLasso}
-        >
-          {t('Lasso select')}
-        </Button>
-        <span className="map-selection-count" role="status" aria-live="polite" aria-atomic="true">
-          {t('{{count}} fields selected', { count })}
+          icon={<Hand size={17} />}
+          type={lassoActive ? 'text' : 'primary'}
+          aria-label={t('Move map')}
+          aria-pressed={!lassoActive}
+          onClick={onMove}
+        />
+      </Tooltip>
+      <Tooltip title={selectTitle}>
+        <span>
+          <Button
+            icon={<LassoSelect size={17} />}
+            type={lassoActive ? 'primary' : 'text'}
+            aria-label={t('Select fields')}
+            aria-pressed={lassoActive}
+            disabled={!canLasso}
+            onClick={onLasso}
+          />
         </span>
-        <Button type="text" icon={<X size={14} />} disabled={count === 0} onClick={onClear}>
-          {t('Clear selection')}
-        </Button>
-      </div>
-      <p className="map-selection-hint">{hint}</p>
+      </Tooltip>
+      <span className="map-selection-status" role="status" aria-live="polite" aria-atomic="true">
+        {t('{{count}} fields selected', { count })}
+      </span>
     </section>
   );
 }

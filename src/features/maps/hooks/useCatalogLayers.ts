@@ -14,13 +14,13 @@ import type { CatalogMapView } from '../../../types/maps/map.types.ts';
 import { clusterMarkerSize, layoutMapClusters } from '../utils/clusterLayout.ts';
 import { clusterView } from '../utils/catalogViewport.ts';
 import { catalogPointStyle } from '../utils/catalogPointStyle.ts';
+import type { LayerGroup } from 'leaflet';
 
 export function useCatalogLayers(
   data: CatalogMapView | undefined,
-  onPick: (id: string) => void,
   selectedIds: ReadonlySet<string>,
 ) {
-  const points = useRef(new Map<string, { marker: CircleMarker; inFarm: boolean }>());
+  const points = useRef(new Map<string, { marker: CircleMarker; owner: LayerGroup }>());
   const [revision, setRevision] = useState(0);
   const refreshLayout = () => setRevision((value) => value + 1);
   const map = useMapEvents({ moveend: refreshLayout, resize: refreshLayout });
@@ -68,11 +68,10 @@ export function useCatalogLayers(
         const point = geoJSON(feature, {
           pointToLayer: (_, latlng) => {
             const marker = circleMarker(latlng, { renderer, ...catalogPointStyle(inFarm, false) });
-            pointMarkers.set(String(feature.id), { marker, inFarm });
+            pointMarkers.set(String(feature.id), { marker, owner: layers });
             return marker;
           },
           onEachFeature: (_, layer) => {
-            layer.on('click', () => onPick(String(feature.id)));
             const tooltip = document.createElement('span');
             tooltip.textContent = `${feature.properties.name} · ${feature.properties.area.toFixed(1)} ${t('ha')}`;
             layer.bindTooltip(tooltip, { sticky: true });
@@ -97,12 +96,15 @@ export function useCatalogLayers(
       layers.remove();
       renderer.remove();
     };
-  }, [map, data, onPick, t, revision]);
+  }, [map, data, t, revision]);
   useEffect(() => {
     for (const [id, point] of points.current) {
-      const style = catalogPointStyle(point.inFarm, selectedIds.has(id));
-      point.marker.setStyle(style);
-      point.marker.setRadius(style.radius ?? 5);
+      if (selectedIds.has(id)) {
+        point.marker.closeTooltip();
+        point.owner.removeLayer(point.marker);
+      } else {
+        point.owner.addLayer(point.marker);
+      }
     }
   }, [data, selectedIds, t, revision]);
 }

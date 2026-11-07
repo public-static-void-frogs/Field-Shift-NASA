@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Button, Spin } from 'antd';
+import { useCallback } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -7,12 +8,14 @@ import { MapContainer, ScaleControl, TileLayer } from 'react-leaflet';
 import { mapQueries } from '../../../api/maps/maps.queries.ts';
 import { satelliteTiles } from '../constants/maps.constants.ts';
 import { useCatalogLayers } from '../hooks/useCatalogLayers.ts';
-import { useMapFieldSelection } from '../hooks/useMapFieldSelection.ts';
+import { useMapSections } from '../hooks/useMapSections.ts';
 import { useLassoSelection } from '../hooks/useLassoSelection.ts';
 import { useCatalogViewport } from '../hooks/useCatalogViewport.ts';
 import { useMapPosition } from '../hooks/useMapPosition.ts';
 import { parseMapPosition } from '../utils/catalogViewport.ts';
 import { MapSelectionControls } from './MapSelectionControls.tsx';
+import { MapSections } from './MapSections.tsx';
+import { SectionPanel } from './SectionPanel.tsx';
 import './FieldMap.css';
 import './CatalogMap.css';
 
@@ -60,6 +63,7 @@ export function CatalogMap() {
             maxNativeZoom={19}
             maxZoom={19}
             noWrap
+            crossOrigin="anonymous"
           />
           <CatalogViewport />
           <ScaleControl position="bottomright" imperial={false} />
@@ -71,17 +75,26 @@ export function CatalogMap() {
 
 function CatalogViewport() {
   const query = useCatalogViewport();
-  const selection = useMapFieldSelection();
+  const selection = useMapSections();
   const canLasso = query.data?.mode === 'fields' && !query.isPlaceholderData && !query.isFetching;
   const lasso = useLassoSelection({
     features: query.data?.features ?? [],
     available: canLasso,
-    onSelect: selection.add,
+    onComplete: selection.draw,
     onToggle: selection.toggle,
   });
+  const { setArmed } = lasso;
+  const { activate } = selection;
+  const activateSection = useCallback(
+    (id: string) => {
+      setArmed(false);
+      activate(id);
+    },
+    [setArmed, activate],
+  );
   useMapPosition();
   const { t } = useTranslation();
-  useCatalogLayers(query.data, selection.toggle, selection.selectedIds);
+  useCatalogLayers(query.data, selection.selectedIds);
 
   return (
     <>
@@ -89,9 +102,29 @@ function CatalogViewport() {
         count={selection.selectedIds.size}
         lassoActive={lasso.active}
         canLasso={canLasso}
-        onLasso={() => lasso.setArmed(!lasso.active)}
-        onClear={selection.clear}
+        onLasso={() => lasso.setArmed(true)}
+        onMove={() => lasso.setArmed(false)}
       />
+      <MapSections
+        sections={selection.sections}
+        activeId={selection.activeSection?.id}
+        onActivate={activateSection}
+        onToggleDetected={selection.toggleDetectedField}
+      />
+      {selection.activeSection && (
+        <SectionPanel
+          key={selection.activeSection.id}
+          section={selection.activeSection}
+          onCancel={selection.cancel}
+          onSelectCrop={selection.setCropSelection}
+          analysisActions={{
+            begin: selection.beginAnalysis,
+            complete: selection.completeAnalysis,
+            fail: selection.failAnalysis,
+            abort: selection.abortAnalysis,
+          }}
+        />
+      )}
       {query.isError && (
         <div className="catalog-map-alert">
           <Alert

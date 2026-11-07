@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, Point } from 'geojson';
+import type { Feature, FeatureCollection, Point, Polygon } from 'geojson';
 
 export interface FieldMapProperties {
   fieldId?: string | null;
@@ -47,4 +47,13 @@ export interface MapSummary {
 export interface LocationPoint {
   latitude: number;
   longitude: number;
+}
+
+export interface DetectedField {
+  id: string;
+  pointId: string;
+  crop: 'Winter wheat' | 'Corn' | 'Soybeans';
+  center: [number, number];
+  geometry: Polygon;
+  areaHa: number;
 }

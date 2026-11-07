@@ -2,19 +2,20 @@ import { polygon, svg } from 'leaflet';
 import { useEffect, useState } from 'react';
 import { useMapEvents } from 'react-leaflet';
 import type { CatalogFeature } from '../../../types/maps/map.types.ts';
-import { getLassoFieldIds, type ScreenPoint } from '../utils/lassoSelection.ts';
+import { getLassoFieldIds, isValidLasso, type ScreenPoint } from '../utils/lassoSelection.ts';
+import type { SectionCoordinate } from '../utils/sectionSelection.ts';
 
 type UseLassoSelectionOptions = {
   features: CatalogFeature[];
   available: boolean;
-  onSelect: (ids: string[]) => void;
-  onToggle: (id: string) => void;
+  onComplete: (outline: SectionCoordinate[], fields: CatalogFeature[]) => void;
+  onToggle: (feature: CatalogFeature) => void;
 };
 
 export function useLassoSelection({
   features,
   available,
-  onSelect,
+  onComplete,
   onToggle,
 }: UseLassoSelectionOptions) {
   const [armed, setArmed] = useState(false);
@@ -85,7 +86,9 @@ export function useLassoSelection({
         event.button !== 0 ||
         pointerId !== null ||
         (event.target instanceof Element &&
-          event.target.closest('.map-selection-controls, .leaflet-control'))
+          event.target.closest(
+            '.map-selection-controls, .leaflet-control, .map-section-interactive',
+          ))
       ) {
         return;
       }
@@ -128,7 +131,7 @@ export function useLassoSelection({
         (point) => Math.hypot(point[0] - start[0], point[1] - start[1]) <= 6,
       );
       if (isClick) {
-        let nearestId: string | undefined;
+        let nearest: CatalogFeature | undefined;
         let nearestDistance = 9;
         for (const feature of features) {
           if (feature.properties.kind !== 'field' || feature.id === undefined) {
@@ -139,14 +142,24 @@ export function useLassoSelection({
           const distance = Math.hypot(point.x - start[0], point.y - start[1]);
           if (distance < nearestDistance) {
             nearestDistance = distance;
-            nearestId = String(feature.id);
+            nearest = feature;
           }
         }
-        if (nearestId !== undefined) {
-          onToggle(nearestId);
+        if (nearest) {
+          onToggle(nearest);
         }
-      } else if (ids.length) {
-        onSelect(ids);
+      } else if (isValidLasso(points)) {
+        const selected = new Set(ids);
+        const coordinates: SectionCoordinate[] = points.map((point) => {
+          const location = map.containerPointToLatLng([point[0], point[1]]);
+          return [location.lat, location.lng];
+        });
+        onComplete(
+          coordinates,
+          features.filter(
+            (feature) => feature.properties.kind === 'field' && selected.has(String(feature.id)),
+          ),
+        );
       }
       reset();
     };
@@ -161,7 +174,7 @@ export function useLassoSelection({
     const click = (event: MouseEvent) => {
       if (!(
         event.target instanceof Element &&
-        event.target.closest('.map-selection-controls, .leaflet-control')
+        event.target.closest('.map-selection-controls, .leaflet-control, .map-section-interactive')
       )) {
         stop(event);
       }
@@ -192,7 +205,7 @@ export function useLassoSelection({
       container.classList.remove('map-lasso-active');
       enabledHandlers.forEach((handler) => handler.enable());
     };
-  }, [map, active, features, onSelect, onToggle]);
+  }, [map, active, features, onComplete, onToggle]);
 
   return { active, setArmed };
 }

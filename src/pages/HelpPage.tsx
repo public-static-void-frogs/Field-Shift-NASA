@@ -34,7 +34,7 @@ export function HelpPage() {
                   key: 'add',
                   label: t('How do I select fields on the map?'),
                   children: t(
-                    'Click field points to select or unselect them. Use Lasso select to draw around several visible points. This temporary selection does not change My fields.',
+                    'Use the hand button to move the map. Draw a zone with the lasso, then click Add to open its preview panel. Cancel section removes the zone and restores its points. This does not change My fields.',
                   ),
                 },
                 {

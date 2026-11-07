@@ -1,37 +1,35 @@
-# Local field selection
+# Section analysis prototype
 
-The field map builds a temporary selection using catalog UUIDs. It does not add,
-remove, save, or process fields through the API. Existing saved farm membership
-remains separate from the draft selection. Selected points are blue; clearing the
-draft restores each point's normal styling.
+Hand/lasso buttons switch between moving the map and drawing sections. A drawn
+zone has a light green fill, keeps its outline and hides selected source points.
+Its centered Add button opens the section panel and fits the zone beside it.
 
-- Click a field point to toggle it, including while the lasso is active.
-- Enable **Lasso select**, then drag a loop around visible points. Release to add
-  enclosed points. Additional lassos add to the selection without duplicates.
-- Click a selected point to remove it from the draft.
-- **Escape** exits the lasso and cancels an unfinished stroke. Map dragging and
-  zoom controls return to their previous enabled state.
-- **Clear selection** clears the entire draft, including offscreen selections.
-- Panning retains selections. Leaving or refreshing the map clears them.
+Analyze sends the points, closed section geometry and a georeferenced PNG of the
+map imagery to `POST /maps/sections/analyze`. Capture excludes UI overlays and
+uses the current satellite tiles. The payload includes pixel dimensions, WGS84
+image bounds and the image's Web Mercator projection. Capture failures show a
+retryable error rather than substituting an empty image.
 
-Lasso selection works only on loaded individual points. At broad or dense zooms,
-cluster markers remain zoom targets; the tool asks the user to zoom in. It never
-expands clusters or fetches the full catalog. A lasso uses the points visible when
-the stroke begins, includes boundary points, supports concave and self-crossing
-loops, and ignores click-sized or line-only strokes. Pointer cancellation, window
-blur and resizing discard unfinished strokes. Mouse, pen and touch pointers use
-the same gesture path.
+The green zone pulses while capture and the request run, and Analyze displays a
+loading spinner. The backend mock delays briefly, then generates random crop
+labels and rough square polygons around each point. It does not infer crops or
+boundaries from the image. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
 
-The outline updates at most once per animation frame, with at most 512 sampled
-vertices. Geometry checks are bounded by the existing 600-feature viewport limit.
-Selection highlighting updates existing canvas markers in place and does not
-refetch map data or rebuild layers on each selection change.
+On completion the lasso disappears. Geographic field boundaries and crop icons
+replace it. Click a boundary or crop icon to include/exclude a result. Dragging and zooming
+work over crop icons too; drags do not toggle selection. The compact right-hand
+panel groups results by crop type, with a checkbox and selected/total count for
+each crop. Group checkboxes select or deselect all fields of that crop and show
+a mixed state when individual selections differ. Excluded results remain visible but subdued, allowing reselection. The
+panel's count/area follow the included results, and Analyze becomes Add fields.
+Add fields has no persistence handler yet. No catalog or saved-farm changes occur.
 
-`tests/lassoSelection.test.mjs` checks containment, projection, cluster exclusion,
-degenerate strokes, additive selection, toggles, immutability and marker styling.
-Browser checks covered point toggles in both modes, drag capture without panning,
-Escape, selection retention while panning, and clearing. Full freehand-loop
-containment is covered by geometry tests; the browser input tool only supports
-straight drag paths.
+Cancel section removes its zone/results and restores the original points.
+Overlapping selections retain their own points. Pending work is aborted when the
+panel is closed or canceled. All section state clears when leaving/reloading the
+map. Raw selection remains bounded by the existing viewport response budget.
 
-![Local selection of two field points](lasso-selection-preview.jpg)
+The preview area is an inexpensive approximation of the drawn outline. After
+analysis, displayed areas come from the mock results. Precise figures are left
+to the future backend model. No additional tests were run for this UI iteration,
+as requested.
