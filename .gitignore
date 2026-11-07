@@ -5,3 +5,12 @@ __pycache__/
 .pytest_cache/
 
 ml/field-cv-model/weights/*.pt
+
+# Local database configuration and signing secrets
+.env
+.env.*
+!.env.example
+*.db
+
+# Backend Postman workspace
+/backend/postman/

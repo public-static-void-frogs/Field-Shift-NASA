@@ -1,25 +1,97 @@
-# Backend
+# Field Shift NASA backend
 
-Minimal FastAPI application. Requires Python 3.10 or newer.
+FastAPI API for `../../nasa-fields-demo-app`, requiring Python 3.10+.
+Accounts, settings, fields and user field selections persist in PostgreSQL through
+SQLAlchemy. Production demo fixtures and generated agronomic data have been removed.
+Weather uses live Open-Meteo model data.
 
 ## Run locally
-
-From this directory:
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+cp .env.example .env
+# Configure DATABASE_URL, JWT_ISSUER and a JWT_SECRET of at least 32 bytes.
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+alembic upgrade head
 python main.py
 ```
 
-The server binds to `127.0.0.1:8000`, configured in `main.py`.
+The server listens on `http://localhost:8000`. Start the frontend separately with
+`npm run dev`, open `http://localhost:5173`, and set `VITE_API_BASE_URL` to
+`http://localhost:8000/api/v1`. Use the same hostname for the frontend and backend
+so session cookies work. Configure `CORS_ORIGINS` for deployed clients.
 
-`GET http://127.0.0.1:8000/` returns HTTP 200 with:
+## Fields and selections
 
-```json
-{"message": "Hello World"}
+`fields` contains the shared catalog. `user_fields` links users to fields with a
+composite primary key and cascading foreign keys. New accounts have no selections.
+One catalog entry can be selected by multiple accounts. Data survives restarts
+and is shared between API workers.
+
+| Request (relative to `/api/v1`) | Purpose |
+| --- | --- |
+| `GET /fields/catalog` | Browse shared catalog entries |
+| `GET /fields` | List the current user's selected fields |
+| `POST /fields` | Create a field and select it atomically |
+| `PUT /fields/{id}/selection` | Select an existing field idempotently |
+| `GET /fields/{id}` | Read a selected field |
+| `DELETE /fields/{id}` | Remove the caller's selection, preserving the catalog |
+
+`GET /fields/catalog` is paginated (default 100, maximum 500); use the viewport map
+API to explore the source dataset.
+
+Manual creation requires name, crop, area in hectares, and Polygon/MultiPolygon
+GeoJSON geometry. Parcel ID and measurements are optional. Missing measurements
+return null. The catalog starts empty; migrations do not import fixtures.
+See [persistent fields](docs/field-storage.md) for payloads, constraints, selection
+semantics and client compatibility changes. The former parcel-only creation flow
+must supply area/geometry or use the selection endpoint.
+
+The [real-source map prototype](docs/field-map-prototype.md) imports the supplied
+CSB archive and serves viewport-limited polygons or preaggregated groups.
+
+Maps expose catalog boundaries and mark the caller's selections. Overview
+crop areas use only selected fields. History, schedules, notifications and chart
+observations are empty until real data is available. Unavailable properties,
+recommendations and strategies return 404. The planning date follows the caller's
+saved time zone. Crop weather assessments require supplied soil inputs.
+
+## API contract and organization
+
+Interactive docs: [Swagger UI](http://localhost:8000/docs).
+Live contract: [OpenAPI](http://localhost:8000/openapi.json).
+All resource routes use `/api/v1` and require authentication.
+`GET /` remains the public health endpoint.
+
+- `app/api/`: routes and request-scoped database/user dependencies.
+- `app/repositories/`: SQLAlchemy models and database reads/writes.
+- `app/schemas/`: validated request and response contracts.
+- `app/services/`: resource projections, weather and crop assessments.
+- `migrations/`: Alembic schema migrations; run `alembic upgrade head` on deployment.
+- `tests/`: API, persistence, isolation, migrations and weather checks.
+- `openapi.json`: generated from routes and Pydantic models.
+
+See [authentication](docs/authentication.md), [weather integration](docs/weather-integration.md)
+and the [source-data integration contract](docs/core-and-source-data-contract.md).
+
+## Verification
+
+```sh
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
+ruff check app tests migrations main.py
+ruff format --check app tests migrations main.py
+alembic check
 ```
 
-Interactive API documentation: <http://127.0.0.1:8000/docs>.
-OpenAPI schema: <http://127.0.0.1:8000/openapi.json>.
+Tests use temporary SQLite databases and explicit test-only field inputs. Opt-in
+weather simulation checks use the existing local Postman simulation described in
+the weather integration guide; they never require live weather.
+
+Regenerate the checked-in contract after changing routes or schemas:
+
+```sh
+python -c 'import json; from pathlib import Path; from app.main import app; Path("openapi.json").write_text(json.dumps(app.openapi(), indent=2) + "\n")'
+```
