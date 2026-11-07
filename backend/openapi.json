@@ -1566,7 +1566,7 @@
           "section analysis"
         ],
         "summary": "Analyze Section",
-        "description": "Development mock: accepts selected WGS84 points, a closed section polygon and the map PNG with its geographic extent. Waits briefly, then returns random crop labels and square field polygons near the input points. Does not interpret imagery or save any data. Replace the model implementation while preserving this contract.",
+        "description": "Runs SAM2 on the submitted map PNG and positive point prompts. Runs trained TempCNN on explicitly synthetic 16-step, 3-channel inputs pending the real time-series source. No random output polygons or crop labels. Unmapped classes retain their numeric IDs. Does not save fields.",
         "operationId": "analyze_section_api_v1_maps_sections_analyze_post",
         "requestBody": {
           "content": {
@@ -1590,7 +1590,10 @@
             }
           },
           "422": {
-            "description": "Invalid points, region, PNG encoding, dimensions or image extent"
+            "description": "Invalid map image or points"
+          },
+          "503": {
+            "description": "Model unavailable or busy"
           }
         },
         "security": [
@@ -1727,6 +1730,86 @@
           "coordinates"
         ],
         "title": "AnalysisPolygon"
+      },
+      "AnalysisProvenance": {
+        "properties": {
+          "segmentationInputs": {
+            "type": "string",
+            "const": "submitted_map_image_and_points",
+            "title": "Segmentationinputs"
+          },
+          "cropInputs": {
+            "type": "string",
+            "const": "synthetic",
+            "title": "Cropinputs"
+          },
+          "syntheticCropInputs": {
+            "type": "boolean",
+            "const": true,
+            "title": "Syntheticcropinputs"
+          },
+          "sequenceShape": {
+            "prefixItems": [
+              {
+                "type": "integer",
+                "const": 16
+              },
+              {
+                "type": "integer",
+                "const": 3
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Sequenceshape"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "perturbationProbability": {
+            "type": "number",
+            "title": "Perturbationprobability"
+          },
+          "maxPerturbation": {
+            "type": "number",
+            "title": "Maxperturbation"
+          },
+          "cropLabelSource": {
+            "type": "string",
+            "enum": [
+              "unmapped_class_indices",
+              "training_class_mapping"
+            ],
+            "title": "Croplabelsource"
+          },
+          "classLabels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Classlabels"
+          },
+          "device": {
+            "type": "string",
+            "title": "Device"
+          }
+        },
+        "type": "object",
+        "required": [
+          "segmentationInputs",
+          "cropInputs",
+          "syntheticCropInputs",
+          "sequenceShape",
+          "seed",
+          "perturbationProbability",
+          "maxPerturbation",
+          "cropLabelSource",
+          "classLabels",
+          "device"
+        ],
+        "title": "AnalysisProvenance"
       },
       "Comparison": {
         "properties": {
@@ -2711,12 +2794,30 @@
           },
           "crop": {
             "type": "string",
-            "enum": [
-              "Winter wheat",
-              "Corn",
-              "Soybeans"
-            ],
             "title": "Crop"
+          },
+          "classIndex": {
+            "type": "integer",
+            "title": "Classindex"
+          },
+          "cropConfidence": {
+            "type": "number",
+            "title": "Cropconfidence"
+          },
+          "cropProbabilities": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Cropprobabilities"
+          },
+          "segmentationConfidence": {
+            "type": "number",
+            "title": "Segmentationconfidence"
+          },
+          "touchesImageEdge": {
+            "type": "boolean",
+            "title": "Touchesimageedge"
           },
           "center": {
             "prefixItems": [
@@ -2737,7 +2838,7 @@
             "title": "Center"
           },
           "geometry": {
-            "$ref": "#/components/schemas/AnalysisPolygon"
+            "$ref": "#/components/schemas/DetectedPolygon"
           },
           "areaHa": {
             "type": "number",
@@ -2750,11 +2851,55 @@
           "id",
           "pointId",
           "crop",
+          "classIndex",
+          "cropConfidence",
+          "cropProbabilities",
+          "segmentationConfidence",
+          "touchesImageEdge",
           "center",
           "geometry",
           "areaHa"
         ],
         "title": "DetectedField"
+      },
+      "DetectedPolygon": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Polygon",
+            "title": "Type",
+            "default": "Polygon"
+          },
+          "coordinates": {
+            "items": {
+              "items": {
+                "prefixItems": [
+                  {
+                    "type": "number",
+                    "maximum": 180.0,
+                    "minimum": -180.0
+                  },
+                  {
+                    "type": "number",
+                    "maximum": 90.0,
+                    "minimum": -90.0
+                  }
+                ],
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Coordinates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "coordinates"
+        ],
+        "title": "DetectedPolygon"
       },
       "EventResponse": {
         "properties": {
@@ -4329,6 +4474,7 @@
             },
             "type": "array",
             "maxItems": 600,
+            "minItems": 1,
             "title": "Points"
           },
           "image": {
@@ -4356,15 +4502,15 @@
           },
           "mock": {
             "type": "boolean",
-            "const": true,
+            "const": false,
             "title": "Mock",
-            "default": true
+            "default": false
           },
           "model": {
             "type": "string",
-            "const": "mock-field-detector-v1",
+            "const": "sam2-tiny+tempcnn",
             "title": "Model",
-            "default": "mock-field-detector-v1"
+            "default": "sam2-tiny+tempcnn"
           },
           "fields": {
             "items": {
@@ -4372,12 +4518,24 @@
             },
             "type": "array",
             "title": "Fields"
+          },
+          "skippedPoints": {
+            "items": {
+              "$ref": "#/components/schemas/SkippedPoint"
+            },
+            "type": "array",
+            "title": "Skippedpoints"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/AnalysisProvenance"
           }
         },
         "type": "object",
         "required": [
           "requestId",
-          "fields"
+          "fields",
+          "skippedPoints",
+          "provenance"
         ],
         "title": "SectionAnalysisResponse"
       },
@@ -4478,6 +4636,24 @@
           "language"
         ],
         "title": "SettingsInput"
+      },
+      "SkippedPoint": {
+        "properties": {
+          "pointId": {
+            "type": "string",
+            "title": "Pointid"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pointId",
+          "reason"
+        ],
+        "title": "SkippedPoint"
       },
       "StrategyResponse": {
         "properties": {

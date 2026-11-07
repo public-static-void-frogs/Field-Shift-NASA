@@ -51,7 +51,7 @@ class MapImage(BaseModel):
     @model_validator(mode="after")
     def valid_png(self):
         west, south, east, north = self.bounds
-        if west >= east or south >= north:
+        if west >= east or south >= north or south < -85.05112878 or north > 85.05112878:
             raise ValueError("Image bounds must have positive width and height")
         prefix = "data:image/png;base64,"
         if not self.dataUrl.startswith(prefix):
@@ -74,7 +74,7 @@ class MapImage(BaseModel):
 
 class SectionAnalysisRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    points: list[AnalysisPoint] = Field(max_length=600)
+    points: list[AnalysisPoint] = Field(min_length=1, max_length=600)
     image: MapImage
     region: AnalysisPolygon
 
@@ -94,17 +94,47 @@ class SectionAnalysisRequest(BaseModel):
         return self
 
 
+class DetectedPolygon(BaseModel):
+    type: Literal["Polygon"] = "Polygon"
+    coordinates: list[list[Coordinate]]
+
+
 class DetectedField(BaseModel):
     id: UUID
     pointId: str
-    crop: Literal["Winter wheat", "Corn", "Soybeans"]
+    crop: str
+    classIndex: int
+    cropConfidence: float
+    cropProbabilities: list[float]
+    segmentationConfidence: float
+    touchesImageEdge: bool
     center: Coordinate
-    geometry: AnalysisPolygon
+    geometry: DetectedPolygon
     areaHa: float = Field(gt=0)
+
+
+class AnalysisProvenance(BaseModel):
+    segmentationInputs: Literal["submitted_map_image_and_points"]
+    cropInputs: Literal["synthetic"]
+    syntheticCropInputs: Literal[True]
+    sequenceShape: tuple[Literal[16], Literal[3]]
+    seed: int
+    perturbationProbability: float
+    maxPerturbation: float
+    cropLabelSource: Literal["unmapped_class_indices", "training_class_mapping"]
+    classLabels: list[str]
+    device: str
+
+
+class SkippedPoint(BaseModel):
+    pointId: str
+    reason: str
 
 
 class SectionAnalysisResponse(BaseModel):
     requestId: UUID
-    mock: Literal[True] = True
-    model: Literal["mock-field-detector-v1"] = "mock-field-detector-v1"
+    mock: Literal[False] = False
+    model: Literal["sam2-tiny+tempcnn"] = "sam2-tiny+tempcnn"
     fields: list[DetectedField]
+    skippedPoints: list[SkippedPoint]
+    provenance: AnalysisProvenance

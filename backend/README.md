@@ -74,7 +74,8 @@ All resource routes use `/api/v1` and require authentication.
 - `openapi.json`: generated from routes and Pydantic models.
 
 See [authentication](docs/authentication.md), [weather integration](docs/weather-integration.md)
-and the [source-data integration contract](docs/core-and-source-data-contract.md).
+the [source-data integration contract](docs/core-and-source-data-contract.md),
+and [SAM2/TempCNN section analysis setup](docs/section-analysis.md).
 
 ## Verification
 

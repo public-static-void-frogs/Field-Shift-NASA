@@ -1,61 +1,109 @@
-# Mock section analysis contract
+# Section analysis: SAM2 + TempCNN
 
-`POST /api/v1/maps/sections/analyze` requires the normal session cookie. It is a
-local development stand-in, not image inference. It does not read or modify the
-field catalog or save selected fields.
+`POST /api/v1/maps/sections/analyze` requires the normal session cookie. It runs
+real local model inference and never saves fields or modifies the catalog.
 
-The JSON request contains:
+## Model preparation
 
-- `points`: up to 600 entries, each `{ "id": "source-point-id", "coordinates": [longitude, latitude] }`.
-  IDs must be unique; coordinates must be finite WGS84 positions inside the image bounds.
-- `region`: a GeoJSON Polygon containing one closed ring, in WGS84 longitude/latitude order.
+Use Python 3.12 and the backend virtualenv. The official SAM2 source is pinned in
+`requirements-ml.txt`. On CPU/macOS, install without the optional CUDA extension:
+
+```sh
+.venv/bin/pip install torch==2.15.0 torchvision==0.29.2
+SAM2_BUILD_CUDA=0 .venv/bin/pip install --no-build-isolation -r requirements-ml.txt
+.venv/bin/python scripts/download_sam2.py
+```
+
+On CUDA installations, omit `SAM2_BUILD_CUDA=0` if the optional CUDA extension is
+wanted. The runtime defaults to CUDA when available, otherwise CPU; `ML_DEVICE`
+can override it. Runtime requests never download weights. SAM2 weights live in
+ignored `backend/.cache/models/sam2_hiera_tiny.pt`; TempCNN uses the checked-in
+`ml/field-crop-detection-model/weights/tempcnn_best.pth`. Optional
+`SAM2_CHECKPOINT` and `TEMPCNN_CHECKPOINT` accept absolute paths.
+Missing dependencies/weights, invalid model configuration, or a busy model return
+503. Restart the backend after installing dependencies or changing model settings.
+
+## Request and segmentation
+
+- `points`: 1–600 `{ "id": "source-id", "coordinates": [longitude, latitude] }`
+  entries, with unique IDs and finite WGS84 positions inside the image bounds.
+- `region`: a closed single-ring GeoJSON Polygon in WGS84 longitude/latitude order.
 - `image`: `{ "dataUrl": "data:image/png;base64,...", "width": 1024, "height": 768,
   "bounds": [west, south, east, north], "crs": "EPSG:3857" }`.
 
-The image is the satellite imagery visible in the selected zone, cropped to its
-extent without UI overlays, region tint or field annotations. It is composited
-from the map's CORS-enabled imagery tiles. Image bounds are expressed in WGS84;
-pixels follow the Web Mercator projection specified by `crs`. Width and height
-match the PNG header, with a maximum of 2048 pixels per dimension and 8 MiB of
-decoded image data. The browser currently caps capture at 1536 pixels. Invalid
-encoding, dimensions, coordinates or geometry return 422.
+The browser captures actual satellite imagery for the selected extent, excluding
+UI overlays. Image bounds are WGS84 within the Web Mercator latitude limit;
+pixels follow EPSG:3857. The maximum is 2048 pixels per dimension and 8 MiB PNG
+bytes (browser capture currently caps dimensions at 1536). PNG contents and
+sizes are decoded and checked. Invalid requests return 422.
 
-After a 2.5-second asynchronous delay, the mock returns:
+The trained SAM2 tiny model receives the submitted RGB image and independently
+segments each positive point prompt, with `multimask_output=False`. Image encoding
+runs once per request; prompts are processed in batches of four. Only the mask
+component containing the prompt is retained. Actual mask contours, including
+holes, are simplified in pixel space and transformed back through Web Mercator
+into geographic polygons. Area is geodesic hectares. A missing/degenerate mask
+produces a `skippedPoints` entry, never a replacement square. Image-edge masks
+are marked `touchesImageEdge`; their extent may be clipped to the captured image.
+SAM2 is a general segmenter, so these masks are not validated agricultural parcels.
 
-```json
-{
-  "requestId": "e9df51cc-0549-440e-83dc-10c58dce4aab",
-  "mock": true,
-  "model": "mock-field-detector-v1",
-  "fields": [
-    {
-      "id": "116415b9-f51c-47e3-b4d7-d3c9546b3256",
-      "pointId": "source-point-id",
-      "crop": "Corn",
-      "center": [-93.87, 42.05],
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [[[-93.871,42.049],[-93.869,42.049],[-93.869,42.051],[-93.871,42.051],[-93.871,42.049]]]
-      },
-      "areaHa": 1.2
-    }
-  ]
-}
-```
+Models are lazy-loaded and cached per backend process. Each process accepts one
+analysis at a time rather than queuing large images behind the mutable predictor.
+Inference runs outside the event loop. Client disconnection stops work between
+model batches; an executing native model operation must finish first. The browser
+uses a five-minute analysis timeout; other API calls keep their ten-second default.
 
-One field is generated per input point. Crop labels are randomly chosen from
-Winter wheat, Corn and Soybeans. Boundaries are randomly sized square estimates,
-slightly offset around the point, expressed as closed geographic polygons. The
-image is accepted and validated but deliberately not interpreted. An empty point
-list returns no fields. The mock stores neither request imagery nor results.
+## TempCNN: real trained model, FAKE inputs
 
-The frontend pulses the selected zone and shows button loading for the capture
-and request lifecycle. On success the lasso is replaced by geographic field
-boundaries and clickable crop icons. Users can deselect results through the map
-or panel checkboxes. The panel then shows Add fields, which has no persistence
-handler at this stage. Cancellation aborts the client request and discards local
-results; switching away from a pending section cancels its pending state.
+`app/services/ml/synthetic_crop_inputs.py` explicitly hardcodes the temporary
+**16-step, 3-channel** sequence. Each scalar has a 15% chance of bounded noise
+(up to ±0.025). These values are illustrative normalized inputs, not measurements;
+channel meanings, units, scaling and dates are not asserted. The future data
+source must replace this module using the training input contract.
 
-Replace `app/services/section_analysis.py` with the real model behind this HTTP
-contract. `mock` and `model` explicitly identify current result provenance.
-No live or automated verification was run for this endpoint at the user's request.
+The original `TempCNN` implementation is loaded from `ml`, with the actual trained
+checkpoint. Input shape is `(batch, 16, 3)` transposed to `(batch, 3, 16)`, float32.
+Inference uses evaluation mode (dropout disabled), softmax probabilities, and
+argmax outputs. Labels, probabilities and boundaries are never randomized.
+Similar synthetic inputs may all predict the same class; variety is not forced.
+
+The checkpoint has four output classes. The training `classes.json` is absent,
+so the honest default labels are `Class 0` through `Class 3`. To enable crop names,
+set `TEMPCNN_CLASSES_PATH` to the original ordered label list or a verified JSON
+`{ "crop name": zeroBasedIndex }` mapping covering all four classes. Never invent
+the mapping. Until real inputs and labels arrive, crop predictions are integration
+results rather than reliable crop determinations.
+
+## Response
+
+The response has `mock: false`, `model: "sam2-tiny+tempcnn"`, `requestId`, `fields`,
+`skippedPoints`, and `provenance`. Each field includes:
+
+- `id`, `pointId`, geographic `center`, polygon `geometry`, `areaHa`;
+- `classIndex`, `crop`, `cropConfidence`, ordered `cropProbabilities`;
+- SAM2 `segmentationConfidence`, and `touchesImageEdge`.
+
+`provenance` explicitly reports `segmentationInputs: "submitted_map_image_and_points"`,
+`cropInputs: "synthetic"`, `syntheticCropInputs: true`, `sequenceShape: [16,3]`,
+input-noise seed/settings, `classLabels`, `cropLabelSource`, and device. Each request
+also logs a warning that TempCNN inputs are FAKE. Its seed can reproduce the inputs
+with `synthetic_sequences(count, seed)`; no input series or imagery is persisted.
+The frontend supports arbitrary class labels with a neutral plant icon fallback,
+keeps crop grouping and deselection, and leaves Add fields without persistence.
+
+## Actual execution evidence
+
+On 2026-11-07, real inference ran on macOS arm64 / Python 3.12 / CPU:
+
+- The repository sample PNG (2030×1116) with two real pixel prompts returned two
+  SAM2 masks; SAM2 scores were approximately 0.427 and 0.699.
+- An authenticated HTTP request through the application on an isolated temporary
+  SQLite database used actual Esri World Imagery tile `15/12155/7835`, its exact
+  Web Mercator geographic extent, and three visually chosen field-interior points.
+  HTTP 200 returned three real polygons, no skipped points, in 3.44 seconds
+  including lazy model loading. SAM2 scores were 0.902, 0.789, 0.908; areas were
+  21.42, 18.12, 9.63 ha. Two masks touched the image edge.
+- TempCNN predicted Class 0 for all three synthetic sequences, with softmax
+  probabilities 0.546, 0.677, 0.618. These are actual model outputs.
+- Focused checks cover geometry holes/components, Mercator projection, synthetic
+  input shape/noise, busy-model handling and endpoint authentication.
