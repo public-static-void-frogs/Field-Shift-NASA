@@ -1560,6 +1560,46 @@
         }
       }
     },
+    "/api/v1/maps/sections/analyze": {
+      "post": {
+        "tags": [
+          "section analysis"
+        ],
+        "summary": "Analyze Section",
+        "description": "Development mock: accepts selected WGS84 points, a closed section polygon and the map PNG with its geographic extent. Waits briefly, then returns random crop labels and square field polygons near the input points. Does not interpret imagery or save any data. Replace the model implementation while preserving this contract.",
+        "operationId": "analyze_section_api_v1_maps_sections_analyze_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SectionAnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionAnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid points, region, PNG encoding, dimensions or image extent"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -1610,6 +1650,83 @@
           "email"
         ],
         "title": "AccountInput"
+      },
+      "AnalysisPoint": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "coordinates": {
+            "prefixItems": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Coordinates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "coordinates"
+        ],
+        "title": "AnalysisPoint"
+      },
+      "AnalysisPolygon": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Polygon",
+            "title": "Type",
+            "default": "Polygon"
+          },
+          "coordinates": {
+            "items": {
+              "items": {
+                "prefixItems": [
+                  {
+                    "type": "number",
+                    "maximum": 180.0,
+                    "minimum": -180.0
+                  },
+                  {
+                    "type": "number",
+                    "maximum": 90.0,
+                    "minimum": -90.0
+                  }
+                ],
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "maxItems": 1,
+            "minItems": 1,
+            "title": "Coordinates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "coordinates"
+        ],
+        "title": "AnalysisPolygon"
       },
       "Comparison": {
         "properties": {
@@ -2581,6 +2698,64 @@
         ],
         "title": "DemoSource"
       },
+      "DetectedField": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "pointId": {
+            "type": "string",
+            "title": "Pointid"
+          },
+          "crop": {
+            "type": "string",
+            "enum": [
+              "Winter wheat",
+              "Corn",
+              "Soybeans"
+            ],
+            "title": "Crop"
+          },
+          "center": {
+            "prefixItems": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Center"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/AnalysisPolygon"
+          },
+          "areaHa": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Areaha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "pointId",
+          "crop",
+          "center",
+          "geometry",
+          "areaHa"
+        ],
+        "title": "DetectedField"
+      },
       "EventResponse": {
         "properties": {
           "status": {
@@ -3437,6 +3612,73 @@
         ],
         "title": "LoginInput"
       },
+      "MapImage": {
+        "properties": {
+          "dataUrl": {
+            "type": "string",
+            "maxLength": 12000000,
+            "title": "Dataurl",
+            "description": "Base64 PNG of the map imagery in image bounds; no UI overlays."
+          },
+          "crs": {
+            "type": "string",
+            "const": "EPSG:3857",
+            "title": "Crs",
+            "description": "Projection of the map image; geographic bounds are still EPSG:4326"
+          },
+          "width": {
+            "type": "integer",
+            "maximum": 2048.0,
+            "minimum": 1.0,
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "maximum": 2048.0,
+            "minimum": 1.0,
+            "title": "Height"
+          },
+          "bounds": {
+            "prefixItems": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              }
+            ],
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Bounds",
+            "description": "Image extent: west,south,east,north in EPSG:4326"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dataUrl",
+          "crs",
+          "width",
+          "height",
+          "bounds"
+        ],
+        "title": "MapImage"
+      },
       "MapSummary": {
         "properties": {
           "total": {
@@ -4078,6 +4320,66 @@
           "inputs"
         ],
         "title": "RotationPlan"
+      },
+      "SectionAnalysisRequest": {
+        "properties": {
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisPoint"
+            },
+            "type": "array",
+            "maxItems": 600,
+            "title": "Points"
+          },
+          "image": {
+            "$ref": "#/components/schemas/MapImage"
+          },
+          "region": {
+            "$ref": "#/components/schemas/AnalysisPolygon"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "points",
+          "image",
+          "region"
+        ],
+        "title": "SectionAnalysisRequest"
+      },
+      "SectionAnalysisResponse": {
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Requestid"
+          },
+          "mock": {
+            "type": "boolean",
+            "const": true,
+            "title": "Mock",
+            "default": true
+          },
+          "model": {
+            "type": "string",
+            "const": "mock-field-detector-v1",
+            "title": "Model",
+            "default": "mock-field-detector-v1"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/DetectedField"
+            },
+            "type": "array",
+            "title": "Fields"
+          }
+        },
+        "type": "object",
+        "required": [
+          "requestId",
+          "fields"
+        ],
+        "title": "SectionAnalysisResponse"
       },
       "SettingsInput": {
         "properties": {

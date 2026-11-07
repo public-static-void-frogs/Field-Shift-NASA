@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import auth, fields, planning, resources
+from app.api import auth, fields, planning, resources, section_analysis
 from app.core.config import Settings
 from app.core.database import database_engine, session_factory
 from app.core.errors import ResourceConflict, ResourceNotFound
@@ -68,7 +68,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
         allow_headers=["Content-Type"],
     )
     app.include_router(auth.router, prefix="/api/v1")
-    for router in (fields.router, planning.router, resources.router):
+    for router in (fields.router, planning.router, resources.router, section_analysis.router):
         app.include_router(router, prefix="/api/v1", dependencies=[Depends(auth.current_user)])
 
     @app.get("/", tags=["health"])
