@@ -49,7 +49,9 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
   const pagination = useTablePagination(visible.length);
   const { tableViewport, tableBodyHeight } = useTableViewport(!overview);
   const filterOptions = getFieldFilterOptions(cropOptions, fields, t);
-  const attention = fields.filter((field) => field.status !== 'Healthy').length;
+  const attention = fields.filter(
+    (field) => field.status === 'Critical' || field.status === 'Needs attention',
+  ).length;
   const columns: TableColumnsType<Field> = [
     {
       title: t('Field name'),
@@ -64,7 +66,7 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
               {name}
             </RouterButton>
             <Typography.Text type="secondary" className="field-id">
-              {t('Field')} {String(field.parcelId).padStart(2, '0')}
+              {t('Field')} {field.sourceId || field.parcelId || field.id.slice(0, 8)}
             </Typography.Text>
           </div>
         </Space>
@@ -74,10 +76,10 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
       title: t('Crop type'),
       dataIndex: 'crop',
       key: 'crop',
-      render: (value: string) => (
+      render: (value: string | null) => (
         <Space>
           <Wheat size={17} className="muted-icon" />
-          {value}
+          {value || t('Not supplied')}
         </Space>
       ),
     },
@@ -93,32 +95,38 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
       dataIndex: 'health',
       key: 'health',
       width: 165,
-      sorter: (a, b) => a.health - b.health,
-      render: (value: number, field) => (
-        <div className="health-cell">
-          <span>
-            {value}
-            <Typography.Text type="secondary">/100</Typography.Text>
-          </span>
-          <Progress
-            percent={value}
-            showInfo={false}
-            size="small"
-            strokeColor={fieldStatusPresentation[field.status].stroke}
-          />
-        </div>
-      ),
+      sorter: (a, b) => (a.health ?? -1) - (b.health ?? -1),
+      render: (value: number | null, field) =>
+        value === null ? (
+          t('Not measured')
+        ) : (
+          <div className="health-cell">
+            <span>
+              {value}
+              <Typography.Text type="secondary">/100</Typography.Text>
+            </span>
+            <Progress
+              percent={value}
+              showInfo={false}
+              size="small"
+              strokeColor={getHealthStroke(field)}
+            />
+          </div>
+        ),
     },
     {
       title: t('Soil moisture'),
       dataIndex: 'moisture',
       key: 'moisture',
-      render: (value: number) => (
-        <Space>
-          <Droplets size={17} className="muted-icon" />
-          {value}%
-        </Space>
-      ),
+      render: (value: number | null) =>
+        value === null ? (
+          t('Not measured')
+        ) : (
+          <Space>
+            <Droplets size={17} className="muted-icon" />
+            {value}%
+          </Space>
+        ),
     },
     {
       title: t('Status'),
@@ -363,4 +371,11 @@ export function FieldsTable({ overview = false }: FieldsTableProps) {
       </Card>
     </div>
   );
+}
+
+function getHealthStroke(field: Field) {
+  if (field.status) {
+    return fieldStatusPresentation[field.status].stroke;
+  }
+  return '#a5ada0';
 }

@@ -1,12 +1,12 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after } from 'node:test';
 
-// Exercise the actual HTTP boundary using a fresh, isolated demo repository per test file.
+// Exercise the real API using a temporary database and explicit test-only inputs.
 const directory = fileURLToPath(new URL('../../../Field-Shift-NASA/backend', import.meta.url));
 // Reuse the contract stand-in for deterministic frontend HTTP tests.
 const provider = spawn(process.execPath, [`${directory}/postman/mocks/open-meteo/default.js`], {
@@ -134,6 +134,23 @@ if (registration.status !== 201) {
   throw new Error(`Test account registration failed: ${await registration.text()}`);
 }
 let cookie = registration.headers.get('set-cookie').split(';')[0];
+const fieldInput = JSON.parse(await readFile(`${directory}/tests/field_input.json`, 'utf8'));
+export const testFields = [];
+for (const [name, crop] of [
+  ['Test North', 'Winter wheat'],
+  ['Test South', 'Corn'],
+]) {
+  const response = await nativeFetch(`${baseUrl}/api/v1/fields`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Cookie: cookie },
+    body: JSON.stringify({ ...fieldInput, name, crop }),
+  });
+  if (response.status !== 201) {
+    throw new Error(`Test field setup failed: ${await response.text()}`);
+  }
+  testFields.push(await response.json());
+}
+
 globalThis.fetch = async (input, init = {}) => {
   const headers = new Headers(init.headers);
   if (String(input).startsWith(baseUrl)) {

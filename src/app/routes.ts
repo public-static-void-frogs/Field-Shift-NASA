@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
-import { calendarLoader, fieldLoader, parcelLoader } from './route-loaders.ts';
+import { calendarLoader, fieldLoader } from './route-loaders.ts';
 
 export type AppRouteHandle = {
   navigationKey?: string;
@@ -95,9 +95,9 @@ export const appRoutes: RouteObject[] = [
             lazy: async () => ({ Component: (await import('../pages/MapPage')).MapPage }),
           },
           {
-            id: 'parcel',
-            path: 'map/add/:parcelId',
-            loader: parcelLoader,
+            id: 'catalog-field',
+            path: 'map/add/:fieldId',
+            loader: fieldLoader,
             handle: { navigationKey: '/map' },
             lazy: async () => ({ Component: (await import('../pages/AddFieldPage')).AddFieldPage }),
           },

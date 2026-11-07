@@ -1,124 +1,49 @@
-import { useSuspenseQueries } from '@tanstack/react-query';
-import { Button, Card, Descriptions, Form, Input, Result, Select, Space } from 'antd';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Button, Card, Result, Space, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useLoaderData } from 'react-router-dom';
-import { farmQueries } from '../api/farm/farm.queries.ts';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
-import { PageHeading } from '../components/common/PageHeading';
+import type { FieldRouteData } from '../app/route-loaders.ts';
 import { RouterButton } from '../components/common/RouterButton';
-import { useAddField } from '../features/fields/hooks/useAddField.ts';
-
-import type { ParcelRouteData } from '../app/route-loaders.ts';
+import { useCatalogSelection } from '../features/maps/hooks/useCatalogSelection.ts';
 
 export function AddFieldPage() {
   const { t } = useTranslation();
-  const { parcelId } = useLoaderData<ParcelRouteData>();
-  const [{ data: parcel }, { data: cropOptions }, { data: fields }, { data: preferences }] =
-    useSuspenseQueries({
-      queries: [
-        fieldQueries.parcel(parcelId),
-        fieldQueries.crops(),
-        fieldQueries.list(),
-        farmQueries.profile(),
-      ],
-    });
-  const { handleAdd, isAddingField } = useAddField(parcelId);
-  const exists = fields.some((field) => field.parcelId === parcelId);
-  if (!parcel || exists) {
-    return <UnavailableParcel exists={exists} />;
+  const { fieldId } = useLoaderData<FieldRouteData>();
+  const { data: field } = useSuspenseQuery(fieldQueries.catalogById(fieldId));
+  const { data: fields } = useSuspenseQuery(fieldQueries.list());
+  const selection = useCatalogSelection();
+  const selected = fields.some((item) => item.id === fieldId);
+  if (!field) {
+    return (
+      <Result
+        status="404"
+        title={t('Field not found')}
+        extra={<RouterButton to="/map">{t('Back to the map')}</RouterButton>}
+      />
+    );
   }
 
   return (
-    <>
-      <RouterButton type="text" icon={<ArrowLeft size={19} />} to="/map/add">
-        {t('Back to the map')}
-      </RouterButton>
-      <PageHeading
-        title={t('Welcome a new field.')}
-        description={t('Give this parcel a name and tell us what you’re growing.')}
-        eyebrow={t('{{farmName}} · PARCEL {{parcelId}}', {
-          farmName: (preferences.farmName || t('My farm')).toUpperCase(),
-          parcelId: String(parcelId).padStart(2, '0'),
-        })}
-      />
-      <Card className="form-card" title={t('Field information')}>
-        <Descriptions
-          className="section-gap"
-          items={[
-            {
-              key: 'area',
-              label: t('Area'),
-              children: t('{{value0}} hectares', { value0: parcel.area }),
-            },
-            {
-              key: 'soil',
-              label: t('Soil type'),
-              children: parcel.soilType,
-            },
-          ]}
-        />
-        <Form
-          layout="vertical"
-          initialValues={{
-            name: parcel.name,
-            crop: parcel.crop,
-          }}
-          onFinish={handleAdd}
-          requiredMark={false}
+    <Card title={field.name} className="form-card">
+      <Typography.Paragraph>
+        {t('{{value0}} ha', { value0: field.area.toFixed(2) })}
+      </Typography.Paragraph>
+      <Typography.Paragraph>
+        {t(
+          'These rectangles are estimated from source centroids and area. Crop and soil measurements have not been inferred.',
+        )}
+      </Typography.Paragraph>
+      <Space wrap>
+        <Button
+          type="primary"
+          loading={selection.isPending}
+          onClick={() => selection.toggle(fieldId, selected)}
         >
-          <Form.Item
-            label={t('Field name')}
-            name="name"
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: t('Enter a name for your field.'),
-              },
-              { max: 60, message: t('Use 60 characters or fewer.') },
-            ]}
-          >
-            <Input placeholder={t('Give your field a name')} />
-          </Form.Item>
-          <Form.Item
-            label={t('Crop type')}
-            name="crop"
-            rules={[{ required: true, message: t('Choose a crop.') }]}
-          >
-            <Select options={cropOptions} />
-          </Form.Item>
-          <Space>
-            <Button
-              type="primary"
-              loading={isAddingField}
-              htmlType="submit"
-              icon={<Plus size={19} />}
-            >
-              {t('Add to my fields')}
-            </Button>
-            <RouterButton to="/map/add">{t('Cancel')}</RouterButton>
-          </Space>
-        </Form>
-      </Card>
-    </>
-  );
-}
-
-type UnavailableParcelProps = {
-  exists: boolean;
-};
-
-function UnavailableParcel({ exists }: UnavailableParcelProps) {
-  const { t } = useTranslation();
-
-  return (
-    <Result
-      status="info"
-      title={
-        exists ? t('This field already belongs to your farm.') : t('This parcel isn’t available.')
-      }
-      extra={<RouterButton to="/map/add">{t('Back to the map')}</RouterButton>}
-    />
+          {selected ? t('Remove from my fields') : t('Add to my fields')}
+        </Button>
+        <RouterButton to="/map">{t('Back to the map')}</RouterButton>
+      </Space>
+    </Card>
   );
 }

@@ -1,9 +1,7 @@
-import './support/backend.mjs';
-import { planningApi } from '../src/api/planning/planning.api.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-const { today: planningToday } = await planningApi.getContext();
+const planningToday = '2026-05-24'; // Explicit unit-test reference date, not the live planning clock.
 import { getEventStatus, isPlanDate } from '../src/features/planning/utils/planningDates.ts';
 
 test('calendar date validation rejects impossible or incomplete dates', () => {

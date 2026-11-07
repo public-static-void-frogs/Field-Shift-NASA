@@ -3,23 +3,25 @@ import type {
   FieldHistory,
   FieldPropertyData,
   FieldRecommendationData,
-  Parcel,
 } from '../../types/fields/api.types.ts';
 import type { Field } from '../../types/fields/field.types.ts';
 import { request } from '../core/http.ts';
 
 export type CreateFieldInput = {
-  parcelId: number;
+  parcelId?: number;
+  area: number;
+  geometry: Field['geometry'];
   name: string;
   crop: string;
 };
 
 export const fieldsApi = {
   getAll: (signal?: AbortSignal): Promise<Field[]> => request('/fields', { signal }),
+  getCatalogById: (id: string, signal?: AbortSignal): Promise<Field | null> =>
+    request(`/fields/catalog/${id}`, { signal, allowMissing: true }),
+  select: (id: string): Promise<Field> => request(`/fields/${id}/selection`, { method: 'PUT' }),
   getById: (id: string, signal?: AbortSignal): Promise<Field | null> =>
     request(`/fields/${id}`, { signal, allowMissing: true }),
-  getParcel: (id: number, signal?: AbortSignal): Promise<Parcel | null> =>
-    request(`/parcels/${id}`, { signal, allowMissing: true }),
   getCrops: (signal?: AbortSignal): Promise<CropOption[]> => request('/crops', { signal }),
   getProperties: (id: string, signal?: AbortSignal): Promise<FieldPropertyData | null> =>
     request(`/fields/${id}/properties`, { signal, allowMissing: true }),

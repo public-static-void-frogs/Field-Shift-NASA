@@ -27,7 +27,7 @@ export function FieldDetailsPage() {
   const geojson = useFieldBoundary(fieldId);
   const { confirmRemove, setConfirmRemove, isRemovingField, handleRemove } =
     useFieldRemoval(fieldId);
-  if (!field || !propertyData) {
+  if (!field) {
     return <FieldNotFound />;
   }
 
@@ -39,9 +39,9 @@ export function FieldDetailsPage() {
       <PageHeading
         title={field.name}
         description={t('{{value0}} · {{value1}} hectares · {{value2}}', {
-          value0: field.crop,
+          value0: field.crop || t('Crop not supplied'),
           value1: field.area,
-          value2: propertyData.soil.soilType,
+          value2: propertyData?.soil.soilType || t('Soil not supplied'),
         })}
         eyebrow={t('{{value0}} · FIELD {{value1}}', {
           value0: (preferences.farmName || t('My farm')).toUpperCase(),
@@ -50,13 +50,15 @@ export function FieldDetailsPage() {
         actions={
           <Space wrap>
             <FieldStatus status={field.status} />
-            <RouterButton
-              type="primary"
-              icon={<Sprout size={19} />}
-              to={`/fields/${field.id}/strategy`}
-            >
-              {t('Rotation strategy')}
-            </RouterButton>
+            {propertyData && field.crop && (
+              <RouterButton
+                type="primary"
+                icon={<Sprout size={19} />}
+                to={`/fields/${field.id}/strategy`}
+              >
+                {t('Rotation strategy')}
+              </RouterButton>
+            )}
           </Space>
         }
       />
@@ -74,6 +76,15 @@ export function FieldDetailsPage() {
         />
       </div>
       <div className="field-detail-stack">
+        {!propertyData && (
+          <Alert
+            type="info"
+            title={t('Source field imported')}
+            description={t(
+              'This field has source location and area data. Crop, soil and health measurements have not been supplied.',
+            )}
+          />
+        )}
         <CropRotationPlan field={field} />
         <FieldRecommendation field={field} />
         <FieldProperties field={field} />

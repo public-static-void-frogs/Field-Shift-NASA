@@ -18,6 +18,12 @@ export async function invalidateFieldData(client: QueryClient) {
   ]);
 }
 export const fieldMutations = {
+  select: (client: QueryClient) =>
+    mutationOptions({
+      mutationKey: ['fields', 'select'],
+      mutationFn: fieldsApi.select,
+      onSuccess: () => invalidateFieldData(client),
+    }),
   create: (client: QueryClient) =>
     mutationOptions({
       mutationKey: ['fields', 'create'],

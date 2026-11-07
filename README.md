@@ -147,39 +147,26 @@ npm run test:strategy
 
 ## Geographic maps
 
-Overview, Field map, and field-detail pages share `src/features/maps/components/FieldMap.tsx`, using Leaflet and
-React Leaflet. The satellite basemap is Esri World Imagery; the source and required
-attribution are configured in `src/features/maps/constants/maps.constants.ts`. Labels, zoom buttons,
-recenter, overlay selector, and field/add-parcel navigation remain available.
-The scale now follows the map zoom. Overlay health/moisture readings remain demo data.
+The full-screen field catalog uses `CatalogMap`; overview and field-detail mini-maps
+use `FieldMap`. Both use Leaflet with the Esri World Imagery basemap and visible
+source attribution. GeoJSON coordinates use `[longitude, latitude]` order.
 
-`FieldMap` accepts a `geojson` prop typed as `FieldGeoJson` (defined in
-`src/types/maps/map.types.ts`): a WGS84 `FeatureCollection` of `Polygon` or `MultiPolygon`
-features. Coordinates use standard GeoJSON `[longitude, latitude]` order.
-`properties.fieldId` contains the GUID of the active field, or `null` for available land.
-`properties.parcelId` (or the numeric `feature.id`) identifies the parcel for the add form.
-Fields have independent GUIDs and a separate numeric `parcelId`; recreating a field uses a fresh GUID.
-A feature without a parcel identifier does not navigate to an add form. Optional `properties.name` labels
-unmatched features. Property and field names are rendered as text, not HTML.
-Replacing the collection redraws the overlays and fits the map to its new bounds.
+The catalog loads the visible extent through `/maps/geojson?bbox=…&zoom=…`.
+Wide or dense views return bounded geographic count groups. The client combines
+these into world-anchored screen bins, with at least 96 CSS pixels between marker
+centers. Markers are 40 pixels wide, without halos; nearby groups merge their
+counts, area and bounds. The layout updates after navigation and resizing,
+reserves space for the scale, and adapts to phone widths. Clicking a group zooms
+into its combined extent. Close views render individual fields using Canvas.
 
-Map pages fetch GeoJSON from `/api/v1/maps/geojson`: six hardcoded rectangular
-sample parcels over farmland west of Ames, Iowa. These are illustrative boundaries,
-not real land ownership or surveyed parcel boundaries. To use another dataset,
-pass a different collection to the same component:
-
-```tsx
-<FieldMap
-  geojson={yourFeatureCollection}
-  fields={fields}
-  adding={false}
-  onSelect={(field) => navigate(`/fields/${field.id}`)}
-  onAdd={(id) => navigate(`/map/add/${id}`)}
-/>
-```
+The catalog never automatically fits the map after a viewport response. URL
+parameters retain the explored center and zoom. Field previews offer selection
+and removal; selections use the shared catalog UUID. Mini-maps read only selected
+field geometries. No production sample parcel collection is generated.
 
 ```sh
 npm run test:maps
+node --experimental-strip-types --test tests/clusterLayout.test.mjs
 ```
 
 ## Routing
@@ -344,3 +331,16 @@ consumes structured bounds, scores, coverage, and alerts; it does not calculate 
 thresholds. The backend's `docs/weather-integration.md` describes replacement of the
 estimator and the `field_id` contract. Unscoped weather requests retain account-location
 behavior and return no crop assessment.
+
+## Real-source field map
+
+`/map` uses viewport-based API loading, with groups at wide zooms and a maximum of
+600 map features per response. It reads the imported USDA NASS CSB catalog. The
+supplied rectangles are estimates, and the UI labels them as such. Click a group
+to zoom in, then select a field to preview its source data and add it to My fields.
+
+See [source import and map verification](../Field-Shift-NASA/backend/docs/field-map-prototype.md)
+for the database migration, full-archive importer and performance benchmark. The
+map requires `GET /maps/summary` and the parameterized `GET /maps/geojson` endpoint;
+older backend versions that return a complete unbounded GeoJSON collection are
+not supported. Synthetic HTTP-test inputs live only in the test harness.

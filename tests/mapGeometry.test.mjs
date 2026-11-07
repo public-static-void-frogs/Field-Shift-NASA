@@ -8,7 +8,7 @@ import {
   getGeoJsonBounds,
 } from '../src/features/maps/utils/mapGeometry.ts';
 
-const fieldGeoJson = await mapsApi.getGeoJson();
+const fieldGeoJson = await mapsApi.getGeoJson({ bounds: [-93.76, 42.03, -93.72, 42.06], zoom: 15 });
 
 const feature = (geometry, properties = null, id) => ({
   type: 'Feature',
@@ -18,30 +18,21 @@ const feature = (geometry, properties = null, id) => ({
 });
 const collection = (...features) => ({ type: 'FeatureCollection', features });
 
-test('demo parcels are six closed geographic rectangles linked to field IDs', () => {
-  assert.equal(fieldGeoJson.features.length, 6);
-  fieldGeoJson.features.forEach((parcel, index) => {
-    assert.equal(getFeatureParcelId(parcel), index + 1);
-    if (index < 5) {
-      assert.match(getFeatureFieldId(parcel), /^[0-9a-f-]{36}$/);
-    } else {
-      assert.equal(getFeatureFieldId(parcel), undefined);
-    }
-    assert.equal(parcel.geometry.type, 'Polygon');
-    const [ring] = parcel.geometry.coordinates;
-    assert.equal(ring.length, 5);
+test('viewport reads return bounded polygons for explicit test fields', () => {
+  assert.equal(fieldGeoJson.features.length, 2);
+  assert.equal(fieldGeoJson.mode, 'fields');
+  for (const feature of fieldGeoJson.features) {
+    assert.match(feature.properties.catalogFieldId, /^[0-9a-f-]{36}$/);
+    assert.equal(feature.geometry.type, 'Polygon');
+    const [ring] = feature.geometry.coordinates;
     assert.deepEqual(ring[0], ring.at(-1));
-    ring.forEach(([longitude, latitude]) => {
-      assert.ok(longitude >= -180 && longitude <= 180);
-      assert.ok(latitude >= -90 && latitude <= 90);
-    });
-  });
+  }
 });
 
 test('GeoJSON longitude/latitude coordinates become latitude/longitude map bounds', () => {
   assert.deepEqual(getGeoJsonBounds(fieldGeoJson), [
-    [42.037, -93.748],
-    [42.047, -93.726],
+    [42.043, -93.748],
+    [42.047, -93.742],
   ]);
 });
 

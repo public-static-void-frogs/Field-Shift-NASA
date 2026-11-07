@@ -21,7 +21,11 @@ export function filterFields(fields: Field[], options: FieldFilters) {
     if (!searchable.toLowerCase().includes(search)) {
       return false;
     }
-    if (status === 'Needs attention' && field.status === 'Healthy') {
+    if (
+      status === 'Needs attention' &&
+      field.status !== 'Critical' &&
+      field.status !== 'Needs attention'
+    ) {
       return false;
     }
     if (status !== 'All fields' && status !== 'Needs attention' && field.status !== status) {
@@ -30,13 +34,13 @@ export function filterFields(fields: Field[], options: FieldFilters) {
     if (overview) {
       return crop === 'All crops' || field.crop === crop;
     }
-    if (selectedCrops.length && !selectedCrops.includes(field.crop)) {
+    if (selectedCrops.length && !selectedCrops.includes(field.crop ?? '')) {
       return false;
     }
-    if (filters.includes('moisture:low') && field.moisture >= 40) {
+    if (filters.includes('moisture:low') && (field.moisture === null || field.moisture >= 40)) {
       return false;
     }
-    if (filters.includes('health:low') && field.health >= 70) {
+    if (filters.includes('health:low') && (field.health === null || field.health >= 70)) {
       return false;
     }
     if (filters.includes('area:large') && field.area < 25) {

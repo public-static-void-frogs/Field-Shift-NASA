@@ -111,6 +111,9 @@ export function FieldMap({
           </Button>
         </Tooltip>
       </div>
+      {boundaryOnly && fields.some((field) => field.boundaryKind === 'estimated_bounds') && (
+        <div className="map-boundary-note">{t('Estimated bounds · not surveyed boundaries')}</div>
+      )}
       {!boundaryOnly && (
         <div className="map-legend">
           {legend.map((item) => (

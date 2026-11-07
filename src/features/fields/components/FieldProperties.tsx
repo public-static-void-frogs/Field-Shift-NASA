@@ -1,282 +1,100 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Card, Descriptions, Space, Tag, Typography } from 'antd';
-import { Droplets, Mountain, Sprout } from 'lucide-react';
+import { Card, Descriptions, Typography } from 'antd';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fieldQueries } from '../../../api/fields/fields.queries.ts';
 import type { Field } from '../../../types/fields/field.types.ts';
-
-import { getNitrogenAssessment } from '../utils/fieldPresentation.ts';
 
 type FieldPropertiesProps = { field: Field };
 
 export function FieldProperties({ field }: FieldPropertiesProps) {
   const { t } = useTranslation();
-  const { data: propertyData } = useSuspenseQuery(fieldQueries.properties(field.id));
-  if (!propertyData) {
+  const { data } = useSuspenseQuery(fieldQueries.properties(field.id));
+  if (!data) {
     return null;
   }
-  const { soil: properties, crop } = propertyData;
-  const nitrogen = getNitrogenAssessment(field.nitrogen);
+  const { soil, crop } = data;
+  const number = (value: number | null, unit = '') =>
+    value === null
+      ? t('Not supplied')
+      : `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}${unit}`;
 
   return (
     <section aria-labelledby="field-properties-heading" className="field-properties-section">
       <Typography.Title level={3} id="field-properties-heading">
         {t('Field properties')}
       </Typography.Title>
-      <Typography.Paragraph type="secondary">
-        {t('The soil, crop, and water conditions behind your field’s performance.')}{' '}
-      </Typography.Paragraph>
       <div className="field-properties-stack">
-        <Card
-          title={
-            <Space>
-              <Sprout size={22} />
-              {t('Crop & growing season')}{' '}
-            </Space>
-          }
-        >
-          <Descriptions
-            bordered
-            layout="vertical"
-            column={{
-              xs: 1,
-              sm: 2,
-              lg: 3,
-            }}
-            items={[
-              {
-                key: 'crop',
-                label: t('Current crop'),
-                children: field.crop,
-              },
-              {
-                key: 'variety',
-                label: t('Seed variety'),
-                children: crop.variety,
-              },
-              {
-                key: 'planted',
-                label: t('Planting date'),
-                children: field.planted,
-              },
-              {
-                key: 'stage',
-                label: t('Growth stage'),
-                children: propertyData.growthStage,
-              },
-              {
-                key: 'emergence',
-                label: t('Crop establishment'),
-                children: t('{{value0}}% of planted area', { value0: crop.emergence }),
-              },
-              {
-                key: 'density',
-                label: t('Plant population'),
-                children: t('{{value0}} plants/m²', { value0: crop.plantDensity }),
-              },
-              {
-                key: 'ndvi',
-                label: t('Vegetation index (NDVI)'),
-                children: (
-                  <Space wrap>
-                    {properties.vegetationIndex.toFixed(2)}
-                    <Tag color={properties.vegetationIndex < 0.5 ? 'warning' : 'success'}>
-                      {properties.vegetationIndex < 0.5 ? t('Sparse growth') : t('Good coverage')}
-                    </Tag>
-                  </Space>
-                ),
-              },
-              {
-                key: 'yield',
-                label: t('Target yield'),
-                children: t('{{value0}} t/ha', { value0: crop.yieldTarget.toFixed(1) }),
-              },
-              {
-                key: 'harvest',
-                label: t('Expected harvest'),
-                children: crop.harvestWindow,
-              },
-            ]}
-          />
-        </Card>
-        <Card
-          title={
-            <Space>
-              <Mountain size={22} />
-              {t('Soil & nutrients')}{' '}
-            </Space>
-          }
-        >
-          <Descriptions
-            bordered
-            layout="vertical"
-            column={{
-              xs: 1,
-              sm: 2,
-              lg: 3,
-            }}
-            items={[
-              {
-                key: 'texture',
-                label: t('Soil texture'),
-                children: properties.soilType,
-              },
-              {
-                key: 'ph',
-                label: t('Soil pH'),
-                children: (
-                  <Space wrap>
-                    {properties.soilPh.toFixed(1)}
-                    <Tag color={properties.soilPh < 6 ? 'warning' : 'success'}>
-                      {properties.soilPh < 6 ? t('Acidic · Review liming') : t('Balanced')}
-                    </Tag>
-                  </Space>
-                ),
-              },
-              {
-                key: 'organic',
-                label: t('Organic matter'),
-                children: `${properties.organicMatter.toFixed(1)}%`,
-              },
-              {
-                key: 'nitrogen',
-                label: t('Available nitrogen (N)'),
-                children: (
-                  <Space wrap>
-                    {field.nitrogen}
-                    {t('mg/kg')}
-                    <Tag color={nitrogen.color}>{t(nitrogen.label)}</Tag>
-                  </Space>
-                ),
-              },
-              {
-                key: 'phosphorus',
-                label: t('Phosphorus (P)'),
-                children: t('{{value0}} mg/kg', { value0: properties.phosphorus }),
-              },
-              {
-                key: 'potassium',
-                label: t('Potassium (K)'),
-                children: t('{{value0}} mg/kg', { value0: properties.potassium }),
-              },
-              {
-                key: 'temp',
-                label: t('Soil temperature · 10 cm'),
-                children: t('{{value0}}°C', { value0: properties.soilTemperature.toFixed(1) }),
-              },
-              {
-                key: 'ec',
-                label: t('Salinity (electrical conductivity)'),
-                children: t('{{value0}} dS/m · Low salt content', {
-                  value0: properties.conductivity.toFixed(1),
-                }),
-              },
-              {
-                key: 'cec',
-                label: t('Nutrient holding capacity (CEC)'),
-                children: t('{{value0}} cmol/kg', { value0: properties.cationExchange.toFixed(1) }),
-              },
-              {
-                key: 'density',
-                label: t('Bulk density'),
-                children: t('{{value0}} g/cm³', { value0: properties.bulkDensity.toFixed(2) }),
-              },
-              {
-                key: 'root',
-                label: t('Effective rooting depth'),
-                children: t('{{value0}} cm', { value0: properties.rootingDepth }),
-              },
-              {
-                key: 'sample',
-                label: t('Last soil sample'),
-                children: propertyData.lastSample,
-              },
-            ]}
-          />
-        </Card>
-        <Card
-          title={
-            <Space>
-              <Droplets size={22} />
-              {t('Land & water')}{' '}
-            </Space>
-          }
-        >
-          <Descriptions
-            bordered
-            layout="vertical"
-            column={{
-              xs: 1,
-              sm: 2,
-              lg: 3,
-            }}
-            items={[
-              {
-                key: 'area',
-                label: t('Field area'),
-                children: t('{{value0}} hectares', { value0: field.area }),
-              },
-              {
-                key: 'elevation',
-                label: t('Elevation'),
-                children: t('{{value0}} m above sea level', { value0: properties.elevation }),
-              },
-              {
-                key: 'slope',
-                label: t('Average slope'),
-                children: `${properties.slope.toFixed(1)}%`,
-              },
-              {
-                key: 'drainage',
-                label: t('Drainage'),
-                children: properties.drainage,
-              },
-              {
-                key: 'irrigation',
-                label: t('Irrigation system'),
-                children: properties.irrigation,
-              },
-              {
-                key: 'moisture',
-                label: t('Current soil moisture'),
-                children: `${field.moisture}%`,
-              },
-              {
-                key: 'last',
-                label: t('Last irrigation'),
-                children: properties.lastIrrigation,
-              },
-              {
-                key: 'water',
-                label: t('Irrigation this season'),
-                children: t('{{value0}} mm', { value0: properties.waterApplied }),
-              },
-              {
-                key: 'rain',
-                label: t('Rainfall · last 30 days'),
-                children: t('{{value0}} mm', { value0: properties.rainfall.toFixed(1) }),
-              },
-              {
-                key: 'capacity',
-                label: t('Available water capacity'),
-                children: t('{{value0}} mm per metre of soil', {
-                  value0: properties.waterCapacity,
-                }),
-              },
-              {
-                key: 'management',
-                label: t('Cultivation practice'),
-                children: propertyData.cultivationPractice,
-              },
-              {
-                key: 'ownership',
-                label: t('Tenure'),
-                children: propertyData.tenure,
-              },
-            ]}
-          />
-        </Card>
+        <PropertySection
+          title={t('Crop & growing season')}
+          items={[
+            [t('Current crop'), field.crop],
+            [t('Seed variety'), crop.variety],
+            [t('Planting date'), field.planted],
+            [t('Growth stage'), data.growthStage],
+            [t('Crop establishment'), number(crop.emergence, '%')],
+            [t('Plant population'), number(crop.plantDensity, ' plants/m²')],
+            [t('Vegetation index (NDVI)'), number(crop.vegetationIndex)],
+            [t('Target yield'), number(crop.yieldTarget, ' t/ha')],
+            [t('Expected harvest'), crop.harvestWindow],
+          ]}
+        />
+        <PropertySection
+          title={t('Soil & nutrients')}
+          items={[
+            [t('Soil texture'), soil.soilType],
+            [t('Soil pH'), number(soil.soilPh)],
+            [t('Organic matter'), number(soil.organicMatter, '%')],
+            [t('Available nitrogen (N)'), number(field.nitrogen, ' mg/kg')],
+            [t('Phosphorus (P)'), number(soil.phosphorus, ' mg/kg')],
+            [t('Potassium (K)'), number(soil.potassium, ' mg/kg')],
+            [t('Soil temperature · 10 cm'), number(soil.soilTemperature, '°C')],
+            [t('Salinity (electrical conductivity)'), number(soil.conductivity, ' dS/m')],
+            [t('Nutrient holding capacity (CEC)'), number(soil.cationExchange, ' cmol/kg')],
+            [t('Bulk density'), number(soil.bulkDensity, ' g/cm³')],
+            [t('Effective rooting depth'), number(soil.rootingDepth, ' cm')],
+            [t('Last soil sample'), data.lastSample],
+          ]}
+        />
+        <PropertySection
+          title={t('Land & water')}
+          items={[
+            [t('Field area'), number(field.area, ' ha')],
+            [t('Elevation'), number(soil.elevation, ' m')],
+            [t('Average slope'), number(soil.slope, '%')],
+            [t('Drainage'), soil.drainage],
+            [t('Irrigation system'), soil.irrigation],
+            [t('Current soil moisture'), number(field.moisture, '%')],
+            [t('Last irrigation'), soil.lastIrrigation],
+            [t('Irrigation this season'), number(soil.waterApplied, ' mm')],
+            [t('Rainfall · last 30 days'), number(soil.rainfall, ' mm')],
+            [t('Available water capacity'), number(soil.waterCapacity, ' mm/m')],
+            [t('Cultivation practice'), data.cultivationPractice],
+            [t('Tenure'), data.tenure],
+          ]}
+        />
       </div>
     </section>
+  );
+}
+
+type PropertySectionProps = { title: string; items: [string, ReactNode][] };
+
+function PropertySection({ title, items }: PropertySectionProps) {
+  const { t } = useTranslation();
+
+  return (
+    <Card title={title}>
+      <Descriptions
+        bordered
+        layout="vertical"
+        column={{ xs: 1, sm: 2, lg: 3 }}
+        items={items.map(([label, value]) => ({
+          key: label,
+          label,
+          children: value ?? t('Not supplied'),
+        }))}
+      />
+    </Card>
   );
 }

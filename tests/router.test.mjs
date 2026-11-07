@@ -3,7 +3,7 @@ import { access, readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 import { createMemoryRouter, matchRoutes } from 'react-router-dom';
 import { appRoutes } from '../src/app/routes.ts';
-import { fieldLoader, parcelLoader, calendarLoader } from '../src/app/route-loaders.ts';
+import { fieldLoader, calendarLoader } from '../src/app/route-loaders.ts';
 import { calendarPath } from '../src/features/planning/utils/planningRoutes.ts';
 
 const fieldOne = '00000000-0000-4000-8000-000000000001';
@@ -22,7 +22,7 @@ test('the real route tree matches static, dynamic, optional and fallback routes'
     [`/fields/${fieldTwo}/strategy`, 'strategy'],
     ['/map', 'map'],
     ['/map/add', 'map-add'],
-    ['/map/add/6', 'parcel'],
+    [`/map/add/${fieldOne}`, 'catalog-field'],
     ['/calendar', 'calendar'],
     ['/calendar/2026-05-24?field=2', 'calendar'],
     ['/calendar/actions/field-2-inspection', 'action'],
@@ -46,14 +46,9 @@ test('the real route tree matches static, dynamic, optional and fallback routes'
 
 test('route loaders validate IDs and dates before pages request data', () => {
   assert.deepEqual(fieldLoader(args({ fieldId: fieldOne.toUpperCase() })), { fieldId: fieldOne });
-  assert.deepEqual(parcelLoader(args({ parcelId: '6' })), { parcelId: 6 });
   for (const id of ['', '0', '-1', '1.5', '1e2', 'abc', '9007199254740992']) {
     assert.throws(
       () => fieldLoader(args({ fieldId: id })),
-      (error) => error.status === 404,
-    );
-    assert.throws(
-      () => parcelLoader(args({ parcelId: id })),
       (error) => error.status === 404,
     );
   }

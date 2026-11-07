@@ -1,13 +1,6 @@
 import type { CropSeason, LandEvent } from './history.types.ts';
 import type { FieldProperties } from './properties.types.ts';
 
-export interface Parcel {
-  id: number;
-  name: string;
-  crop: string;
-  area: number;
-  soilType: string;
-}
 export interface CropOption {
   value: string;
   label: string;
@@ -15,10 +8,10 @@ export interface CropOption {
 export interface FieldPropertyData {
   soil: FieldProperties;
   crop: FieldProperties;
-  growthStage: string;
-  lastSample: string;
-  cultivationPractice: string;
-  tenure: string;
+  growthStage: string | null;
+  lastSample: string | null;
+  cultivationPractice: string | null;
+  tenure: string | null;
 }
 export interface FieldHistory {
   events: LandEvent[];

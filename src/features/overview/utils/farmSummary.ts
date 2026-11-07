@@ -4,7 +4,7 @@ export function getFarmSummary(fields: Field[]) {
   return fields.reduce(
     (summary, field) => {
       summary.totalArea += field.area;
-      if (field.status !== 'Healthy') {
+      if (field.status === 'Critical' || field.status === 'Needs attention') {
         summary.attentionCount++;
       }
       if (field.status === 'Critical') {

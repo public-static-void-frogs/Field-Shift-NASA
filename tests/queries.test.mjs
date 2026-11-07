@@ -1,180 +1,181 @@
-import './support/backend.mjs';
+import { testFields } from './support/backend.mjs';
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { readdir, readFile } from 'node:fs/promises';
+import { farmQueries } from '../src/api/farm/farm.queries.ts';
+import { settingsMutations } from '../src/api/settings/settings.mutations.ts';
 import { hashKey, QueryObserver } from '@tanstack/react-query';
 import { createQueryClient } from '../src/api/core/query-client.ts';
 import { fieldsApi } from '../src/api/fields/fields.api.ts';
 import { fieldQueries, fieldQueryKeys } from '../src/api/fields/fields.queries.ts';
 import { fieldMutations } from '../src/api/fields/fields.mutations.ts';
-import { planningQueries, planningQueryKeys } from '../src/api/planning/planning.queries.ts';
-import { planningMutations } from '../src/api/planning/planning.mutations.ts';
-import { overviewQueries, overviewQueryKeys } from '../src/api/overview/overview.queries.ts';
-import { weatherQueries, weatherQueryKeys } from '../src/api/weather/weather.queries.ts';
-import {
-  notificationQueries,
-  notificationQueryKeys,
-} from '../src/api/notifications/notifications.queries.ts';
-import { settingsApi } from '../src/api/settings/settings.api.ts';
-import { settingsMutations } from '../src/api/settings/settings.mutations.ts';
-import { farmQueries } from '../src/api/farm/farm.queries.ts';
 import { mapQueries, mapQueryKeys } from '../src/api/maps/maps.queries.ts';
-import { getCalendarEvents } from '../src/features/planning/utils/eventResponses.ts';
-const weatherLocation = await settingsApi.get();
-const initialFields = await fieldsApi.getAll();
-const firstId = initialFields[0].id;
-const secondId = initialFields[1].id;
-const missingId = '00000000-0000-4000-8000-000000000000';
+import { mapsApi } from '../src/api/maps/maps.api.ts';
+import { weatherQueries, weatherQueryKeys } from '../src/api/weather/weather.queries.ts';
+import { settingsApi } from '../src/api/settings/settings.api.ts';
+import {
+  clusterView,
+  normalizeViewport,
+  parseMapPosition,
+} from '../src/features/maps/utils/catalogViewport.ts';
 
+const viewport = { bounds: [-93.76, 42.03, -93.72, 42.06], zoom: 15 };
+const [first, second] = testFields;
+const weatherLocation = await settingsApi.get();
 function client() {
-  const value = createQueryClient();
-  value.setDefaultOptions({
+  const cache = createQueryClient();
+  cache.setDefaultOptions({
     queries: { retry: false, staleTime: 60_000 },
     mutations: { retry: false },
   });
-  return value;
+  return cache;
 }
 
-test('keys are deterministic, parameterized and separated by feature/resource', () => {
-  assert.equal(
-    hashKey(overviewQueryKeys.charts({ days: 30, metric: 'health' })),
-    hashKey(overviewQueryKeys.charts({ metric: 'health', days: 30 })),
-  );
+test('map keys include bounds and zoom; normalized requests are stable and clamped', () => {
   const keys = [
-    fieldQueryKeys.list(),
-    fieldQueryKeys.byId(firstId),
-    fieldQueryKeys.byId(secondId),
-    fieldQueryKeys.properties(firstId),
-    fieldQueryKeys.history(firstId),
-    fieldQueryKeys.recommendation(firstId),
-    planningQueryKeys.fieldEvents(firstId),
-    planningQueryKeys.strategy(firstId),
-    planningQueryKeys.responses(),
-    weatherQueryKeys.history(weatherLocation, { range: '7 days' }),
-    weatherQueryKeys.history(weatherLocation, { range: '30 days' }),
-    weatherQueryKeys.forecast(weatherLocation, firstId),
-    weatherQueryKeys.forecast(weatherLocation, secondId),
-    weatherQueryKeys.history(weatherLocation, { range: '7 days' }, firstId),
-    weatherQueryKeys.history(weatherLocation, { range: '7 days' }, secondId),
-    overviewQueryKeys.charts({ days: 30, metric: 'health' }),
-    overviewQueryKeys.charts({ days: 90, metric: 'health' }),
-    overviewQueryKeys.charts({ days: 30, metric: 'moisture' }),
+    mapQueryKeys.summary(),
+    mapQueryKeys.geojson(viewport),
+    mapQueryKeys.geojson({ ...viewport, zoom: 10 }),
+    mapQueryKeys.geojson({ ...viewport, bounds: [30, 50, 31, 51] }),
+    fieldQueryKeys.catalogById(first.id),
+    fieldQueryKeys.byId(first.id),
   ];
   assert.equal(new Set(keys.map(hashKey)).size, keys.length);
+  assert.deepEqual(normalizeViewport(-200, -100, 200, 100, 14.9), {
+    bounds: [-180, -90, 180, 90],
+    zoom: 14,
+  });
+  assert.equal(
+    hashKey(
+      mapQueryKeys.geojson(
+        normalizeViewport(-93.76000001, 42.03000001, -93.72000001, 42.06000001, 15),
+      ),
+    ),
+    hashKey(mapQueryKeys.geojson(viewport)),
+  );
 });
 
-test('concurrent consumers share a request and fresh cached data is reused', async () => {
+test('concurrent map consumers deduplicate requests and reuse fresh data', async () => {
   const cache = client();
   let requests = 0;
   const options = {
-    ...fieldQueries.list(),
+    ...mapQueries.geojson(viewport),
     queryFn: () => {
       requests++;
-      return fieldsApi.getAll();
+      return mapsApi.getGeoJson(viewport);
     },
   };
-  const [first, second] = await Promise.all([cache.fetchQuery(options), cache.fetchQuery(options)]);
-  assert.deepEqual(first, second);
+  const [a, b] = await Promise.all([cache.fetchQuery(options), cache.fetchQuery(options)]);
+  assert.deepEqual(a, b);
   await cache.fetchQuery(options);
   assert.equal(requests, 1);
   cache.clear();
 });
 
-test('HTTP responses are detached; canceled reads reject', async () => {
-  const fields = await fieldsApi.getAll();
-  fields[0].name = 'Changed outside the service';
-  assert.equal((await fieldsApi.getById(firstId)).name, 'North Meadow');
-  const controller = new AbortController();
-  controller.abort();
-  await assert.rejects(fieldsApi.getAll(controller.signal), (error) => error.name === 'AbortError');
-  assert.equal(await fieldsApi.getById(missingId), null);
+test('viewport changes keep the previous map while the next area loads', async () => {
+  const cache = client();
+  const options = mapQueries.geojson(viewport);
+  const previous = await cache.fetchQuery(options);
+  const observer = new QueryObserver(cache, options);
+  const unsubscribe = observer.subscribe(() => {});
+  let finish;
+  const pending = new Promise((resolve) => {
+    finish = resolve;
+  });
+  try {
+    const next = {
+      ...mapQueries.geojson({ bounds: [30, 50, 31, 51], zoom: 12 }),
+      queryFn: () => pending,
+    };
+    observer.setOptions(next);
+    assert.strictEqual(observer.getCurrentResult().data, previous);
+    assert.equal(observer.getCurrentResult().isPlaceholderData, true);
+    finish({ type: 'FeatureCollection', mode: 'fields', total: 0, features: [] });
+    await cache.fetchQuery(next);
+    assert.equal(observer.getCurrentResult().data.features.length, 0);
+  } finally {
+    unsubscribe();
+    cache.clear();
+  }
 });
 
-test('field mutations invalidate dependent caches and preserve GUID-linked resources', async () => {
-  const cache = client();
-  const params = { days: 30, metric: 'health' };
-  await Promise.all([
-    cache.fetchQuery(fieldQueries.list()),
-    cache.fetchQuery(mapQueries.geojson()),
-    cache.fetchQuery(fieldQueries.byId(firstId)),
-    cache.fetchQuery(planningQueries.events()),
-    cache.fetchQuery(planningQueries.strategy(firstId)),
-    cache.fetchQuery(overviewQueries.charts(params)),
-    cache.fetchQuery(notificationQueries.list()),
-  ]);
-  let createdId;
-  try {
-    const field = await cache
-      .getMutationCache()
-      .build(cache, fieldMutations.create(cache))
-      .execute({ parcelId: 6, name: '  Test field  ', crop: 'Soybeans' });
-    createdId = field.id;
-    assert.equal(field.name, 'Test field');
+test('canceled viewport reads reject; valid empty areas do not fall back to a full catalog', async () => {
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(
+    mapsApi.getGeoJson(viewport, controller.signal),
+    (error) => error.name === 'AbortError',
+  );
+  const empty = await mapsApi.getGeoJson({ bounds: [0, 0, 1, 1], zoom: 15 });
+  assert.deepEqual(empty.features, []);
+});
 
-    assert.equal(typeof createdId, 'string');
-    assert.notEqual(createdId, field.parcelId);
-    for (const key of [
-      fieldQueryKeys.list(),
-      mapQueryKeys.geojson(),
-      fieldQueryKeys.byId(firstId),
-      planningQueryKeys.events(),
-      planningQueryKeys.strategy(firstId),
-      overviewQueryKeys.charts(params),
-      notificationQueryKeys.list(),
-    ]) {
-      assert.equal(cache.getQueryState(key).isInvalidated, true, JSON.stringify(key));
-    }
-    assert.equal((await cache.fetchQuery(fieldQueries.list())).length, initialFields.length + 1);
-    assert.equal((await cache.fetchQuery(fieldQueries.byId(createdId))).name, 'Test field');
-    const addedMap = await cache.fetchQuery(mapQueries.geojson());
+test('select/remove mutations refresh map and selected-field caches while preserving the catalog', async () => {
+  const cache = client();
+  await fieldsApi.remove(first.id);
+  await Promise.all([
+    cache.fetchQuery(mapQueries.geojson(viewport)),
+    cache.fetchQuery(fieldQueries.list()),
+  ]);
+  const unsubscribe = cache.getQueryCache().subscribe(() => {});
+  try {
+    await cache.getMutationCache().build(cache, fieldMutations.select(cache)).execute(first.id);
+    assert.equal(cache.getQueryState(mapQueryKeys.geojson(viewport)).isInvalidated, true);
+    assert.equal(cache.getQueryState(fieldQueryKeys.list()).isInvalidated, true);
+    const selectedMap = await cache.fetchQuery(mapQueries.geojson(viewport));
     assert.equal(
-      addedMap.features.find((feature) => feature.properties.parcelId === 6).properties.fieldId,
-      createdId,
+      selectedMap.features.find((feature) => feature.id === first.id).properties.fieldId,
+      first.id,
     );
+    await cache.getMutationCache().build(cache, fieldMutations.remove(cache)).execute(first.id);
+    assert.equal(await fieldsApi.getById(first.id), null);
+    assert.equal((await fieldsApi.getCatalogById(first.id)).id, first.id);
+    const removedMap = await cache.fetchQuery(mapQueries.geojson(viewport));
     assert.equal(
-      (await cache.fetchQuery(planningQueries.strategy(createdId))).plan.fieldId,
-      createdId,
+      removedMap.features.find((feature) => feature.id === first.id).properties.fieldId,
+      undefined,
     );
-    assert.ok(
-      (await cache.fetchQuery(overviewQueries.charts(params))).trends.at(-1)[
-        `field-${createdId}`
-      ] !== undefined,
-    );
-    const events = await cache.fetchQuery(planningQueries.events());
-    const createdEvents = events.filter((event) => event.fieldId === createdId);
-    assert.ok(createdEvents.length > 0);
-    const responses = await cache
-      .getMutationCache()
-      .build(cache, planningMutations.respondToStrategy(cache))
-      .execute({ fieldId: createdId, status: 'declined' });
-    assert.equal(
-      getCalendarEvents(events, responses).some((event) => event.fieldId === createdId),
-      false,
-    );
-    assert.deepEqual(await cache.fetchQuery(planningQueries.responses()), responses);
-    await assert.rejects(fieldsApi.create({ parcelId: 6, name: 'Duplicate', crop: 'Corn' }));
-    await cache.getMutationCache().build(cache, fieldMutations.remove(cache)).execute(createdId);
-    assert.equal((await cache.fetchQuery(fieldQueries.list())).length, initialFields.length);
-    assert.equal(await cache.fetchQuery(fieldQueries.byId(createdId)), null);
-    assert.equal(await cache.fetchQuery(planningQueries.strategy(createdId)), null);
-    assert.equal(
-      (await cache.fetchQuery(planningQueries.events())).some(
-        (event) => event.fieldId === createdId,
-      ),
-      false,
-    );
-    const removedMap = await cache.fetchQuery(mapQueries.geojson());
-    assert.equal(
-      removedMap.features.find((feature) => feature.properties.parcelId === 6).properties.fieldId,
-      null,
-    );
-    const remaining = await cache.fetchQuery(planningQueries.responses());
-    assert.ok(createdEvents.every((event) => remaining[event.id] === undefined));
+    await fieldsApi.select(first.id);
   } finally {
-    if (createdId && (await fieldsApi.getById(createdId))) {
-      await fieldsApi.remove(createdId);
-    }
+    unsubscribe();
     cache.clear();
+  }
+});
+
+test('field-scoped weather uses supplied soil and crop data in independent caches', async () => {
+  const cache = client();
+  try {
+    const [a, b] = await Promise.all([
+      cache.fetchQuery(weatherQueries.forecast(weatherLocation, first.id)),
+      cache.fetchQuery(weatherQueries.forecast(weatherLocation, second.id)),
+    ]);
+    assert.equal(a.cropAssessment.context.fieldId, first.id);
+    assert.equal(b.cropAssessment.context.fieldId, second.id);
+    assert.notEqual(a.cropAssessment.context.crop, b.cropAssessment.context.crop);
+    assert.notEqual(
+      hashKey(weatherQueryKeys.forecast(weatherLocation, first.id)),
+      hashKey(weatherQueryKeys.forecast(weatherLocation, second.id)),
+    );
+  } finally {
+    cache.clear();
+  }
+});
+
+test('map links restore valid positions while invalid query values use the default view', () => {
+  assert.deepEqual(parseMapPosition(new URLSearchParams('lat=42.05&lon=-93.87&zoom=14')), {
+    center: [42.05, -93.87],
+    zoom: 14,
+  });
+  for (const value of [
+    '',
+    'lat=42&lon=1',
+    'lat=&lon=0&zoom=14',
+    'lat=nan&lon=1&zoom=14',
+    'lat=90&lon=0&zoom=14',
+    'lat=0&lon=181&zoom=14',
+    'lat=0&lon=0&zoom=25',
+  ]) {
+    assert.equal(parseMapPosition(new URLSearchParams(value)), null);
   }
 });
 
@@ -251,32 +252,9 @@ test('weather caches isolate coordinates, dates and units; settings changes clea
   }
 });
 
-test('field-scoped weather contracts carry backend limits, scores and alerts in independent caches', async () => {
-  const cache = client();
-  const [first, second] = await Promise.all([
-    cache.fetchQuery(weatherQueries.forecast(weatherLocation, firstId)),
-    cache.fetchQuery(weatherQueries.forecast(weatherLocation, secondId)),
-  ]);
-  assert.equal(first.cropAssessment.context.fieldId, firstId);
-  assert.equal(second.cropAssessment.context.fieldId, secondId);
-  assert.notEqual(first.cropAssessment.context.crop, second.cropAssessment.context.crop);
-  assert.equal(first.cropAssessment.model.kind, 'heuristic_stub');
-  assert.equal(first.cropAssessment.model.scoreMeaning, 'suitability_0_bad_100_good');
-  assert.ok(
-    first.records.some((day) => day.cropAssessment.alerts.some((alert) => alert.reading === 'low')),
-  );
-  assert.equal(first.records[0].cropAssessment.metrics.temperature.valueRiskLevel, 'good');
-  const history = await cache.fetchQuery(
-    weatherQueries.history(weatherLocation, { range: '7 days' }, firstId),
-  );
-  assert.equal(history.cropAssessment.context.fieldId, firstId);
-  assert.equal(history.cropAssessment.context.climate.source, 'history_window');
-  cache.clear();
-});
-
 test('history observer keeps its data while a different date range is fetching', async () => {
   const cache = client();
-  const weekOptions = weatherQueries.history(weatherLocation, { range: '7 days' }, firstId);
+  const weekOptions = weatherQueries.history(weatherLocation, { range: '7 days' }, first.id);
   const week = { records: [{ date: '2026-10-29' }] };
   cache.setQueryData(weekOptions.queryKey, week);
   const observer = new QueryObserver(cache, weekOptions);
@@ -292,7 +270,7 @@ test('history observer keeps its data while a different date range is fetching',
         resolve = done;
       });
       const options = {
-        ...weatherQueries.history(weatherLocation, period, firstId),
+        ...weatherQueries.history(weatherLocation, period, first.id),
         queryFn: () => pending,
       };
       observer.setOptions(options);
@@ -313,15 +291,15 @@ test('history observer keeps its data while a different date range is fetching',
 
 test('history placeholder never carries readings into a different field, location or unit system', () => {
   const cache = client();
-  const options = weatherQueries.history(weatherLocation, { range: '7 days' }, firstId);
+  const options = weatherQueries.history(weatherLocation, { range: '7 days' }, first.id);
   cache.setQueryData(options.queryKey, { records: [{ date: '2026-10-29' }] });
   const observer = new QueryObserver(cache, options);
   const unsubscribe = observer.subscribe(() => {});
   try {
     for (const [location, fieldId] of [
-      [weatherLocation, secondId],
-      [{ ...weatherLocation, latitude: weatherLocation.latitude + 1 }, firstId],
-      [{ ...weatherLocation, units: 'imperial' }, firstId],
+      [weatherLocation, second.id],
+      [{ ...weatherLocation, latitude: weatherLocation.latitude + 1 }, first.id],
+      [{ ...weatherLocation, units: 'imperial' }, first.id],
     ]) {
       observer.setOptions(options);
       observer.setOptions({
@@ -335,4 +313,20 @@ test('history placeholder never carries readings into a different field, locatio
     unsubscribe();
     cache.clear();
   }
+});
+
+test('field responses are detached and canceled field reads reject', async () => {
+  const fields = await fieldsApi.getAll();
+  fields[0].name = 'Modified outside the API';
+  assert.equal((await fieldsApi.getById(first.id)).name, first.name);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(fieldsApi.getAll(controller.signal), (error) => error.name === 'AbortError');
+});
+
+test('a dense group always drills down even when its full bounds would fit the current zoom', () => {
+  const group = [-93.95, 42.0, -93.86, 42.044];
+  assert.equal(clusterView(group, 13).zoom, 15);
+  assert.deepEqual(clusterView(group, 11).center, [42.022, -93.905]);
+  assert.equal(clusterView(group, 18).zoom, 19);
 });

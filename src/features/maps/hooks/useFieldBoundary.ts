@@ -1,18 +1,25 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
-import { mapQueries } from '../../../api/maps/maps.queries.ts';
+import { fieldQueries } from '../../../api/fields/fields.queries.ts';
 import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
-import { getFeatureFieldId } from '../utils/mapGeometry.ts';
 
-export function useFieldBoundary(fieldId: string) {
-  const { data: fieldGeoJson } = useSuspenseQuery(mapQueries.geojson());
-  const geojson = useMemo<FieldGeoJson>(
-    () => ({
-      type: 'FeatureCollection',
-      features: fieldGeoJson.features.filter((feature) => getFeatureFieldId(feature) === fieldId),
-    }),
-    [fieldId, fieldGeoJson],
-  );
-
-  return geojson;
+export function useFieldBoundary(fieldId: string): FieldGeoJson {
+  const { data: field } = useSuspenseQuery(fieldQueries.byId(fieldId));
+  return {
+    type: 'FeatureCollection',
+    features: field
+      ? [
+          {
+            type: 'Feature',
+            id: field.id,
+            geometry: field.geometry,
+            properties: {
+              fieldId: field.id,
+              catalogFieldId: field.id,
+              name: field.name,
+              parcelId: field.parcelId,
+            },
+          },
+        ]
+      : [],
+  };
 }

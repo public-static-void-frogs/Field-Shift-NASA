@@ -21,14 +21,19 @@ export const mapLegends = {
 export type MapLayer = 'Crop health' | 'Soil moisture' | 'Field boundaries';
 
 function getParcelColor(field: Field | undefined, layer: MapLayer) {
-  if (!field || layer === 'Field boundaries') {
+  if (
+    !field ||
+    layer === 'Field boundaries' ||
+    (layer === 'Soil moisture' && field.moisture === null) ||
+    (layer === 'Crop health' && field.status === null)
+  ) {
     return '#f1ebcf';
   }
   if (layer === 'Soil moisture') {
-    if (field.moisture >= 60) {
+    if (field.moisture !== null && field.moisture >= 60) {
       return '#61b4d4';
     }
-    if (field.moisture >= 40) {
+    if (field.moisture !== null && field.moisture >= 40) {
       return '#9bcdd9';
     }
     return '#dbe5b2';
