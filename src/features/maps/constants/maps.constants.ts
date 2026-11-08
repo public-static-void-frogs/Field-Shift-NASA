@@ -8,9 +8,13 @@ export const detectedCropIcons: Record<string, string> = {
   'Winter wheat': '🌾',
   Corn: '🌽',
   Soybeans: '🫘',
+  Alfalfa: '🌱',
+  'Grassland/Pasture': '🌿',
 };
 export const detectedCropColors: Record<string, string> = {
   'Winter wheat': '#dcc67d',
   Corn: '#e8bd55',
   Soybeans: '#9fca7a',
+  Alfalfa: '#c29ad8',
+  'Grassland/Pasture': '#75cbb0',
 };

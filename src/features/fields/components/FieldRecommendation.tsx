@@ -9,10 +9,9 @@ type FieldRecommendationProps = { field: Field };
 
 export function FieldRecommendation({ field }: FieldRecommendationProps) {
   const { t } = useTranslation();
-  const { data: recommendation } = useSuspenseQuery(fieldQueries.recommendation(field.id));
-  if (!recommendation) {
-    return null;
-  }
+  const {
+    data: { recommendation, isSample },
+  } = useSuspenseQuery(fieldQueries.recommendation(field.id));
 
   return (
     <Card
@@ -23,7 +22,9 @@ export function FieldRecommendation({ field }: FieldRecommendationProps) {
           {t('Your field, explained')}{' '}
         </Space>
       }
-      extra={<Tag className="ai-insight-tag">{t('AI INSIGHT')}</Tag>}
+      extra={
+        <Tag className="ai-insight-tag">{isSample ? t('Sample suggestion') : t('AI INSIGHT')}</Tag>
+      }
     >
       <Typography.Title level={3}>{recommendation.title}</Typography.Title>
       <Typography.Paragraph>{recommendation.description}</Typography.Paragraph>

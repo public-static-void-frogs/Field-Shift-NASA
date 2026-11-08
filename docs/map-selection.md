@@ -18,14 +18,13 @@ TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field.
 The results include the observation dates, and fields with insufficient data
 are reported as skipped. Crop groups display the names from the model’s training label mapping. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
 
-On completion the lasso disappears. Geographic field boundaries and crop icons
-replace it. Click a boundary or crop icon to include/exclude a result. Dragging and zooming
-work over crop icons too; drags do not toggle selection. The compact right-hand
-panel groups results by crop type, with a checkbox and selected/total count for
-each crop. Group checkboxes select or deselect all fields of that crop and show
-a mixed state when individual selections differ. Excluded results remain visible but subdued, allowing reselection. The
-panel's count/area follow the included results, and Analyze becomes Add fields.
-Add fields has no persistence handler yet. No catalog or saved-farm changes occur.
+On completion the selection outline is replaced by merged crop areas. Nearby masks
+of the same crop share one simplified boundary and marker. Click either to toggle
+that area, or use the sidebar crop checkbox to toggle all areas of that crop.
+Dragging and zooming work over crop icons. The panel summarizes the selected areas,
+and Analyze becomes Add areas. Saving merges the selected polygons into the
+account’s existing entry for each crop. Saved boundaries appear on field detail
+maps.
 
 Cancel section removes its zone/results and restores the original points.
 Overlapping selections retain their own points. Pending work is aborted when the

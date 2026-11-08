@@ -1,5 +1,5 @@
 import type { Polygon } from 'geojson';
-import type { DetectedField, MapBounds } from '../../types/maps/map.types.ts';
+import type { CropZone, DetectedField, MapBounds } from '../../types/maps/map.types.ts';
 import { request } from '../core/http.ts';
 
 export type AnalysisPoint = { id: string; coordinates: [number, number] };
@@ -31,6 +31,7 @@ export type SectionAnalysisResult = {
     device: string;
   };
   fields: DetectedField[];
+  cropZones: CropZone[];
 };
 
 export type AnalysisProgress = {

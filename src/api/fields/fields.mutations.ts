@@ -30,6 +30,12 @@ export const fieldMutations = {
       mutationFn: fieldsApi.create,
       onSuccess: () => invalidateFieldData(client),
     }),
+  saveCropAreas: (client: QueryClient) =>
+    mutationOptions({
+      mutationKey: ['fields', 'save-crop-areas'],
+      mutationFn: fieldsApi.saveCropAreas,
+      onSuccess: () => invalidateFieldData(client),
+    }),
   remove: (client: QueryClient) =>
     mutationOptions({
       mutationKey: ['fields', 'remove'],

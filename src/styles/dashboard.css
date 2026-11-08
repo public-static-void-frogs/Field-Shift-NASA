@@ -694,3 +694,26 @@
     border-end-start-radius: 12px;
   }
 }
+
+.overview-legal-footer {
+  padding-block: 20px 8px;
+}
+
+.overview-fields {
+  margin-block: 24px;
+}
+
+.overview-fields-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.overview-fields-heading h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}

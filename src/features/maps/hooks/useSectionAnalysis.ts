@@ -2,15 +2,17 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMap } from 'react-leaflet';
-import type { AnalysisProgress } from '../../../api/section-analysis/section-analysis.api.ts';
+import type {
+  AnalysisProgress,
+  SectionAnalysisResult,
+} from '../../../api/section-analysis/section-analysis.api.ts';
 import { sectionAnalysisMutations } from '../../../api/section-analysis/section-analysis.mutations.ts';
-import type { DetectedField } from '../../../types/maps/map.types.ts';
 import { captureSectionImage, MapCaptureError } from '../utils/captureSectionImage.ts';
 import type { MapSection } from '../utils/sectionSelection.ts';
 
 export type SectionAnalysisActions = {
   begin: (id: string, token: string) => void;
-  complete: (id: string, token: string, fields: DetectedField[]) => void;
+  complete: (id: string, token: string, result: SectionAnalysisResult) => void;
   fail: (id: string, token: string, error: string) => void;
   abort: (id: string, token: string) => void;
 };
@@ -64,10 +66,10 @@ export function useSectionAnalysis(section: MapSection, actions: SectionAnalysis
         },
       });
       if (!controller.signal.aborted) {
-        if (result.fields.length === 0) {
+        if (result.cropZones.length === 0) {
           actions.fail(section.id, token, t('No fields could be analyzed. Try again.'));
         } else {
-          actions.complete(section.id, token, result.fields);
+          actions.complete(section.id, token, result);
         }
       }
     } catch (error) {

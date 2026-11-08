@@ -3,7 +3,7 @@ import { Button, Select, Tooltip } from 'antd';
 import 'leaflet/dist/leaflet.css';
 import { Layers, LocateFixed, MapPin, Minus, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { MapContainer, ScaleControl, TileLayer } from 'react-leaflet';
+import { MapContainer, Polygon, ScaleControl, TileLayer } from 'react-leaflet';
 import { farmQueries } from '../../../api/farm/farm.queries.ts';
 import type { Field } from '../../../types/fields/field.types.ts';
 import type { FieldGeoJson } from '../../../types/maps/map.types.ts';
@@ -27,6 +27,7 @@ type FieldMapProps = {
   expanded?: boolean;
   /** Plain satellite view with field points, without metric layers or legend. */
   locationOnly?: boolean;
+  hideControls?: boolean;
 };
 
 export function FieldMap({
@@ -37,9 +38,10 @@ export function FieldMap({
   onAdd,
   expanded = false,
   locationOnly = false,
+  hideControls = false,
 }: FieldMapProps) {
   const { t } = useTranslation();
-  const { map, setLayer, layer, recenter } = useFieldMap(geojson, locationOnly);
+  const { map, setLayer, layer, recenter } = useFieldMap(geojson, fields, locationOnly);
 
   const { data: preferences } = useSuspenseQuery(farmQueries.profile());
   const legend = mapLegends[layer].map((item) => ({ ...item, label: t(item.label) }));
@@ -63,7 +65,20 @@ export function FieldMap({
           maxNativeZoom={19}
           maxZoom={19}
         />
-        <MapViewport data={geojson} />
+        <MapViewport data={geojson} fields={fields} />
+        {fields.map(
+          (field) =>
+            field.boundary && (
+              <Polygon
+                key={field.id}
+                positions={field.boundary.coordinates.map((part) =>
+                  part.map((ring) => ring.map(([lon, lat]) => [lat, lon] as [number, number])),
+                )}
+                pathOptions={{ color: '#9fca7a', fillOpacity: 0.2, weight: 2 }}
+                eventHandlers={{ click: () => onSelect(field) }}
+              />
+            ),
+        )}
         <ParcelLayer
           fields={fields}
           geojson={geojson}
@@ -72,14 +87,16 @@ export function FieldMap({
           onAdd={onAdd}
           adding={adding}
         />
-        <ScaleControl position="bottomright" imperial={false} />
+        {!hideControls && <ScaleControl position="bottomright" imperial={false} />}
       </MapContainer>
-      <div className="map-location">
-        <MapPin size={13} />
-        {preferences.farmName || t('My farm')}
-        <span>·</span>
-        {preferences.locationLabel}
-      </div>
+      {!hideControls && (
+        <div className="map-location">
+          <MapPin size={13} />
+          {preferences.farmName || t('My farm')}
+          <span>·</span>
+          {preferences.locationLabel}
+        </div>
+      )}
       {!locationOnly && (
         <div className="map-layer">
           <Select
@@ -94,23 +111,25 @@ export function FieldMap({
           />
         </div>
       )}
-      <div className="map-controls">
-        <Tooltip title={t('Zoom in')}>
-          <Button type="text" aria-label={t('Zoom in')} onClick={() => map.current?.zoomIn()}>
-            <Plus size={17} />
-          </Button>
-        </Tooltip>
-        <Tooltip title={t('Zoom out')}>
-          <Button type="text" aria-label={t('Zoom out')} onClick={() => map.current?.zoomOut()}>
-            <Minus size={17} />
-          </Button>
-        </Tooltip>
-        <Tooltip title={t('Recenter map')}>
-          <Button type="text" aria-label={t('Recenter map')} onClick={recenter}>
-            <LocateFixed size={17} />
-          </Button>
-        </Tooltip>
-      </div>
+      {!hideControls && (
+        <div className="map-controls">
+          <Tooltip title={t('Zoom in')}>
+            <Button type="text" aria-label={t('Zoom in')} onClick={() => map.current?.zoomIn()}>
+              <Plus size={17} />
+            </Button>
+          </Tooltip>
+          <Tooltip title={t('Zoom out')}>
+            <Button type="text" aria-label={t('Zoom out')} onClick={() => map.current?.zoomOut()}>
+              <Minus size={17} />
+            </Button>
+          </Tooltip>
+          <Tooltip title={t('Recenter map')}>
+            <Button type="text" aria-label={t('Recenter map')} onClick={recenter}>
+              <LocateFixed size={17} />
+            </Button>
+          </Tooltip>
+        </div>
+      )}
       {locationOnly && fields.some((field) => field.locationKind === 'interior_point') && (
         <div className="map-location-note">{t('Field location point')}</div>
       )}
@@ -134,10 +153,10 @@ export function FieldMap({
   );
 }
 
-type MapViewportProps = { data: FieldGeoJson };
+type MapViewportProps = { data: FieldGeoJson; fields: Field[] };
 
-function MapViewport({ data }: MapViewportProps) {
-  useMapViewport(data);
+function MapViewport({ data, fields }: MapViewportProps) {
+  useMapViewport(data, fields);
   return null;
 }
 

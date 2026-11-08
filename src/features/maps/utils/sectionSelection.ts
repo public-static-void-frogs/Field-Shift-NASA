@@ -1,4 +1,4 @@
-import type { CatalogFeature, DetectedField } from '../../../types/maps/map.types.ts';
+import type { CatalogFeature, CropZone } from '../../../types/maps/map.types.ts';
 import { isPointInLasso } from './lassoSelection.ts';
 
 export type SectionCoordinate = [latitude: number, longitude: number];
@@ -11,8 +11,9 @@ export type MapSection = {
   analysisStatus?: 'pending' | 'complete' | 'failed';
   analysisToken?: string;
   analysisError?: string;
-  detectedFields?: DetectedField[];
-  excludedFields?: string[];
+  cropZones?: CropZone[];
+  skippedCount?: number;
+  excludedZones?: string[];
 };
 export type SectionSelection = {
   sections: MapSection[];
@@ -127,21 +128,21 @@ export function sectionCenter(outline: SectionCoordinate[]): SectionCoordinate {
   ];
 }
 
-export function includedSectionFields(section: MapSection): DetectedField[] {
-  const excluded = new Set(section.excludedFields ?? []);
-  return (section.detectedFields ?? []).filter((field) => !excluded.has(field.id));
+export function includedCropZones(section: MapSection): CropZone[] {
+  const excluded = new Set(section.excludedZones ?? []);
+  return (section.cropZones ?? []).filter((field) => !excluded.has(field.id));
 }
 
 export type DetectedCropGroup = {
-  crop: DetectedField['crop'];
+  crop: CropZone['crop'];
   total: number;
   selected: number;
 };
 
 export function groupSectionCrops(section: MapSection): DetectedCropGroup[] {
-  const excluded = new Set(section.excludedFields ?? []);
-  const groups = new Map<DetectedField['crop'], DetectedCropGroup>();
-  for (const field of section.detectedFields ?? []) {
+  const excluded = new Set(section.excludedZones ?? []);
+  const groups = new Map<CropZone['crop'], DetectedCropGroup>();
+  for (const field of section.cropZones ?? []) {
     const group = groups.get(field.crop) ?? { crop: field.crop, total: 0, selected: 0 };
     group.total += 1;
     if (!excluded.has(field.id)) {
@@ -154,11 +155,11 @@ export function groupSectionCrops(section: MapSection): DetectedCropGroup[] {
 
 export function setSectionCropSelection(
   section: MapSection,
-  crop: DetectedField['crop'],
+  crop: CropZone['crop'],
   included: boolean,
 ): MapSection {
-  const excluded = new Set(section.excludedFields ?? []);
-  for (const field of section.detectedFields ?? []) {
+  const excluded = new Set(section.excludedZones ?? []);
+  for (const field of section.cropZones ?? []) {
     if (field.crop !== crop) {
       continue;
     }
@@ -168,5 +169,5 @@ export function setSectionCropSelection(
       excluded.add(field.id);
     }
   }
-  return { ...section, excludedFields: [...excluded] };
+  return { ...section, excludedZones: [...excluded] };
 }

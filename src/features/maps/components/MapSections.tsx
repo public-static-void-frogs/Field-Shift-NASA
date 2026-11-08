@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Marker, Polygon } from 'react-leaflet';
-import { DetectedFields } from './DetectedFields.tsx';
+import { CropZones } from './CropZones.tsx';
 import { useMapSvgRenderer } from '../hooks/useMapSvgRenderer.ts';
 import { useSectionMarker } from '../hooks/useSectionMarker.ts';
 import { sectionCenter, type MapSection } from '../utils/sectionSelection.ts';
@@ -12,18 +12,18 @@ type MapSectionsProps = {
   sections: MapSection[];
   activeId?: string;
   onActivate: (id: string) => void;
-  onToggleDetected: (sectionId: string, fieldId: string) => void;
+  onToggleCropZone: (sectionId: string, zoneId: string) => void;
 };
 
 export function MapSections({
   sections,
   activeId,
   onActivate,
-  onToggleDetected,
+  onToggleCropZone,
 }: MapSectionsProps) {
   return sections.map((section) =>
     section.analysisStatus === 'complete' ? (
-      <DetectedFields key={section.id} section={section} onToggle={onToggleDetected} />
+      <CropZones key={section.id} section={section} onToggle={onToggleCropZone} />
     ) : (
       <SectionRegion
         key={section.id}

@@ -107,7 +107,7 @@ function CatalogViewport() {
         sections={selection.sections}
         activeId={selection.activeSection?.id}
         onActivate={activateSection}
-        onToggleDetected={selection.toggleDetectedField}
+        onToggleCropZone={selection.toggleCropZone}
       />
       {selection.activeSection && (
         <SectionPanel

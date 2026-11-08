@@ -1,5 +1,6 @@
+import type { SectionAnalysisResult } from '../../../api/section-analysis/section-analysis.api.ts';
 import { useCallback, useMemo, useState } from 'react';
-import type { CatalogFeature, DetectedField } from '../../../types/maps/map.types.ts';
+import type { CatalogFeature, CropZone } from '../../../types/maps/map.types.ts';
 import {
   appendSection,
   cancelSection,
@@ -53,28 +54,33 @@ export function useMapSections() {
               analysisStatus: 'pending',
               analysisToken: token,
               analysisError: undefined,
-              detectedFields: undefined,
-              excludedFields: [],
+              cropZones: undefined,
+              skippedCount: undefined,
+              excludedZones: [],
             }
           : section,
       ),
     }));
   }, []);
-  const completeAnalysis = useCallback((id: string, token: string, fields: DetectedField[]) => {
-    setState((previous) => ({
-      ...previous,
-      sections: previous.sections.map((section) =>
-        section.id === id && section.analysisToken === token
-          ? {
-              ...section,
-              analysisStatus: 'complete',
-              detectedFields: fields,
-              excludedFields: [],
-            }
-          : section,
-      ),
-    }));
-  }, []);
+  const completeAnalysis = useCallback(
+    (id: string, token: string, result: SectionAnalysisResult) => {
+      setState((previous) => ({
+        ...previous,
+        sections: previous.sections.map((section) =>
+          section.id === id && section.analysisToken === token
+            ? {
+                ...section,
+                analysisStatus: 'complete',
+                cropZones: result.cropZones,
+                skippedCount: result.skippedPoints.length,
+                excludedZones: [],
+              }
+            : section,
+        ),
+      }));
+    },
+    [],
+  );
   const failAnalysis = useCallback((id: string, token: string, error: string) => {
     setState((previous) => ({
       ...previous,
@@ -95,32 +101,29 @@ export function useMapSections() {
       ),
     }));
   }, []);
-  const toggleDetectedField = useCallback((id: string, fieldId: string) => {
+  const toggleCropZone = useCallback((id: string, zoneId: string) => {
     setState((previous) => ({
       ...previous,
       sections: previous.sections.map((section) => {
         if (section.id !== id) {
           return section;
         }
-        const excluded = new Set(section.excludedFields ?? []);
-        if (!excluded.delete(fieldId)) {
-          excluded.add(fieldId);
+        const excluded = new Set(section.excludedZones ?? []);
+        if (!excluded.delete(zoneId)) {
+          excluded.add(zoneId);
         }
-        return { ...section, excludedFields: [...excluded] };
+        return { ...section, excludedZones: [...excluded] };
       }),
     }));
   }, []);
-  const setCropSelection = useCallback(
-    (id: string, crop: DetectedField['crop'], included: boolean) => {
-      setState((previous) => ({
-        ...previous,
-        sections: previous.sections.map((section) =>
-          section.id === id ? setSectionCropSelection(section, crop, included) : section,
-        ),
-      }));
-    },
-    [],
-  );
+  const setCropSelection = useCallback((id: string, crop: CropZone['crop'], included: boolean) => {
+    setState((previous) => ({
+      ...previous,
+      sections: previous.sections.map((section) =>
+        section.id === id ? setSectionCropSelection(section, crop, included) : section,
+      ),
+    }));
+  }, []);
   const selectedIds = useMemo(() => selectedSectionIds(state), [state]);
   const activeSection = state.sections.find((section) => section.id === state.activeId) ?? null;
 
@@ -136,7 +139,7 @@ export function useMapSections() {
     completeAnalysis,
     failAnalysis,
     abortAnalysis,
-    toggleDetectedField,
+    toggleCropZone,
     setCropSelection,
   };
 }

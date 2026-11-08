@@ -3,7 +3,7 @@ import { calendarLoader, fieldLoader } from './route-loaders.ts';
 
 export type AppRouteHandle = {
   navigationKey?: string;
-  workspace?: 'map' | 'calendar' | 'fields';
+  workspace?: 'map' | 'calendar';
   preserveScroll?: boolean;
 };
 
@@ -61,7 +61,7 @@ export const appRoutes: RouteObject[] = [
           {
             id: 'fields',
             path: 'fields',
-            handle: { navigationKey: '/fields', workspace: 'fields' },
+            handle: { navigationKey: '/fields' },
             lazy: async () => ({ Component: (await import('../pages/FieldsPage')).FieldsPage }),
           },
           {

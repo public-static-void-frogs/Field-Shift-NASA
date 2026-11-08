@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import { fieldsApi } from './fields.api.ts';
+import { sampleFieldRecommendation } from './mocks/fieldRecommendation.ts';
 
 export const fieldQueryKeys = {
   all: () => ['fields'] as const,
@@ -45,6 +46,12 @@ export const fieldQueries = {
   recommendation: (id: string) =>
     queryOptions({
       queryKey: fieldQueryKeys.recommendation(id),
-      queryFn: ({ signal }) => fieldsApi.getRecommendation(id, signal),
+      queryFn: async ({ signal }) => {
+        const recommendation = await fieldsApi.getRecommendation(id, signal);
+        return {
+          recommendation: recommendation ?? sampleFieldRecommendation,
+          isSample: !recommendation,
+        };
+      },
     }),
 };

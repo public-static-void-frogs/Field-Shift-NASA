@@ -1,14 +1,15 @@
 import { Alert, Button, Checkbox, Progress } from 'antd';
 import { Plus, ScanLine, X } from 'lucide-react';
+import { useSaveCropAreas } from '../hooks/useSaveCropAreas.ts';
 import { useTranslation } from 'react-i18next';
 import { useMapControlEvents } from '../hooks/useMapControlEvents.ts';
 import { useSectionFocus } from '../hooks/useSectionFocus.ts';
 import { useSectionAnalysis, type SectionAnalysisActions } from '../hooks/useSectionAnalysis.ts';
 import type { AnalysisProgress } from '../../../api/section-analysis/section-analysis.api.ts';
-import type { DetectedField } from '../../../types/maps/map.types.ts';
+import type { CropZone } from '../../../types/maps/map.types.ts';
 import {
   groupSectionCrops,
-  includedSectionFields,
+  includedCropZones,
   sectionArea,
   type MapSection,
 } from '../utils/sectionSelection.ts';
@@ -17,7 +18,7 @@ import { detectedCropIcons } from '../constants/maps.constants.ts';
 type SectionPanelProps = {
   section: MapSection;
   onCancel: (id: string) => void;
-  onSelectCrop: (sectionId: string, crop: DetectedField['crop'], included: boolean) => void;
+  onSelectCrop: (sectionId: string, crop: CropZone['crop'], included: boolean) => void;
   analysisActions: SectionAnalysisActions;
 };
 
@@ -33,10 +34,11 @@ export function SectionPanel({
   const { analyze, progress } = useSectionAnalysis(section, analysisActions);
   const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
   const complete = section.analysisStatus === 'complete';
-  const skippedCount = section.fields.length - (section.detectedFields?.length ?? 0);
+  const skippedCount = section.skippedCount ?? 0;
   const pending = section.analysisStatus === 'pending';
   const crops = groupSectionCrops(section);
-  const included = includedSectionFields(section);
+  const included = includedCropZones(section);
+  const { save, saving, saveError } = useSaveCropAreas(included, () => onCancel(section.id));
   const count = complete ? included.length : section.fields.length;
   const area = complete
     ? included.reduce((total, field) => total + field.areaHa, 0)
@@ -52,7 +54,7 @@ export function SectionPanel({
       <h2>{t('Section overview')}</h2>
       <dl className="map-section-parameters">
         <div>
-          <dt>{t('Selected fields')}</dt>
+          <dt>{complete ? t('Selected crop areas') : t('Selected fields')}</dt>
           <dd>{number.format(count)}</dd>
         </div>
         <div>
@@ -67,7 +69,7 @@ export function SectionPanel({
               <Checkbox
                 checked={group.selected === group.total}
                 indeterminate={group.selected > 0 && group.selected < group.total}
-                aria-label={t('{{crop}}: {{selected}} of {{total}} fields selected', {
+                aria-label={t('{{crop}}: {{selected}} of {{total}} areas selected', {
                   crop: group.crop,
                   selected: group.selected,
                   total: group.total,
@@ -89,12 +91,20 @@ export function SectionPanel({
       {complete && skippedCount > 0 && (
         <Alert type="warning" title={t('Fields skipped ({{count}})', { count: skippedCount })} />
       )}
+      {saveError && <Alert type="error" title={t('Unable to save crop areas. Try again.')} />}
       {section.analysisError && <Alert type="error" title={section.analysisError} />}
       {pending && <SectionAnalysisProgress progress={progress} />}
       <div className="map-section-actions">
         {complete ? (
-          <Button type="primary" block disabled={!count} icon={<Plus size={16} />}>
-            {t('Add fields')}
+          <Button
+            type="primary"
+            block
+            disabled={!count}
+            loading={saving}
+            icon={<Plus size={16} />}
+            onClick={save}
+          >
+            {t('Add areas')}
           </Button>
         ) : (
           <Button
@@ -107,7 +117,7 @@ export function SectionPanel({
             {t('Analyze')}
           </Button>
         )}
-        <Button block icon={<X size={16} />} onClick={() => onCancel(section.id)}>
+        <Button block disabled={saving} icon={<X size={16} />} onClick={() => onCancel(section.id)}>
           {t('Cancel section')}
         </Button>
       </div>

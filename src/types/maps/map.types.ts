@@ -63,3 +63,5 @@ export interface DetectedField {
   geometry: Polygon;
   areaHa: number;
 }
+
+export type CropZone = Pick<DetectedField, 'id' | 'crop' | 'center' | 'geometry' | 'areaHa'>;

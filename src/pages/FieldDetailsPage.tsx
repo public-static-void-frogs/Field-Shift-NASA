@@ -1,9 +1,8 @@
 import { useSuspenseQueries } from '@tanstack/react-query';
-import { Alert, Button, Card, Flex, Result, Space, Typography } from 'antd';
-import { ArrowLeft, Sprout, Trash2 } from 'lucide-react';
+import { Button, Dropdown, Modal, Result, Space } from 'antd';
+import { ArrowLeft, MapPin, Pencil, Sprout, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLoaderData, useNavigate } from 'react-router-dom';
-import { farmQueries } from '../api/farm/farm.queries.ts';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
 import type { FieldRouteData } from '../app/route-loaders.ts';
 import { PageHeading } from '../components/common/PageHeading';
@@ -12,7 +11,6 @@ import { CropRotationPlan } from '../features/fields/components/CropRotationPlan
 import { FieldProperties } from '../features/fields/components/FieldProperties';
 import { FieldRecommendation } from '../features/fields/components/FieldRecommendation';
 import { FieldStatus } from '../features/fields/components/FieldStatus';
-import { LandHistory } from '../features/fields/components/LandHistory';
 import { useFieldRemoval } from '../features/fields/hooks/useFieldRemoval.ts';
 import { FieldMap } from '../features/maps/components/FieldMap';
 import { useFieldLocation } from '../features/maps/hooks/useFieldLocation.ts';
@@ -21,8 +19,8 @@ export function FieldDetailsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { fieldId } = useLoaderData<FieldRouteData>();
-  const [{ data: field }, { data: propertyData }, { data: preferences }] = useSuspenseQueries({
-    queries: [fieldQueries.byId(fieldId), fieldQueries.properties(fieldId), farmQueries.profile()],
+  const [{ data: field }, { data: propertyData }] = useSuspenseQueries({
+    queries: [fieldQueries.byId(fieldId), fieldQueries.properties(fieldId)],
   });
   const geojson = useFieldLocation(fieldId);
   const { confirmRemove, setConfirmRemove, isRemovingField, handleRemove } =
@@ -33,23 +31,20 @@ export function FieldDetailsPage() {
 
   return (
     <>
-      <RouterButton type="text" icon={<ArrowLeft size={20} />} to="/fields">
-        {t('Back to my fields')}
-      </RouterButton>
       <PageHeading
-        title={field.name}
-        description={t('{{value0}} · {{value1}} hectares · {{value2}}', {
-          value0: field.crop || t('Crop not supplied'),
-          value1: field.area.toFixed(2),
-          value2: propertyData?.soil.soilType || t('Soil not supplied'),
-        })}
-        eyebrow={t('{{value0}} · FIELD {{value1}}', {
-          value0: (preferences.farmName || t('My farm')).toUpperCase(),
-          value1: String(field.id).padStart(2, '0'),
-        })}
+        title={field.crop || field.name}
+        eyebrow=""
+        titlePrefix={
+          <RouterButton
+            type="text"
+            icon={<ArrowLeft size={20} />}
+            aria-label={t('Back to my fields')}
+            to="/fields"
+          />
+        }
         actions={
           <Space wrap>
-            <FieldStatus status={field.status} />
+            {field.status && <FieldStatus status={field.status} />}
             {propertyData && field.crop && (
               <RouterButton
                 type="primary"
@@ -59,6 +54,28 @@ export function FieldDetailsPage() {
                 {t('Rotation strategy')}
               </RouterButton>
             )}
+            <Dropdown
+              trigger={['click']}
+              menu={{
+                items: [
+                  {
+                    key: 'map',
+                    icon: <MapPin size={16} />,
+                    label: t('Explore farm map'),
+                    onClick: () => navigate('/map'),
+                  },
+                  {
+                    key: 'remove',
+                    danger: true,
+                    icon: <Trash2 size={16} />,
+                    label: t('Remove field'),
+                    onClick: () => setConfirmRemove(true),
+                  },
+                ],
+              }}
+            >
+              <Button icon={<Pencil size={17} />}>{t('Edit')}</Button>
+            </Dropdown>
           </Space>
         }
       />
@@ -70,64 +87,35 @@ export function FieldDetailsPage() {
           fields={[field]}
           geojson={geojson}
           locationOnly
+          hideControls
           adding={false}
           onSelect={(selected) => navigate(`/fields/${selected.id}`)}
           onAdd={() => navigate('/map/add')}
         />
       </div>
       <div className="field-detail-stack">
-        {!propertyData && (
-          <Alert
-            type="info"
-            title={t('Source field imported')}
-            description={t(
-              'This field has source location and area data. Crop, soil and health measurements have not been supplied.',
-            )}
-          />
-        )}
         <CropRotationPlan field={field} />
         <FieldRecommendation field={field} />
         <FieldProperties field={field} />
-        <LandHistory field={field} />
-        <Card title={t('Manage this field')}>
-          <Flex justify="space-between" align="center" gap={20} wrap>
-            <Typography.Paragraph type="secondary" className="no-margin">
-              {t(
-                'Remove this field from your farm list. You can add the parcel again from the map.',
-              )}{' '}
-            </Typography.Paragraph>
-            <Space wrap>
-              <RouterButton to="/map">{t('Explore farm map')}</RouterButton>
-              {!confirmRemove && (
-                <Button danger icon={<Trash2 size={18} />} onClick={() => setConfirmRemove(true)}>
-                  {t('Remove field')}{' '}
-                </Button>
-              )}
-            </Space>
-          </Flex>
-          {confirmRemove && (
-            <Alert
-              className="field-remove-confirmation"
-              type="warning"
-              showIcon
-              title={t('Remove {{value0}}?', { value0: field.name })}
-              description={
-                <>
-                  <Typography.Paragraph>
-                    {t('Your field will leave the farm list.')}
-                  </Typography.Paragraph>
-                  <Space wrap>
-                    <Button danger loading={isRemovingField} onClick={handleRemove}>
-                      {t('Confirm removal')}{' '}
-                    </Button>
-                    <Button onClick={() => setConfirmRemove(false)}>{t('Keep field')}</Button>
-                  </Space>
-                </>
-              }
-            />
-          )}
-        </Card>
       </div>
+      <Modal
+        open={confirmRemove}
+        title={t('Remove {{value0}}?', { value0: field.name })}
+        okText={t('Confirm removal')}
+        cancelText={t('Keep field')}
+        okButtonProps={{ danger: true }}
+        cancelButtonProps={{ disabled: isRemovingField }}
+        closable={!isRemovingField}
+        confirmLoading={isRemovingField}
+        onOk={handleRemove}
+        onCancel={() => {
+          if (!isRemovingField) {
+            setConfirmRemove(false);
+          }
+        }}
+      >
+        {t('Your field will leave the farm list.')}
+      </Modal>
     </>
   );
 }
