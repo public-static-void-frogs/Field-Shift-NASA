@@ -3,6 +3,7 @@
 import base64
 import binascii
 import struct
+from datetime import date
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -106,6 +107,7 @@ class DetectedField(BaseModel):
     classIndex: int
     cropConfidence: float
     cropProbabilities: list[float]
+    cropObservationDates: list[date] = Field(min_length=16, max_length=16)
     segmentationConfidence: float
     touchesImageEdge: bool
     center: Coordinate
@@ -115,12 +117,10 @@ class DetectedField(BaseModel):
 
 class AnalysisProvenance(BaseModel):
     segmentationInputs: Literal["submitted_map_image_and_points"]
-    cropInputs: Literal["synthetic"]
-    syntheticCropInputs: Literal[True]
+    cropInputs: Literal["sentinel-2-l2a"]
+    syntheticCropInputs: Literal[False]
     sequenceShape: tuple[Literal[16], Literal[3]]
-    seed: int
-    perturbationProbability: float
-    maxPerturbation: float
+    channels: tuple[Literal["NDVI"], Literal["EVI"], Literal["NDWI"]]
     cropLabelSource: Literal["unmapped_class_indices", "training_class_mapping"]
     classLabels: list[str]
     device: str

@@ -1167,7 +1167,7 @@
           "weather"
         ],
         "summary": "Weather History",
-        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0\u20137 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and the caller's time zone and returns estimated crop limits and daily risk assessments; climate context uses this requested history window.",
+        "description": "Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0\u20137 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and the caller's time zone and returns estimated crop limits and daily risk assessments when crop and soil inputs are available; climate context uses this requested history window.",
         "operationId": "weather_history_api_v1_weather_history_get",
         "security": [
           {
@@ -1270,7 +1270,7 @@
           "weather"
         ],
         "summary": "Weather Forecast",
-        "description": "14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0\u20131 cm. An optional field_id returns backend crop limits, suitability scores and structured daily alerts using a versioned illustrative estimator. Its climate context is the forecast window, not long-term climate normals. Omitting field_id preserves account-location weather and returns null cropAssessment. This is not a calibrated agronomic prediction.",
+        "description": "14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0\u20131 cm. An optional field_id selects field coordinates and adds crop limits, suitability scores and alerts when crop and soil inputs are available. Its climate context is the forecast window, not long-term climate normals. Omitting field_id preserves account-location weather and returns null cropAssessment. This is not a calibrated agronomic prediction.",
         "operationId": "weather_forecast_api_v1_weather_forecast_get",
         "security": [
           {
@@ -1566,7 +1566,7 @@
           "section analysis"
         ],
         "summary": "Analyze Section",
-        "description": "Runs SAM2 on the submitted map PNG and positive point prompts. Runs trained TempCNN on explicitly synthetic 16-step, 3-channel inputs pending the real time-series source. No random output polygons or crop labels. Unmapped classes retain their numeric IDs. Does not save fields.",
+        "description": "Runs SAM2 on the submitted map PNG and positive point prompts. Runs trained TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field. Fields with insufficient observations are reported as skipped. Unmapped classes retain their numeric IDs. Does not save fields.",
         "operationId": "analyze_section_api_v1_maps_sections_analyze_post",
         "requestBody": {
           "content": {
@@ -1585,6 +1585,11 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SectionAnalysisResponse"
+                }
+              },
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1740,12 +1745,12 @@
           },
           "cropInputs": {
             "type": "string",
-            "const": "synthetic",
+            "const": "sentinel-2-l2a",
             "title": "Cropinputs"
           },
           "syntheticCropInputs": {
             "type": "boolean",
-            "const": true,
+            "const": false,
             "title": "Syntheticcropinputs"
           },
           "sequenceShape": {
@@ -1764,17 +1769,25 @@
             "minItems": 2,
             "title": "Sequenceshape"
           },
-          "seed": {
-            "type": "integer",
-            "title": "Seed"
-          },
-          "perturbationProbability": {
-            "type": "number",
-            "title": "Perturbationprobability"
-          },
-          "maxPerturbation": {
-            "type": "number",
-            "title": "Maxperturbation"
+          "channels": {
+            "prefixItems": [
+              {
+                "type": "string",
+                "const": "NDVI"
+              },
+              {
+                "type": "string",
+                "const": "EVI"
+              },
+              {
+                "type": "string",
+                "const": "NDWI"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Channels"
           },
           "cropLabelSource": {
             "type": "string",
@@ -1802,9 +1815,7 @@
           "cropInputs",
           "syntheticCropInputs",
           "sequenceShape",
-          "seed",
-          "perturbationProbability",
-          "maxPerturbation",
+          "channels",
           "cropLabelSource",
           "classLabels",
           "device"
@@ -2811,6 +2822,16 @@
             "type": "array",
             "title": "Cropprobabilities"
           },
+          "cropObservationDates": {
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "type": "array",
+            "maxItems": 16,
+            "minItems": 16,
+            "title": "Cropobservationdates"
+          },
           "segmentationConfidence": {
             "type": "number",
             "title": "Segmentationconfidence"
@@ -2854,6 +2875,7 @@
           "classIndex",
           "cropConfidence",
           "cropProbabilities",
+          "cropObservationDates",
           "segmentationConfidence",
           "touchesImageEdge",
           "center",

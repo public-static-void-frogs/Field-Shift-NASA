@@ -71,9 +71,10 @@ Open-Meteo attribution and upstream data licensing.
 `GET /weather/forecast?field_id=<UUID>` and `GET /weather/history?...&field_id=<UUID>`
 return the same weather envelope with additional crop assessments. The authenticated
 field must be selected by the caller: malformed UUIDs return 422, missing fields return 404, and both are
-checked before contacting the provider. Required soil inputs (soilType, soilPh,
-organicMatter, waterCapacity and drainage) must be supplied; missing values return
-422 before any provider request. The field's location can supply coordinates
+checked before contacting the provider. The response includes weather at the field point. Crop assessment requires a
+crop and all soil inputs (soilType, soilPh, organicMatter, waterCapacity, and
+drainage). When any are missing, the API returns weather with a null assessment.
+The field's location can supply coordinates
 even if account coordinates are unset. Omitting `field_id` preserves saved-location
 behavior, with `cropAssessment: null` in the series and daily records. Current weather
 remains unscoped. No field is implicitly chosen by the server.

@@ -37,7 +37,7 @@ def current_weather(request: Request, user: CurrentUser):
     "/weather/history",
     response_model=WeatherSeries,
     tags=["weather"],
-    description="Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0–7 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and the caller's time zone and returns estimated crop limits and daily risk assessments; climate context uses this requested history window.",
+    description="Completed daily model estimates, newest first. Uses saved coordinates, time zone and units. Provide both dates for a custom period of up to 366 days; otherwise days selects a trailing range. Missing readings remain null. Soil moisture is volumetric water content at 0–7 cm, not a field sensor or root-zone measurement. An optional field_id selects field coordinates and the caller's time zone and returns estimated crop limits and daily risk assessments when crop and soil inputs are available; climate context uses this requested history window.",
     responses={
         422: {"description": "Missing location or invalid date range"},
         503: {"description": "Provider unavailable or malformed response; no demo fallback"},
@@ -60,8 +60,9 @@ def weather_history(
     if field:
         location = field_location(user.settings, field)
     series = request.app.state.weather.history(location, int(days), start_date, end_date)
-    if field:
-        return request.app.state.crop_model.predict(series, assessment_context(series, field))
+    context = assessment_context(series, field) if field else None
+    if context is not None:
+        return request.app.state.crop_model.predict(series, context)
     return series
 
 
@@ -69,7 +70,7 @@ def weather_history(
     "/weather/forecast",
     response_model=WeatherSeries,
     tags=["weather"],
-    description="14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0–1 cm. An optional field_id returns backend crop limits, suitability scores and structured daily alerts using a versioned illustrative estimator. Its climate context is the forecast window, not long-term climate normals. Omitting field_id preserves account-location weather and returns null cropAssessment. This is not a calibrated agronomic prediction.",
+    description="14 daily forecasts, oldest first, starting today in the saved time zone. Shares a 10-minute upstream cache with current weather. Metrics are nullable, wind is the daily maximum and soil moisture is the daily mean at 0–1 cm. An optional field_id selects field coordinates and adds crop limits, suitability scores and alerts when crop and soil inputs are available. Its climate context is the forecast window, not long-term climate normals. Omitting field_id preserves account-location weather and returns null cropAssessment. This is not a calibrated agronomic prediction.",
     responses={
         422: {"description": "Missing saved coordinates"},
         503: {"description": "Provider unavailable; no demo fallback"},
@@ -89,8 +90,9 @@ def weather_forecast(
     if field:
         location = field_location(user.settings, field)
     series = request.app.state.weather.forecast(location)
-    if field:
-        return request.app.state.crop_model.predict(series, assessment_context(series, field))
+    context = assessment_context(series, field) if field else None
+    if context is not None:
+        return request.app.state.crop_model.predict(series, context)
     return series
 
 

@@ -1,4 +1,4 @@
-"""Real SAM2 segmentation + trained TempCNN with EXPLICITLY SYNTHETIC inputs."""
+"""Real SAM2 segmentation + trained TempCNN with on-demand Sentinel-2 inputs."""
 
 import base64
 import importlib.util
@@ -6,15 +6,11 @@ import io
 import json
 import logging
 import os
+from collections import Counter
 from pathlib import Path
 from threading import Lock
+from time import monotonic
 from uuid import uuid4
-
-from app.services.ml.synthetic_crop_inputs import (
-    MAX_PERTURBATION,
-    PERTURBATION_PROBABILITY,
-    synthetic_sequences,
-)
 
 logger = logging.getLogger(__name__)
 BACKEND = Path(__file__).resolve().parents[2]
@@ -40,6 +36,8 @@ class SectionAnalyzer:
         if self.loaded:
             return
         try:
+            import rasterio  # noqa: F401
+            import requests  # noqa: F401
             import torch
             from sam2.build_sam import build_sam2
             from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -106,7 +104,7 @@ class SectionAnalyzer:
                 "ML runtime unavailable. Check backend model installation and configuration."
             ) from error
 
-    def analyze(self, payload, cancelled=None):
+    def analyze(self, payload, cancelled=None, on_progress=None):
         # Avoid accumulating hundreds of full-resolution requests behind a busy model.
         if not self.lock.acquire(blocking=False):
             raise AnalysisUnavailable(
@@ -114,26 +112,31 @@ class SectionAnalyzer:
             )
         try:
             self.load()
-            return self._analyze(payload, cancelled)
+            return self._analyze(payload, cancelled, on_progress)
         finally:
             if self.loaded:
                 self.segmenter.reset_predictor()
             self.lock.release()
 
-    def _analyze(self, payload, cancelled):
+    def _analyze(self, payload, cancelled, on_progress):
         import numpy as np
         import torch
         from PIL import Image, UnidentifiedImageError
 
         from app.services.ml.geometry import ImageProjection, field_geometry
+        from app.services.ml.greenness import SEQUENCE_LENGTH, greenness_sequences
 
         def check_cancelled():
             if cancelled is not None and cancelled.is_set():
                 raise AnalysisCancelled()
 
+        def report(stage, completed, total):
+            if on_progress is not None:
+                on_progress(dict(stage=stage, completed=completed, total=total))
+
         check_cancelled()
         request_id = uuid4()
-        seed = request_id.int & ((1 << 32) - 1)
+        deadline = monotonic() + 240
         try:
             with Image.open(
                 io.BytesIO(base64.b64decode(payload.image.dataUrl.split(",", 1)[1]))
@@ -149,22 +152,10 @@ class SectionAnalyzer:
         projection = ImageProjection(payload.image)
         pixels = [projection.pixel(point.coordinates) for point in payload.points]
         fields, skipped = [], []
-        logger.warning(
-            "TempCNN uses FAKE 16x3 input sequences for request %s (seed=%s); SAM2 inputs are real",
-            request_id,
-            seed,
-        )
+        candidates = []
+        report("segmentation", 0, len(pixels))
         with torch.inference_mode():
-            sequences = torch.tensor(
-                synthetic_sequences(len(pixels), seed), dtype=torch.float32, device=self.device
-            )
-            probabilities = []
-            if pixels:
-                probabilities = (
-                    self.crop_model(sequences.transpose(1, 2)).softmax(dim=1).cpu().tolist()
-                )
-                check_cancelled()
-                self.segmenter.set_image(rgb)
+            self.segmenter.set_image(rgb)
             for start in range(0, len(pixels), 4):
                 check_cancelled()
                 chunk = pixels[start : start + 4]
@@ -185,20 +176,60 @@ class SectionAnalyzer:
                             dict(pointId=point.id, reason="No valid mask containing the prompt")
                         )
                         continue
-                    probs = probabilities[index]
-                    class_index = int(np.argmax(probs))
-                    fields.append(
-                        dict(
-                            id=uuid4(),
-                            pointId=point.id,
-                            crop=self.labels[class_index],
-                            classIndex=class_index,
-                            cropConfidence=probs[class_index],
-                            cropProbabilities=probs,
-                            segmentationConfidence=float(np.asarray(scores).reshape(-1)[offset]),
-                            **geometry,
-                        )
+                    candidates.append(
+                        (point, float(np.asarray(scores).reshape(-1)[offset]), geometry)
                     )
+
+                report("segmentation", start + len(chunk), len(pixels))
+
+        coordinates = Counter(point.coordinates for point, _, _ in candidates)
+        target = len(candidates) * SEQUENCE_LENGTH
+        finished = 0
+        progress_lock = Lock()
+        report("satellite", 0, target)
+
+        def advance(coordinate, steps):
+            nonlocal finished
+            with progress_lock:
+                finished += steps * coordinates[coordinate]
+                report("satellite", finished, target)
+
+        observations = greenness_sequences(coordinates, deadline, check_cancelled, advance)
+
+        batch = []
+        for point, score, geometry in candidates:
+            result = observations[point.coordinates]
+            if isinstance(result, str):
+                skipped.append(dict(pointId=point.id, reason=result))
+                continue
+            dates, sequence = result
+            batch.append((point, score, geometry, dates, sequence))
+
+        report("classification", 0, len(batch))
+        if batch:
+            check_cancelled()
+            with torch.inference_mode():
+                sequences = torch.as_tensor(
+                    np.stack([item[4] for item in batch]), dtype=torch.float32, device=self.device
+                )
+                probabilities = (
+                    self.crop_model(sequences.transpose(1, 2)).softmax(dim=1).cpu().tolist()
+                )
+            for (point, score, geometry, dates, _), probs in zip(batch, probabilities):
+                class_index = int(np.argmax(probs))
+                fields.append(
+                    dict(
+                        id=uuid4(),
+                        pointId=point.id,
+                        crop=self.labels[class_index],
+                        classIndex=class_index,
+                        cropConfidence=probs[class_index],
+                        cropProbabilities=probs,
+                        segmentationConfidence=score,
+                        cropObservationDates=dates,
+                        **geometry,
+                    )
+                )
         return dict(
             requestId=request_id,
             mock=False,
@@ -207,12 +238,10 @@ class SectionAnalyzer:
             skippedPoints=skipped,
             provenance=dict(
                 segmentationInputs="submitted_map_image_and_points",
-                cropInputs="synthetic",
-                syntheticCropInputs=True,
+                cropInputs="sentinel-2-l2a",
+                syntheticCropInputs=False,
                 sequenceShape=[16, 3],
-                seed=seed,
-                perturbationProbability=PERTURBATION_PROBABILITY,
-                maxPerturbation=MAX_PERTURBATION,
+                channels=["NDVI", "EVI", "NDWI"],
                 cropLabelSource=self.label_source,
                 classLabels=self.labels,
                 device=self.device,

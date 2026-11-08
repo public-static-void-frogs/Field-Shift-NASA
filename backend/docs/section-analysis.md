@@ -53,26 +53,32 @@ Inference runs outside the event loop. Client disconnection stops work between
 model batches; an executing native model operation must finish first. The browser
 uses a five-minute analysis timeout; other API calls keep their ten-second default.
 
-## TempCNN: real trained model, FAKE inputs
+## TempCNN satellite inputs
 
-`app/services/ml/synthetic_crop_inputs.py` explicitly hardcodes the temporary
-**16-step, 3-channel** sequence. Each scalar has a 15% chance of bounded noise
-(up to ±0.025). These values are illustrative normalized inputs, not measurements;
-channel meanings, units, scaling and dates are not asserted. The future data
-source must replace this module using the training input contract.
+After SAM2 finds field masks, the backend queries Earth Search for Sentinel-2 L2A
+scenes covering each two-degree group of submitted coordinates. It reads windows from the
+public raster assets using the supplied script's cloud mask and index formulas.
+Reflectance scaling honors Earth Search's applied-offset flag to avoid subtracting
+the offset twice. Pixels with nonfinite indices or invalid normalized
+ratios are excluded. The model receives the latest 16 distinct clear observation
+dates in chronological order, with NDVI, EVI and NDWI in that order. Dates can be
+irregular. The search considers up to three pages of 100 recent scenes per group within one year.
 
-The original `TempCNN` implementation is loaded from `ml`, with the actual trained
-checkpoint. Input shape is `(batch, 16, 3)` transposed to `(batch, 3, 16)`, float32.
-Inference uses evaluation mode (dropout disabled), softmax probabilities, and
-argmax outputs. Labels, probabilities and boundaries are never randomized.
-Similar synthetic inputs may all predict the same class; variety is not forced.
+Downloads process up to four geographic groups concurrently, with up to four
+scenes in flight per group. Fields within the same one-kilometer grid block
+share a raster window per band. Each asset opens once per scene read, and a
+shared pool of 24 workers reads reflectance bands in parallel after cloud masking.
+The samples use a common 10 m grid within the scene. Results are accepted in catalog order to retain
+the newest usable observations. Downloads have a four-minute analysis budget. Fields
+with incomplete sequences or download failures are reported in `skippedPoints`.
+The response includes the dates used for each prediction. The backend never
+fills missing dates with fabricated values.
 
-The checkpoint has four output classes. The training `classes.json` is absent,
-so the honest default labels are `Class 0` through `Class 3`. To enable crop names,
-set `TEMPCNN_CLASSES_PATH` to the original ordered label list or a verified JSON
-`{ "crop name": zeroBasedIndex }` mapping covering all four classes. Never invent
-the mapping. Until real inputs and labels arrive, crop predictions are integration
-results rather than reliable crop determinations.
+The original TempCNN receives a float32 tensor shaped `(batch, 3, 16)`. Its
+training input preparation is unavailable, so the observation cadence used here
+has not been validated against the training data. The checkpoint has four output
+classes. Until the verified training mapping is provided via
+`TEMPCNN_CLASSES_PATH`, results use `Class 0` through `Class 3`.
 
 ## Response
 
@@ -83,27 +89,17 @@ The response has `mock: false`, `model: "sam2-tiny+tempcnn"`, `requestId`, `fiel
 - `classIndex`, `crop`, `cropConfidence`, ordered `cropProbabilities`;
 - SAM2 `segmentationConfidence`, and `touchesImageEdge`.
 
-`provenance` explicitly reports `segmentationInputs: "submitted_map_image_and_points"`,
-`cropInputs: "synthetic"`, `syntheticCropInputs: true`, `sequenceShape: [16,3]`,
-input-noise seed/settings, `classLabels`, `cropLabelSource`, and device. Each request
-also logs a warning that TempCNN inputs are FAKE. Its seed can reproduce the inputs
-with `synthetic_sequences(count, seed)`; no input series or imagery is persisted.
-The frontend supports arbitrary class labels with a neutral plant icon fallback,
-keeps crop grouping and deselection, and leaves Add fields without persistence.
+The provenance identifies Sentinel-2 L2A as the crop input source and records the
+sequence shape, channel order, device and class mapping source. Each field also
+includes `cropObservationDates`. The frontend retains the crop grouping and
+deselection controls and reports skipped fields.
 
-## Actual execution evidence
+## Progress stream
 
-On 2026-11-07, real inference ran on macOS arm64 / Python 3.12 / CPU:
-
-- The repository sample PNG (2030×1116) with two real pixel prompts returned two
-  SAM2 masks; SAM2 scores were approximately 0.427 and 0.699.
-- An authenticated HTTP request through the application on an isolated temporary
-  SQLite database used actual Esri World Imagery tile `15/12155/7835`, its exact
-  Web Mercator geographic extent, and three visually chosen field-interior points.
-  HTTP 200 returned three real polygons, no skipped points, in 3.44 seconds
-  including lazy model loading. SAM2 scores were 0.902, 0.789, 0.908; areas were
-  21.42, 18.12, 9.63 ha. Two masks touched the image edge.
-- TempCNN predicted Class 0 for all three synthetic sequences, with softmax
-  probabilities 0.546, 0.677, 0.618. These are actual model outputs.
-- Focused checks cover geometry holes/components, Mercator projection, synthetic
-  input shape/noise, busy-model handling and endpoint authentication.
+Send `Accept: application/x-ndjson` to the same authenticated endpoint. It streams
+one JSON object per line. Progress events include `stage` (segmentation, satellite,
+or classification), `completed`, and `total`. Satellite counts represent resolved
+observation slots, including slots settled when a field is skipped. The stream
+ends with a `result` event containing the normal response, or an `error` event.
+Heartbeat events keep the connection active during slow reads. Clients that omit
+the streaming header receive the regular JSON response.

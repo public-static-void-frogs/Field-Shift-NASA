@@ -51,7 +51,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
                 )
         response = await call_next(request)
         if request.url.path.startswith("/api/v1"):
-            response.headers["Cache-Control"] = "no-store"
+            response.headers.setdefault("Cache-Control", "no-store")
         return response
 
     @app.exception_handler(ResourceNotFound)

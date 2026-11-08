@@ -272,6 +272,14 @@ class CropConditionsTests(unittest.TestCase):
                 response.json()["cropAssessment"]["context"]["climate"]["source"], "history_window"
             )
             self.assertIsNone(client.get("/api/v1/weather/forecast").json()["cropAssessment"])
+            incomplete = create_field(client, name="Field without soil", properties=None)["id"]
+            for endpoint in ("forecast", "history"):
+                response = client.get(f"/api/v1/weather/{endpoint}?field_id={incomplete}")
+                self.assertEqual(response.status_code, 200, response.text)
+                result = response.json()
+                self.assertEqual((result["latitude"], result["longitude"]), (42.045, -93.745))
+                self.assertTrue(result["records"])
+                self.assertIsNone(result["cropAssessment"])
 
     def test_daily_limits_and_alerts_follow_that_days_inputs_not_window_averages(self):
         series = self.condition_series()

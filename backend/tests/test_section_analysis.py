@@ -1,29 +1,122 @@
-"""Focused geometry, fake-input provenance and endpoint failure checks."""
+"""Focused geometry, endpoint failure checks."""
 
+import asyncio
 import importlib.util
+import json
 import unittest
+from datetime import date, timedelta
+from threading import Event
+from time import monotonic
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 from support import isolated_app
 
-from app.services.ml.synthetic_crop_inputs import SYNTHETIC_SEQUENCE, synthetic_sequences
-
 HAS_GEOMETRY = all(importlib.util.find_spec(name) for name in ("cv2", "numpy", "shapely", "pyproj"))
 
 
-class SyntheticInputTests(unittest.TestCase):
-    def test_explicit_fake_input_shape_and_bounded_reproducible_noise(self):
-        sequences = synthetic_sequences(20, 42)
-        self.assertEqual(sequences, synthetic_sequences(20, 42))
-        self.assertNotEqual(sequences, synthetic_sequences(20, 43))
-        for sequence in sequences:
-            self.assertEqual(len(sequence), 16)
-            for step, baseline in zip(sequence, SYNTHETIC_SEQUENCE):
-                self.assertEqual(len(step), 3)
-                for value, original in zip(step, baseline):
-                    self.assertTrue(0 <= value <= 1)
-                    self.assertLessEqual(abs(value - original), 0.025)
+@unittest.skipUnless(
+    all(importlib.util.find_spec(name) for name in ("numpy", "rasterio", "requests")),
+    "Install requirements-ml.txt for greenness checks",
+)
+class GreennessSequenceTests(unittest.TestCase):
+    def test_catalog_applied_offset_takes_precedence_over_band_metadata(self):
+        from app.services.ml.greenness import _scale_offset
+
+        asset = {"raster:bands": [{"scale": 0.0001, "offset": -0.1}]}
+        self.assertEqual(
+            _scale_offset(asset, {"earthsearch:boa_offset_applied": True}), (0.0001, 0.0)
+        )
+        self.assertEqual(
+            _scale_offset(asset, {"earthsearch:boa_offset_applied": False}), (0.0001, -0.1)
+        )
+
+    def test_nearby_points_share_one_window_per_asset(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from contextlib import nullcontext
+
+        import numpy as np
+        from rasterio.transform import from_origin
+
+        from app.services.ml.greenness import ASSETS, _scene_vectors
+
+        values = dict(zip(ASSETS.values(), (500, 1000, 4000, 2000, 4)))
+        assets = {
+            band: {"href": f"https://sentinel-cogs.s3.us-west-2.amazonaws.com/{band}"}
+            for band in values
+        }
+        item = {"assets": assets, "properties": {}}
+        points = [(0, 0), (0.0002, 0)]
+        transform = from_origin(-500, 500, 20, 20)
+
+        def open_asset(url):
+            return nullcontext(
+                SimpleNamespace(
+                    value=values[url.rsplit("/", 1)[1]], transform=transform, crs="EPSG:3857"
+                )
+            )
+
+        def read_window(dataset, bounds, shape, resampling):
+            return np.full(shape, dataset.value, dtype="uint16")
+
+        with (
+            patch("rasterio.open", side_effect=open_asset) as opened,
+            patch("app.services.ml.greenness._read_window", side_effect=read_window) as reads,
+            ThreadPoolExecutor(max_workers=4) as workers,
+        ):
+            results = _scene_vectors(item, points, lambda: None, workers)
+            self.assertEqual(set(results), set(points))
+            self.assertEqual(opened.call_count, 5)
+            self.assertEqual(reads.call_count, 5)
+            for vector in results.values():
+                self.assertAlmostEqual(float(vector[0]), 0.6, places=5)
+
+    def test_latest_clear_dates_are_unique_and_oldest_first(self):
+        import numpy as np
+
+        from app.services.ml.greenness import greenness_sequences
+
+        start = date(2026, 7, 1)
+        nearby = (-93.1, 42.1)
+        cloudy = (-93.2, 42.2)
+
+        def scene(day):
+            return {
+                "properties": {"datetime": str(start + timedelta(days=day))},
+                "bbox": [-94, 42, -93, 43],
+                "day": day,
+            }
+
+        items = [scene(day) for day in range(18)] + [scene(16)]
+
+        def read_vectors(item, points, *args):
+            day = item["day"]
+            return {
+                point: np.array([day, day + 1, day + 2], dtype="float32")
+                for point in points
+                if day != 17 and (point != cloudy or day < 2)
+            }
+
+        with (
+            patch("app.services.ml.greenness._search", return_value=items) as search,
+            patch("app.services.ml.greenness._scene_vectors", side_effect=read_vectors),
+        ):
+            progress = []
+            results = greenness_sequences(
+                [nearby, cloudy],
+                monotonic() + 10,
+                lambda: None,
+                lambda point, steps: progress.append((point, steps)),
+            )
+            search.assert_called_once()
+            dates, sequence = results[nearby]
+            self.assertEqual(dates, [str(start + timedelta(days=day)) for day in range(1, 17)])
+            self.assertEqual(sequence.shape, (16, 3))
+            self.assertEqual(sequence[:, 0].tolist(), list(range(1, 17)))
+            self.assertIn("Only 2 of 16", results[cloudy])
+            for point in (nearby, cloudy):
+                self.assertEqual(sum(steps for coord, steps in progress if coord == point), 16)
 
 
 @unittest.skipUnless(HAS_GEOMETRY, "Install requirements-ml.txt for mask geometry checks")
@@ -86,3 +179,51 @@ class AnalysisEndpointTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 401)
         finally:
             directory.cleanup()
+
+
+class AnalysisStreamTests(unittest.IsolatedAsyncioTestCase):
+    async def test_progress_arrives_before_result(self):
+        from uuid import uuid4
+
+        from app.api.section_analysis import analysis_events
+
+        release = Event()
+
+        def analyze(payload, cancelled, report):
+            report({"stage": "satellite", "completed": 1, "total": 16})
+            if not release.wait(5):
+                raise AssertionError("Progress was buffered until analysis finished")
+            return {
+                "requestId": uuid4(),
+                "fields": [],
+                "skippedPoints": [],
+                "provenance": {
+                    "segmentationInputs": "submitted_map_image_and_points",
+                    "cropInputs": "sentinel-2-l2a",
+                    "syntheticCropInputs": False,
+                    "sequenceShape": [16, 3],
+                    "channels": ["NDVI", "EVI", "NDWI"],
+                    "cropLabelSource": "unmapped_class_indices",
+                    "classLabels": [],
+                    "device": "cpu",
+                },
+            }
+
+        request = SimpleNamespace(
+            app=SimpleNamespace(
+                state=SimpleNamespace(section_analyzer=SimpleNamespace(analyze=analyze))
+            )
+        )
+        stream = analysis_events(None, request)
+        try:
+            first = json.loads(await asyncio.wait_for(anext(stream), timeout=3))
+            self.assertEqual(
+                first, {"type": "progress", "stage": "satellite", "completed": 1, "total": 16}
+            )
+            release.set()
+            self.assertEqual(json.loads(await anext(stream))["type"], "result")
+            with self.assertRaises(StopAsyncIteration):
+                await anext(stream)
+        finally:
+            release.set()
+            await stream.aclose()

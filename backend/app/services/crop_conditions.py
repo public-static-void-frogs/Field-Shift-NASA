@@ -10,8 +10,6 @@ from statistics import mean
 from types import SimpleNamespace
 from typing import Protocol
 
-from fastapi import HTTPException
-
 from app.schemas.crop_conditions import CropAssessmentContext, CropMetricBounds
 
 METRICS = ("temperature", "rainfall", "moisture", "humidity", "wind")
@@ -29,12 +27,6 @@ class CropConditionModel(Protocol):
 
 
 def field_location(preferences, field):
-    soil = (field.get("properties") or {}).get("soil", {})
-    required = ("soilType", "soilPh", "organicMatter", "waterCapacity", "drainage")
-    if any(soil.get(key) is None for key in required):
-        raise HTTPException(
-            status_code=422, detail="Field soil data is required for crop assessment"
-        )
     longitude, latitude = field["geometry"]["coordinates"]
     return SimpleNamespace(
         latitude=latitude,
@@ -74,20 +66,20 @@ def _average(records, key):
     return round(mean(values), 2) if values else None
 
 
-def assessment_context(series, field):
+def assessment_context(series, field) -> CropAssessmentContext | None:
     records = series["records"]
+    soil = (field.get("properties") or {}).get("soil") or {}
+    required = ("soilType", "soilPh", "organicMatter", "waterCapacity", "drainage")
+    if field.get("crop") is None or not records or any(soil.get(key) is None for key in required):
+        return None
     dates = [row["date"] for row in records]
-    soil = field["properties"]["soil"]
     return CropAssessmentContext(
         fieldId=field["id"],
         fieldName=field["name"],
         crop=field["crop"],
         latitude=series["latitude"],
         longitude=series["longitude"],
-        soil={
-            key: soil[key]
-            for key in ("soilType", "soilPh", "organicMatter", "waterCapacity", "drainage")
-        },
+        soil={key: soil[key] for key in required},
         climate=dict(
             source="history_window"
             if series["dataKind"] == "historical_model"
