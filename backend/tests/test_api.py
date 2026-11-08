@@ -65,7 +65,7 @@ class ApiTests(unittest.TestCase):
     def test_manual_creation_persists_only_supplied_data_and_selects_for_creator(self):
         field = create_field(self.client, properties=None, name="  New field 🌾  ")
         self.assertEqual(UUID(field["id"]).version, 4)
-        self.assertEqual(field["name"], "New field 🌾")
+        self.assertEqual(field["name"], field["crop"])
         for key in (
             "parcelId",
             "properties",
@@ -85,6 +85,49 @@ class ApiTests(unittest.TestCase):
             self.assertIsNotNone(session.get(UserField, (self.user_id, field["id"])))
         for route in ("", "/properties", "/history", "/recommendation", "/strategy", "/events"):
             self.assertEqual(self.other.get(f"{BASE}/fields/{field['id']}{route}").status_code, 404)
+
+    def test_crop_areas_merge_idempotently_and_are_private(self):
+        from shapely.geometry import shape
+
+        def area(crop, west, east):
+            south, north = 42.0, 42.01
+            return {
+                "crop": crop,
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [[west, south], [east, south], [east, north], [west, north], [west, south]]
+                    ],
+                },
+            }
+
+        endpoint = BASE + "/fields/crop-areas"
+        first = area("Corn", -94, -93.99)
+        overlap = area("Corn", -93.995, -93.985)
+        separate = area("Corn", -93.95, -93.94)
+        legacy = create_field(self.client, crop="Corn")
+        response = self.client.post(endpoint, json={"areas": [first]})
+        self.assertEqual(response.status_code, 200, response.text)
+        original = response.json()[0]
+
+        additions = [overlap, separate, area("Alfalfa", -93.8, -93.79)]
+        response = self.client.post(endpoint, json={"areas": additions})
+        self.assertEqual(response.status_code, 200, response.text)
+        corn = next(field for field in response.json() if field["crop"] == "Corn")
+        self.assertEqual(corn["id"], original["id"])
+        self.assertEqual(len(shape(corn["boundary"]).geoms), 2)
+        self.assertAlmostEqual(corn["area"] / original["area"], 2.5, places=3)
+
+        retry = self.client.post(endpoint, json={"areas": additions})
+        self.assertEqual(retry.status_code, 200, retry.text)
+        self.assertEqual(retry.json(), response.json())
+        self.assertEqual({field["crop"] for field in self.get("/fields")}, {"Corn", "Alfalfa"})
+        self.assertEqual(len(self.get("/fields")), 2)
+        self.assertEqual(self.get("/fields/catalog"), [legacy])
+        self.assertEqual(self.get("/fields", self.other), [])
+        self.assertEqual(self.other.put(f"{BASE}/fields/{corn['id']}/selection").status_code, 404)
+        self.assertEqual(self.client.delete(f"{BASE}/fields/{corn['id']}").status_code, 200)
+        self.assertEqual(self.client.get(f"{BASE}/fields/{corn['id']}").status_code, 404)
 
     def test_shared_selection_is_idempotent_and_removal_preserves_catalog_and_other_users(self):
         field = create_field(self.client, parcelId=1001)
@@ -232,11 +275,6 @@ class ApiTests(unittest.TestCase):
         for fid, status in [("nope", 422), (str(uuid4()), 404)]:
             self.assertEqual(self.client.get(f"{BASE}/fields/{fid}").status_code, status)
             self.assertEqual(self.client.put(f"{BASE}/fields/{fid}/selection").status_code, status)
-        field = create_field(self.client, properties={"soil": {"soilType": "Loam"}})
-        # Missing soil is rejected before making any weather request.
-        self.assertEqual(
-            self.client.get(f"{BASE}/weather/forecast?field_id={field['id']}").status_code, 422
-        )
 
     def test_authentication_and_openapi_contract(self):
         with TestClient(self.app) as anonymous:

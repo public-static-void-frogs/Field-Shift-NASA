@@ -70,7 +70,11 @@ def assessment_context(series, field) -> CropAssessmentContext | None:
     records = series["records"]
     soil = (field.get("properties") or {}).get("soil") or {}
     required = ("soilType", "soilPh", "organicMatter", "waterCapacity", "drainage")
-    if field.get("crop") is None or not records or any(soil.get(key) is None for key in required):
+    if (
+        field.get("crop") not in CROP_TEMPERATURES
+        or not records
+        or any(soil.get(key) is None for key in required)
+    ):
         return None
     dates = [row["date"] for row in records]
     return CropAssessmentContext(

@@ -115,6 +115,14 @@ class DetectedField(BaseModel):
     areaHa: float = Field(gt=0)
 
 
+class CropZone(BaseModel):
+    id: UUID
+    crop: str
+    center: Coordinate
+    geometry: DetectedPolygon
+    areaHa: float = Field(gt=0)
+
+
 class AnalysisProvenance(BaseModel):
     segmentationInputs: Literal["submitted_map_image_and_points"]
     cropInputs: Literal["sentinel-2-l2a"]
@@ -136,5 +144,6 @@ class SectionAnalysisResponse(BaseModel):
     mock: Literal[False] = False
     model: Literal["sam2-tiny+tempcnn"] = "sam2-tiny+tempcnn"
     fields: list[DetectedField]
+    cropZones: list[CropZone] = Field(default_factory=list)
     skippedPoints: list[SkippedPoint]
     provenance: AnalysisProvenance

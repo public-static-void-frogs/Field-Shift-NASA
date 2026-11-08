@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     func,
     select,
+    text,
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, Session, mapped_column
@@ -32,7 +33,10 @@ class FieldRecord(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     parcel_id: Mapped[int | None] = mapped_column(unique=True)
-    name: Mapped[str] = mapped_column(String(60))
+    owner_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="CASCADE", name="fk_field_owner")
+    )
+    boundary: Mapped[dict | None] = mapped_column(JSON)
     crop: Mapped[str | None] = mapped_column(String(30))
     area: Mapped[float] = mapped_column(Float)
     longitude: Mapped[float] = mapped_column(Float)
@@ -47,6 +51,16 @@ class FieldRecord(Base):
     state_fips: Mapped[str | None] = mapped_column(String(2))
     county_fips: Mapped[str | None] = mapped_column(String(3))
     county: Mapped[str | None] = mapped_column(String(80))
+
+
+Index(
+    "uq_field_owner_crop",
+    FieldRecord.owner_id,
+    FieldRecord.crop,
+    unique=True,
+    postgresql_where=text("owner_id IS NOT NULL"),
+    sqlite_where=text("owner_id IS NOT NULL"),
+)
 
 
 Index(
@@ -95,7 +109,8 @@ def field_view(row: FieldRecord):
         attributes,
         id=row.id,
         parcelId=row.parcel_id,
-        name=row.name,
+        name=row.crop or (f"CSB {row.source_id}" if row.source_id else "Field"),
+        boundary=row.boundary,
         crop=row.crop,
         area=row.area,
         geometry=dict(type="Point", coordinates=[row.longitude, row.latitude]),
@@ -120,7 +135,11 @@ class FieldRepository:
         return [
             field_view(row)
             for row in self.session.scalars(
-                select(FieldRecord).order_by(FieldRecord.id).offset(offset).limit(limit)
+                select(FieldRecord)
+                .where(FieldRecord.owner_id.is_(None))
+                .order_by(FieldRecord.id)
+                .offset(offset)
+                .limit(limit)
             )
         ]
 
@@ -129,7 +148,7 @@ class FieldRepository:
 
         require_ready(self.session)
         row = self.session.get(FieldRecord, str(field_id))
-        if row is None:
+        if row is None or row.owner_id is not None:
             raise ResourceNotFound("Field not found")
         return field_view(row)
 
@@ -153,7 +172,11 @@ class FieldRepository:
             raise ResourceNotFound("Parcel not found")
         soil = (row.attributes.get("properties") or {}).get("soil", {})
         return dict(
-            id=parcel_id, name=row.name, crop=row.crop, area=row.area, soilType=soil.get("soilType")
+            id=parcel_id,
+            name=row.crop or "Field",
+            crop=row.crop,
+            area=row.area,
+            soilType=soil.get("soilType"),
         )
 
     def create(self, payload: CreateField):
@@ -162,9 +185,9 @@ class FieldRepository:
         require_ready(self.session)
         data = payload.model_dump(mode="json")
         longitude, latitude = data.pop("geometry")["coordinates"]
+        data.pop("name", None)
         row = FieldRecord(
             parcel_id=data.pop("parcelId"),
-            name=data.pop("name"),
             crop=data.pop("crop"),
             area=data.pop("area"),
             attributes=data,
@@ -188,8 +211,16 @@ class FieldRepository:
         require_ready(self.session)
         fid = str(field_id)
         row = self.session.get(FieldRecord, fid)
-        if row is None:
+        if row is None or row.owner_id is not None:
             raise ResourceNotFound("Field not found")
+        if row.crop:
+            owned = self.session.scalar(
+                select(FieldRecord).where(
+                    FieldRecord.owner_id == self.user_id, FieldRecord.crop == row.crop
+                )
+            )
+            if owned is not None:
+                return field_view(owned)
         if self.session.get(UserField, (self.user_id, fid)) is None:
             self.session.add(UserField(user_id=self.user_id, field_id=fid))
             try:
@@ -203,6 +234,10 @@ class FieldRepository:
 
     def remove(self, field_id):
         self.require_field(field_id)
-        self.session.delete(self.session.get(UserField, (self.user_id, str(field_id))))
+        row = self.session.get(FieldRecord, str(field_id))
+        if row.owner_id == self.user_id:
+            self.session.delete(row)
+        else:
+            self.session.delete(self.session.get(UserField, (self.user_id, str(field_id))))
         self.session.commit()
         return str(field_id)

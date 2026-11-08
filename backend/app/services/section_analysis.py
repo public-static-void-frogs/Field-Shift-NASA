@@ -132,6 +132,7 @@ class SectionAnalyzer:
         import torch
         from PIL import Image, UnidentifiedImageError
 
+        from app.services.ml.crop_zones import merge_crop_zones
         from app.services.ml.geometry import ImageProjection, field_geometry
         from app.services.ml.greenness import SEQUENCE_LENGTH, greenness_sequences
 
@@ -244,6 +245,7 @@ class SectionAnalyzer:
             mock=False,
             model="sam2-tiny+tempcnn",
             fields=fields,
+            cropZones=merge_crop_zones(fields, projection),
             skippedPoints=skipped,
             provenance=dict(
                 segmentationInputs="submitted_map_image_and_points",

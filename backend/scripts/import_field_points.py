@@ -29,7 +29,6 @@ from app.services.maps import rebuild_cells  # noqa: E402
 ACRE_HECTARES = 0.40468564224
 COLUMNS = (
     "id",
-    "name",
     "crop",
     "area",
     "attributes",
@@ -65,7 +64,6 @@ def source_record(feature, now, state, county):
         raise ValueError(f"County metadata mismatch for {source_id}")
     return (
         str(uuid5(NAMESPACE_URL, f"usda-nass-csb:2025:{source_id}")),
-        f"CSB {source_id}",
         None,
         acres * ACRE_HECTARES,
         json.dumps({"sourceProperties": props}, allow_nan=False),
@@ -167,7 +165,7 @@ def import_archive(path):
             if metadata and metadata.get("archiveSha256") != digest:
                 raise ValueError("A different dataset is registered; refusing to mix catalogs")
             if not metadata:
-                if connection.scalar(text("SELECT count(*) FROM fields")):
+                if connection.scalar(text("SELECT count(*) FROM fields WHERE owner_id IS NULL")):
                     raise ValueError(
                         "Catalog is not empty; apply the point replacement migration first"
                     )
@@ -226,7 +224,9 @@ def import_archive(path):
                             f"Counties {len(metadata['completedPartitions'])}/{len(entries)}; points {metadata['total']}",
                             flush=True,
                         )
-                actual = connection.scalar(text("SELECT count(*) FROM fields"))
+                actual = connection.scalar(
+                    text("SELECT count(*) FROM fields WHERE owner_id IS NULL")
+                )
                 if metadata["total"] != expected or actual != expected:
                     raise ValueError(
                         f"Catalog count mismatch: expected {expected}, actual {actual}"

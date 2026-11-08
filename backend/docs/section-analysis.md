@@ -81,6 +81,14 @@ has not been validated against the training data. The bundled checkpoint uses th
 176 (Grassland/Pasture). The mapping ships alongside the checkpoint. For custom
 weights, set `TEMPCNN_CLASSES_PATH` to the matching generated `classes.json`.
 
+## Crop areas
+
+The API returns `cropZones` for map display. It unions masks of each crop in
+image pixel space, closes narrow gaps with a six-pixel buffer and erosion, and
+simplifies boundaries with a four-pixel tolerance. Disconnected components are
+separate zones. Each zone has a crop name, polygon, interior marker location and
+area. Individual detections remain in `fields` for existing API consumers.
+
 ## Response
 
 The response has `mock: false`, `model: "sam2-tiny+tempcnn"`, `requestId`, `fields`,
@@ -104,3 +112,12 @@ observation slots, including slots settled when a field is skipped. The stream
 ends with a `result` event containing the normal response, or an `error` event.
 Heartbeat events keep the connection active during slow reads. Clients that omit
 the streaming header receive the regular JSON response.
+
+### Saving crop areas
+
+`POST /api/v1/fields/crop-areas` accepts selected `{crop, geometry}` polygons.
+It unions them with the caller's existing boundary for each crop, recalculates
+hectares, and returns the saved entries. Disconnected parts share one
+MultiPolygon, and covered additions leave the existing boundary unchanged.
+Saved entries are private to the account. Their representative point remains
+available to point-based consumers such as weather.

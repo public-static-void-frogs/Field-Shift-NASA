@@ -121,6 +121,46 @@ class GreennessSequenceTests(unittest.TestCase):
 
 @unittest.skipUnless(HAS_GEOMETRY, "Install requirements-ml.txt for mask geometry checks")
 class MaskGeometryTests(unittest.TestCase):
+    def test_crop_zones_dissolve_overlaps_and_bridge_only_nearby_same_crop(self):
+        from shapely.geometry import Point, shape
+
+        from app.services.ml.crop_zones import merge_crop_zones
+        from app.services.ml.geometry import ImageProjection
+
+        image = SimpleNamespace(bounds=(-94, 42, -93.99, 42.01), width=200, height=200)
+        projection = ImageProjection(image)
+
+        def mask(crop, left, top, right, bottom):
+            ring = [(left, top), (right, top), (right, bottom), (left, bottom), (left, top)]
+            return {
+                "crop": crop,
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[projection.geographic(*point) for point in ring]],
+                },
+            }
+
+        zones = merge_crop_zones(
+            [
+                mask("Corn", 10, 10, 55, 70),
+                mask("Corn", 15, 15, 45, 65),
+                mask("Corn", 59, 10, 100, 70),
+                mask("Corn", 135, 10, 180, 70),
+                mask("Soybeans", 10, 80, 55, 120),
+            ],
+            projection,
+        )
+        corn = [zone for zone in zones if zone["crop"] == "Corn"]
+        self.assertEqual(len(corn), 2)
+        self.assertEqual(len(zones), 3)
+        bridge = Point(*projection.geographic(57, 40))
+        self.assertTrue(any(shape(zone["geometry"]).covers(bridge) for zone in corn))
+        for zone in zones:
+            polygon = shape(zone["geometry"])
+            self.assertTrue(polygon.is_valid)
+            self.assertTrue(polygon.contains(Point(*zone["center"])))
+            self.assertEqual(len(polygon.exterior.coords), 5)
+
     def test_real_mask_component_preserves_holes_and_excludes_other_objects(self):
         import numpy as np
         from shapely.geometry import shape

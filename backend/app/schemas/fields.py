@@ -2,18 +2,19 @@ from datetime import date
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 from pydantic import Field as Value
 
 from app.schemas.geometry import Geometry
+from app.schemas.section_analysis import Coordinate
 
-Crop = Literal["Winter wheat", "Corn", "Soybeans"]
+Crop = Literal["Winter wheat", "Corn", "Soybeans", "Alfalfa", "Grassland/Pasture"]
 
 
 class CreateField(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, allow_inf_nan=False)
     parcelId: int | None = Value(default=None, gt=0, strict=True)
-    name: str = Value(min_length=1, max_length=60)
+    name: str | None = Value(default=None, min_length=1, max_length=60, deprecated=True)
     crop: Crop
     area: float = Value(gt=0)
     geometry: Geometry
@@ -25,12 +26,42 @@ class CreateField(BaseModel):
     status: Literal["Healthy", "Needs attention", "Critical"] | None = None
 
 
+class CropAreaInput(BaseModel):
+    crop: Crop
+    geometry: "CropAreaPolygon"
+
+
+class CropAreaPolygon(BaseModel):
+    type: Literal["Polygon"]
+    coordinates: list[list[Coordinate]] = Value(min_length=1)
+
+    @field_validator("coordinates")
+    @classmethod
+    def closed_rings(cls, rings):
+        if sum(map(len, rings)) > 50_000 or any(
+            len(ring) < 4 or ring[0] != ring[-1] for ring in rings
+        ):
+            raise ValueError("Crop boundaries need closed rings and at most 50,000 coordinates")
+        return rings
+
+
+class SaveCropAreas(BaseModel):
+    areas: list[CropAreaInput] = Value(min_length=1, max_length=600)
+
+
+class CropBoundary(BaseModel):
+    type: Literal["MultiPolygon"]
+    coordinates: list[list[list[tuple[float, float]]]]
+
+
 class Field(CreateField):
     id: UUID
+    name: str
+    boundary: CropBoundary | None = None
     crop: str | None
     sourceProperties: dict | None = None
     sourceId: str | None = None
-    locationKind: Literal["user_point", "interior_point"] = "user_point"
+    locationKind: Literal["user_point", "interior_point", "crop_area"] = "user_point"
     sourceYear: int | None = None
     county: str | None = None
     stateFips: str | None = None

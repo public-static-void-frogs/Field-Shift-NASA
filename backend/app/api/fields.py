@@ -1,3 +1,4 @@
+from typing import get_args
 from uuid import UUID
 
 from fastapi import APIRouter, Query
@@ -5,12 +6,14 @@ from fastapi import APIRouter, Query
 from app.api.dependencies import FieldId, ParcelId, Store
 from app.schemas.fields import (
     CreateField,
+    Crop,
     CropOption,
     Field,
     FieldHistory,
     Parcel,
     PropertyData,
     Recommendation,
+    SaveCropAreas,
 )
 from app.services import fields as service
 
@@ -50,6 +53,14 @@ def create_field(input: CreateField, store: Store):
     return store.create(input)
 
 
+@router.post("/fields/crop-areas", response_model=list[Field])
+def add_crop_areas(input: SaveCropAreas, store: Store):
+    """Merge selected polygons into the caller's saved crop areas."""
+    from app.services.saved_crop_areas import save_crop_areas
+
+    return save_crop_areas(store, input.areas)
+
+
 @router.put("/fields/{field_id}/selection", response_model=Field)
 def select_field(field_id: FieldId, store: Store):
     """Select a catalog field for the caller; repeated selections are idempotent."""
@@ -58,7 +69,7 @@ def select_field(field_id: FieldId, store: Store):
 
 @router.get("/crops", response_model=list[CropOption])
 def crops():
-    return [dict(value=name, label=name) for name in ("Winter wheat", "Corn", "Soybeans")]
+    return [dict(value=name, label=name) for name in get_args(Crop)]
 
 
 @router.get("/parcels/{parcel_id}", response_model=Parcel)

@@ -95,7 +95,7 @@ def rebuild_cells(connection):
             SELECT :level, {clamp}(:edge, CAST(floor((longitude + 180) / 360 * :size) AS INTEGER)),
                    {clamp}(:edge, CAST(floor((latitude + 90) / 180 * :size) AS INTEGER)),
                    count(*), sum(area), min(longitude), min(latitude), max(longitude), max(latitude)
-            FROM fields GROUP BY 2, 3
+            FROM fields WHERE owner_id IS NULL GROUP BY 2, 3
             """),
             dict(level=level, size=size, edge=size - 1),
         )
@@ -114,7 +114,7 @@ def summary(session):
             func.min(FieldRecord.latitude),
             func.max(FieldRecord.longitude),
             func.max(FieldRecord.latitude),
-        )
+        ).where(FieldRecord.owner_id.is_(None))
     ).one()
     bounds = list(row[1:]) if row[0] else None
     center = [42.05, -93.87]
@@ -209,7 +209,6 @@ def viewport(store, bounds, zoom):
     columns = [
         F.id,
         F.parcel_id,
-        F.name,
         F.crop,
         F.area,
         F.source_id,
@@ -218,7 +217,9 @@ def viewport(store, bounds, zoom):
         F.latitude,
     ]
     rows = session.execute(
-        select(*columns).where(spatial_filter(session, bounds)).limit(MAX_FEATURES + 1)
+        select(*columns)
+        .where(F.owner_id.is_(None), spatial_filter(session, bounds))
+        .limit(MAX_FEATURES + 1)
     ).all()
     if len(rows) > MAX_FEATURES:
         return overview(session, bounds, min(zoom, 10))
@@ -247,7 +248,7 @@ def viewport(store, bounds, zoom):
                     catalogFieldId=row.id,
                     fieldId=row.id if row.id in selected else None,
                     sourceId=row.source_id,
-                    name=row.name,
+                    name=row.crop or (f"CSB {row.source_id}" if row.source_id else "Field"),
                     area=row.area,
                     crop=row.crop,
                     locationKind=row.location_kind,
