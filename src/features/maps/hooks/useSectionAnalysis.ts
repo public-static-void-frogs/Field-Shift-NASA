@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMap } from 'react-leaflet';
+import type { AnalysisProgress } from '../../../api/section-analysis/section-analysis.api.ts';
 import { sectionAnalysisMutations } from '../../../api/section-analysis/section-analysis.mutations.ts';
 import type { DetectedField } from '../../../types/maps/map.types.ts';
 import { captureSectionImage, MapCaptureError } from '../utils/captureSectionImage.ts';
@@ -18,6 +19,7 @@ export function useSectionAnalysis(section: MapSection, actions: SectionAnalysis
   const map = useMap();
   const { t } = useTranslation();
   const mutation = useMutation(sectionAnalysisMutations.analyze());
+  const [progress, setProgress] = useState<AnalysisProgress>();
   const current = useRef<{ controller: AbortController; token: string } | null>(null);
   const { abort } = actions;
   useEffect(
@@ -37,6 +39,7 @@ export function useSectionAnalysis(section: MapSection, actions: SectionAnalysis
     const controller = new AbortController();
     const token = crypto.randomUUID();
     current.current = { controller, token };
+    setProgress(undefined);
     actions.begin(section.id, token);
     try {
       const image = await captureSectionImage(map, section, controller.signal);
@@ -54,9 +57,18 @@ export function useSectionAnalysis(section: MapSection, actions: SectionAnalysis
           region: { type: 'Polygon', coordinates: [ring] },
         },
         signal: controller.signal,
+        onProgress: (update) => {
+          if (!controller.signal.aborted && current.current?.token === token) {
+            setProgress(update);
+          }
+        },
       });
       if (!controller.signal.aborted) {
-        actions.complete(section.id, token, result.fields);
+        if (result.fields.length === 0) {
+          actions.fail(section.id, token, t('No fields could be analyzed. Try again.'));
+        } else {
+          actions.complete(section.id, token, result.fields);
+        }
       }
     } catch (error) {
       if (!controller.signal.aborted) {
@@ -76,5 +88,5 @@ export function useSectionAnalysis(section: MapSection, actions: SectionAnalysis
     }
   }
 
-  return { analyze };
+  return { analyze, progress };
 }

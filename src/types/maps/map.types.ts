@@ -56,6 +56,7 @@ export interface DetectedField {
   classIndex: number;
   cropConfidence: number;
   cropProbabilities: number[];
+  cropObservationDates: string[];
   segmentationConfidence: number;
   touchesImageEdge: boolean;
   center: [number, number];

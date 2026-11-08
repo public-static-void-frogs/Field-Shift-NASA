@@ -1,9 +1,10 @@
-import { Alert, Button, Checkbox } from 'antd';
+import { Alert, Button, Checkbox, Progress } from 'antd';
 import { Plus, ScanLine, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMapControlEvents } from '../hooks/useMapControlEvents.ts';
 import { useSectionFocus } from '../hooks/useSectionFocus.ts';
 import { useSectionAnalysis, type SectionAnalysisActions } from '../hooks/useSectionAnalysis.ts';
+import type { AnalysisProgress } from '../../../api/section-analysis/section-analysis.api.ts';
 import type { DetectedField } from '../../../types/maps/map.types.ts';
 import {
   groupSectionCrops,
@@ -29,9 +30,10 @@ export function SectionPanel({
   const { t, i18n } = useTranslation();
   const panel = useSectionFocus(section);
   useMapControlEvents(panel);
-  const { analyze } = useSectionAnalysis(section, analysisActions);
+  const { analyze, progress } = useSectionAnalysis(section, analysisActions);
   const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
   const complete = section.analysisStatus === 'complete';
+  const skippedCount = section.fields.length - (section.detectedFields?.length ?? 0);
   const pending = section.analysisStatus === 'pending';
   const crops = groupSectionCrops(section);
   const included = includedSectionFields(section);
@@ -84,7 +86,11 @@ export function SectionPanel({
           ))}
         </div>
       )}
+      {complete && skippedCount > 0 && (
+        <Alert type="warning" title={t('Fields skipped ({{count}})', { count: skippedCount })} />
+      )}
       {section.analysisError && <Alert type="error" title={section.analysisError} />}
+      {pending && <SectionAnalysisProgress progress={progress} />}
       <div className="map-section-actions">
         {complete ? (
           <Button type="primary" block disabled={!count} icon={<Plus size={16} />}>
@@ -106,5 +112,35 @@ export function SectionPanel({
         </Button>
       </div>
     </aside>
+  );
+}
+
+type SectionAnalysisProgressProps = { progress?: AnalysisProgress };
+
+function SectionAnalysisProgress({ progress }: SectionAnalysisProgressProps) {
+  const { t } = useTranslation();
+  const labels = {
+    segmentation: t('Finding field boundaries'),
+    satellite: t('Processing satellite observations'),
+    classification: t('Classifying crops'),
+  };
+  const label = progress ? labels[progress.stage] : t('Preparing map imagery');
+  const ranges = {
+    segmentation: { start: 0, span: 10 },
+    satellite: { start: 10, span: 85 },
+    classification: { start: 95, span: 5 },
+  };
+  let percent = 0;
+  if (progress) {
+    const { start, span } = ranges[progress.stage];
+    const fraction = progress.total ? progress.completed / progress.total : 0;
+    percent = Math.floor(start + span * fraction);
+  }
+
+  return (
+    <div>
+      <div aria-live="polite">{label}</div>
+      <Progress aria-label={label} percent={percent} size="small" status="active" />
+    </div>
   );
 }

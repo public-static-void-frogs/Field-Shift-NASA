@@ -12,10 +12,10 @@ retryable error rather than substituting an empty image.
 
 The green zone pulses while capture and the request run, and Analyze displays a
 loading spinner. The backend runs SAM2 on the actual image and point prompts, then runs the trained
-TempCNN on explicitly synthetic 16-step, 3-channel sequences. Boundaries and crop
-class predictions are real model outputs. The missing training label mapping means
-classes currently display as Class 0–3 with neutral plant icons. The response
-records synthetic-input provenance; it does not invent crop-name mappings. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
+TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field.
+The results include the observation dates, and fields with insufficient data
+are reported as skipped. Classes display as Class 0–3 until the training label
+mapping is supplied. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
 
 On completion the lasso disappears. Geographic field boundaries and crop icons
 replace it. Click a boundary or crop icon to include/exclude a result. Dragging and zooming
@@ -34,6 +34,8 @@ map. Raw selection remains bounded by the existing viewport response budget.
 The preview area is an inexpensive approximation of the drawn outline. After
 analysis, displayed areas are geodesic estimates of the actual mask polygons. Masks
 may be clipped by the captured image. Analysis requests allow up to five minutes;
-other API calls keep their normal timeout. The backend caches models and encodes
+other API calls keep their normal timeout. The panel shows progress streamed by
+the backend as it segments fields, processes satellite observations and classifies
+crops. The backend caches models and encodes
 the image once per request. Client cancellation stops backend work between model
 batches; an active native operation finishes first.

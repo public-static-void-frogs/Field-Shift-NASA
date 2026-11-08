@@ -17,7 +17,11 @@ export class ApiUnavailableError extends Error {
   }
 }
 
-export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+  readResponse: (response: Response) => Promise<T> = (response) => response.json() as Promise<T>,
+): Promise<T> {
   // Node's environment supports integration tests; browser builds use Vite's environment.
   const environment =
     import.meta.env ??
@@ -64,7 +68,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
       }
       throw new ApiError(response.status, message);
     }
-    return (await response.json()) as T;
+    return await readResponse(response);
   } catch (error) {
     if (init.signal?.aborted) {
       throw init.signal.reason;
