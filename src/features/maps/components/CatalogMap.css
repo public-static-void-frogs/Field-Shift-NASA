@@ -67,9 +67,13 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-.map-lasso-active,
+.field-map .map-canvas.map-lasso-active,
 .map-lasso-active .leaflet-interactive {
   cursor: crosshair;
+}
+.field-map .map-canvas.map-points-close,
+.map-points-close .leaflet-interactive {
+  cursor: pointer;
 }
 @media (max-width: 480px) {
   .map-selection-controls {

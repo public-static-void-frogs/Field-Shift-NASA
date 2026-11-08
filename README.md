@@ -169,8 +169,7 @@ refreshing the map. This draft does not change saved fields.
 Analyze captures map imagery and calls the real SAM2/TempCNN backend. While pending the zone
 pulses; results replace it with selectable crop icons and field boundaries.
 Add fields remains a UI-only control. TempCNN uses 16 clear Sentinel-2 observations downloaded
-on demand. Model classes retain numeric labels until
-the training crop-name mapping is supplied. Mini-maps read only saved field geometries. No production sample parcel collection
+on demand. Predictions display the crop names from the training label mapping. Mini-maps read only saved field geometries. No production sample parcel collection
 is generated. See [map selection](docs/map-selection.md) for interaction details.
 
 ```sh

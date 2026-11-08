@@ -9,7 +9,7 @@ import { mapQueries } from '../../../api/maps/maps.queries.ts';
 import { satelliteTiles } from '../constants/maps.constants.ts';
 import { useCatalogLayers } from '../hooks/useCatalogLayers.ts';
 import { useMapSections } from '../hooks/useMapSections.ts';
-import { useLassoSelection } from '../hooks/useLassoSelection.ts';
+import { useMapSelectionTool } from '../hooks/useMapSelectionTool.ts';
 import { useCatalogViewport } from '../hooks/useCatalogViewport.ts';
 import { useMapPosition } from '../hooks/useMapPosition.ts';
 import { parseMapPosition } from '../utils/catalogViewport.ts';
@@ -76,34 +76,32 @@ export function CatalogMap() {
 function CatalogViewport() {
   const query = useCatalogViewport();
   const selection = useMapSections();
-  const canLasso = query.data?.mode === 'fields' && !query.isPlaceholderData && !query.isFetching;
-  const lasso = useLassoSelection({
+  const canSelect = query.data?.mode === 'fields' && !query.isPlaceholderData && !query.isFetching;
+  const { activeTool, setTool } = useMapSelectionTool({
     features: query.data?.features ?? [],
-    available: canLasso,
+    available: canSelect,
     onComplete: selection.draw,
     onToggle: selection.toggle,
   });
-  const { setArmed } = lasso;
   const { activate } = selection;
   const activateSection = useCallback(
     (id: string) => {
-      setArmed(false);
+      setTool('move');
       activate(id);
     },
-    [setArmed, activate],
+    [setTool, activate],
   );
   useMapPosition();
   const { t } = useTranslation();
-  useCatalogLayers(query.data, selection.selectedIds);
+  useCatalogLayers(query.data, selection.selectedIds, selection.sections);
 
   return (
     <>
       <MapSelectionControls
         count={selection.selectedIds.size}
-        lassoActive={lasso.active}
-        canLasso={canLasso}
-        onLasso={() => lasso.setArmed(true)}
-        onMove={() => lasso.setArmed(false)}
+        activeTool={activeTool}
+        canSelect={canSelect}
+        onSelectTool={setTool}
       />
       <MapSections
         sections={selection.sections}

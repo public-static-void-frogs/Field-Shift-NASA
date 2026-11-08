@@ -1,13 +1,5 @@
-import {
-  canvas,
-  circleMarker,
-  divIcon,
-  geoJSON,
-  layerGroup,
-  marker,
-  type CircleMarker,
-} from 'leaflet';
-import { useEffect, useRef, useState } from 'react';
+import { canvas, circleMarker, divIcon, layerGroup, marker, type CircleMarker } from 'leaflet';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMapEvents } from 'react-leaflet';
 import type { CatalogMapView } from '../../../types/maps/map.types.ts';
@@ -15,17 +7,20 @@ import { clusterMarkerSize, layoutMapClusters } from '../utils/clusterLayout.ts'
 import { clusterView } from '../utils/catalogViewport.ts';
 import { catalogPointStyle } from '../utils/catalogPointStyle.ts';
 import type { LayerGroup } from 'leaflet';
+import { isPointInLasso, type ScreenPoint } from '../utils/lassoSelection.ts';
+import type { MapSection } from '../utils/sectionSelection.ts';
 
 export function useCatalogLayers(
   data: CatalogMapView | undefined,
   selectedIds: ReadonlySet<string>,
+  sections: readonly MapSection[],
 ) {
   const points = useRef(new Map<string, { marker: CircleMarker; owner: LayerGroup }>());
   const [revision, setRevision] = useState(0);
   const refreshLayout = () => setRevision((value) => value + 1);
   const map = useMapEvents({ moveend: refreshLayout, resize: refreshLayout });
   const { t } = useTranslation();
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!data) {
       return;
     }
@@ -65,19 +60,15 @@ export function useCatalogLayers(
     for (const feature of data.features) {
       if (feature.properties.kind === 'field') {
         const inFarm = Boolean(feature.properties.fieldId);
-        const point = geoJSON(feature, {
-          pointToLayer: (_, latlng) => {
-            const marker = circleMarker(latlng, { renderer, ...catalogPointStyle(inFarm, false) });
-            pointMarkers.set(String(feature.id), { marker, owner: layers });
-            return marker;
-          },
-          onEachFeature: (_, layer) => {
-            const tooltip = document.createElement('span');
-            tooltip.textContent = `${feature.properties.name} · ${feature.properties.area.toFixed(1)} ${t('ha')}`;
-            layer.bindTooltip(tooltip, { sticky: true });
-          },
+        const [longitude, latitude] = feature.geometry.coordinates;
+        const point = circleMarker([latitude, longitude], {
+          renderer,
+          ...catalogPointStyle(inFarm, false),
         });
-        point.addTo(layers);
+        const tooltip = document.createElement('span');
+        tooltip.textContent = `${feature.properties.name} · ${feature.properties.area.toFixed(1)} ${t('ha')}`;
+        point.bindTooltip(tooltip, { sticky: true });
+        pointMarkers.set(String(feature.id), { marker: point, owner: layers });
       }
     }
     const frame = requestAnimationFrame(() => {
@@ -97,14 +88,23 @@ export function useCatalogLayers(
       renderer.remove();
     };
   }, [map, data, t, revision]);
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const project = (latitude: number, longitude: number): ScreenPoint => {
+      const point = map.project([latitude, longitude], 0);
+      return [point.x, point.y];
+    };
+    const outlines = sections.map(({ outline }) =>
+      outline.map(([latitude, longitude]) => project(latitude, longitude)),
+    );
     for (const [id, point] of points.current) {
-      if (selectedIds.has(id)) {
+      const { lat, lng } = point.marker.getLatLng();
+      const position = project(lat, lng);
+      if (selectedIds.has(id) || outlines.some((outline) => isPointInLasso(position, outline))) {
         point.marker.closeTooltip();
         point.owner.removeLayer(point.marker);
       } else {
         point.owner.addLayer(point.marker);
       }
     }
-  }, [data, selectedIds, t, revision]);
+  }, [map, data, selectedIds, sections, t, revision]);
 }

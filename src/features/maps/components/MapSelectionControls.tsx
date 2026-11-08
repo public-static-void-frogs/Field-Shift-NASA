@@ -1,54 +1,59 @@
 import { Button, Tooltip } from 'antd';
 import { useRef } from 'react';
-import { Hand, LassoSelect } from 'lucide-react';
+import { Hand, LassoSelect, PenTool } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import type { MapSelectionTool } from '../hooks/useMapSelectionTool.ts';
 import { useMapControlEvents } from '../hooks/useMapControlEvents.ts';
 
 type MapSelectionControlsProps = {
   count: number;
-  lassoActive: boolean;
-  canLasso: boolean;
-  onLasso: () => void;
-  onMove: () => void;
+  activeTool: MapSelectionTool;
+  canSelect: boolean;
+  onSelectTool: (tool: MapSelectionTool) => void;
 };
 
 export function MapSelectionControls({
   count,
-  lassoActive,
-  canLasso,
-  onLasso,
-  onMove,
+  activeTool,
+  canSelect,
+  onSelectTool,
 }: MapSelectionControlsProps) {
   const { t } = useTranslation();
   const control = useRef<HTMLElement>(null);
   useMapControlEvents(control);
-  const selectTitle = canLasso
-    ? t('Select fields')
-    : t('Zoom in until individual field points are visible to use the lasso.');
+  const zoomHint = t('Zoom in until individual field points are visible to select fields.');
+  const tools = [
+    { id: 'move', label: t('Move map'), icon: Hand },
+    { id: 'lasso', label: t('Lasso selection'), icon: LassoSelect },
+    { id: 'points', label: t('Point selection'), icon: PenTool },
+  ] as const;
 
   return (
     <section ref={control} className="map-selection-controls" aria-label={t('Selection tools')}>
-      <Tooltip title={t('Move map')}>
-        <Button
-          icon={<Hand size={17} />}
-          type={lassoActive ? 'text' : 'primary'}
-          aria-label={t('Move map')}
-          aria-pressed={!lassoActive}
-          onClick={onMove}
-        />
-      </Tooltip>
-      <Tooltip title={selectTitle}>
-        <span>
-          <Button
-            icon={<LassoSelect size={17} />}
-            type={lassoActive ? 'primary' : 'text'}
-            aria-label={t('Select fields')}
-            aria-pressed={lassoActive}
-            disabled={!canLasso}
-            onClick={onLasso}
-          />
-        </span>
-      </Tooltip>
+      {tools.map(({ id, label, icon: Icon }) => {
+        const disabled = id !== 'move' && !canSelect;
+        let title = label;
+        if (disabled) {
+          title = zoomHint;
+        } else if (id === 'points') {
+          title = t('Point selection. Click to add points, then click the first point to close.');
+        }
+
+        return (
+          <Tooltip key={id} title={title}>
+            <span>
+              <Button
+                icon={<Icon size={17} />}
+                type={activeTool === id ? 'primary' : 'text'}
+                aria-label={label}
+                aria-pressed={activeTool === id}
+                disabled={disabled}
+                onClick={() => onSelectTool(id)}
+              />
+            </span>
+          </Tooltip>
+        );
+      })}
       <span className="map-selection-status" role="status" aria-live="polite" aria-atomic="true">
         {t('{{count}} fields selected', { count })}
       </span>

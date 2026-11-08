@@ -1,6 +1,8 @@
 # Section analysis prototype
 
-Hand/lasso buttons switch between moving the map and drawing sections. A drawn
+The toolbar switches between moving the map, drawing with the lasso, and placing
+points. In point mode, click to add corners and click the first point or press
+Enter to close the outline. Backspace removes the last point. A drawn
 zone has a light green fill, keeps its outline and hides selected source points.
 Its centered Add button opens the section panel and fits the zone beside it.
 
@@ -14,8 +16,7 @@ The green zone pulses while capture and the request run, and Analyze displays a
 loading spinner. The backend runs SAM2 on the actual image and point prompts, then runs the trained
 TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field.
 The results include the observation dates, and fields with insufficient data
-are reported as skipped. Classes display as Class 0–3 until the training label
-mapping is supplied. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
+are reported as skipped. Crop groups display the names from the model’s training label mapping. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
 
 On completion the lasso disappears. Geographic field boundaries and crop icons
 replace it. Click a boundary or crop icon to include/exclude a result. Dragging and zooming
