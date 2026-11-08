@@ -1566,7 +1566,7 @@
           "section analysis"
         ],
         "summary": "Analyze Section",
-        "description": "Runs SAM2 on the submitted map PNG and positive point prompts. Runs trained TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field. Fields with insufficient observations are reported as skipped. Unmapped classes retain their numeric IDs. Does not save fields.",
+        "description": "Runs SAM2 on the submitted map PNG and positive point prompts. Runs trained TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field. Fields with insufficient observations are reported as skipped. Crop names follow the trained class mapping. Does not save fields.",
         "operationId": "analyze_section_api_v1_maps_sections_analyze_post",
         "requestBody": {
           "content": {

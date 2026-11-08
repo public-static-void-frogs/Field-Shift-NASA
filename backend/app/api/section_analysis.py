@@ -19,7 +19,7 @@ router = APIRouter(tags=["section analysis"])
 @router.post(
     "/maps/sections/analyze",
     response_model=SectionAnalysisResponse,
-    description="Runs SAM2 on the submitted map PNG and positive point prompts. Runs trained TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field. Fields with insufficient observations are reported as skipped. Unmapped classes retain their numeric IDs. Does not save fields.",
+    description="Runs SAM2 on the submitted map PNG and positive point prompts. Runs trained TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field. Fields with insufficient observations are reported as skipped. Crop names follow the trained class mapping. Does not save fields.",
     responses={
         200: {"content": {NDJSON: {"schema": {"type": "string"}}}},
         422: {"description": "Invalid map image or points"},

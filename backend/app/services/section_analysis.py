@@ -76,25 +76,34 @@ class SectionAnalyzer:
             )
             self.crop_model.load_state_dict(weights)
             self.crop_model.to(self.device).eval()
-            self.labels = [f"Class {i}" for i in range(self.class_count)]
-            self.label_source = "unmapped_class_indices"
-            mapping_path = os.getenv("TEMPCNN_CLASSES_PATH")
-            if mapping_path:
-                mapping = json.loads(Path(mapping_path).read_text())
-                if isinstance(mapping, dict):
+            mapping_path = Path(
+                os.getenv(
+                    "TEMPCNN_CLASSES_PATH",
+                    str(ML / "field-crop-detection-model/weights/classes.json"),
+                )
+            )
+            mapping = json.loads(mapping_path.read_text())
+            if isinstance(mapping, dict):
+                indices = [str(index) for index in range(self.class_count)]
+                if set(mapping) == set(indices):
+                    mapping = [
+                        mapping[index].get("name") if isinstance(mapping[index], dict) else None
+                        for index in indices
+                    ]
+                else:
                     if sorted(mapping.values()) != list(range(self.class_count)):
                         raise ValueError(
                             "Crop mapping must contain each zero-based class index exactly once"
                         )
                     mapping = sorted(mapping, key=mapping.get)
-                if (
-                    not isinstance(mapping, list)
-                    or len(mapping) != self.class_count
-                    or not all(isinstance(label, str) and label for label in mapping)
-                ):
-                    raise ValueError("Crop mapping must match trained output classes")
-                self.labels = mapping
-                self.label_source = "training_class_mapping"
+            if (
+                not isinstance(mapping, list)
+                or len(mapping) != self.class_count
+                or not all(isinstance(label, str) and label for label in mapping)
+            ):
+                raise ValueError("Crop mapping must match trained output classes")
+            self.labels = mapping
+            self.label_source = "training_class_mapping"
             self.loaded = True
         except AnalysisUnavailable:
             raise

@@ -76,9 +76,10 @@ fills missing dates with fabricated values.
 
 The original TempCNN receives a float32 tensor shaped `(batch, 3, 16)`. Its
 training input preparation is unavailable, so the observation cadence used here
-has not been validated against the training data. The checkpoint has four output
-classes. Until the verified training mapping is provided via
-`TEMPCNN_CLASSES_PATH`, results use `Class 0` through `Class 3`.
+has not been validated against the training data. The bundled checkpoint uses the sorted CDL codes from
+`data/nasa_hls_greenness_ts/crop_ts.py`: 1 (Corn), 5 (Soybeans), 36 (Alfalfa), and
+176 (Grassland/Pasture). The mapping ships alongside the checkpoint. For custom
+weights, set `TEMPCNN_CLASSES_PATH` to the matching generated `classes.json`.
 
 ## Response
 
