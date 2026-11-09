@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { after } from 'node:test';
 
 // Exercise the real API using a temporary database and explicit test-only inputs.
-const directory = fileURLToPath(new URL('../../../Field-Shift-NASA/backend', import.meta.url));
+const directory = fileURLToPath(new URL('../../../backend', import.meta.url));
 // Reuse the contract stand-in for deterministic frontend HTTP tests.
 const provider = spawn(process.execPath, [`${directory}/postman/mocks/open-meteo/default.js`], {
   env: { ...process.env, PORT: '0', WEATHER_TEST_LOG_PORT: '1' },

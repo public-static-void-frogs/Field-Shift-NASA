@@ -16,7 +16,7 @@ The green zone pulses while capture and the request run, and Analyze displays a
 loading spinner. The backend runs SAM2 on the actual image and point prompts, then runs the trained
 TempCNN on 16 clear Sentinel-2 observations downloaded on demand per field.
 The results include the observation dates, and fields with insufficient data
-are reported as skipped. Crop groups display the names from the model’s training label mapping. See the [API contract](../../Field-Shift-NASA/backend/docs/section-analysis.md).
+are reported as skipped. Crop groups display the names from the model’s training label mapping. See the [API contract](../../backend/docs/section-analysis.md).
 
 On completion the selection outline is replaced by merged crop areas. Nearby masks
 of the same crop share one simplified boundary and marker. Click either to toggle

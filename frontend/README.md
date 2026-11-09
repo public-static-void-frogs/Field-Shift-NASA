@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Start the FastAPI backend from `../Field-Shift-NASA/backend` with `python main.py`
+Start the FastAPI backend from `../backend` with `python main.py`
 (see its README for Python setup). Open the local URL printed by Vite.
 The frontend `.env` contains the entire API prefix:
 
@@ -237,7 +237,7 @@ There are no frontend domain fixtures, generators, or stores. React Query uses i
 online network mode. UI translations, filters, and presentation constants remain frontend concerns.
 
 The HTTP integration tests start an isolated backend on an ephemeral local port per test file.
-Install `../Field-Shift-NASA/backend/requirements-dev.txt` in its `.venv` first, or set
+Install `../backend/requirements-dev.txt` in its `.venv` first, or set
 `NASA_BACKEND_PYTHON` to a Python interpreter with those dependencies installed. Tests require
 local loopback access and do not call the running development backend.
 
@@ -283,7 +283,7 @@ its parcel association. Existing numeric field links must be replaced with GUID 
 ## Accounts and saved settings
 
 Set up the backend database and signing secret using
-[the backend auth guide](../Field-Shift-NASA/backend/docs/authentication.md).
+[the backend auth guide](../backend/docs/authentication.md).
 Open Vite at `http://localhost:5173` with `VITE_API_BASE_URL=http://localhost:8000/api/v1`.
 Use the same hostname for the UI and API so SameSite cookies work. The local `.env`
 has been updated accordingly.
@@ -348,7 +348,7 @@ supplied interior points represent field locations. Click a group to zoom in,
 then click points or draw a lasso to build a temporary selection. Clusters cannot
 be selected as individual fields, and selection performs no database actions.
 
-See [source import and map verification](../Field-Shift-NASA/backend/docs/field-map-prototype.md)
+See [source import and map verification](../backend/docs/field-map-prototype.md)
 for the database migration, full-archive importer and performance benchmark. The
 map requires `GET /maps/summary` and the parameterized `GET /maps/geojson` endpoint;
 older backend versions that return a complete unbounded GeoJSON collection are
