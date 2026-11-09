@@ -17,3 +17,7 @@ ml/field-cv-model/weights/*.pt
 
 # Downloaded inference weights (setup step, never runtime-generated source)
 /backend/.cache/
+
+# Local uncommitted notes
+/local-notes/
+/CLAUDE.md
