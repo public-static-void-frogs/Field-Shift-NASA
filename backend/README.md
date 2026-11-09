@@ -1,6 +1,6 @@
 # Field Shift NASA backend
 
-FastAPI API for `../../nasa-fields-demo-app`, requiring Python 3.10+.
+FastAPI API for the [frontend](../frontend/), requiring Python 3.10+.
 Accounts, settings, fields and user field selections persist in PostgreSQL through
 SQLAlchemy. Production demo fixtures and generated agronomic data have been removed.
 Weather uses live Open-Meteo model data.
