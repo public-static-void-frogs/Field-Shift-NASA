@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 class TempCNN(nn.Module):
-    def __init__(self, input_channels=3, num_classes=5, sequence_length=16):
+    def __init__(self, input_channels=5, num_classes=4, sequence_length=16):
         super(TempCNN, self).__init__()
         self.conv1 = nn.Conv1d(in_channels=input_channels, out_channels=128, kernel_size=5, padding=2)
         self.bn1 = nn.BatchNorm1d(128)

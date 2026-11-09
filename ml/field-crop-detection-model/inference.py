@@ -14,7 +14,7 @@ class CropPredictor:
         self.class_names = list(self.classes_dict.keys())
         self.num_classes = len(self.class_names)
         
-        self.model = TempCNN(input_channels=3, num_classes=self.num_classes).to(self.device)
+        self.model = TempCNN(input_channels=5, num_classes=self.num_classes).to(self.device)
         
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Weights file not found: {model_path}")
@@ -23,13 +23,19 @@ class CropPredictor:
         self.model.eval()
 
     def predict(self, field_data):
-        if field_data.shape == (16, 3):
-            field_data = np.transpose(field_data, (1, 0))
-            
-        if len(field_data.shape) == 2:
-            field_data = np.expand_dims(field_data, axis=0)
 
-        tensor_data = torch.tensor(field_data, dtype=torch.float32).to(self.device)
+        data = field_data.copy()
+
+        if data.shape == (16, 5):
+            data = np.transpose(data, (1, 0))
+            
+        if len(data.shape) == 2:
+            data = np.expand_dims(data, axis=0)
+
+        data[:, 3, :] = (data[:, 3, :] - (-30.0)) / (5.0 - (-30.0))
+        data[:, 4, :] = (data[:, 4, :] - (-35.0)) / (0.0 - (-35.0))
+
+        tensor_data = torch.tensor(data, dtype=torch.float32).to(self.device)
 
         with torch.no_grad():
             outputs = self.model(tensor_data)

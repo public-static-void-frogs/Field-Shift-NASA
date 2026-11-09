@@ -1,6 +1,7 @@
 from model import TempCNN
 
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
@@ -10,7 +11,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 import os
-
 
 def plot_learning_curves(train_losses, val_losses, train_accs, val_accs):
     epochs = range(1, len(train_losses) + 1)
@@ -53,16 +53,22 @@ def plot_confusion_matrix(y_true, y_pred, class_names):
     plt.tight_layout()
     plt.show()
 
+
 X_numpy = np.load('X.npy')
 y_numpy = np.load('y.npy')
 
+X_numpy[:, 3, :] = (X_numpy[:, 3, :] - (-30.0)) / (5.0 - (-30.0))
+X_numpy[:, 4, :] = (X_numpy[:, 4, :] - (-35.0)) / (0.0 - (-35.0))
+
+
 with open('classes.json', 'r', encoding='utf-8') as f:
     classes_dict = json.load(f)
-NUM_CLASSES = len(classes_dict)
+class_names = [k for k in classes_dict.keys() if k != '_channels']
+NUM_CLASSES = len(class_names)
 
 print(f"Download fields: {X_numpy.shape[0]}, Classes: {NUM_CLASSES}")
 
-if X_numpy.shape[1] == 16 and X_numpy.shape[2] == 3:
+if X_numpy.shape[1] == 16 and X_numpy.shape[2] == 5:
     X_numpy = np.transpose(X_numpy, (0, 2, 1))
 
 
@@ -83,10 +89,10 @@ test_loader = DataLoader(TensorDataset(X_test, y_test), batch_size=BATCH_SIZE, s
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = TempCNN(input_channels=3, num_classes=NUM_CLASSES).to(device)
+model = TempCNN(input_channels=5, num_classes=NUM_CLASSES).to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.0001)
+optimizer = optim.Adam(model.parameters(), lr=0.00005, weight_decay=1e-4)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
 
 
@@ -97,7 +103,7 @@ else:
     print("\n[!] Weights file not found. Starting training from scratch...")
 
 
-EPOCHS = 40
+EPOCHS = 20
 best_val_loss = float('inf')
 
 train_loss_hist = []
@@ -107,6 +113,7 @@ val_acc_hist = []
 
 print("\nStart training...")
 for epoch in range(EPOCHS):
+    # Train
     model.train()
     train_loss, correct_train, total_train = 0.0, 0, 0
     for inputs, labels in train_loader:
@@ -126,7 +133,7 @@ for epoch in range(EPOCHS):
     avg_train_loss = train_loss / len(train_loader)
     train_acc = correct_train / total_train
 
-
+    # Validation
     model.eval()
     val_loss, correct_val, total_val = 0.0, 0, 0
     with torch.no_grad():
@@ -182,5 +189,5 @@ with torch.no_grad():
 test_accuracy = test_correct / len(y_test)
 print(f"\nTest Acc: {test_accuracy:.4f} ({test_accuracy * 100:.2f}%)")
 
-class_names = list(classes_dict.keys())
-plot_confusion_matrix(all_true, all_preds, class_names)
+plot_labels = [classes_dict[k]['name'] for k in class_names]
+plot_confusion_matrix(all_true, all_preds, plot_labels)
