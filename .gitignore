@@ -4,7 +4,7 @@ __pycache__/
 .venv/
 .pytest_cache/
 
-ml/field-cv-model/weights/*.pt
+ml/field-cv-model/sam2-tiny-model/weights/*.pt
 
 # Local database configuration and signing secrets
 .env
