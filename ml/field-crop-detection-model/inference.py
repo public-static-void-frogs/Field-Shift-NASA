@@ -5,16 +5,18 @@ import os
 from model import TempCNN
 
 class CropPredictor:
-    def __init__(self, model_path='weights/tempcnn_best.pth', classes_path='../../data/classes.json'):
+    def __init__(self, model_path='weights/tempcnn_best.pth', classes_path='../../data/classes.json', energy_threshold=1.1225):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         with open(classes_path, 'r', encoding='utf-8') as f:
             self.classes_dict = json.load(f)
         
-        self.class_names = list(self.classes_dict.keys())
-        self.num_classes = len(self.class_names)
+        self.num_model_classes = 4 
+        self.energy_threshold = energy_threshold
         
-        self.model = TempCNN(input_channels=5, num_classes=self.num_classes).to(self.device)
+        self.other_class_idx = 4
+        
+        self.model = TempCNN(input_channels=5, num_classes=self.num_model_classes).to(self.device)
         
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Weights file not found: {model_path}")
@@ -23,7 +25,6 @@ class CropPredictor:
         self.model.eval()
 
     def predict(self, field_data):
-
         data = field_data.copy()
 
         if data.shape == (16, 5):
@@ -38,11 +39,18 @@ class CropPredictor:
         tensor_data = torch.tensor(data, dtype=torch.float32).to(self.device)
 
         with torch.no_grad():
-            outputs = self.model(tensor_data)
-            probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
-            predicted_idx = torch.argmax(outputs, dim=1).item()
+            logits = self.model(tensor_data)
+            energy_score = torch.logsumexp(logits, dim=1)[0].item()
+            probabilities = torch.nn.functional.softmax(logits, dim=1)[0]
+            predicted_idx = torch.argmax(logits, dim=1).item()
 
-        predicted_crop = self.class_names[predicted_idx]
-        probs_dict = {self.class_names[i]: float(prob) for i, prob in enumerate(probabilities)}
 
-        return predicted_crop, probs_dict
+        probs_dict = {self.classes_dict[str(i)]["name"]: float(prob) for i, prob in enumerate(probabilities)}
+        probs_dict["energy_score"] = float(energy_score)
+
+        if energy_score < self.energy_threshold:
+            predicted_class_id = self.other_class_idx
+        else:
+            predicted_class_id = predicted_idx
+
+        return predicted_class_id, probs_dict
