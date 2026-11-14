@@ -21,3 +21,6 @@ ml/field-cv-model/sam2-tiny-model/weights/*.pt
 # Local uncommitted notes
 /local-notes/
 /CLAUDE.md
+
+# Large local datasets (not committed)
+/data/local/

@@ -161,7 +161,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.get(f"/fields/{fid}/properties"), field["properties"])
         self.assertEqual(self.get(f"/fields/{fid}/history"), dict(events=[], seasons=[]))
         self.assertEqual(self.get(f"/fields/{fid}/events"), [])
-        for resource in ("recommendation", "strategy", "rotation"):
+        for resource in ("strategy", "rotation"):
             self.assertEqual(self.client.get(f"{BASE}/fields/{fid}/{resource}").status_code, 404)
         self.assertEqual(
             self.client.put(

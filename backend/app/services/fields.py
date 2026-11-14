@@ -14,8 +14,3 @@ def properties(field):
 def history(store, field_id):
     store.require_field(field_id)
     return dict(events=[], seasons=[])
-
-
-def recommendation(store, field_id):
-    store.require_field(field_id)
-    raise ResourceNotFound("Recommendation not available")

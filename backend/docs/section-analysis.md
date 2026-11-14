@@ -74,12 +74,36 @@ with incomplete sequences or download failures are reported in `skippedPoints`.
 The response includes the dates used for each prediction. The backend never
 fills missing dates with fabricated values.
 
-The original TempCNN receives a float32 tensor shaped `(batch, 3, 16)`. Its
-training input preparation is unavailable, so the observation cadence used here
-has not been validated against the training data. The bundled checkpoint uses the sorted CDL codes from
-`data/nasa_hls_greenness_ts/crop_ts.py`: 1 (Corn), 5 (Soybeans), 36 (Alfalfa), and
-176 (Grassland/Pasture). The mapping ships alongside the checkpoint. For custom
-weights, set `TEMPCNN_CLASSES_PATH` to the matching generated `classes.json`.
+The bundled TempCNN takes five channels, so the backend also reads Sentinel-1
+radar. It queries the Planetary Computer `sentinel-1-rtc` collection (terrain
+corrected gamma0, 10 m; anonymous access), the collection the training script
+`crop_ts_s1.py` uses. Each optical observation date takes the nearest radar scene
+within 24 days. The backend averages linear VV and VH power in the same 60 m
+square, converts it to dB and scales it as in training: VV from -30..5 dB and VH
+from -35..0 dB to 0..1. A scene's bounding box can overstate its coverage, so a
+scene without data at the field falls back to the next nearest one. A field with
+an optical date that has no radar scene in range is reported in `skippedPoints`.
+Radar reads share the four-minute budget and the satellite progress stage.
+
+The number of input channels comes from the checkpoint: five (NDVI, EVI, NDWI,
+VV, VH) for the bundled weights, or three for optical-only weights, which skip
+the radar download. The model receives a float32 tensor shaped
+`(batch, channels, 16)`.
+
+The training data used 16 equal time steps from April 1 to October 31 of one
+season, with a per-step median and interpolated gaps. The backend instead uses the
+latest 16 clear dates, so its cadence differs from training and predictions are
+less reliable, most of all outside the growing season.
+
+The bundled checkpoint has four trained classes, CDL 1 (Corn), 5 (Soybeans),
+36 (Alfalfa) and 176 (Grassland/Pasture). `classes.json` ships alongside it and
+may name one extra class, "Other". A field gets that class when the energy of its
+logits (log-sum-exp) is below 1.1225, the threshold in
+`ml/field-crop-detection-model/inference.py`; `TEMPCNN_ENERGY_THRESHOLD`
+overrides it. `cropProbabilities` then has one entry per label: the trained
+probabilities followed by 0 for "Other", or all zeros followed by 1 when the
+field is rejected. For custom weights, set `TEMPCNN_CLASSES_PATH` to the matching
+generated `classes.json`.
 
 ## Crop areas
 
@@ -98,7 +122,8 @@ The response has `mock: false`, `model: "sam2-tiny+tempcnn"`, `requestId`, `fiel
 - `classIndex`, `crop`, `cropConfidence`, ordered `cropProbabilities`;
 - SAM2 `segmentationConfidence`, and `touchesImageEdge`.
 
-The provenance identifies Sentinel-2 L2A as the crop input source and records the
+The provenance identifies the crop input sources (Sentinel-2 L2A, plus
+Sentinel-1 RTC for a five-channel checkpoint) and records the
 sequence shape, channel order, device and class mapping source. Each field also
 includes `cropObservationDates`. The frontend retains the crop grouping and
 deselection controls and reports skipped fields.

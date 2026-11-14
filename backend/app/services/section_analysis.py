@@ -13,6 +13,11 @@ from time import monotonic
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
+# Below this logit energy (logsumexp) the field is none of the trained crops: the value shipped
+# with the trained model in ml/field-crop-detection-model/inference.py.
+ENERGY_THRESHOLD = 1.1225
+OPTICAL_CHANNELS = ["NDVI", "EVI", "NDWI"]
+RADAR_CHANNELS = ["VV", "VH"]
 BACKEND = Path(__file__).resolve().parents[2]
 ML = BACKEND.parent / "ml"
 
@@ -71,8 +76,16 @@ class SectionAnalyzer:
             spec.loader.exec_module(module)
             weights = torch.load(crop_weights, map_location="cpu", weights_only=True)
             self.class_count = weights["fc.weight"].shape[0]
+            self.input_channels = weights["conv1.weight"].shape[1]
+            if self.input_channels not in (len(OPTICAL_CHANNELS), 5):
+                raise ValueError(
+                    "TempCNN weights must take 3 (optical) or 5 (optical + radar) channels"
+                )
+            self.uses_radar = self.input_channels == 5
             self.crop_model = module.TempCNN(
-                input_channels=3, num_classes=self.class_count, sequence_length=16
+                input_channels=self.input_channels,
+                num_classes=self.class_count,
+                sequence_length=16,
             )
             self.crop_model.load_state_dict(weights)
             self.crop_model.to(self.device).eval()
@@ -85,6 +98,9 @@ class SectionAnalyzer:
             mapping = json.loads(mapping_path.read_text())
             if isinstance(mapping, dict):
                 indices = [str(index) for index in range(self.class_count)]
+                # One extra entry names the rejection class for fields unlike any trained crop.
+                if set(mapping) == {*indices, str(self.class_count)}:
+                    indices.append(str(self.class_count))
                 if set(mapping) == set(indices):
                     mapping = [
                         mapping[index].get("name") if isinstance(mapping[index], dict) else None
@@ -98,11 +114,13 @@ class SectionAnalyzer:
                     mapping = sorted(mapping, key=mapping.get)
             if (
                 not isinstance(mapping, list)
-                or len(mapping) != self.class_count
+                or len(mapping) not in (self.class_count, self.class_count + 1)
                 or not all(isinstance(label, str) and label for label in mapping)
             ):
                 raise ValueError("Crop mapping must match trained output classes")
             self.labels = mapping
+            self.other_index = self.class_count if len(mapping) > self.class_count else None
+            self.energy_threshold = float(os.getenv("TEMPCNN_ENERGY_THRESHOLD", ENERGY_THRESHOLD))
             self.label_source = "training_class_mapping"
             self.loaded = True
         except AnalysisUnavailable:
@@ -135,6 +153,7 @@ class SectionAnalyzer:
         from app.services.ml.crop_zones import merge_crop_zones
         from app.services.ml.geometry import ImageProjection, field_geometry
         from app.services.ml.greenness import SEQUENCE_LENGTH, greenness_sequences
+        from app.services.ml.radar import normalize_db, radar_sequences
 
         def check_cancelled():
             if cancelled is not None and cancelled.is_set():
@@ -193,7 +212,7 @@ class SectionAnalyzer:
                 report("segmentation", start + len(chunk), len(pixels))
 
         coordinates = Counter(point.coordinates for point, _, _ in candidates)
-        target = len(candidates) * SEQUENCE_LENGTH
+        target = len(candidates) * SEQUENCE_LENGTH * (2 if self.uses_radar else 1)
         finished = 0
         progress_lock = Lock()
         report("satellite", 0, target)
@@ -205,6 +224,32 @@ class SectionAnalyzer:
                 report("satellite", finished, target)
 
         observations = greenness_sequences(coordinates, deadline, check_cancelled, advance)
+        if self.uses_radar:
+            optical = {
+                point: result
+                for point, result in observations.items()
+                if not isinstance(result, str)
+            }
+            for point, result in observations.items():
+                if isinstance(result, str):
+                    advance(point, SEQUENCE_LENGTH)
+            radar = (
+                radar_sequences(
+                    {point: dates for point, (dates, _) in optical.items()},
+                    deadline,
+                    check_cancelled,
+                    advance,
+                )
+                if optical
+                else {}
+            )
+            for point, (dates, sequence) in optical.items():
+                backscatter = radar[point]
+                observations[point] = (
+                    backscatter
+                    if isinstance(backscatter, str)
+                    else (dates, np.concatenate([sequence, normalize_db(backscatter)], axis=1))
+                )
 
         batch = []
         for point, score, geometry in candidates:
@@ -222,11 +267,18 @@ class SectionAnalyzer:
                 sequences = torch.as_tensor(
                     np.stack([item[4] for item in batch]), dtype=torch.float32, device=self.device
                 )
-                probabilities = (
-                    self.crop_model(sequences.transpose(1, 2)).softmax(dim=1).cpu().tolist()
-                )
-            for (point, score, geometry, dates, _), probs in zip(batch, probabilities):
+                logits = self.crop_model(sequences.transpose(1, 2))
+                energies = torch.logsumexp(logits, dim=1).cpu().tolist()
+                probabilities = logits.softmax(dim=1).cpu().tolist()
+            for (point, score, geometry, dates, _), probs, energy in zip(
+                batch, probabilities, energies
+            ):
                 class_index = int(np.argmax(probs))
+                if self.other_index is not None:
+                    # The rejection class has no trained probability: report it as 0 or 1.
+                    rejected = energy < self.energy_threshold
+                    probs = [0.0] * len(probs) + [1.0] if rejected else [*probs, 0.0]
+                    class_index = self.other_index if rejected else class_index
                 fields.append(
                     dict(
                         id=uuid4(),
@@ -249,10 +301,10 @@ class SectionAnalyzer:
             skippedPoints=skipped,
             provenance=dict(
                 segmentationInputs="submitted_map_image_and_points",
-                cropInputs="sentinel-2-l2a",
+                cropInputs="sentinel-2-l2a+sentinel-1-rtc" if self.uses_radar else "sentinel-2-l2a",
                 syntheticCropInputs=False,
-                sequenceShape=[16, 3],
-                channels=["NDVI", "EVI", "NDWI"],
+                sequenceShape=[16, self.input_channels],
+                channels=OPTICAL_CHANNELS + (RADAR_CHANNELS if self.uses_radar else []),
                 cropLabelSource=self.label_source,
                 classLabels=self.labels,
                 device=self.device,

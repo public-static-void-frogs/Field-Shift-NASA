@@ -9,6 +9,8 @@ from app.core.config import Settings
 from app.core.database import database_engine, session_factory
 from app.core.errors import ResourceConflict, ResourceNotFound
 from app.services.crop_conditions import HeuristicCropConditionModel
+from app.services.rotation_advice import InvalidAdviceRequest, RotationAdvice
+from app.services.season_timing import SeasonTiming
 from app.services.section_analysis import SectionAnalyzer
 from app.services.weather import WeatherService
 
@@ -38,6 +40,9 @@ def create_app(config: Settings | None = None) -> FastAPI:
     app.state.weather = WeatherService(config)
     app.state.crop_model = HeuristicCropConditionModel()
     app.state.section_analyzer = SectionAnalyzer()
+    app.state.rotation = RotationAdvice(
+        config.rotation_data_root, config.rotation_soil_lookup, SeasonTiming(config.m3_data_root)
+    )
 
     @app.middleware("http")
     async def browser_security(request: Request, call_next):
@@ -57,6 +62,10 @@ def create_app(config: Settings | None = None) -> FastAPI:
     @app.exception_handler(ResourceNotFound)
     def not_found(request: Request, error: ResourceNotFound):
         return JSONResponse(status_code=404, content={"detail": str(error)})
+
+    @app.exception_handler(InvalidAdviceRequest)
+    def invalid_advice(request: Request, error: InvalidAdviceRequest):
+        return JSONResponse(status_code=422, content={"detail": str(error)})
 
     @app.exception_handler(ResourceConflict)
     def conflict(request: Request, error: ResourceConflict):

@@ -42,7 +42,13 @@ unless supplied; the importer does not invent them.
 
 Field weather uses the stored point and the caller's saved time zone. Crop
 assessments still require crop and soil inputs; missing inputs return 422.
-Unavailable properties/recommendation/strategy resources return 404.
+Unavailable properties/strategy resources return 404.
+
+`GET /fields/{id}/recommendation` (short summary) and `GET /fields/{id}/rotation-advice?crop=&priorities=`
+(full ranked advice) come from the repository's `rule_engine` package. Crop history is read from
+`cdl_history_all.parquet` under `ROTATION_DATA_ROOT` (default `data/local/usa_sample`); it is a CDL
+satellite estimate, not farmer-declared. Weather hazards are only evaluated for fields that have a
+season summary there. `ROTATION_SOIL_LOOKUP=false` turns off the on-demand SSURGO soil lookup.
 
 Migration 0005 deliberately replaces the polygon catalog. Accounts, settings and
 unrelated dataset records are preserved. Existing selections are saved to

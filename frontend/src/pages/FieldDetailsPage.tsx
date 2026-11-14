@@ -1,6 +1,6 @@
 import { useSuspenseQueries } from '@tanstack/react-query';
 import { Button, Dropdown, Modal, Result, Space } from 'antd';
-import { ArrowLeft, MapPin, Pencil, Sprout, Trash2 } from 'lucide-react';
+import { ArrowLeft, ListOrdered, MapPin, Pencil, Sprout, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { fieldQueries } from '../api/fields/fields.queries.ts';
@@ -45,12 +45,15 @@ export function FieldDetailsPage() {
         actions={
           <Space wrap>
             {field.status && <FieldStatus status={field.status} />}
+            <RouterButton
+              type="primary"
+              icon={<ListOrdered size={19} />}
+              to={`/fields/${field.id}/recommendation`}
+            >
+              {t('Crop recommendation')}
+            </RouterButton>
             {propertyData && field.crop && (
-              <RouterButton
-                type="primary"
-                icon={<Sprout size={19} />}
-                to={`/fields/${field.id}/strategy`}
-              >
+              <RouterButton icon={<Sprout size={19} />} to={`/fields/${field.id}/strategy`}>
                 {t('Rotation strategy')}
               </RouterButton>
             )}

@@ -3,6 +3,7 @@ import { Card, Space, Tag, Typography } from 'antd';
 import { Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { fieldQueries } from '../../../api/fields/fields.queries.ts';
+import { RouterButton } from '../../../components/common/RouterButton';
 import type { Field } from '../../../types/fields/field.types.ts';
 
 type FieldRecommendationProps = { field: Field };
@@ -23,11 +24,18 @@ export function FieldRecommendation({ field }: FieldRecommendationProps) {
         </Space>
       }
       extra={
-        <Tag className="ai-insight-tag">{isSample ? t('Sample suggestion') : t('AI INSIGHT')}</Tag>
+        <Tag className="ai-insight-tag">
+          {isSample ? t('Sample suggestion') : t('ROTATION RULES')}
+        </Tag>
       }
     >
       <Typography.Title level={3}>{recommendation.title}</Typography.Title>
       <Typography.Paragraph>{recommendation.description}</Typography.Paragraph>
+      {!isSample && (
+        <RouterButton type="primary" to={`/fields/${field.id}/recommendation`}>
+          {t('See the full recommendation')}
+        </RouterButton>
+      )}
     </Card>
   );
 }

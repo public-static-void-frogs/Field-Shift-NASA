@@ -41,6 +41,24 @@ class Settings:
     )
     cookie_name: str = "fieldshift_access"
     allowed_origins: list[str] = field(default_factory=cors_origins)
+    # Rotation advice inputs (season summaries, sampled soil, CDL history); may be absent.
+    rotation_data_root: str = field(
+        default_factory=lambda: os.getenv(
+            "ROTATION_DATA_ROOT",
+            str(Path(__file__).resolve().parents[3] / "data" / "local" / "usa_sample"),
+        )
+    )
+    # Ask USDA Soil Data Access for the soil at a field point that has no stored soil block.
+    rotation_soil_lookup: bool = field(
+        default_factory=lambda: os.getenv("ROTATION_SOIL_LOOKUP", "true").lower() == "true"
+    )
+    # M3 output folder (sowing windows, heat and frost risk) read by m3_lookup.py; may be absent.
+    m3_data_root: str = field(
+        default_factory=lambda: os.getenv(
+            "M3_DATA_ROOT",
+            str(Path(__file__).resolve().parents[3] / "data" / "local" / "m3" / "data" / "m3_out"),
+        )
+    )
 
     def validate(self):
         if not self.database_url:

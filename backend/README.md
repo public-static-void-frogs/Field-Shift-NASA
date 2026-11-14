@@ -54,8 +54,9 @@ county point archive and serves viewport-limited points or preaggregated groups.
 
 Maps expose catalog field points and mark the caller's selections. Overview
 crop areas use only selected fields. History, schedules, notifications and chart
-observations are empty until real data is available. Unavailable properties,
-recommendations and strategies return 404. The planning date follows the caller's
+observations are empty until real data is available. Unavailable properties
+and strategies return 404; recommendations come from the rule engine
+(see `docs/field-storage.md`). The planning date follows the caller's
 saved time zone. Crop weather assessments require supplied soil inputs.
 
 ## API contract and organization
@@ -75,7 +76,8 @@ All resource routes use `/api/v1` and require authentication.
 
 See [authentication](docs/authentication.md), [weather integration](docs/weather-integration.md)
 the [source-data integration contract](docs/core-and-source-data-contract.md),
-and [SAM2/TempCNN section analysis setup](docs/section-analysis.md).
+[SAM2/TempCNN section analysis setup](docs/section-analysis.md)
+and [season timing from the M3 outputs](docs/season-timing.md).
 
 ## Verification
 

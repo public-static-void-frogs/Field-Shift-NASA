@@ -22,10 +22,10 @@ export type SectionAnalysisResult = {
   skippedPoints: { pointId: string; reason: string }[];
   provenance: {
     segmentationInputs: 'submitted_map_image_and_points';
-    cropInputs: 'sentinel-2-l2a';
+    cropInputs: 'sentinel-2-l2a' | 'sentinel-2-l2a+sentinel-1-rtc';
     syntheticCropInputs: false;
-    sequenceShape: [16, 3];
-    channels: ['NDVI', 'EVI', 'NDWI'];
+    sequenceShape: [16, 3 | 5];
+    channels: ('NDVI' | 'EVI' | 'NDWI' | 'VV' | 'VH')[];
     cropLabelSource: 'unmapped_class_indices' | 'training_class_mapping';
     classLabels: string[];
     device: string;

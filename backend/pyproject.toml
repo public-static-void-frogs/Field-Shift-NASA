@@ -1,6 +1,8 @@
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+# m3_lookup.py is the M3 team's module, kept byte-identical so it can be replaced on update
+extend-exclude = ["app/services/m3_lookup.py"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]

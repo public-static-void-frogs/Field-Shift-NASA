@@ -125,10 +125,10 @@ class CropZone(BaseModel):
 
 class AnalysisProvenance(BaseModel):
     segmentationInputs: Literal["submitted_map_image_and_points"]
-    cropInputs: Literal["sentinel-2-l2a"]
+    cropInputs: Literal["sentinel-2-l2a", "sentinel-2-l2a+sentinel-1-rtc"]
     syntheticCropInputs: Literal[False]
-    sequenceShape: tuple[Literal[16], Literal[3]]
-    channels: tuple[Literal["NDVI"], Literal["EVI"], Literal["NDWI"]]
+    sequenceShape: tuple[Literal[16], Literal[3, 5]]
+    channels: list[Literal["NDVI", "EVI", "NDWI", "VV", "VH"]] = Field(min_length=3, max_length=5)
     cropLabelSource: Literal["unmapped_class_indices", "training_class_mapping"]
     classLabels: list[str]
     device: str

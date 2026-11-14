@@ -1,8 +1,9 @@
 from typing import get_args
 from uuid import UUID
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 
+from app.api.auth import CurrentUser
 from app.api.dependencies import FieldId, ParcelId, Store
 from app.schemas.fields import (
     CreateField,
@@ -15,7 +16,9 @@ from app.schemas.fields import (
     Recommendation,
     SaveCropAreas,
 )
+from app.schemas.rotation import Priority, RotationAdvice
 from app.services import fields as service
+from app.services import rotation_advice
 
 router = APIRouter(tags=["fields"])
 
@@ -101,5 +104,34 @@ def history(field_id: FieldId, store: Store):
 
 
 @router.get("/fields/{field_id}/recommendation", response_model=Recommendation)
-def recommendation(field_id: FieldId, store: Store):
-    return service.recommendation(store, field_id)
+def recommendation(field_id: FieldId, store: Store, request: Request):
+    """A short reading of the rotation advice for the field's own or most recent crop."""
+    field = store.require_field(field_id)
+    return rotation_advice.summary(request.app.state.rotation.advise(field, None, [], "metric"))
+
+
+@router.get(
+    "/fields/{field_id}/rotation-advice",
+    response_model=RotationAdvice,
+    responses={422: {"description": "Crop is not a candidate for this field"}},
+)
+def rotation_advice_for_field(
+    field_id: FieldId,
+    store: Store,
+    request: Request,
+    user: CurrentUser,
+    crop: str | None = Query(
+        default=None,
+        max_length=60,
+        description="Crop id to assess; defaults to the field's crop, else its most recent "
+        "satellite-estimated crop",
+    ),
+    priorities: list[Priority] = Query(default_factory=list),
+):
+    """Rank the candidate crops for the coming season with the rotation rule engine.
+
+    Lower scores carry less risk. Crop history from CDL is a satellite estimate, not a farmer
+    record. Missing inputs are listed in `dataGaps` instead of being guessed.
+    """
+    field = store.require_field(field_id)
+    return request.app.state.rotation.advise(field, crop, priorities, user.settings.units)

@@ -119,6 +119,68 @@ class GreennessSequenceTests(unittest.TestCase):
                 self.assertEqual(sum(steps for coord, steps in progress if coord == point), 16)
 
 
+@unittest.skipUnless(
+    all(importlib.util.find_spec(name) for name in ("numpy", "rasterio", "requests")),
+    "Install requirements-ml.txt for radar checks",
+)
+class RadarSequenceTests(unittest.TestCase):
+    @staticmethod
+    def scene(name, day):
+        return {
+            "id": name,
+            "bbox": [-94, 41, -93, 43],
+            "properties": {"datetime": f"{day}T00:10:00Z"},
+            "assets": {"vv": {}, "vh": {}},
+        }
+
+    def load(self, items, read, dates):
+        from app.services.ml.radar import radar_sequences
+
+        point = (-93.5, 42.0)
+        with (
+            patch("app.services.ml.radar._search", return_value=(items, "token")),
+            patch("app.services.ml.radar._scene_backscatter", side_effect=read) as reads,
+        ):
+            result = radar_sequences({point: dates}, monotonic() + 30, lambda: None)[point]
+        return result, [call.args[0]["id"] for call in reads.call_args_list]
+
+    def test_each_date_uses_the_nearest_scene_and_reads_it_once(self):
+        items = [self.scene("early", "2026-06-01"), self.scene("late", "2026-06-13")]
+        values = {"early": (-10.0, -17.0), "late": (-8.0, -15.0)}
+
+        def read(item, points, token, check_budget):
+            return {point: values[item["id"]] for point in points}
+
+        result, reads = self.load(items, read, ["2026-06-02", "2026-06-03", "2026-06-12"])
+        self.assertEqual(result.tolist(), [[-10.0, -17.0], [-10.0, -17.0], [-8.0, -15.0]])
+        self.assertEqual(sorted(reads), ["early", "late"])
+
+    def test_scene_without_data_at_the_point_falls_back_to_the_next_nearest(self):
+        items = [self.scene("edge", "2026-06-02"), self.scene("covering", "2026-06-08")]
+
+        def read(item, points, token, check_budget):
+            return {} if item["id"] == "edge" else {point: (-9.0, -16.0) for point in points}
+
+        result, reads = self.load(items, read, ["2026-06-02"])
+        self.assertEqual(result.tolist(), [[-9.0, -16.0]])
+        self.assertEqual(reads, ["edge", "covering"])
+
+    def test_date_without_a_scene_in_range_is_reported_not_filled(self):
+        items = [self.scene("june", "2026-06-01")]
+
+        def read(item, points, token, check_budget):
+            return {point: (-10.0, -17.0) for point in points}
+
+        result, _ = self.load(items, read, ["2026-06-02", "2026-08-30"])
+        self.assertEqual(result, "No Sentinel-1 radar observation within 24 days for 1 of 2 dates")
+
+    def test_backscatter_is_scaled_like_the_training_data(self):
+        from app.services.ml.radar import normalize_db
+
+        scaled = normalize_db([[-30.0, -35.0], [5.0, 0.0], [-12.5, -17.5]])
+        self.assertEqual(scaled.tolist(), [[0.0, 0.0], [1.0, 1.0], [0.5, 0.5]])
+
+
 @unittest.skipUnless(HAS_GEOMETRY, "Install requirements-ml.txt for mask geometry checks")
 class MaskGeometryTests(unittest.TestCase):
     def test_crop_zones_dissolve_overlaps_and_bridge_only_nearby_same_crop(self):
