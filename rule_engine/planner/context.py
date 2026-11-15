@@ -20,10 +20,22 @@ class FieldContext:
     seasons: dict[int, SeasonSummary] = field(default_factory=dict)
     reference_aws_mm: float | None = None  # typical water storage to compare the field against
     gaps: tuple[dict, ...] = ()
+    # the first planted year of the plan. Nothing dated after the autumn of plan_year - 1 is
+    # used: no season from plan_year on, no marketing-year price after plan_year - 2 (prices.py).
+    # None keeps every year (fixtures, exploration).
+    plan_year: int | None = None
+    # the year whose trend level is the expected yield (default plan_year; a hindcast sets the
+    # outcome year so that the drawn yield of that year is its observed yield)
+    trend_year: int | None = None
 
     @property
     def soil(self) -> dict:
         return self.field.get("soil") or {}
+
+    @property
+    def irrigation_status(self) -> str | None:
+        """ "irrigated" | "dryland" from the satellite irrigation maps, None when not known."""
+        return (self.field.get("irrigation") or {}).get("status")
 
     @property
     def area_acres(self) -> float:
@@ -50,6 +62,8 @@ def build_context(
     advisor: RotationAdvisor,
     summary_roots: list[Path | str] = (),
     reference_aws_mm: float | None = None,
+    plan_year: int | None = None,
+    trend_year: int | None = None,
 ) -> FieldContext:
     region, gaps = advisor.region_for(record)
     seasons: dict[int, SeasonSummary] = {}
@@ -57,7 +71,8 @@ def build_context(
     for root in summary_roots:
         if csbid and county:
             for season in SeasonSummaryStore(root).seasons(str(csbid), str(county)):
-                seasons[season.year] = season
+                if plan_year is None or season.year < plan_year:
+                    seasons[season.year] = season
     ordered = [seasons[y] for y in sorted(seasons)]
     history = [y for y in crop_history(record, ordered, advisor.catalog) if y.crop]
     if not seasons:
@@ -73,4 +88,6 @@ def build_context(
         seasons=seasons,
         reference_aws_mm=reference_aws_mm,
         gaps=tuple(gaps),
+        plan_year=plan_year,
+        trend_year=trend_year,
     )

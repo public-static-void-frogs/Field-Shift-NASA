@@ -1,0 +1,29 @@
+crop,days_after_optimum,relative_yield_pct,lead_days,verified,source,url,note
+corn,-19,98,16,true,"farmdoc daily 14 Apr 2022, Nafziger, Illinois planting-date trials 2007-2021",https://farmdocdaily.illinois.edu/wp-content/uploads/2022/04/fdd041422.pdf,"optimum 20 April; lead = Illinois median planting day (NASS, day 126) minus day 110"
+corn,-10,100,16,true,same,same,
+corn,0,100,16,true,same,same,
+corn,10,99,16,true,same,same,
+corn,20,96,16,true,same,same,
+corn,30,92,16,true,same,same,
+corn,40,87,16,true,same,same,
+corn,46,84,16,true,same,same,"5 June; the source table labels the row 6/10"
+soybeans,-10,100,22,true,"farmdoc daily 14 Apr 2022, Nafziger, six Illinois sites 2010-2020",https://farmdocdaily.illinois.edu/wp-content/uploads/2022/04/fdd041422.pdf,"optimum 20 April; lead = Illinois median planting day (NASS, day 132) minus day 110"
+soybeans,0,98,22,true,same,same,
+soybeans,10,96,22,true,same,same,
+soybeans,20,94,22,true,same,same,
+soybeans,30,90,22,true,same,same,
+soybeans,40,86,22,true,same,same,
+soybeans,51,81,22,true,same,same,
+soybeans,61,75,22,true,same,same,20 June
+soybeans,71,70,22,true,"Penn State Extension, Considerations for double-crop soybean production (OH, IN, MN, PA data), 30 June against 10 May",https://extension.psu.edu/considerations-for-double-crop-soybean-production,"joined to the Illinois curve by calendar date; northwest Ohio double-crop soybeans planted in early July averaged 57 % of full-season yield over 2016-2018 (OSU C.O.R.N. 2021-19)"
+soybeans,81,60,22,true,same,same,10 July
+winter_wheat,0,100,-5,true,"UNL CropWatch reporting a K-State seeding-date study at Hutchinson, 1995-96, one site-year",https://cropwatch.unl.edu/how-wheat-seeding-date-can-affect-yield/,"optimum 11 October; lead = Kansas median planting day (NASS, 6 October) minus 11 October"
+winter_wheat,17,95,-5,true,same,same,28 October
+winter_wheat,31,67,-5,false,"K-State MF3680: up to 1 bu/acre a day when sown past late October, taken as 2 % a day at 50 bu/acre",https://bookstore.ksre.ksu.edu/download/wheats-versatility-in-farming-systems_MF3680,"the Hutchinson trial itself gave 52 % on 11 November; the conversion to percent is this work's"
+winter_wheat,45,39,-5,false,same,same,same rate continued
+spring_wheat,0,100,0,true,"NDSU, Optimum and last planting date: 1.5 % a day after the optimum date",https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/barley/optimum-and-last-planting-date-minimum-stands-crops,"applied from the state's median planting day, later than NDSU's optimum, so the loss is understated"
+spring_wheat,28,58,0,true,same,same,
+barley,0,100,0,true,"NDSU, Optimum and last planting date: 1.7 % a day after the optimum date",https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/barley/optimum-and-last-planting-date-minimum-stands-crops,"applied from the state's median planting day"
+barley,28,52.4,0,true,same,same,
+oats,0,100,0,true,"NDSU, Optimum and last planting date: 1.2 % a day after the optimum date",https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/barley/optimum-and-last-planting-date-minimum-stands-crops,"applied from the state's median planting day; the mapping of the rate to oats is a reading of the table layout"
+oats,28,66.4,0,true,same,same,

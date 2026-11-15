@@ -99,6 +99,8 @@ def main() -> None:
                     continue
                 if county in ("", "998") or not text.replace(".", "", 1).isdigit():
                     continue  # combined counties and (D), (NA)
+                if float(text) <= 0:
+                    continue  # NASS publishes 0 where no grain was harvested: not a yield
                 records.append(
                     (str(row["state_fips_code"]).zfill(2) + county.zfill(3), crop,
                      int(row["year"]), float(text))

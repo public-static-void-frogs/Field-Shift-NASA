@@ -9,7 +9,6 @@ the myopic rule on the held-out fields and on the training fields).
 
 import argparse
 import json
-import pickle
 import sys
 import time
 from pathlib import Path
@@ -24,6 +23,7 @@ from rule_engine.planner.ppo import (  # noqa: E402
     LearnedPolicy,
     benchmark,
     is_test_county,
+    load_tables,
     train,
 )
 
@@ -42,15 +42,14 @@ def main() -> None:
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = parser.parse_args()
 
-    tables = []
-    for path in sorted(Path(args.tables).glob("tables_*.pkl")):
-        with path.open("rb") as handle:
-            tables += pickle.load(handle)
+    tables = load_tables(args.tables)
     held = [t for t in tables if is_test_county(t.county)]
     seen = [t for t in tables if not is_test_county(t.county)]
     print(f"{len(seen)} training fields, {len(held)} held-out fields in other counties")
 
-    data = FieldSet(seen, args.device)
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    data = FieldSet(seen, args.device, store=out / "arrays")
     test = FieldSet(held, args.device)
     watch = FieldSet(held[: args.watch], args.device)
     config = Config(
@@ -65,8 +64,6 @@ def main() -> None:
     net = train(data, config, watch)
     minutes = (time.time() - started) / 60
 
-    out = Path(args.out)
-    out.mkdir(parents=True, exist_ok=True)
     LearnedPolicy(net).save(out / "policy.pt")
     report = {
         "trainingFields": len(seen),

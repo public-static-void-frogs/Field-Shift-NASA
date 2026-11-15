@@ -6,8 +6,14 @@ plan is a fixed sequence. Two things do carry over and are known before planting
 - drought: the Drought Monitor class at the field at the end of one season against its class at
   the start of the next. Across the national sample (102,570 field-year pairs, 2015-2025) the
   two correlate at 0.45, and a season that starts in drought stays drier (0.50 with midseason).
-- price: the marketing-year price level of one year against the level of the year before the
-  candidate year.
+- price: the harvest (September) price level of one year against the level of the year before
+  the candidate year, both in constant dollars around their trend (prices.harvest_levels). The
+  marketing-year price is not used: it is final only months after the next crop is planned.
+
+The plan starts after the latest year with a known harvest price. When that year has no drawable
+season yet (planning in the autumn of 2026 for 2027, before the 2026 season is in the data), it is
+added as a row of its own: the odds of the first planned year given the price just seen, with no
+drought signal until the season's data is in. It is never drawn as a future year.
 
 The next year is drawn from the historical years, weighted by how closely each year's starting
 conditions resemble the conditions the plan has just reached (a nearest-neighbour bootstrap, the
@@ -42,13 +48,20 @@ def _edge(series, part: slice) -> float | None:
     return mean(values) if values else None
 
 
+def harvest_level(basis) -> dict[int, float]:
+    """{year: mean detrended harvest price level over the field's priced crops}."""
+    out: dict[int, list[float]] = {}
+    for b in basis.values():
+        if b.price_years > 0:
+            for year, value in b.harvest_levels.items():
+                out.setdefault(year, []).append(value)
+    return {y: mean(v) for y, v in out.items()}
+
+
 def year_signals(years, seasons, basis) -> tuple[dict, dict]:
-    """({year: start signals}, {year: end signals}) for the drawable years."""
-    priced = [c for c, b in basis.items() if b.price_years > 0]
-    level = {
-        y.year: mean(y.crops[c].price / basis[c].price for c in priced) if priced else None
-        for y in years
-    }
+    """({year: start signals}, {year: end signals}) for the drawable years, plus the end
+    signals of the current year when its harvest price is known before its season is drawable."""
+    level = harvest_level(basis)
     start, end = {}, {}
     for y in years:
         season = seasons.get(y.year)
@@ -59,22 +72,32 @@ def year_signals(years, seasons, basis) -> tuple[dict, dict]:
         }
         end[y.year] = {
             "drought": _edge(drought, slice(-EDGE_WEEKS, None)),
-            "price": level[y.year],
+            "price": level.get(y.year),
         }
+    last = max((y.year for y in years), default=None)
+    current = max(level, default=None)
+    if last is not None and current is not None and current > last:
+        end[current] = {"drought": None, "price": level[current]}
     return start, end
 
 
 class YearChain:
-    """Transition odds between the drawable years; `latest` is the year the plan starts after."""
+    """Transition odds between the drawable years; `latest` is the year the plan starts after.
+
+    `labels` are the drawable years, then the current year when it is not drawable: it has a
+    row of odds (where the plan goes from it) and no column (it is never drawn)."""
 
     def __init__(self, labels: list[int], start: dict, end: dict, persistence: Persistence):
         self.labels, self.start, self.end = labels, start, end
         self.persistence = persistence
-        n = len(labels)
-        self.latest = n - 1
+        drawable = [y for y in labels if y in start]
+        n = len(drawable)
+        self.latest = len(labels) - 1
         scale = {}
         for k in SIGNALS:
-            values = [s[y][k] for s in (start, end) for y in labels if s[y][k] is not None]
+            values = [
+                s[y][k] for s in (start, end) for y in s if y in labels and s[y][k] is not None
+            ]
             spread = pstdev(values) if len(values) > 1 else 0.0
             if spread > 1e-9:
                 scale[k] = spread * persistence.bandwidth
@@ -88,7 +111,7 @@ class YearChain:
                     continue
                 parts = [
                     None if start[j][k] is None else ((here - start[j][k]) / width) ** 2
-                    for j in labels
+                    for j in drawable
                 ]
                 known = [p for p in parts if p is not None]
                 neutral = mean(known) if known else 0.0  # an unknown start is neither near nor far
@@ -132,5 +155,6 @@ def build_chain(years, seasons, basis, persistence: Persistence) -> YearChain | 
     if persistence.strength <= 0 or len(years) < MIN_YEARS:
         return None
     start, end = year_signals(years, seasons, basis)
-    chain = YearChain([y.year for y in years], start, end, persistence)
+    labels = [y.year for y in years] + [y for y in end if y not in start]
+    chain = YearChain(labels, start, end, persistence)
     return chain if chain.signals else None

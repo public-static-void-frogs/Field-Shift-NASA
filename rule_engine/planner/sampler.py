@@ -14,13 +14,22 @@ Yield of a crop in a drawn year, per acre in the crop's own unit:
   losses in data/weather_yield_response.csv for the hazards that occurred in that season.
 - anomaly "none": no observed yield and no response row; the expected yield is used as is.
 
-Prices are the year's marketing-year price in constant dollars (deflated with the consumer
-price index, data/cpi_u.csv), rescaled so that the crop's mean over the history equals the
-engine's current planning price. Real crop prices have fallen since the 1980s, so early years
-are drawn as high-price years and recent years as below the mean.
+Prices: a drawn year's price is the expected price times that year's deviation of the
+marketing-year price from its log-linear trend in constant dollars (CPI-U, data/cpi_u.csv), so
+the 1980s are not drawn as high-price years just for being early. With a plan year
+(FieldContext.plan_year) the expected price is what was known in the autumn before it
+(prices.py): the USDA baseline, moved by the latest WASDE, where USDA projects the crop, else a
+persistence forecast from the September price; only marketing years through plan_year - 2 are
+used. Without one, or without either, the rule engine's planning price is the expected price.
 
 Prices and state yields come from planner/data/nass_long_history.csv (since 1980, every state)
 where it has the series, otherwise from the rule engine's nass_reference_history.csv.
+
+Irrigation (planner/irrigation.py): the drawn yields are all-practice yields. On a field the
+irrigation maps show as irrigated or dryland they are scaled by the state's ratio of that
+practice's yield to the all-practice yield (that year's ratio for an observed year, the mean
+ratio for the expected yield), where NASS publishes the split. An irrigated field takes no
+modelled drought loss: water is not what limits it.
 """
 
 import csv
@@ -32,9 +41,26 @@ from random import Random
 from rule_engine.engine import RotationAdvisor
 from rule_engine.planner.adapter import RuleAdapter, WeatherPart
 from rule_engine.planner.context import FieldContext
-from rule_engine.planner.tables import Response, load_responses
+from rule_engine.planner.irrigation import practice_ratios
+from rule_engine.planner.prices import (
+    OUTLOOK_SERIES,
+    deviations,
+    expected_us_price,
+    harvest_levels,
+    known,
+    persistence,
+    state_ratio,
+)
+from rule_engine.planner.tables import (
+    NEEDS_IRRIGATION,
+    Response,
+    byproduct_share,
+    ers_region,
+    load_responses,
+    rule_data,
+    unit_kind,
+)
 
-HISTORY_CSV = Path(__file__).parents[1] / "data" / "nass_reference_history.csv"
 LONG_HISTORY_CSV = Path(__file__).parent / "data" / "nass_long_history.csv"
 CPI_CSV = Path(__file__).parent / "data" / "cpi_u.csv"  # BLS CPI-U, all items, 1982-84 = 100
 COUNTY_COLUMNS = {"corn": "yield_corn_bu_ac", "soybeans": "yield_soy_bu_ac"}
@@ -61,7 +87,7 @@ class Year:
 
 @dataclass(frozen=True)
 class CropBasis:
-    unit: str  # bu | ton (per acre)
+    unit: str  # bu | ton | lb | cwt (per acre)
     expected_yield: float
     yield_level: str  # county | state | reference
     yield_verified: bool
@@ -70,6 +96,11 @@ class CropBasis:
     price_years: int
     observed_years: int
     notes: tuple[str, ...] = field(default=())
+    practice: str = "all"  # all | irrigated | dryland: the practice the yields are scaled to
+    price_source: str = ""  # how the expected price was set (prices.Expected.detail)
+    # {year: detrended real September price}, known before the plan: the price signal of the
+    # year just experienced (chance.py)
+    harvest_levels: dict = field(default_factory=dict, hash=False, compare=False)
 
 
 def _trend(points: dict[int, float]):
@@ -88,7 +119,7 @@ def _trend(points: dict[int, float]):
 def _history_rows() -> tuple[dict, ...]:
     """Long-history rows first, so `_series` finds them before the engine's shorter series."""
     rows: list[dict] = []
-    for path in (LONG_HISTORY_CSV, HISTORY_CSV):
+    for path in (LONG_HISTORY_CSV, rule_data() / "nass_reference_history.csv"):
         if path.exists():
             with path.open(newline="") as handle:
                 rows += list(csv.DictReader(handle))
@@ -102,11 +133,20 @@ def _cpi() -> dict[int, float]:
 
 
 def price_levels(history: dict[int, float]) -> dict[int, float]:
-    """{year: price in constant dollars}, scaled to mean 1. Years without a CPI value are left out."""
-    cpi = _cpi()
-    real = {y: p / cpi[y] for y, p in history.items() if y in cpi}
-    mean = sum(real.values()) / len(real)
-    return {y: v / mean for y, v in real.items()}
+    """{year: real price / its log-linear trend}. Years without a CPI value are left out."""
+    return deviations(history)
+
+
+@lru_cache(maxsize=8)
+def _persistence(plan_year: int | None) -> float:
+    """Price persistence over the US series of the crops USDA projects, known before the plan."""
+    rows = _history_rows()
+    series = [
+        known(_series(rows, "price", crop, "US")[0], plan_year)
+        for crop in OUTLOOK_SERIES
+        if OUTLOOK_SERIES[crop] == crop
+    ]
+    return persistence([s for s in series if s])
 
 
 def _series(rows, kind: str, crop: str, region: str) -> tuple[dict[int, float], str, str]:
@@ -178,12 +218,18 @@ class YearSampler:
         adapter: RuleAdapter,
         crops: list[str],
         responses: list[Response] | None = None,
-        now: int | None = None,
     ):
         self.context = context
         self.responses = responses if responses is not None else load_responses()
         rows = _history_rows()
         seasons = context.seasons
+        plan_year = context.plan_year
+        trend_year = context.trend_year or plan_year
+        # the September prices known before the plan: through plan_year - 1, or through the
+        # last season without a plan year (so the price signal has no year beyond the draws)
+        harvest_cutoff = plan_year if plan_year is not None else max(seasons, default=0) + 1
+        status = context.irrigation_status
+        self.irrigated = status == "irrigated"
         self.basis: dict[str, CropBasis] = {}
         self.unavailable: dict[str, str] = {}
         prices: dict[str, dict[int, float]] = {}
@@ -193,8 +239,13 @@ class YearSampler:
             if quote is None:
                 self.unavailable[crop_id] = "no_price"
                 continue
-            unit = "bu" if quote.unit.startswith("bu") else "ton"
+            unit = unit_kind(quote.unit)
             notes = []
+            unit_price = quote.price_usd
+            byproduct = byproduct_share(crop_id, ers_region(context.field.get("countyFips")))
+            if byproduct:  # cottonseed: in the ERS gross value, and it pays for the ginning
+                unit_price *= 1.0 + byproduct[1]
+                notes.append(f"{byproduct[0]}_in_price")
 
             observed: dict[int, float] = {}
             level = "reference"
@@ -203,33 +254,65 @@ class YearSampler:
                 observed = {
                     y: float(s.scalars[column])
                     for y, s in seasons.items()
-                    if s.scalars.get(column) is not None
+                    if (s.scalars.get(column) or 0) > 0  # NASS zero is "not reported", not a yield
                 }
                 level = "county"
             if not observed:
                 observed, y_unit, geography = _series(rows, "yield", crop_id, context.region)
                 level = "state"
-                if observed and (geography != context.region or not y_unit.startswith(unit)):
+                if observed and (geography != context.region or unit_kind(y_unit) != unit):
                     observed = {}  # another state's yield level is not this field's
+                if plan_year is not None:  # final yields of the seasons before the plan
+                    observed = {y: v for y, v in observed.items() if y < plan_year}
             verified = True
             if observed:
                 trend = _trend(observed)
                 last = max(observed)
-                expected = trend(min(now or last, last))
+                # the trend carried at most two years past the last observed yield
+                expected = trend(min(trend_year, last + 2) if trend_year else last)
                 anomalies[crop_id] = {y: v / trend(y) for y, v in observed.items() if trend(y) > 0}
             else:
                 ref = advisor.reference.yield_reference(crop_id, context.region)
-                if ref is None or not ref.unit.startswith(unit):
+                if ref is None or unit_kind(ref.unit) != unit:
                     self.unavailable[crop_id] = "no_yield"
                     continue
                 expected, level, verified = ref.mid, "reference", ref.verified
                 notes.append("no_yield_history")
                 anomalies[crop_id] = {}
 
+            practice, ratios = "all", {}
+            split = practice_ratios(crop_id, context.region, status)
+            if split is not None:
+                ratios, mean_ratio = split
+                practice = status
+                expected *= mean_ratio
+                anomalies[crop_id] = {
+                    y: a * ratios.get(y, mean_ratio) / mean_ratio
+                    for y, a in anomalies[crop_id].items()
+                }
+            elif status in ("irrigated", "dryland") and crop_id not in NEEDS_IRRIGATION:
+                notes.append("no_practice_yield_split")  # rice: every acre is irrigated
+
             history, p_unit, geography = _series(rows, "price", crop_id, context.region)
-            if history and p_unit.endswith(unit):
+            history = known(history, plan_year)
+            price_source = f"rule engine planning price ({quote.level})"
+            price_level = quote.level
+            if history and p_unit.split("/")[-1].strip().lower() == unit:
+                if plan_year is not None:
+                    us, us_unit, us_geography = _series(rows, "price", crop_id, "US")
+                    if us and us_unit == p_unit and us_geography == "US":
+                        outlook = expected_us_price(crop_id, plan_year, us, _persistence(plan_year))
+                        if outlook is not None:
+                            ratio = (
+                                state_ratio(history, us, plan_year) if geography != "US" else 1.0
+                            )
+                            unit_price = outlook.price * ratio * (1.0 + (byproduct or (0, 0))[1])
+                            price_source = outlook.detail + (
+                                f", x {geography}/US {ratio:.2f}" if ratio != 1.0 else ""
+                            )
+                            price_level = outlook.method
                 prices[crop_id] = {
-                    y: level * quote.price_usd for y, level in price_levels(history).items()
+                    y: level * unit_price for y, level in price_levels(history).items()
                 }
                 if geography != context.region:
                     notes.append(f"price_history_from_{geography}")
@@ -241,11 +324,14 @@ class YearSampler:
                 expected_yield=expected,
                 yield_level=level,
                 yield_verified=verified,
-                price=quote.price_usd,
-                price_level=quote.level,
+                price=unit_price,
+                price_level=price_level,
                 price_years=len(prices[crop_id]),
                 observed_years=len(anomalies[crop_id]),
                 notes=tuple(notes),
+                practice=practice,
+                price_source=price_source,
+                harvest_levels=harvest_levels(crop_id, harvest_cutoff),
             )
 
         # Years that can be drawn: those with weather at the field. Without any season summary
@@ -260,10 +346,14 @@ class YearSampler:
                 factor, drought, paid = (1.0, 0.0, ())
                 if weather is not None:
                     factor, drought, paid = modelled_loss(crop_id, weather, self.responses)
+                    if self.irrigated and drought:
+                        factor, drought = factor / (1.0 - drought), 0.0
                 anomaly = anomalies[crop_id].get(year)
                 if anomaly is not None:
                     mode = "observed"
                     paid = weather.evaluated if weather else ()
+                    if self.irrigated:
+                        drought = 0.0
                 elif paid:
                     mode, anomaly = "modelled", factor
                 else:

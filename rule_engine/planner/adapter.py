@@ -30,6 +30,30 @@ from rule_engine.summary import SeasonSummary
 # the "properly managed" case of the engine's rye rules.
 COVER_TERMINATION_DAYS = 14
 HIT_LEVEL = "high"  # a hazard that occurs in the drawn season counts with the top level weight
+# {risk rule: yield rules whose measured factor already holds its damage}; the points are dropped
+# when one of them fires. The soybean repeat drag (FieldSense yield_market.yaml, Seifert et al.
+# 2017 and a county panel) is measured on real yields, so it includes the cyst nematode losses;
+# SCN after another host crop (no repeat) keeps its points. `return_interval_violated` stands
+# for the disease cost of a short return; where a trial measured that cost for the crop and the
+# break, the yield factor is the cost.
+REPEAT_YIELD_RULES = (
+    "continuous_corn_yield_penalty",
+    "soy_after_soy_yield_penalty",
+    "peanut_after_peanut_yield_penalty",
+    "peanut_one_year_break_yield_penalty",
+    "potato_short_rotation_yield_penalty",
+    "sugarbeet_after_sugarbeet_yield_penalty",
+    "sugarbeet_one_year_break_yield_penalty",
+    "pulse_after_pulse_yield_penalty",
+    "pea_lentil_one_year_break_yield_penalty",
+    "chickpea_after_chickpea_yield_penalty",
+    "chickpea_after_other_pulse_yield_penalty",
+    "flax_after_flax_yield_penalty",
+)
+MEASURED_BY = {
+    "scn_soy_after_soy": ("soy_after_soy_yield_penalty",),
+    "return_interval_violated": REPEAT_YIELD_RULES,
+}
 
 
 @dataclass(frozen=True)
@@ -86,6 +110,7 @@ class RuleAdapter:
         }
         self._history_cache: dict = {}
         self._weather_cache: dict = {}
+        self._rules_cache: dict = {}
 
     def field_with(self, tillage: str | None, cover: str | None) -> dict:
         practices = dict(self.context.field.get("practices") or {})
@@ -100,6 +125,18 @@ class RuleAdapter:
     def _points(self, rule, level) -> tuple[float, dict]:
         finding = self.advisor._finding(rule, level)
         return self.advisor._points(finding, self.priorities), finding
+
+    def _rotation_rules(self, crop) -> tuple:
+        """Rules without a hazard or county fact that apply to `crop` (fixed per crop)."""
+        if crop.id not in self._rules_cache:
+            self._rules_cache[crop.id] = tuple(
+                rule
+                for rule in self.advisor.rules.rules
+                if rule.hazard is None
+                and rule.id not in self.county_rule_ids
+                and applies(rule, crop, self.advisor.catalog)
+            )
+        return self._rules_cache[crop.id]
 
     def history_part(
         self, history: tuple[str, ...], crop_id: str, tillage: str, cover: str
@@ -118,11 +155,7 @@ class RuleAdapter:
         calendar = advisor.reference.calendar(crop, self.context.region)
         facts.update(herbicide_facts(field, crop, calendar, advisor.plantback)[0])
         point_rules, yield_rules, weak = [], [], []
-        for rule in advisor.rules.rules:
-            if rule.hazard is not None or rule.id in self.county_rule_ids:
-                continue
-            if not applies(rule, crop, advisor.catalog):
-                continue
+        for rule in self._rotation_rules(crop):
             if not all(check(c, facts)[0] for c in rule.when):
                 continue
             points, finding = self._points(rule, rule.effect.level)
@@ -134,6 +167,10 @@ class RuleAdapter:
                 yield_rules.append((rule.id, *rule.effect.yield_factor))
             elif points:
                 point_rules.append((rule.id, points))
+        measured = {r for r, *_ in yield_rules}
+        point_rules = [
+            (r, p) for r, p in point_rules if measured.isdisjoint(MEASURED_BY.get(r, ()))
+        ]
         low = high = 1.0
         for _, f_low, f_high in yield_rules:
             low, high = low * f_low, high * f_high

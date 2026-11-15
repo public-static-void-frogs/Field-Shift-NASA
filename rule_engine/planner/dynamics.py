@@ -7,7 +7,8 @@ from rule_engine.catalog import Crop
 from rule_engine.facts import HISTORY_WINDOW
 from rule_engine.planner.tables import CarbonInput
 
-T_C_PER_HA_PER_OM_PCT = 0.58 / 100 * 1.3 * 0.30 * 10000  # 58 % C in OM, 1.3 t/m3, top 30 cm
+DEFAULT_BULK_DENSITY = 1.3  # t/m3, used when SSURGO has none for the soil
+T_C_PER_HA_PER_OM_PCT = 0.58 / 100 * DEFAULT_BULK_DENSITY * 0.30 * 10000  # 58 % C, top 30 cm
 CARBON_FRACTION = 0.45  # of dry matter
 
 
@@ -61,14 +62,15 @@ class SoilCarbon:
         om = soil.get("om_pct")
         if om is None:
             return None, None
-        stock = float(om) * T_C_PER_HA_PER_OM_PCT
+        density = soil.get("bulk_density_g_cm3") or DEFAULT_BULK_DENSITY
+        stock = float(om) * T_C_PER_HA_PER_OM_PCT * float(density) / DEFAULT_BULK_DENSITY
         return self.initial_young, max(0.0, stock - self.initial_young)
 
     def stable_input(
         self, crop: Crop, yield_t_ha: float, cover: str, table: dict[str, CarbonInput]
     ) -> float:
         """Stable-equivalent carbon (t C/ha) one season adds, from the harvested yield."""
-        row = table.get(crop.group.id)
+        row = table.get(crop.id) or table.get(crop.group.id)
         added = self.cover_stable_c if cover != "none" else 0.0
         if row is None:
             return added

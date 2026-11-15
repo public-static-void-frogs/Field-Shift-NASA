@@ -25,10 +25,15 @@ from rule_engine.planner import (
 from rule_engine.planner.adapter import RuleAdapter
 from rule_engine.planner.chance import YearChain, build_chain
 from rule_engine.planner.sampler import modelled_loss
-from rule_engine.planner.tables import CostTable, load_responses
+from rule_engine.planner.tables import TILLAGE, CostTable, load_responses, processor_counties
 
 FIXTURES = Path(__file__).parent / "fixtures" / "season_summary"
 CSBID = "191825000014246"
+FIXTURE_COUNTY = "19015"
+# the fixture county grows little hay (0.25 % of the sampled acres, under the 1 % of
+# hay_counties.csv): the tests plan alfalfa there anyway, so list it as a hay county
+_counties = processor_counties()
+_counties["alfalfa"] = _counties["alfalfa"] | {FIXTURE_COUNTY}
 
 
 def field(history=(1, 5, 1, 5, 1), soil=True):
@@ -291,6 +296,22 @@ class CarryOverTests(unittest.TestCase):
         self.assertAlmostEqual(total, fixed.value, places=6)
 
 
+class ZeroYieldTests(unittest.TestCase):
+    def test_a_zero_county_yield_is_not_an_observation(self):
+        advisor = build_advisor()
+        base = several_years(build_context(field(), advisor, [FIXTURES], reference_aws_mm=180.0))
+        zeroed = {
+            year: replace(s, scalars={**s.scalars, "yield_corn_bu_ac": 0.0})
+            for year, s in base.seasons.items()
+        }
+        model = RotationModel(
+            replace(base, seasons=zeroed), advisor, crops=("corn", "soybeans"), horizon=1
+        )
+        basis = model.sampler.basis["corn"]
+        self.assertGreater(basis.expected_yield, 0)
+        self.assertNotEqual(basis.yield_level, "county")
+
+
 class TabularTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -314,14 +335,128 @@ class TabularTests(unittest.TestCase):
     def test_table_shape(self):
         table = self.table
         self.assertEqual(table.node_t[0], 0)
+        self.assertEqual(table.reward.shape[1:], (self.tabular.LOCAL, self.tabular.MAX_YEARS))
         self.assertEqual(
-            table.reward.shape[1:], (len(self.tabular.ACTIONS), self.tabular.MAX_YEARS)
+            [self.tabular.CROPS[c] for c in table.crops if c >= 0], list(self.model.crops)
         )
-        alfalfa = [i for i, a in enumerate(self.tabular.ACTIONS) if a.crop == "alfalfa"]
-        self.assertFalse(table.mask[:, alfalfa].any())  # not among this model's crops
+        unused = self.tabular.SLOT >= len(self.model.crops)
+        self.assertFalse(table.mask[:, unused].any())
         last = table.node_t == self.model.horizon - 1
         self.assertTrue((table.next_node[last] == -1).all())
         self.assertTrue(np.allclose(table.odds[:7, :7].sum(axis=1), 1.0, atol=1e-5))
+
+    def test_factored_reward_is_the_model_reward(self):
+        table, model = self.table, self.model
+        state = model.open_loop_state
+        actions = self.tabular.ACTIONS
+        for a in np.flatnonzero(table.mask[0]):
+            action = actions[table.global_actions[a]]
+            for y in range(len(model.years)):
+                self.assertAlmostEqual(
+                    float(table.reward[0, a, y]), model.outcome(state, action, y).reward, delta=0.01
+                )
+
+    def test_regional_costs(self):
+        heartland = CostTable(region="Heartland")
+        plain = CostTable()
+        level = heartland.regional["corn"].usd_per_acre
+        self.assertAlmostEqual(
+            heartland.crop_cost("corn", "soybeans", "conventional").usd_per_acre, level
+        )
+        # the corn-after-corn difference comes from the state budgets
+        self.assertAlmostEqual(
+            heartland.crop_cost("corn", "corn", "conventional").usd_per_acre - level,
+            plain.crop_cost("corn", "corn", "conventional").usd_per_acre
+            - plain.crop_cost("corn", "soybeans", "conventional").usd_per_acre,
+        )
+        # ERS has no Heartland sorghum table: the national row is used and flagged
+        self.assertFalse(heartland.crop_cost("sorghum", None, "conventional").verified)
+        self.assertEqual(plain.crop_cost("corn", "soybeans", "strip_till").usd_per_acre, 633.97)
+
+    def test_regional_tillage_costs(self):
+        # tillage differences are field passes at the region's custom rates
+        heartland = CostTable(region="Heartland")
+        rate = {k: v.usd_per_acre for k, v in heartland.operations.items()}
+        self.assertEqual((rate["chisel"], rate["strip_till"]), (20.75, 23.20))
+        level = heartland.crop_cost("corn", "soybeans", "conventional")
+        strip = heartland.crop_cost("corn", "soybeans", "strip_till")
+        self.assertAlmostEqual(
+            strip.usd_per_acre - level.usd_per_acre,
+            rate["strip_till"] - rate["chisel"] - rate["field_cultivate"],
+        )
+        self.assertTrue(strip.verified)
+        # the same shift on top of the corn-after-corn level
+        self.assertAlmostEqual(
+            heartland.crop_cost("corn", "corn", "strip_till").usd_per_acre
+            - heartland.crop_cost("corn", "corn", "conventional").usd_per_acre,
+            strip.usd_per_acre - level.usd_per_acre,
+        )
+        # drilled crops: reduced tillage drops the field cultivator pass
+        self.assertAlmostEqual(
+            heartland.tillage_shift("oats", "strip_till").usd_per_acre, -rate["field_cultivate"]
+        )
+        # regions differ
+        plains = CostTable(region="Northern Great Plains")
+        self.assertNotAlmostEqual(
+            plains.tillage_shift("corn", "no_till").usd_per_acre,
+            heartland.tillage_shift("corn", "no_till").usd_per_acre,
+        )
+        # a rate the region's survey lacks is the mean of the other regions, and flagged
+        self.assertFalse(plains.operations["strip_till"].verified)
+        self.assertFalse(plains.crop_cost("corn", "soybeans", "strip_till").verified)
+        self.assertIn("strip_till", plains.unverified_tillages("corn"))
+        self.assertNotIn("conventional", plains.unverified_tillages("corn"))
+        rows = [
+            {"region": "A", "operation": name, "usd_per_acre": usd, "verified": "true",
+             "source": "a"}
+            for name, usd in (("chisel", "20"), ("field_cultivate", "10"), ("plant", "25"))
+        ] + [
+            {"region": region, "operation": "strip_till", "usd_per_acre": usd,
+             "verified": "true", "source": region}
+            for region, usd in (("B", "22"), ("C", "26"))
+        ]  # fmt: skip
+        table = CostTable(region="A", tillage_rows=rows)
+        self.assertEqual(table.operations["strip_till"].usd_per_acre, 24.0)
+        self.assertEqual(table.tillage_shift("corn", "strip_till").usd_per_acre, -6.0)
+
+    def test_regional_alfalfa_costs(self):
+        plain = CostTable()
+        heartland = CostTable(region="Heartland", state="IA")
+        # the Iowa budget is the Heartland budget: same numbers as costs.csv at its own yield
+        self.assertAlmostEqual(
+            heartland.crop_cost("alfalfa", "alfalfa", "no_till").usd_per_acre,
+            plain.crop_cost("alfalfa", "alfalfa", "no_till").usd_per_acre,
+        )
+        self.assertAlmostEqual(
+            heartland.crop_cost("alfalfa", "corn", "conventional").usd_per_acre,
+            plain.crop_cost("alfalfa", "corn", "conventional").usd_per_acre,
+        )
+        # another region has its own budget; established alfalfa has no tillage difference
+        gateway = CostTable(region="Prairie Gateway", state="KS")
+        established = gateway.crop_cost("alfalfa", "alfalfa", "conventional")
+        self.assertEqual(established.usd_per_acre, 668.55)
+        self.assertEqual(established, gateway.crop_cost("alfalfa", "alfalfa", "no_till"))
+        self.assertLess(
+            gateway.crop_cost("alfalfa", "winter_wheat", "no_till").usd_per_acre,
+            gateway.crop_cost("alfalfa", "winter_wheat", "conventional").usd_per_acre,
+        )
+        # harvest cost follows the yield: the budget is for 5 tons
+        self.assertAlmostEqual(
+            gateway.crop_cost("alfalfa", "alfalfa", "no_till", 3.0).usd_per_acre,
+            668.55 - 2 * gateway.harvest_per_ton.usd_per_acre,
+        )
+        # a state budget wins over the region's; a borrowed budget is flagged
+        arizona = CostTable(region="Fruitful Rim", state="AZ")
+        idaho = CostTable(region="Fruitful Rim", state="ID")
+        self.assertEqual(arizona.crop_cost("alfalfa", "alfalfa", "no_till").usd_per_acre, 1578.43)
+        self.assertEqual(idaho.crop_cost("alfalfa", "alfalfa", "no_till").usd_per_acre, 536.72)
+        self.assertTrue(arizona.is_regional("alfalfa"))
+        self.assertFalse(
+            CostTable(region="Fruitful Rim", state="CA").alfalfa["seeding"][0].verified
+        )
+        self.assertEqual(
+            CostTable(region="Southern Seaboard").unverified_tillages("alfalfa"), sorted(TILLAGE)
+        )
 
     def test_learned_policy_trains_scores_and_reloads(self):
         try:

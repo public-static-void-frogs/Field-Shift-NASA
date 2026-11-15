@@ -4,13 +4,16 @@ State    last five crops, years planned so far, soil carbon pools, the year just
 Action   crop x tillage x cover crop grown before it (invalid combinations are masked).
 Chance   one historical year per step (weather, yields and prices together). Its odds depend on
          the year just experienced (chance.py): drought and price level carry over.
-Reward   USD per acre per year: revenue - cost - risk penalty + soil carbon value.
+Reward   USD per acre per year: revenue - cost - risk penalty + soil carbon value - soil loss.
 
     revenue  = drawn-year yield x rotation and practice yield factors (engine rules) x soil
                water modifier x drawn-year price
-    cost     = cost of production without land (ISU budgets) + cover crop cost
+    cost     = cost of production without land (ERS / extension budgets) + cover crop cost
+               + pumping energy on an irrigated field, moved to the drawn year's real cost
+               level (USDA ERS cost history, the same mean-1 convention as the prices)
     risk     = weight x engine points of every finding that is not already paid for in yield
     soil     = weight x change in stable soil carbon (t C/ha)
+    erosion  = weight x soil lost to rain (USLE estimate, t/ha, erosion.py)
 
 The crop history and the soil pools move deterministically with the action. The year just
 experienced is the random part of the state: because it shifts the odds of the next year, the
@@ -28,16 +31,25 @@ from rule_engine.planner.adapter import RuleAdapter
 from rule_engine.planner.chance import Persistence, build_chain
 from rule_engine.planner.context import FieldContext
 from rule_engine.planner.dynamics import Action, SoilCarbon, State, shift
+from rule_engine.planner.erosion import YearlySoilLoss, number
 from rule_engine.planner.sampler import Year, YearSampler
 from rule_engine.planner.tables import (
     COVER,
+    CROPS,
+    DRILLED,
+    NEEDS_IRRIGATION,
     TILLAGE,
     CostTable,
+    ers_region,
     load_adjustments,
     load_carbon_inputs,
+    processor_counties,
+    state_crop_shares,
+    t_ha_per,
 )
 
-DEFAULT_CROPS = ("corn", "soybeans", "oats", "alfalfa")
+DEFAULT_CROPS = CROPS
+MAX_CROPS = 5  # crops planned for one field: the state's most grown ones among the usable
 HA_PER_ACRE = 0.404686
 
 
@@ -49,6 +61,7 @@ class Weights:
     soil_usd_per_t_c: float = 50.0  # USD per tonne of stable carbon gained per hectare
     risk_aversion: float = 0.0  # subtract this many standard deviations of the yearly reward
     cover_cost_share_usd: float = 0.0  # USD/acre paid back for a cover crop (e.g. IDALS 20-30)
+    erosion_usd_per_t: float = 5.0  # USD per tonne of soil lost per hectare
 
 
 @dataclass(frozen=True)
@@ -62,10 +75,23 @@ class Outcome:
     price: float
     year: int
     detail: dict = field(default_factory=dict)
+    erosion: float = 0.0  # USD/acre charged for the soil lost: in reward, not in cost
 
 
 def _mean(values: list[float], weights: list[float]) -> float:
     return sum(v * w for v, w in zip(values, weights))
+
+
+def annual_rain_mm(seasons) -> float | None:
+    """Mean annual rain at the field from the April-October weekly rain of its seasons."""
+    totals = []
+    for season in seasons.values():
+        weeks = [w for w in season.weekly.get("pr_mm") or [] if w is not None and w == w]
+        if len(weeks) >= 28:
+            totals.append(sum(weeks) * 31 / len(weeks))
+    if not totals:
+        return None
+    return sum(totals) / len(totals) / number("season_share_of_annual_rain")
 
 
 class RotationModel:
@@ -82,10 +108,15 @@ class RotationModel:
         costs: CostTable | None = None,
         soil_carbon: SoilCarbon = SoilCarbon(),
         persistence: Persistence = Persistence(),
+        max_crops: int | None = MAX_CROPS,
     ):
         self.context, self.advisor = context, advisor
         self.horizon, self.weights = horizon, weights
-        self.costs = costs or CostTable()
+        self.costs = costs or CostTable(
+            region=ers_region(context.field.get("countyFips")),
+            state=context.region,
+            county=str(context.field.get("countyFips") or "").zfill(5) or None,
+        )
         self.soil_carbon = soil_carbon
         self.carbon_inputs = load_carbon_inputs()
         self.adjustments = load_adjustments()
@@ -94,9 +125,24 @@ class RotationModel:
         wanted = [c for c in (crops or DEFAULT_CROPS)]
         self.gaps: list[dict] = list(context.gaps)
         usable = []
+        irrigated = context.irrigation_status == "irrigated"
+        processors = processor_counties()
+        county = str(context.field.get("countyFips") or "").zfill(5)
         for crop in wanted:
             if crop not in candidates:
                 self.gaps.append({"code": "crop_not_candidate", "crop": crop})
+            elif crop in NEEDS_IRRIGATION and not irrigated:
+                self.gaps.append({"code": f"{crop}_needs_irrigation", "crop": crop})
+            elif (
+                crop in processors
+                and county not in processors[crop]
+                and crop not in context.history
+            ):
+                # sold under contract to a nearby factory, or as hay within trucking distance:
+                # planned only where the county grows it (CDL, a satellite estimate) or the
+                # field itself grew it
+                code = "no_hay_market_nearby" if crop == "alfalfa" else "no_processor_nearby"
+                self.gaps.append({"code": code, "crop": crop})
             elif crop not in self.costs.crops:
                 self.gaps.append({"code": "no_cost_budget", "crop": crop})
             else:
@@ -104,7 +150,15 @@ class RotationModel:
         self.sampler = YearSampler(context, advisor, self.adapter, usable)
         for crop, reason in self.sampler.unavailable.items():
             self.gaps.append({"code": reason, "crop": crop})
-        self.crops = tuple(c for c in usable if c in self.sampler.basis)
+        modellable = [c for c in usable if c in self.sampler.basis]
+        if crops is None and max_crops and len(modellable) > max_crops:
+            # keep the crops most grown in the state (CDL acre share); the rest are not planned
+            shares = state_crop_shares()
+            ranked = sorted(modellable, key=lambda c: -shares.get((context.region, c), 0.0))
+            for crop in ranked[max_crops:]:
+                self.gaps.append({"code": "crop_left_out_of_plan", "crop": crop})
+            modellable = [c for c in modellable if c in ranked[:max_crops]]
+        self.crops = tuple(modellable)
         if not self.crops:
             raise ValueError("no crop has a cost budget, a price and a yield for this field")
         if not self.sampler.years:
@@ -120,6 +174,18 @@ class RotationModel:
         self._season = {c: advisor.catalog.crops[c].value("season") for c in self.crops}
         self._base: dict = {}
         self._expected: dict = {}
+        self.soil_loss = YearlySoilLoss(context.soil, annual_rain_mm(context.seasons))
+        self.gaps += self.soil_loss.gaps
+        self.irrigated = irrigated
+        # the year's cost moves the crop's budget (conventional tillage, no special history, at
+        # the expected yield) by its real cost level; the action's own differences stay fixed
+        self._cost_shift: dict[str, list[float]] = {}
+        for crop in self.crops:
+            index = self.costs.year_index(crop)
+            base = self.costs.crop_cost(
+                crop, None, "conventional", self.sampler.basis[crop].expected_yield
+            ).usd_per_acre
+            self._cost_shift[crop] = [base * (index.get(y.year, 1.0) - 1.0) for y in self.years]
         young, old = soil_carbon.initial(context.soil)
         latest = self.chain.latest if self.chain else None
         self.initial_state = State(0, context.history, young, old, latest)
@@ -148,8 +214,19 @@ class RotationModel:
                 )
                 if self._season[action.crop] != "warm" or previous_perennial or established:
                     continue  # an overwintering cover crop fits only before a spring-planted crop
+            if self._returns_too_soon(state.history, action.crop):
+                continue  # sugarbeets, flax: at most once in their minimum return interval
             out.append(action)
-        return out
+        return out or list(self.all_actions)
+
+    def _returns_too_soon(self, history: tuple[str, ...], crop: str) -> bool:
+        """True when the crop grew within its minimum return interval (crop_adjustments.csv
+        `<crop>_min_return_years`: 3 means at least two other crops in between)."""
+        row = self.adjustments.get(f"{crop}_min_return_years")
+        if row is None:
+            return False
+        recent = int(row["value"]) - 1
+        return recent > 0 and crop in history[-recent:]
 
     def expected_yield_t_ha(self, state: State, action: Action) -> float:
         crop = self.advisor.catalog.crops[action.crop]
@@ -161,8 +238,7 @@ class RotationModel:
             ).factor
             * self._establishment(state, action)
         )
-        factor = crop.bu_to_t_ha if basis.unit == "bu" else crop.ton_to_t_ha
-        return per_acre * (factor or 0.0)
+        return per_acre * (t_ha_per(crop, basis.unit) or 0.0)
 
     def distribution(self, state: State) -> list[float]:
         """Odds of each drawable year for the coming season."""
@@ -198,8 +274,14 @@ class RotationModel:
 
     def _establishment(self, state: State, action: Action) -> float:
         previous = state.history[-1] if state.history else None
+        if previous == action.crop:
+            return 1.0
+        # the field's own seeding budget, so its cost and its yield assume the same harvest
+        budget = self.costs.seeding_year_yield(action.crop)
+        if budget is not None:
+            return budget
         row = self.adjustments.get(f"{action.crop}_seeding_year_yield")
-        return row["value"] if row and previous != action.crop else 1.0
+        return row["value"] if row else 1.0
 
     def _water_modifier(self, drought_loss: float) -> float:
         """Scale the season's drought loss by the field's water storage against the reference.
@@ -219,6 +301,59 @@ class RotationModel:
         gain_t_c_ha = sum(self._advance(state, action)) - state.stable_carbon
         return self.weights.soil_usd_per_t_c * gain_t_c_ha * HA_PER_ACRE  # USD/acre
 
+    def soil_loss_t_ha(self, action: Action) -> float:
+        drilled = action.crop in DRILLED
+        return self.soil_loss.t_per_ha(action.crop, action.tillage, action.cover, drilled)
+
+    def _erosion_usd(self, action: Action) -> float:
+        return self.weights.erosion_usd_per_t * self.soil_loss_t_ha(action) * HA_PER_ACRE
+
+    def _fixed_cost(self, action: Action, previous: str | None, establishment: float) -> float:
+        """USD/acre of the action that does not change with the drawn year."""
+        cost_usd = (
+            self._crop_cost(action, previous, establishment).usd_per_acre
+            + self.costs.cover_cost(action.cover).usd_per_acre
+        )
+        status = self.context.irrigation_status
+        cost_usd += self.costs.irrigation_cost(action.crop, status).usd_per_acre
+        if action.cover != "none":
+            cost_usd -= self.weights.cover_cost_share_usd
+        return cost_usd
+
+    def factors(self, history: tuple[str, ...], action: Action) -> tuple[float, float]:
+        """(a, b) of the yearly reward a x gain[year] + b + weather[year], soil term excluded.
+
+        `gain` and `weather` come from `year_terms` and depend only on the crop, so a table of
+        (a, b) per crop history and action plus one row per crop and year holds every reward.
+        """
+        previous = history[-1] if history else None
+        part = self.adapter.history_part(history, action.crop, action.tillage, action.cover)
+        establishment = self._establishment(State(0, history, None, None), action)
+        cost_usd = self._fixed_cost(action, previous, establishment)
+        scale = part.factor * establishment
+        fixed = -cost_usd - self.weights.risk_usd_per_point * part.points
+        return scale, fixed - self._erosion_usd(action)
+
+    def _crop_cost(self, action: Action, previous: str | None, establishment: float):
+        """The crop's cost at the yield the field expects (the seeding year yields less)."""
+        expected = self.sampler.basis[action.crop].expected_yield * establishment
+        return self.costs.crop_cost(action.crop, previous, action.tillage, expected)
+
+    def year_terms(self, crop: str) -> tuple[list[float], list[float]]:
+        """Per drawable year: revenue before the history factors, and the weather risk penalty
+        less the year's cost shift."""
+        gain, weather = [], []
+        for year, shift_usd in zip(self.years, self._cost_shift[crop], strict=True):
+            draw = year.crops[crop]
+            points = 0.0
+            if draw.weather is not None:
+                points = draw.weather.county_points + sum(
+                    hit.points for hit in draw.weather.hazards if hit.rule not in draw.paid_rules
+                )
+            gain.append(draw.yield_per_acre * self._water_modifier(draw.drought_loss) * draw.price)
+            weather.append(-self.weights.risk_usd_per_point * points - shift_usd)
+        return gain, weather
+
     def _base_outcomes(self, history: tuple[str, ...], action: Action) -> list[Outcome]:
         """Everything except the soil term, for every drawable year."""
         key = (history, action)
@@ -228,14 +363,12 @@ class RotationModel:
         part = self.adapter.history_part(history, action.crop, action.tillage, action.cover)
         state = State(0, history, None, None)
         establishment = self._establishment(state, action)
-        cost = self.costs.crop_cost(action.crop, previous, action.tillage)
-        cover = self.costs.cover_cost(action.cover)
-        cost_usd = cost.usd_per_acre + cover.usd_per_acre
-        if action.cover != "none":
-            cost_usd -= self.weights.cover_cost_share_usd
+        fixed_cost = self._fixed_cost(action, previous, establishment)
+        erosion = self._erosion_usd(action)
         outcomes = []
-        for year in self.years:
+        for year, shift_usd in zip(self.years, self._cost_shift[action.crop], strict=True):
             draw = year.crops[action.crop]
+            cost_usd = fixed_cost + shift_usd
             weather_points, unpaid = 0.0, []
             if draw.weather is not None:
                 for hit in draw.weather.hazards:
@@ -249,7 +382,7 @@ class RotationModel:
             risk = self.weights.risk_usd_per_point * (part.points + weather_points)
             outcomes.append(
                 Outcome(
-                    reward=revenue - cost_usd - risk,
+                    reward=revenue - cost_usd - risk - erosion,
                     revenue=revenue,
                     cost=cost_usd,
                     risk=risk,
@@ -266,7 +399,9 @@ class RotationModel:
                         "rulePoints": part.points,
                         "weatherPoints": weather_points,
                         "hazardsAsPoints": unpaid,
+                        "costShiftUsdPerAcre": round(shift_usd, 2),
                     },
+                    erosion=erosion,
                 )
             )
         self._base[key] = outcomes
@@ -308,9 +443,11 @@ class RotationModel:
             "bestYearUsdPerAcre": round(max(rewards) + soil, 2),
             "worstYear": outcomes[rewards.index(min(rewards))].year,
             "revenueUsdPerAcre": round(_mean([o.revenue for o in outcomes], odds), 2),
-            "costUsdPerAcre": round(outcomes[0].cost, 2),
+            "costUsdPerAcre": round(_mean([o.cost for o in outcomes], odds), 2),
             "riskPenaltyUsdPerAcre": round(_mean([o.risk for o in outcomes], odds), 2),
             "soilValueUsdPerAcre": round(soil, 2),
+            "soilLossTPerHa": round(self.soil_loss_t_ha(action), 2),
+            "erosionUsdPerAcre": round(outcomes[0].erosion, 2),
             "yieldPerAcre": round(_mean([o.yield_per_acre for o in outcomes], odds), 2),
             "yieldUnit": self.sampler.basis[action.crop].unit + "/acre",
             "yieldRules": [r[0] for r in part.yield_rules],
@@ -346,15 +483,32 @@ class RotationModel:
                         },
                     }
                 )
-            unverified = sorted(
-                {
-                    t
-                    for (c, s, t), cost in self.costs.rows.items()
-                    if c == crop and not cost.verified
-                }
-            )
+            unverified = self.costs.unverified_tillages(crop)
             if unverified:
                 self.gaps.append({"code": "cost_unverified", "crop": crop, "tillage": unverified})
+            if not self.costs.is_regional(crop) and self.context.region != "IA":
+                self.gaps.append({"code": "cost_budget_from_another_state", "crop": crop})
+            if not self.costs.year_index(crop):
+                self.gaps.append({"code": "cost_same_every_year", "crop": crop})
+            irrigation = self.costs.irrigation_cost(crop, self.context.irrigation_status)
+            if irrigation.usd_per_acre:
+                self.gaps.append(
+                    {
+                        "code": "irrigation_cost_estimated",
+                        "crop": crop,
+                        "usdPerAcre": round(irrigation.usd_per_acre, 2),
+                        "budgetIrrigatedShare": round(self.costs.irrigation_share(crop), 4),
+                        "verified": irrigation.verified,
+                    }
+                )
+        status = self.context.irrigation_status
+        if status is None:
+            self.gaps.append({"code": "irrigation_status_unknown", "affects": ["yield", "cost"]})
+        else:
+            self.gaps.append(
+                {"code": "irrigation_status_is_satellite_estimate", "status": status,
+                 "source": (self.context.field.get("irrigation") or {}).get("source")}
+            )  # fmt: skip
         if "rye" in self.cover and not self.costs.cover_cost("rye").verified:
             self.gaps.append({"code": "cover_crop_seed_cost_unverified"})
         if self.context.history_source == "cdl":

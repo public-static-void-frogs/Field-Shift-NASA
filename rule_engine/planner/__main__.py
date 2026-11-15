@@ -24,6 +24,7 @@ from rule_engine.planner import (
     read_fields,
     state_reference_aws,
 )
+from rule_engine.planner.prices import PLAN_YEAR
 
 
 def main() -> None:
@@ -47,13 +48,21 @@ def main() -> None:
     parser.add_argument("--bandwidth", type=float, default=1.0, help="analog kernel width, in sd")
     parser.add_argument("--policy", help="policy.pt from scripts/train_policy.py (needs PyTorch)")
     parser.add_argument("--q-learning", type=int, default=0, metavar="EPISODES")
+    parser.add_argument(
+        "--plan-year",
+        type=int,
+        default=PLAN_YEAR,
+        help="first planted year; only what was known in the autumn before it is used (0: everything)",
+    )
     args = parser.parse_args()
 
     advisor = build_advisor()
     fields = read_fields(args.fields)
     record = fields[args.field]
     reference = state_reference_aws(fields).get(record.get("stateFips"))
-    context = build_context(record, advisor, args.summaries, reference)
+    context = build_context(
+        record, advisor, args.summaries, reference, plan_year=args.plan_year or None
+    )
     model = RotationModel(
         context,
         advisor,
@@ -71,19 +80,19 @@ def main() -> None:
     best = exact_plan(model)
     fixed = open_loop_plan(model)
     phases = (("corn", "soybeans"), ("soybeans", "corn"))
-    compared = [
-        fixed,
-        myopic(model),
-        fixed_rotation(model, ("corn",), "conventional", "none"),
+    compared = [fixed, myopic(model)]
+    # The reference rotations are compared only where the field can grow their crops.
+    if "corn" in model.crops:
+        compared.append(fixed_rotation(model, ("corn",), "conventional", "none"))
+    if {"corn", "soybeans"} <= set(model.crops):
         # A two-year rotation is scored from whichever phase follows the field's history better.
-        *(
+        compared.extend(
             max(
                 (fixed_rotation(model, phase, tillage, cover) for phase in phases),
                 key=lambda plan: plan.value,
             )
             for tillage, cover in (("conventional", "none"), ("no_till", "rye"))
-        ),
-    ]
+        )
     if args.policy:
         from rule_engine.planner.ppo import LearnedPolicy
 

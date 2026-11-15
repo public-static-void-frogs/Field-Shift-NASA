@@ -85,10 +85,14 @@ rules:
     applies_to: {traits: ["hosts~take_all"]}
     when:
       - {fact: history.shared_hosts_prev1, op: contains, value: take_all}
+    # literature range kept; same-field greenness panel, after a host vs a non-host: spring
+    # wheat -1.6 +- 0.5 %, durum -2.5 +- 0.5 %, barley -2.8 +- 0.7 %, winter wheat -1.8 +- 0.9 %
+    # (vs early-harvested crops); yield floors 3-7 %, the canopy shows ~1/12 of a trial loss
     effect: {kind: risk, level: medium, yield_factor: [0.80, 0.95]}
     evidence_strength: strong
     sources:
       - "AHDB six-year rotation experiment, take-all control"
+      - "FieldSense same-field MODIS greenness panel, 2019-2023 (ndvi_rule_panel.py)"
     needs_local_review: false
 
   - id: fusarium_after_corn

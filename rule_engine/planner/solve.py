@@ -175,7 +175,11 @@ def fixed_rotation(model: RotationModel, crops: tuple[str, ...], tillage: str, c
 
     def policy(state: State) -> Action:
         crop = crops[state.t % len(crops)]
-        allowed = [a for a in model.actions(state) if a.crop == crop]
+        allowed = [a for a in model.actions(state) if a.crop == crop] or [
+            a
+            for a in model.all_actions
+            if a.crop == crop  # the rotation breaks a planner limit
+        ]
         exact = [a for a in allowed if a.tillage == tillage and a.cover == cover]
         same_tillage = [a for a in allowed if a.tillage == tillage and a.cover == "none"]
         return (exact or same_tillage or allowed)[0]
