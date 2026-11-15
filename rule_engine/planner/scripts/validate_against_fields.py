@@ -329,6 +329,9 @@ def similar(hindcast: list[dict], proxied: pd.DataFrame) -> dict:
     pick["gain"] = sign * pick["realised"]  # planner's crop minus the other, USD/acre
     # the majority of the similar farms, as a rule to beat
     majority = np.where(frame["cornShare"] >= 0.5, 1, -1)
+    # the year's price surprise moves every field alike; within a year the test is the ranking
+    by_year = frame.groupby("year")[["expected", "realised"]].transform("mean")
+    within = frame[["expected", "realised"]] - by_year
     return {
         "fieldYears": len(frame),
         "similarFarmsPerFieldYear": float(frame["farms"].median()),
@@ -343,6 +346,9 @@ def similar(hindcast: list[dict], proxied: pd.DataFrame) -> dict:
         "correlationExpectedRealised": round(
             float(np.corrcoef(frame["expected"], frame["realised"])[0, 1]), 3
         ),
+        "correlationWithinYear": round(
+            float(np.corrcoef(within["expected"], within["realised"])[0, 1]), 3
+        ),
         "maeExpectedVsRealisedUsdPerAcre": round(
             float((frame["expected"] - frame["realised"]).abs().mean()), 1
         ),
@@ -353,6 +359,9 @@ def similar(hindcast: list[dict], proxied: pd.DataFrame) -> dict:
                 "n": len(g),
                 "meanExpected": round(float(g["expected"].mean()), 1),
                 "meanRealised": round(float(g["realised"].mean()), 1),
+                "correlation": round(float(np.corrcoef(g["expected"], g["realised"])[0, 1]), 3)
+                if len(g) > 2
+                else None,
                 "plannerCropEarnedMore": round(
                     float((pick.loc[pick["year"] == y, "gain"] > 0).mean()), 3
                 )

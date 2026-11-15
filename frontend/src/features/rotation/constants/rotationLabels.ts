@@ -130,6 +130,8 @@ export const gapLabels: Record<string, string> = {
   no_yield_estimate: 'No yield estimate is available for this crop here.',
   price_not_local: 'The price is not local to this state.',
   hazards_not_evaluated: 'Weather risks were not checked for this crop.',
+  rule_suppressed:
+    'A heat or drought rule was skipped because most of this crop in the county is irrigated.',
   hazard_stage_not_in_calendar:
     'A weather rule was skipped because this crop has no date for that growth stage.',
   yield_unverified: 'The yield estimate is not based on local county records.',

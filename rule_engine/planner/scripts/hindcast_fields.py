@@ -77,6 +77,8 @@ def realized_price(crop: str, record: dict, region: str, year: int) -> float | N
     """The marketing-year price of `year` in the field's state (else the US), in constant dollars
     of the latest CPI year, with the by-product share the model adds (cottonseed)."""
     history, _, _ = _series(_history_rows(), "price", crop, region)
+    if year not in history:  # a state series that stops early (Iowa wheat): the US price
+        history, _, _ = _series(_history_rows(), "price", crop, "US")
     if year not in history:
         return None
     share = byproduct_share(crop, ers_region(record.get("countyFips")))

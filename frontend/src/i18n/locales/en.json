@@ -893,6 +893,7 @@
   "A rule relies on crop values that still need expert review.": "A rule relies on crop values that still need expert review.",
   "Growth-stage dates are approximate, not from this state’s crop reports.": "Growth-stage dates are approximate, not from this state’s crop reports.",
   "No yield estimate is available for this crop here.": "No yield estimate is available for this crop here.",
+  "A heat or drought rule was skipped because most of this crop in the county is irrigated.": "A heat or drought rule was skipped because most of this crop in the county is irrigated.",
   "The price is not local to this state.": "The price is not local to this state.",
   "Weather risks were not checked for this crop.": "Weather risks were not checked for this crop.",
   "A weather rule was skipped because this crop has no date for that growth stage.": "A weather rule was skipped because this crop has no date for that growth stage.",

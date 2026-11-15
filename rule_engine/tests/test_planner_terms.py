@@ -6,7 +6,7 @@ import numpy as np
 
 from rule_engine import build_advisor
 from rule_engine.planner import RotationModel, build_context, tabular
-from rule_engine.planner.tables import CostTable, processor_counties
+from rule_engine.planner.tables import CostTable, needs_irrigation, processor_counties
 from rule_engine.tests.test_planner import FIXTURES, field, several_years
 
 
@@ -45,6 +45,18 @@ class AlfalfaTests(unittest.TestCase):
         model = RotationModel(context, advisor, crops=("corn", "soybeans", "alfalfa"), horizon=2)
         self.assertNotIn("alfalfa", model.crops)
         self.assertIn("no_hay_market_nearby", {g["code"] for g in model.gaps})
+
+    def test_rice_is_planned_only_in_rice_counties(self):
+        counties = processor_counties()["rice"]
+        self.assertIn("06011", counties)  # Colusa, CA: Sacramento Valley
+        self.assertNotIn("06029", counties)  # Kern, CA: irrigated, but no rice
+        self.assertIn("05001", counties)  # Arkansas County, AR
+
+    def test_potatoes_need_irrigation_outside_the_dryland_states(self):
+        self.assertTrue(needs_irrigation("potatoes", "WI"))
+        self.assertFalse(needs_irrigation("potatoes", "ME"))
+        self.assertTrue(needs_irrigation("rice", "AR"))
+        self.assertFalse(needs_irrigation("corn", "WI"))
 
     def test_the_seeding_year_yield_follows_the_fields_own_budget(self):
         # southern Arizona: fall-seeded, 8.5 tons in the establishment year as in a full year

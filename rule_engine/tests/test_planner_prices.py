@@ -49,6 +49,20 @@ class PriceTimingTests(unittest.TestCase):
         self.assertEqual(got.method, "outlook")
         self.assertAlmostEqual(got.price, base * shift)
 
+    def test_a_plan_sees_only_outlooks_published_by_the_autumn_before(self):
+        from unittest import mock
+
+        rows = {
+            ("corn", 2021): [
+                {"kind": "baseline", "price_usd": "3.6", "published": "2020-02"},
+                {"kind": "baseline", "price_usd": "4.3", "published": "2021-02"},
+            ]
+        }
+        with mock.patch("rule_engine.planner.prices.outlooks", return_value=rows):
+            self.assertEqual(_outlook("corn", 2021, "baseline", "2020-11-30"), 3.6)
+            self.assertEqual(_outlook("corn", 2021, "baseline"), 4.3)
+            self.assertIsNone(_outlook("corn", 2021, "baseline", "2019-11-30"))
+
     def test_without_an_outlook_the_september_price_is_carried_forward(self):
         us, _, _ = _series(_history_rows(), "price", "peanuts", "US")
         self.assertNotIn("peanuts", OUTLOOK_SERIES)

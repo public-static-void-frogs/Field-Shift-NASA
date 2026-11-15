@@ -24,7 +24,7 @@ from rule_engine.planner import (
 )
 from rule_engine.planner.adapter import RuleAdapter
 from rule_engine.planner.chance import YearChain, build_chain
-from rule_engine.planner.sampler import modelled_loss
+from rule_engine.planner.sampler import YearSampler, modelled_loss
 from rule_engine.planner.tables import TILLAGE, CostTable, load_responses, processor_counties
 
 FIXTURES = Path(__file__).parent / "fixtures" / "season_summary"
@@ -254,6 +254,19 @@ class CarryOverTests(unittest.TestCase):
         self.assertGreaterEqual(min(chain.matrix[0]), 0.1)  # the uniform share remains
         self.assertAlmostEqual(sum(chain.marginal(3)), 1.0)
 
+    def test_one_matching_year_does_not_take_all_the_odds(self):
+        # 2025 ended in a drought class that only 2000 started from
+        labels = list(range(1981, 2026))
+        start = {y: {"drought": 0.0, "price": 1.0} for y in labels}
+        end = {y: {"drought": 0.0, "price": 1.0} for y in labels}
+        start[2000]["drought"], end[2025]["drought"] = 3.0, 3.0
+        chain = YearChain(labels, start, end, Persistence())
+        first = chain.matrix[chain.latest]
+        self.assertEqual(max(range(len(first)), key=first.__getitem__), labels.index(2000))
+        self.assertLess(first[labels.index(2000)], 0.5)
+        for row in chain.matrix:
+            self.assertGreaterEqual(1.0 / sum(p * p for p in row), 45**0.5 - 1e-9)
+
     def test_no_chain_without_strength_or_years(self):
         model = self.model(persistence=Persistence(strength=0.0))
         self.assertIsNone(model.chain)
@@ -310,6 +323,60 @@ class ZeroYieldTests(unittest.TestCase):
         basis = model.sampler.basis["corn"]
         self.assertGreater(basis.expected_yield, 0)
         self.assertNotEqual(basis.yield_level, "county")
+
+    def test_a_yield_series_that_ended_long_ago_is_not_the_yield_level(self):
+        advisor = build_advisor()
+        context = build_context(field(), advisor, [FIXTURES], reference_aws_mm=180.0)
+        # NASS published Iowa sorghum yields for 1980-1984 only: their trend read at 1985 is not
+        # today's yield, so the crop is left out instead of forecast at that level
+        crops = ("corn", "soybeans", "sorghum")
+        model = RotationModel(context, advisor, crops=crops, horizon=2)
+        self.assertNotIn("sorghum", model.crops)
+        self.assertIn({"code": "no_yield", "crop": "sorghum"}, model.gaps)
+        # planned as of 1986 the same series is current
+        then = replace(context, trend_year=1986)
+        sampler = YearSampler(then, advisor, model.adapter, ["sorghum"])
+        self.assertEqual(sampler.basis["sorghum"].yield_level, "state")
+
+    def county_corn(self, yields):
+        """The corn basis of a field whose county published `yields` ({year: bu/acre})."""
+        advisor = build_advisor()
+        base = build_context(field(), advisor, [FIXTURES], reference_aws_mm=180.0)
+        season = base.seasons[2025]
+        seasons = {
+            year: replace(
+                season,
+                year=year,
+                scalars={**season.scalars, "yield_corn_bu_ac": yields.get(year, 0.0)},
+            )
+            for year in range(1981, 2026)
+        }
+        model = RotationModel(
+            replace(base, seasons=seasons), advisor, crops=("corn", "soybeans"), horizon=1
+        )
+        return model, model.sampler.basis["corn"]
+
+    def test_a_county_series_that_ended_is_not_the_yield_level(self):
+        # county yields published for 1981-1993 only, at a third of today's level
+        model, basis = self.county_corn({year: 60.0 for year in range(1981, 1994)})
+        self.assertNotEqual(basis.yield_level, "county")
+        self.assertGreater(basis.expected_yield, 120)
+        self.assertIn("yield_history_ended", basis.notes)
+        self.assertIn({"code": "yield_history_ended", "crop": "corn"}, model.gaps)
+        # two recent years do not make a level either
+        _, basis = self.county_corn({2024: 60.0, 2025: 60.0})
+        self.assertNotEqual(basis.yield_level, "county")
+
+    def test_a_short_county_series_gives_its_recent_mean_not_a_trend(self):
+        # five falling years: their trend read at 2026 would be 140
+        falling = {2021: 190.0, 2022: 180.0, 2023: 170.0, 2024: 160.0, 2025: 150.0}
+        _, basis = self.county_corn(falling)
+        self.assertEqual(basis.yield_level, "county")
+        self.assertAlmostEqual(basis.expected_yield, 170.0, places=6)
+        # old years are not read as bad years against the recent level
+        _, basis = self.county_corn(falling | {1981: 60.0, 1982: 60.0})
+        self.assertAlmostEqual(basis.expected_yield, 170.0, places=6)
+        self.assertEqual(basis.observed_years, 5)
 
 
 class TabularTests(unittest.TestCase):

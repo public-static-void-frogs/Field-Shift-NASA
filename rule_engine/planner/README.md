@@ -67,6 +67,13 @@ The expected price of a crop for the plan year:
   year-to-year persistence of the detrended real price, so a high WASDE year carries partly
   into the next. Wheat classes are moved by their own September price against all wheat, and
   every crop by its state's price against the US over the last five known years.
+  - A plan for P uses only the outlooks published by 30 November of P − 1 (the `published`
+    column), so a 2021 plan sees the February 2020 baseline (OCE-2020-1) and the November 2020
+    WASDE.
+  - The file also holds the baselines of February 2020–2022 and the November WASDE of 2020–2022
+    for the hindcast.
+  - The nominal outlook is moved into constant dollars of the latest CPI year, as the other
+    prices are. The factor is 1.0 for 2027, a year past the CPI table.
 - **Other crops (peanuts, alfalfa, pulses, flax...):** the September price of the current year,
   corrected by its usual gap to the marketing-year mean, carried forward with the same
   persistence along the real-price trend.
@@ -134,7 +141,13 @@ alfalfa, cotton, rice, peanuts, sugarbeets, potatoes, dry peas, lentils, chickpe
 proso millet (`tables.CROPS`): the crops with a cost
 budget, a price and a yield. Yields and prices are kept in the rule engine catalog's units
 (bushels, lb, cwt or tons; `tables.unit_kind`, `tables.t_ha_per`). Cotton is priced by its lint
-with the cottonseed added (see Price below; `policy_usa_v3` was trained on lint only). Rice is offered only on fields the irrigation map marks as irrigated. Sugarbeets and
+with the cottonseed added (see Price below). Rice is offered only on fields the irrigation map
+marks as irrigated, and only in the 119 counties where CDL shows rice on at least 0.5 % of the
+sampled acres or where the field grew it (`data/rice_counties.csv`, `not_a_rice_county`): the
+Sacramento Valley in California, the Mississippi Delta, the Gulf Coast of Louisiana and Texas.
+Potatoes need an irrigated field too (`tables.needs_irrigation`, `potatoes_needs_irrigation`),
+except in Maine, Minnesota, North Dakota, New York and Pennsylvania, which grow them dryland;
+in the West, Wisconsin and Michigan their yields and budgets are irrigated ones. Sugarbeets and
 potatoes are sold under contract to a nearby factory, so they are offered only in counties where
 CDL shows them on at least 0.5 % of the sampled acres (`data/processor_counties.csv`, copied from
 the FieldSense planner) or where the field itself grew them (`no_processor_nearby`). Alfalfa is
@@ -168,25 +181,50 @@ have none; these are mostly hay, pasture and vegetable fields.
 
 ### Result
 
-`policy_usa_v3`: years 1981–2025, inflation-adjusted prices, with irrigation, year-specific
-costs, the soil loss charge, the extra soil inputs and the 19 crops. 26,387 training fields and
-3,170 fields in held-out counties, 20 minutes on one GPU. USD per acre over five years:
+`policy_usa_v6`: planned for 2027 (the price outlook and timing rule), with irrigation,
+year-specific costs, the soil loss charge, the extra soil inputs, the 19 crops, the potato and
+rice gates and the changes listed under Next changes. 26,387 training fields and 3,170 fields
+in held-out counties, 20 minutes on one GPU. USD per acre over five years:
 
 | Held-out fields | Exact optimum | Learned policy | Year-by-year rule | Gap closed |
 | --------------- | ------------- | -------------- | ----------------- | ---------- |
-| All 3,170       | 161.6         | 149.1          | 59.2              | 88 %       |
-| 2 crops (24)    | −102.5        | −113.4         | −112.1            | −14 %      |
-| 3 crops (187)   | 51.5          | 44.2           | 8.1               | 83 %       |
-| 4 crops (651)   | 125.5         | 114.7          | −2.6              | 92 %       |
-| 5 crops (2,308) | 183.5         | 170.0          | 82.6              | 87 %       |
+| All 3,170       | 789.8         | 774.4          | 723.7             | 77 %       |
+| 2 crops (24)    | 444.4         | 430.7          | 436.0             | −64 %      |
+| 3 crops (278)   | 902.3         | 884.0          | 823.1             | 77 %       |
+| 4 crops (662)   | 705.9         | 690.8          | 625.9             | 81 %       |
+| 5 crops (2,206) | 804.6         | 789.4          | 743.6             | 75 %       |
 
-The learned policy is within 1 % of the optimum on 63 % of held-out fields and trails the
-year-by-year rule on 27 %; its mean shortfall from the optimum is 12.6 USD per acre. It is an
-approximation: where the exact plan is affordable, use it. By state (at least 50 held-out
-fields) the gap closed is 100 % in Pennsylvania, 98 % in New York, 94 % in Texas and 83 % in
-Iowa, but 24 % in North Dakota, 65 % in Michigan and 66 % in Ohio
-(`policy_usa_v3/report.json`, `heldOut.byRegion`). North Dakota's figure reflects how little
-rotation is worth there, not a larger shortfall (see Next changes).
+The learned policy is within 1 % of the optimum on 51 % of held-out fields and trails the
+year-by-year rule on 41 %; its mean shortfall from the optimum is 15.5 USD per acre (on 2,000
+training fields: 81 % of the gap closed, 12.9 USD). It is an approximation: where the exact plan
+is affordable, use it. By state (at least 50 held-out fields) the gap closed is 95 % in Kansas
+and Pennsylvania, 94 % in Illinois, 93 % in Missouri, 89 % in Iowa and 74 % in Texas, but 19 % in
+North Dakota, 34 % in New Mexico, 57 % in Minnesota and 69 % in Ohio (`policy_usa_v6/report.json`,
+`heldOut.byRegion`). In Arizona the optimum is the year-by-year rule (alfalfa every year), so
+there is no gap to close, and in New Mexico and Washington the gap is under 8 USD/acre. North
+Dakota's figure reflects how little rotation is worth there, not a larger shortfall (see Next
+changes).
+
+`policy_usa_v5`, the same run without the gates, closed 79 % (optimum 1,055.9, learned 1,041.9,
+year-by-year rule 989.8). The gates take 266 USD/acre off the held-out optimum, mostly in
+Wisconsin (5,581 to 982 on the training fields) and Michigan (2,866 to 716), where v5 planned
+potatoes on fields the irrigation map shows as dryland, and in California (3,870 to 3,074),
+where it planned rice outside the Sacramento Valley.
+
+The values are about five times those of `policy_usa_v3` (optimum 161.6, learned 149.1,
+year-by-year rule 59.2, 88 % closed), and are not comparable. Before the gates, two crops
+carried most of the rise:
+
+- **Potatoes** added 355 of v5's 1,056 USD: without them the held-out optimum was 701. In
+  Wisconsin they lifted the optimum from 666 to 6,060 and in Michigan from 690 to 3,486, mostly
+  on dryland fields at irrigated yields. The gates remove most of this.
+- **Alfalfa** adds 257: without it the optimum was 799. Most of that is in the West, now that its
+  seeding year is charged once (Washington 602 to 3,387, New Mexico −563 to 2,620, Arizona 1,700
+  to 3,167, Kansas −48 to 681). The gates leave it, and it is now the largest unverified term
+  (see the strategy check under Checked against real fields).
+
+The rest comes from planning one year, 2027, at its trend yields and USDA outlook prices,
+instead of drawing among 1981–2025 at each year's own yields.
 
 The earlier `policy_usa` (before irrigation, year-specific costs, the soil loss charge and the
 new crops) closed 89 % (optimum 309.0, learned 303.3, year-by-year rule 258.8; within 1 % on 68 %). The
@@ -215,11 +253,13 @@ two scripts:
   through Y − 1 and prices are those known then (see The planning year). It takes the
   planner's crop for Y from the exact optimum of the field's table, which the trained policy
   approximates. The outcome of Y comes from a second model that sees Y, priced at the real
-  marketing-year price of Y. The results below are from the earlier run, which hid the CDL
-  labels only and drew Y among the possible years; they need a rerun.
+  marketing-year price of Y (the US price where the state's series stops early, as Iowa's wheat
+  does). The results below are from the v6 code of 15 November 2026, with the potato and rice
+  gates.
 - `scripts/validate_against_fields.py` compares that crop with what the field and its
   neighbours grew and earned. The neighbours are 120,276 fields of 25 acres or more from the
-  FieldSense `usa_sample_v3` sample. Results are in `data/local/planner/validation/report.json`.
+  FieldSense `usa_sample_v3` sample. Results are in
+  `data/local/planner/validation_v6/report.json`.
 
 No field has a measured yield, so a field's yield is estimated from its MODIS peak NDVI:
 
@@ -230,50 +270,201 @@ No field has a measured yield, so a field's yield is estimated from its MODIS pe
   yields;
 - crops are CDL labels: satellite estimates, not farmer records.
 
-| Test                                                                                                                                                                                                                    | Result                                                                                                                                                                           |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Picks the crop the farm grew (2,344 field-years where the planner models that crop)                                                                                                                                     | planner 23 %, best single year 34 %, repeat last crop 38 %, corn–soybean rotation 50 %; the county's most common crop after the same crop gets 61 % (of all 3,577)               |
-| Planner picks corn or soybeans; neighbours in the same county and year that came off the same crop, median 28 farms (310 field-years). Did those that grew the planner's crop earn more than those that grew the other? | yes in 63 % of cases, by 57 USD/acre on average; going with the neighbours' majority: 54 %                                                                                       |
-| Expected corn − soybean cash against the difference those neighbours realised (626 field-years)                                                                                                                         | sign right 61 %, correlation 0.39, mean absolute error 123 USD/acre                                                                                                              |
-| The model's yield of the year for the crop grown against the field estimate                                                                                                                                             | corn 9.3 % mean absolute error (the plain county yield: 7.1 %), soybeans 12.9 % (12.1 %); the model's field adjustments do not move with the field's greenness (r = 0.02, −0.07) |
-| Corn after soybeans against corn after corn                                                                                                                                                                             | observed +0.4 %, planner +10.5 %. NDVI saturates in corn canopies, so the estimate cannot see this effect.                                                                       |
-| Soybeans after corn against soybeans after soybeans                                                                                                                                                                     | observed +6.8 % between fields of a county and year, +1.1 % within the same fields; planner +0.9 % in yield, with soybean cyst nematode charged as risk points instead           |
+| Test                                                                                                                                                                                                                    | Result                                                                                                                                                                               |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Picks the crop the farm grew (2,345 field-years where the planner models that crop)                                                                                                                                     | planner 26 %, best single year 35 %, repeat last crop 38 %, corn–soybean rotation 50 %; the county's most common crop after the same crop gets 61 % (of all 3,577)                   |
+| Planner picks corn or soybeans; neighbours in the same county and year that came off the same crop, median 28 farms (343 field-years). Did those that grew the planner's crop earn more than those that grew the other? | yes in 50 % of cases, by 23 USD/acre on average (median 2); going with the neighbours' majority: 50 %                                                                                |
+| Expected corn − soybean cash against the difference those neighbours realised (626 field-years)                                                                                                                         | sign right 45 %, correlation −0.15, mean absolute error 239 USD/acre; within a year (the year's mean taken out) correlation 0.35: 0.40 in 2021, 0.50 in 2022, 0.23 in 2023           |
+| The model's yield of the year for the crop grown against the field estimate                                                                                                                                             | corn 9.0 % mean absolute error (the plain county yield: 7.1 %), soybeans 13.6 % (12.1 %); the model's field adjustments do not move with the field's greenness (r = 0.03, 0.00)      |
+| Corn after soybeans against corn after corn                                                                                                                                                                             | observed +0.4 %, planner +4.7 %. NDVI saturates in corn canopies, so the estimate cannot see this effect.                                                                            |
+| Soybeans after corn against soybeans after soybeans                                                                                                                                                                     | observed +6.8 % between fields of a county and year, +1.1 % within the same fields; planner +11.1 % (FieldSense's soybean repeat factor 0.88–0.92, with cyst nematode points on top) |
+
+The earlier run, which hid only the CDL labels and let the model draw the outcome year among
+about 45, scored 63 % against the neighbours' 54 % and a correlation of 0.39. Most of that came
+from the leak. Planned ex ante, the corn − soybean call is a coin toss across years, because the
+year's price surprise moves every field the same way and the hindcast forecasts it from the
+September price of Y − 1:
+
+- 2021 was planned on September 2020's low corn price: expected −55 USD/acre for corn over
+  soybeans, realised +160.
+- 2023 was planned on September 2022's high one: expected +258, realised −99.
+
+Within a year the model ranks the fields the right way round (0.35).
+
+**With USDA's outlooks (v7).** The live plan uses USDA's November WASDE and baseline (see The
+planning year). The archived ones of 2020–2022 are now on file, so the same 3,594 field-years
+were planned again with the outlooks known each autumn. Results are in
+`data/local/planner/validation_v7/report.json`.
+
+| Test (corn − soybean call: 626 field-years; first-year cash: where planner and farm differ) | September price (v6) | USDA outlook (v7) |
+| ------------------------------------------------------------------------------------------- | -------------------- | ----------------- |
+| Planner's crop earned more than the other, among neighbours                                 | 50 %                 | 51 %              |
+| Sign of the expected corn − soybean difference right                                        | 45 %                 | 46 %              |
+| Correlation, expected against realised                                                      | −0.15                | −0.06             |
+| Correlation within a year                                                                   | 0.35                 | 0.36              |
+| Mean absolute error, USD/acre                                                               | 239                  | 199               |
+| Expected corn − soybean, 2021 / 2022 / 2023 (realised +160 / +96 / −99)                     | −55 / +136 / +258    | −24 / +54 / +166  |
+| Planner − farm, first-year cash, mean (median), USD/acre                                    | +87 (60), 1,736      | +95 (70), 1,785   |
+| Myopic − farm, mean, USD/acre                                                               | +85                  | +105              |
+| Picks the farm's crop                                                                       | 17 %                 | 16 %              |
+| Iowa / Illinois / Ohio, planner − farm                                                      | −262 / −123 / −60    | −242 / −121 / −81 |
+
+The outlooks cut the forecast error by a sixth. The 2023 miss on corn over soybeans falls from
+357 to 265 USD/acre, while 2022 turns from 40 over to 42 under. The corn-or-soybean call still
+does not beat the neighbours' majority (50 %), and the Corn Belt losses stay. So in the Corn
+Belt the September price was not the main cause. The risk and rotation credits that move the
+planner off corn are the next thing to calibrate; the risk weight (20 USD per point) is a guess.
+The planner picks cotton more often (281 against 184 field-years) and corn less (736 against
+829).
 
 Where the planner parts from the farms:
 
-- **Alfalfa and small grains:** it picks alfalfa on 26 % of field-years (the farms: 8 %), winter
-  wheat on 14 % and oats on 7 %.
-- **Long-run choices:** on 877 of 3,577 field-years the multi-year optimum differs from the best
-  single year. It gives up 128 USD/acre of expected first-year cash for rotation, soil-carbon
+- **Alfalfa and winter wheat:** it picks alfalfa on 26 % of field-years (the farms: 7.5 %) and
+  winter wheat on 12 % (7.4 %). Corn is 23 % (22 %) and soybeans 17 % (19 %); oats 2 %.
+- **Long-run choices:** on 859 of 3,577 field-years the multi-year optimum differs from the best
+  single year. It gives up 145 USD/acre of expected first-year cash for rotation, soil-carbon
   (50 USD/t) and risk-point credits that pay later.
 - **The actual year:** the model's own accounts use that year's yields, prices and costs. In them,
-  where the two differ, the planner's crop earns 155 USD/acre more than the farm's on average. It
-  earns less in Iowa (−98) and Illinois (−91), where it trades corn and soybeans for alfalfa, oats
-  and winter wheat.
-- **Its largest gains** are where its inputs are weakest:
-  - sugarbeets in Minnesota (+753) and potatoes in Wisconsin (+2,099), which have thin budgets;
-  - rice in California (+733);
-  - oats instead of cotton in Texas (+185), where cotton earns lint only.
-
+  where the two differ (1,736 field-years), the planner's crop earns 87 USD/acre more than the
+  farm's on average (median 60, ahead on 60 %; 161 before the gates). It earns less in Iowa (−262), Indiana (−138),
+  Illinois (−123) and Ohio (−60), where it trades corn for winter wheat and alfalfa.
+- **Its largest gains** are where its inputs are weakest: alfalfa in California (+940), New
+  Mexico (+722) and Washington (+634), and rice in the Sacramento Valley (+778); see below and
+  the strategy check. With the gates, Wisconsin fell from +1,162 to +144 and Michigan from +784
+  to −34 USD/acre.
   Contracts, processors, water rights and equipment, which the model does not know, also keep
   farms off some of these crops.
 
-So, on the corn-or-soybean decision the plan beats the neighbours' majority (63 % against 54 %).
-It does not predict what farms grow, its field-level yield adjustments are not borne out by
-greenness, and it diverges most where its budgets are least verified.
+So, planned ex ante, the planner neither predicts what farms grow nor beats the neighbours'
+majority on the corn-or-soybean call. Within a year it ranks fields about right, its field-level
+yield adjustments are not borne out by greenness, and it diverges most where its budgets are
+least verified.
+
+Where the inputs changed (outcome years 2021–2023, model accounts of the year; v6 with the
+gates, v5 before them):
+
+| Crop and place                           | Planner picks, v6 (v5) | Farms grew | Both, v6 (v5) | Planner − farm, USD/acre, v6 (v5) |
+| ---------------------------------------- | ---------------------- | ---------- | ------------- | --------------------------------- |
+| Rice, California                         | 39 of 147 (134)        | 3          | 3 (3)         | +778 (+1,060)                     |
+| Rice, AR, LA, MO, MS, TX                 | 29 of 561 (36)         | 24         | 2 (2)         | −172 (−158)                       |
+| Alfalfa, AZ, CA, NM, NV, UT              | 190 of 285 (95)        | 56         | 29 (21)       | +677 (+429)                       |
+| Potatoes, ID, ME, MI, MN, ND, OR, WA, WI | 29 of 840 (74)         | 16         | 6 (6)         | 2 field-years only (+3,435)       |
+| Cotton, 13 cotton states                 | 184 of 1,080 (182)     | 121        | 10 (10)       | +324 (+324)                       |
+
+- **Rice** is now offered only in the 119 rice counties: in California, 39 field-years in the
+  Sacramento Valley against 134 across the state before. It is still picked where the farms grew
+  it on 3.
+- **Potatoes** are now planned on irrigated fields and in the dryland states (Maine 26 of the 29
+  picks), and agree with the farms as often as before (6).
+- **Desert alfalfa** took most of the California field-years rice left: 190 picks against 95,
+  with 29 on fields that grew it (21 before). Its gain over the farm's crop, +677 USD/acre, rests
+  on the alfalfa budgets and county hay yields, which no field record checks. It is the largest
+  unverified gain left (see the strategy check below).
+- **Cotton** is priced with its cottonseed, and the planner picks it about as often as the
+  farms grow it, though rarely on the same fields.
 
 Limits of this check:
 
 - The yield estimate has the county yield at its centre, which favours the plain county yield
   in the yield test.
 - MODIS pixels are 250 m, so they mix small fields with their neighbours.
-- There are three outcome years only.
-- In the results above the model's drawn years include the outcome year among about 45
-  (fixed in `hindcast_fields.py`, not rerun yet).
-- Still not ex ante after the fix: the cost budgets are today's moved by the year's cost index,
-  the satellite crop, soil and greenness layers are today's, and outlooks are on file for the
-  live plan only, so past plans use the September-price forecast.
-- It tests the exact optimum of the current model, not the trained `policy_usa`.
+- There are three outcome years only, so the across-year numbers rest on three price surprises.
+- Still not fully ex ante: the cost budgets are today's moved by the year's cost index,
+  the satellite crop, soil and greenness layers are today's. The tables above are from the
+  September-price forecast (v6); the run with USDA's archived outlooks (v7) is compared above.
+- Each field plans over at most 5 crops, its state's most grown among those it can use
+  (`MAX_CROPS`).
+- 444 crop-years of the outcome side (Iowa wheat and other states whose price series stops
+  early) were re-priced at the US price after the run, with the fix now in `hindcast_fields.py`;
+  the planner's choices did not change.
+- It tests the exact optimum of the current model, not the trained `policy_usa_v6`.
+
+### Strategy check: fields that followed the plan
+
+`scripts/strategy_check.py` asks whether neighbours that grew the planner's three-year strategy
+did better than those that did not. Each of the 1,200 sampled fields is planned as in the
+autumn of 2020 (as in the hindcast). The optimal policy gives a probability for each crop
+sequence of 2021–2023, because later choices depend on the year drawn. The neighbours are the
+fields of 25 acres or more in the same county that grew the same crop in 2020.
+
+Each sequence is priced on the field as 2021–2023 turned out:
+
+- the observed county (else state) yield of each year;
+- the field's rotation and establishment effects from the rule model;
+- the realised marketing-year price, in constant dollars;
+- the year's budget cost.
+
+All sequences use the same tillage and cover per crop, so they differ by crop only.
+`scripts/strategy_report.py` summarises the result.
+
+The plan's prices are the USDA outlooks of autumn 2020: the February 2020 baseline moved by the
+November 2020 WASDE, in constant dollars, as the live plan uses them. The results are in
+`data/local/planner/strategy_v7/report.md`. The September-price forecast of the first run is in
+`data/local/planner/strategy/report.md`, shown in brackets.
+
+1,198 fields were planned and 852 have priced neighbours. USD/acre, summed over 2021–2023:
+
+| Plan includes                    | Fields    | Plan          | Neighbours' mean | Farm's own | Plan beats, of neighbours | Fields with followers | Followers vs others  |
+| -------------------------------- | --------- | ------------- | ---------------- | ---------- | ------------------------- | --------------------- | -------------------- |
+| All                              | 852       | 569 (546)     | 301              | 317        | 62 % (60 %)               | 147 (136)             | 793 vs 405, 90 % win |
+| Alfalfa, West                    | 91 (94)   | 1,615 (1,585) | 894              | 965        | 61 % (59 %)               | 24 (23)               | 1,816 vs 1,040, 88 % |
+| Alfalfa, elsewhere               | 223 (212) | 286 (271)     | −28              | 87         | 76 % (74 %)               | 22 (21)               | 669 vs 48, 95 %      |
+| Rice                             | 11 (33)   | 1,513 (789)   | 634              | 559        | 82 % (66 %)               | 1 (8)                 | 446 vs −4            |
+| Potatoes                         | 4         | 5,426         | 2,116            | 3,163      | 100 %                     | 0                     | none                 |
+| Corn Belt (IA IL IN MN MO NE OH) | 178 (181) | 496 (496)     | 662              | 663        | 29 % (28 %)               | 27 (24)               | 826 vs 702, 74 %     |
+
+The groups are exclusive, in the order shown. Keeping only sequences whose three yields are
+all observed (672 fields) changes little.
+
+The USDA outlooks hardly change the result. The February 2020 baseline (corn 3.40 USD/bu
+nominal for 2021) moved by the November 2020 WASDE (4.00) gives 4.51 USD/bu in 2025 dollars for 2021. The September-price forecast gave 4.39; corn realised 7.13. USDA did not see the 2021–2022
+rise either. Rice is planned on a third as many fields, because the outlook rice price is lower
+than the September forecast.
+
+Expected prices as known in the autumn before, against the realised marketing-year price (2025
+dollars; `prices.expected_us_price`):
+
+| Crop, unit       | Year | USDA outlook | September price forecast | Realised |
+| ---------------- | ---- | ------------ | ------------------------ | -------- |
+| Corn, USD/bu     | 2021 | 4.51         | 4.39                     | 7.13     |
+|                  | 2022 | 5.20         | 5.95                     | 7.19     |
+|                  | 2023 | 6.04         | 6.77                     | 4.81     |
+| Soybeans, USD/bu | 2021 | 11.20        | 11.44                    | 15.80    |
+|                  | 2022 | 12.39        | 13.53                    | 15.62    |
+|                  | 2023 | 13.32        | 14.31                    | 13.10    |
+| Rice, USD/cwt    | 2021 | 15.49        | 16.67                    | 19.13    |
+|                  | 2022 | 15.45        | 16.56                    | 21.78    |
+|                  | 2023 | 18.99        | 18.43                    | 18.28    |
+| Cotton, USD/lb   | 2021 | 0.78         | 0.71                     | 1.09     |
+|                  | 2022 | 0.92         | 0.82                     | 0.93     |
+|                  | 2023 | 0.79         | 0.86                     | 0.80     |
+
+The outlook is closer in 2023 (corn, soybeans, cotton) and further off in 2022 for corn,
+soybeans and rice. Neither forecast saw the 2021 jump.
+
+What this shows and what it does not:
+
+- **Where the inputs are best, the farms win.** In the Corn Belt the planner's sequences beat
+  only 28 % of the neighbours, and earn 165 USD/acre less than the neighbours' mean over three
+  years. The farms' corn and soybeans gained from the high prices of 2021–2022. The planner,
+  planning on the September 2020 price, traded them for winter wheat and alfalfa. This matches
+  the one-year check (Iowa −262 USD/acre).
+- **Where the gains are large, few farms followed.** In the West a neighbour grew one of the
+  plan's sequences on 23 of 94 fields. Elsewhere alfalfa had 21 of 212, rice 8 of 33 and
+  potatoes none. Where neighbours did follow, they earned more than the rest. Both sides are
+  priced on the same field by the same model, though, so this tests the forecast (expected
+  against realised yields and prices), not the budgets.
+- **The test cannot check the budgets.** The plan's lead in the West rests on the alfalfa
+  establishment and hay budgets and on county hay yields. Half of the western neighbours'
+  sequences cannot be priced, because they include vegetables, orchards and other crops outside
+  the field's plannable set. Farms that do not take a 700 USD/acre gain probably face what the
+  model leaves out: water rights, hay contracts and markets, equipment and labour.
+- **Potatoes and rice remain thin:** 4 and 33 fields.
+
+Limits: costs are budgets, not farm records; the rotation and establishment effects are the
+model's; yields are county or state means; crops are CDL labels (satellite estimates); and
+each field plans over at most 5 crops, its state's most grown among those it can use
+(`MAX_CROPS`), as in the trained policy.
 
 ## Week-by-week plan
 
@@ -595,18 +786,16 @@ the western states.
 - Tabular Q-learning needs far more episodes once the state tracks the year just experienced
   (200,000 episodes reached 96 % of the exact value on the example field; 20,000 reached 84 %).
 - Pest and disease pressure enters only through the rotation rules, as a deterministic effect.
-- The price outlook is in nominal dollars of its marketing year, the cost budgets in 2025
-  dollars. Peanuts, hay, sugarbeets, potatoes, the pulses and flax have no USDA outlook. A year's
+- The price outlook is moved from nominal into constant dollars with the CPI of its marketing
+  year (the latest table year, 2025, for a later year), the cost budgets are in 2025 dollars. Peanuts, hay, sugarbeets, potatoes, the pulses and flax have no USDA outlook. A year's
   cost index is still its real level over the history's mean, while prices are now over their
   trend, so the co-movement of costs and prices across drawn years is only approximate.
 - The current year (2026) has no drought signal in the year odds until its season summary is
   built.
-- `policy_usa_v3` and the tables it was trained on predate the price outlook and the timing
-  rule; a rebuild and retraining take them in.
 
 ## Next changes
 
-The tables of `policy_usa_v5` (built on 15 November 2026 from 20:27) take in the cottonseed
+The tables of `policy_usa_v5` (built on 15 November 2026 from 20:27, trained by 22:05) take in the cottonseed
 price, the cyst nematode change above, FieldSense's yield rules of that day (continuous corn
 0.94–0.97, rotation benefit 1.03–1.09, soybean repeat 0.88–0.92), the price outlook and timing
 rule, the irrigation labour of IWMS Table 20, the new soil carbon inputs and rice regions, and
@@ -619,6 +808,17 @@ three changes proposed by the earlier field check:
 - the seeding year of alfalfa follows the field's own budget (above), so desert alfalfa's
   seeding year is no longer charged twice.
 
+`policy_usa_v6` adds the two gates the v5 field check called for: potatoes only on irrigated
+fields outside the dryland potato states, and rice only in rice counties (both under Crops
+above). 68 of the 74 potato picks of v5 were on fields the irrigation map shows as dryland,
+and the irrigation map alone let rice onto every irrigated California field (134 of 147
+field-years). There was no time to rebuild before the deadline, so `scripts/gate_tables.py`
+applied the gates to the v5 tables (tables_usa_v6). It removes the excluded crops' actions and
+inputs, and leaves the other rewards unchanged, since a crop's reward does not depend on which
+others are offered. Unlike a rebuild, a field does not get its state's next crop in the freed
+slot. The gates took rice off 689 fields (591 in California) and potatoes off 521 (203 in
+Wisconsin, 191 in Michigan), and dropped no field.
+
 Still open:
 
 1. Calibrate `Weights.risk_usd_per_point` (20, a guess) against what similar farms earned. Risk
@@ -627,12 +827,12 @@ Still open:
    `FieldTable.reweighted` gives the rewards under another weight; the policy must be retrained.
 2. Perhaps also drop the white mold points on soybeans after soybeans: the measured repeat drag
    probably holds them too, but less clearly than cyst nematode.
+3. Rebuild the tables with the gates, so a gated field gets its next crop in the freed slot.
 
-North Dakota's 24 % of the gap closed (`policy_usa_v3`) is a small denominator, not a weak
-policy: its exact optimum is only 15.6 USD/acre above the year-by-year rule over five years
-(−164.1 against −179.7), against 152.6 in Iowa and 209.3 in Minnesota. The learned policy's mean
-shortfall from the optimum there, 11.9 USD/acre, is that of Ohio (12.8) and Michigan (11.5) and
-half that of Iowa (25.4) and Minnesota (25.0). Spring wheat, soybeans, canola, the pulses and
-flax are close in value, so rotation earns little and many choices are near ties (the policy
-trails the year-by-year rule on 38 % of the state's fields). Read the gap closed together with
-the shortfall in USD.
+North Dakota's 19 % of the gap closed (`policy_usa_v6`; 28 % in v5, 24 % in `policy_usa_v3`) is
+a small denominator, not a weak policy: its exact optimum is only 26.4 USD/acre above the
+year-by-year rule over five years (120.9 against 94.5), against 131.8 in Iowa and 63.9 in
+Minnesota. The learned policy's mean shortfall from the optimum there, 21.4 USD/acre, is close
+to that of Ohio (16.3) and Iowa (13.9) and below Minnesota's (27.3). Spring wheat, soybeans, alfalfa, the pulses
+and flax are close in value, so rotation earns little and many choices are near ties. Read the
+gap closed together with the shortfall in USD.

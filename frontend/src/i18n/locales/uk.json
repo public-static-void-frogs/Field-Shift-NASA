@@ -893,6 +893,7 @@
   "A rule relies on crop values that still need expert review.": "Одне з правил спирається на показники культури, які ще потребують перевірки фахівцем.",
   "Growth-stage dates are approximate, not from this state’s crop reports.": "Дати фаз розвитку приблизні, а не зі звітів про посіви цього штату.",
   "No yield estimate is available for this crop here.": "Для цієї культури тут немає оцінки урожайності.",
+  "A heat or drought rule was skipped because most of this crop in the county is irrigated.": "Правило щодо спеки або посухи пропущено, бо більшість посівів цієї культури в окрузі зрошується.",
   "The price is not local to this state.": "Ціна не є місцевою для цього штату.",
   "Weather risks were not checked for this crop.": "Погодні ризики для цієї культури не перевірено.",
   "A weather rule was skipped because this crop has no date for that growth stage.": "Погодне правило пропущено, бо для цієї культури немає дати відповідної фази розвитку.",

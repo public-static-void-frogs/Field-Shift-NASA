@@ -22,6 +22,12 @@ the 1980s are not drawn as high-price years just for being early. With a plan ye
 persistence forecast from the September price; only marketing years through plan_year - 2 are
 used. Without one, or without either, the rule engine's planning price is the expected price.
 
+A yield series with fewer than 3 observations in the 10 years before the planned season has ended
+(NASS stopped publishing Iowa sorghum after 1984, and many southern county corn and soybean
+yields in the 1990s) and is not used: the crop then takes the next level (state series, then the
+reference yield), and without one it is not planned (gap `no_yield`). A trend is fitted to 10 or
+more observations; with fewer, the level is the mean of the recent ones.
+
 Prices and state yields come from planner/data/nass_long_history.csv (since 1980, every state)
 where it has the series, otherwise from the rule engine's nass_reference_history.csv.
 
@@ -64,7 +70,13 @@ from rule_engine.planner.tables import (
 LONG_HISTORY_CSV = Path(__file__).parent / "data" / "nass_long_history.csv"
 CPI_CSV = Path(__file__).parent / "data" / "cpi_u.csv"  # BLS CPI-U, all items, 1982-84 = 100
 COUNTY_COLUMNS = {"corn": "yield_corn_bu_ac", "soybeans": "yield_soy_bu_ac"}
-MIN_TREND_POINTS = 5
+MIN_TREND_POINTS = 10
+# NASS stopped publishing some yields (Iowa sorghum after 1984; county corn and soybeans across
+# much of the South in the 1990s). A series with fewer than MIN_RECENT_YIELDS observations in the
+# RECENT_YIELD_YEARS before the planned season is not today's yield level, and its trend is not
+# extended to now.
+RECENT_YIELD_YEARS = 10
+MIN_RECENT_YIELDS = 3
 
 
 @dataclass(frozen=True)
@@ -101,6 +113,18 @@ class CropBasis:
     # {year: detrended real September price}, known before the plan: the price signal of the
     # year just experienced (chance.py)
     harvest_levels: dict = field(default_factory=dict, hash=False, compare=False)
+
+
+def _current(observed: dict[int, float], planned: int) -> dict[int, float]:
+    """The part of a yield series that says what the crop yields now; {} when the series ended.
+
+    With too few points for a trend only the recent ones are kept, so the level is their mean
+    and an old yield is not read as a bad year against it.
+    """
+    recent = {y: v for y, v in observed.items() if planned - y <= RECENT_YIELD_YEARS}
+    if len(recent) < MIN_RECENT_YIELDS:
+        return {}
+    return observed if len(observed) >= MIN_TREND_POINTS else recent
 
 
 def _trend(points: dict[int, float]):
@@ -234,6 +258,7 @@ class YearSampler:
         self.unavailable: dict[str, str] = {}
         prices: dict[str, dict[int, float]] = {}
         anomalies: dict[str, dict[int, float]] = {}
+        planned = trend_year or max(seasons or (int(r["year"]) for r in rows)) + 1
         for crop_id in crops:
             quote = advisor.reference.price(crop_id, context.region)
             if quote is None:
@@ -249,21 +274,26 @@ class YearSampler:
 
             observed: dict[int, float] = {}
             level = "reference"
+            ended = False
             column = COUNTY_COLUMNS.get(crop_id)
             if column:
-                observed = {
+                published = {
                     y: float(s.scalars[column])
                     for y, s in seasons.items()
                     if (s.scalars.get(column) or 0) > 0  # NASS zero is "not reported", not a yield
                 }
-                level = "county"
+                observed, level = _current(published, planned), "county"
+                ended = bool(published) and not observed
             if not observed:
-                observed, y_unit, geography = _series(rows, "yield", crop_id, context.region)
-                level = "state"
-                if observed and (geography != context.region or unit_kind(y_unit) != unit):
-                    observed = {}  # another state's yield level is not this field's
+                published, y_unit, geography = _series(rows, "yield", crop_id, context.region)
+                if geography != context.region or unit_kind(y_unit) != unit:
+                    published = {}  # another state's yield level is not this field's
                 if plan_year is not None:  # final yields of the seasons before the plan
-                    observed = {y: v for y, v in observed.items() if y < plan_year}
+                    published = {y: v for y, v in published.items() if y < plan_year}
+                observed, level = _current(published, planned), "state"
+                ended = ended or (bool(published) and not observed)
+            if ended:
+                notes.append("yield_history_ended")
             verified = True
             if observed:
                 trend = _trend(observed)

@@ -41,6 +41,19 @@ CROPS = (
     "millet",
 )
 NEEDS_IRRIGATION = frozenset({"rice"})  # flooded paddies: not planned on a dryland field
+# Potatoes are irrigated in the West, Wisconsin and Michigan, and their yields and budgets there
+# are irrigated ones; they are planned on dryland only in the states that grow them dryland
+# (Maine, the Red River Valley, New York, Pennsylvania).
+DRYLAND_STATES = {"potatoes": frozenset({"ME", "MN", "ND", "NY", "PA"})}
+
+
+def needs_irrigation(crop: str, state: str | None) -> bool:
+    """True when `crop` is planned only on an irrigated field in `state`."""
+    if crop in NEEDS_IRRIGATION:
+        return True
+    return crop in DRYLAND_STATES and state not in DRYLAND_STATES[crop]
+
+
 NATIONAL = "U.S. total"
 # Field passes of each tillage system, priced at the region's custom rates (costs_tillage.csv).
 # For drilled crops "strip_till" stands for reduced tillage: one disk pass.
@@ -109,11 +122,14 @@ def processor_counties() -> dict[str, frozenset[str]]:
     factory (sugarbeets, potatoes, sugarcane). processor_counties.csv is copied from the FieldSense
     planner (its scripts/build_processor_counties.py: CDL 2021-2025 on the usa_sample_v3 fields,
     counties where the crop holds at least 0.5 % of the sampled acres). Alfalfa, sold as hay
-    within trucking distance, is limited the same way to the counties of hay_counties.csv
-    (scripts/build_hay_counties.py)."""
+    within trucking distance, is limited the same way to the counties of hay_counties.csv, and
+    rice, which needs paddy soils, water rights and a mill, to those of rice_counties.csv
+    (both scripts/build_hay_counties.py)."""
     found: dict[str, set[str]] = {}
-    hay = DATA / "hay_counties.csv"
-    for r in _rows("processor_counties.csv") + (_rows(hay.name) if hay.exists() else []):
+    rows = _rows("processor_counties.csv")
+    for name in ("hay_counties.csv", "rice_counties.csv"):
+        rows += _rows(name) if (DATA / name).exists() else []
+    for r in rows:
         found.setdefault(r["crop"], set()).add(r["county_fips"].zfill(5))
     return {crop: frozenset(counties) for crop, counties in found.items()}
 

@@ -37,12 +37,12 @@ from rule_engine.planner.tables import (
     COVER,
     CROPS,
     DRILLED,
-    NEEDS_IRRIGATION,
     TILLAGE,
     CostTable,
     ers_region,
     load_adjustments,
     load_carbon_inputs,
+    needs_irrigation,
     processor_counties,
     state_crop_shares,
     t_ha_per,
@@ -131,7 +131,7 @@ class RotationModel:
         for crop in wanted:
             if crop not in candidates:
                 self.gaps.append({"code": "crop_not_candidate", "crop": crop})
-            elif crop in NEEDS_IRRIGATION and not irrigated:
+            elif needs_irrigation(crop, context.region) and not irrigated:
                 self.gaps.append({"code": f"{crop}_needs_irrigation", "crop": crop})
             elif (
                 crop in processors
@@ -141,7 +141,10 @@ class RotationModel:
                 # sold under contract to a nearby factory, or as hay within trucking distance:
                 # planned only where the county grows it (CDL, a satellite estimate) or the
                 # field itself grew it
-                code = "no_hay_market_nearby" if crop == "alfalfa" else "no_processor_nearby"
+                code = {
+                    "alfalfa": "no_hay_market_nearby",
+                    "rice": "not_a_rice_county",
+                }.get(crop, "no_processor_nearby")
                 self.gaps.append({"code": code, "crop": crop})
             elif crop not in self.costs.crops:
                 self.gaps.append({"code": "no_cost_budget", "crop": crop})

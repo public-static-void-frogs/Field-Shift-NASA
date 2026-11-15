@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 from rule_engine.catalog import load_catalog
@@ -88,3 +89,49 @@ class RuleTests(unittest.TestCase):
         self.assertFalse(applies(by_id["erosion_protection_benefit"], corn, self.catalog))
         self.assertTrue(applies(by_id["legume_n_credit"], corn, self.catalog))
         self.assertFalse(applies(by_id["legume_n_credit"], soy, self.catalog))
+
+    def test_heat_and_drought_rules_gate_on_irrigation_and_except_crops_excludes(self):
+        by_id = {rule.id: rule for rule in self.rules.rules}
+        heat = by_id["heat_at_flowering"]
+        self.assertTrue(applies(heat, self.catalog.crops["corn"], self.catalog))
+        selector = {**heat.applies_to, "except_crops": ["corn"]}
+        self.assertFalse(
+            applies(replace(heat, applies_to=selector), self.catalog.crops["corn"], self.catalog)
+        )
+        gated = (
+            "heat_at_flowering",
+            "warm_days_at_flowering",
+            "drought_in_critical_stage",
+            "drought_monitor_critical_stage",
+        )
+        for rule_id in gated:
+            self.assertEqual(
+                by_id[rule_id].unless, (Condition("county.irrigated_share", "ge", 0.5),)
+            )
+
+    def test_hazard_rule_rejects_when_and_null_unless(self):
+        hazard = """
+version: "t"
+rules:
+  - id: bad
+    title: Bad
+    category: water
+    applies_to: {{crops: [corn]}}
+{extra}
+    hazard: {{stage: flowering, window_days: [0, 1], metric: pr_mm, aggregate: sum,
+              compare: ge, threshold: 1}}
+    effect: {{kind: risk, level_bands: {{high: 0.5, medium: 0.25, low: 0.0}}}}
+    evidence_strength: weak
+"""
+        for extra in (
+            "    when:\n      - {fact: county.irrigated_share, op: ge, value: 0.5}",
+            "    unless:\n      - {fact: county.irrigated_share, op: is_null}",
+            "    applies_to: {except_crops: [corn]}",
+        ):
+            text = hazard.format(extra=extra)
+            if "except_crops" in extra:
+                text = text.replace("    applies_to: {crops: [corn]}\n", "")
+            with tempfile.TemporaryDirectory() as folder:
+                (Path(folder) / "x.yaml").write_text(text)
+                with self.assertRaises(RuleError, msg=extra):
+                    load_rules(Path(folder))

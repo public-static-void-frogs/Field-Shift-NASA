@@ -55,3 +55,75 @@ cotton,2028,baseline,0.670,usd/lb,"USDA Agricultural Projections to 2035 (OCE-20
 cotton,2029,baseline,0.680,usd/lb,"USDA Agricultural Projections to 2035 (OCE-2026-1), Table 15 farm price",2026-02,https://ers.usda.gov/media/20856/oce-2026-1.pdf
 cotton,2030,baseline,0.690,usd/lb,"USDA Agricultural Projections to 2035 (OCE-2026-1), Table 15 farm price",2026-02,https://ers.usda.gov/media/20856/oce-2026-1.pdf
 cotton,2031,baseline,0.690,usd/lb,"USDA Agricultural Projections to 2035 (OCE-2026-1), Table 15 farm price",2026-02,https://ers.usda.gov/media/20856/oce-2026-1.pdf
+corn,2020,baseline,3.40,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 5 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+corn,2021,baseline,3.40,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 5 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+soybeans,2020,baseline,8.85,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 10 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+soybeans,2021,baseline,8.45,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 10 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+wheat,2020,baseline,4.80,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 9 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+wheat,2021,baseline,4.90,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 9 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+sorghum,2020,baseline,3.00,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 6 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+sorghum,2021,baseline,3.00,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 6 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+barley,2020,baseline,4.30,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 7 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+barley,2021,baseline,4.30,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 7 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+oats,2020,baseline,2.50,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 8 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+oats,2021,baseline,2.50,usd/bu,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 8 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+rice,2020,baseline,11.70,usd/cwt,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 11 average farm price (total rice)",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+rice,2021,baseline,12.20,usd/cwt,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 11 average farm price (total rice)",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+cotton,2020,baseline,0.620,usd/lb,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 14 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+cotton,2021,baseline,0.640,usd/lb,"USDA Agricultural Projections to 2029 (OCE-2020-1), Table 14 farm price",2020-02,https://www.ers.usda.gov/media/10228/oce-2020-1.pdf
+corn,2021,baseline,3.65,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 6 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+corn,2022,baseline,3.60,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 6 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+soybeans,2021,baseline,10.00,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 11 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+soybeans,2022,baseline,9.90,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 11 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+wheat,2021,baseline,4.90,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 10 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+wheat,2022,baseline,4.95,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 10 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+sorghum,2021,baseline,3.80,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 7 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+sorghum,2022,baseline,3.75,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 7 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+barley,2021,baseline,4.60,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 8 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+barley,2022,baseline,4.55,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 8 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+oats,2021,baseline,2.70,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 9 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+oats,2022,baseline,2.65,usd/bu,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 9 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+rice,2021,baseline,13.20,usd/cwt,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 12 average farm price (total rice)",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+rice,2022,baseline,13.00,usd/cwt,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 12 average farm price (total rice)",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+cotton,2021,baseline,0.630,usd/lb,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 15 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+cotton,2022,baseline,0.655,usd/lb,"USDA Agricultural Projections to 2030 (OCE-2021-1), Table 15 farm price",2021-02,https://www.ers.usda.gov/media/10322/oce-2021-1.pdf
+corn,2022,baseline,4.80,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 6 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+corn,2023,baseline,4.50,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 6 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+soybeans,2022,baseline,10.50,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 11 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+soybeans,2023,baseline,10.35,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 11 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+wheat,2022,baseline,6.50,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 10 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+wheat,2023,baseline,6.00,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 10 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+sorghum,2022,baseline,4.70,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 7 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+sorghum,2023,baseline,4.45,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 7 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+barley,2022,baseline,5.15,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 8 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+barley,2023,baseline,4.90,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 8 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+oats,2022,baseline,3.30,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 9 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+oats,2023,baseline,3.15,usd/bu,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 9 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+rice,2022,baseline,14.10,usd/cwt,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 12 average farm price (total rice)",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+rice,2023,baseline,14.20,usd/cwt,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 12 average farm price (total rice)",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+cotton,2022,baseline,0.800,usd/lb,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 15 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+cotton,2023,baseline,0.720,usd/lb,"USDA Agricultural Projections to 2031 (OCE-2022-1), Table 15 farm price",2022-02,https://ageconsearch.umn.edu/record/323859/files/oce-2022-01.pdf
+corn,2020,wasde,4.00,usd/bu,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+soybeans,2020,wasde,10.40,usd/bu,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+wheat,2020,wasde,4.70,usd/bu,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price (all wheat)",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+sorghum,2020,wasde,4.05,usd/bu,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+barley,2020,wasde,4.55,usd/bu,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+oats,2020,wasde,2.70,usd/bu,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+rice,2020,wasde,12.90,usd/cwt,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price (total rice)",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+cotton,2020,wasde,0.64,usd/lb,"USDA WASDE-606, 2020/21 Proj. Nov, Avg. Farm Price",2020-11-10,https://web.archive.org/web/2021/https://www.usda.gov/oce/commodity/wasde/wasde1120.pdf
+corn,2021,wasde,5.45,usd/bu,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+soybeans,2021,wasde,12.10,usd/bu,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+wheat,2021,wasde,6.90,usd/bu,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price (all wheat)",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+sorghum,2021,wasde,5.45,usd/bu,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+barley,2021,wasde,5.15,usd/bu,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+oats,2021,wasde,3.65,usd/bu,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+rice,2021,wasde,14.80,usd/cwt,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price (total rice)",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+cotton,2021,wasde,0.90,usd/lb,"USDA WASDE-618, 2021/22 Proj. Nov, Avg. Farm Price",2021-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/wp989j89k/t148gj30v/wasde1121.txt
+corn,2022,wasde,6.80,usd/bu,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt
+soybeans,2022,wasde,14.00,usd/bu,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt
+wheat,2022,wasde,9.20,usd/bu,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price (all wheat)",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt
+sorghum,2022,wasde,6.65,usd/bu,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt
+barley,2022,wasde,7.30,usd/bu,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt
+oats,2022,wasde,5.50,usd/bu,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt
+rice,2022,wasde,19.90,usd/cwt,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price (total rice)",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt
+cotton,2022,wasde,0.85,usd/lb,"USDA WASDE-630, 2022/23 Proj. Nov, Avg. Farm Price",2022-11-09,https://esmis.nal.usda.gov/sites/default/release-files/3t945q76s/3j334c74p/m039mf69w/wasde1122.txt

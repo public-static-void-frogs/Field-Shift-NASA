@@ -125,9 +125,16 @@ def outlooks() -> dict[tuple[str, int], list[dict]]:
     return out
 
 
-def _outlook(series: str, year: int, kind: str) -> float | None:
-    rows = [r for r in outlooks().get((series, year), []) if r["kind"] == kind]
-    return float(rows[0]["price_usd"]) if rows else None
+def _outlook(series: str, year: int, kind: str, as_of: str | None = None) -> float | None:
+    """The latest `kind` outlook for marketing year `year` published on or before `as_of`
+    (an ISO date; a published month YYYY-MM counts as its first day). A plan for P is made
+    in the autumn of P-1, so it sees only what was out by the end of November P-1."""
+    rows = [
+        r
+        for r in outlooks().get((series, year), [])
+        if r["kind"] == kind and (as_of is None or r["published"] <= as_of)
+    ]
+    return float(max(rows, key=lambda r: r["published"])["price_usd"]) if rows else None
 
 
 @dataclass(frozen=True)
@@ -170,16 +177,19 @@ def expected_us_price(
     sep = harvest_prices().get(crop, {})
     history = known(us_history, plan_year)
     if series:
-        base = _outlook(series, plan_year, "baseline")
+        as_of = f"{plan_year - 1}-11-30"
+        base = _outlook(series, plan_year, "baseline", as_of)
         if base is not None:
             # the baseline is older than the latest WASDE: carry the WASDE's departure from the
             # baseline for the current year forward with the measured persistence
             current, base_now = (
-                _outlook(series, plan_year - 1, "wasde"),
-                _outlook(series, plan_year - 1, "baseline"),
+                _outlook(series, plan_year - 1, "wasde", as_of),
+                _outlook(series, plan_year - 1, "baseline", as_of),
             )
             shift = (current / base_now) ** rho if current and base_now else 1.0
-            price = base * shift
+            # outlooks are nominal: into constant dollars of the latest CPI year, as the
+            # autoregressive price and the realised prices are (1.0 for a year past the table)
+            price = base * shift * cpi()[max(cpi())] / cpi_of(plan_year)
             detail = f"USDA baseline {plan_year}/{str(plan_year + 1)[2:]}"
             if shift != 1.0:
                 detail += f" x (Nov WASDE / baseline {plan_year - 1})^{rho:.2f}"

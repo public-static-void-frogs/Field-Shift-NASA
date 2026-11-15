@@ -153,9 +153,14 @@ class WeeklyPlannerTests(unittest.TestCase):
         self.assertIsNone(self.planner.cycle("corn", self.week(date(2027, 7, 25))))
         self.assertIsNotNone(self.planner.cycle("corn", self.week(date(2027, 5, 6))))
 
-    def test_nothing_is_planted_in_winter(self):
-        kinds = {move.kind for move, _ in self.planner.moves(self.planner.start_spot)}
-        self.assertEqual(kinds, {"wait"})
+    def test_no_spring_crop_is_planted_in_winter(self):
+        moves = [move for move, _ in self.planner.moves(self.planner.start_spot)]
+        self.assertIn("wait", {move.kind for move in moves})
+        planted = {move.action.crop: move.days_from_usual for move in moves if move.action}
+        # mid-November: only winter wheat, sown late at the yield its seeding-date trial gives
+        self.assertLessEqual(set(planted), {"winter_wheat"})
+        self.assertTrue(all(days > 0 for days in planted.values()))
+        self.assertIsNone(self.planner.cycle("winter_wheat", self.week(date(2027, 1, 10))))
 
     def test_plan_steps_fall_inside_the_planting_windows_and_the_plan(self):
         steps = [s for s in self.balanced.steps(alternatives=2) if "crop" in s]
